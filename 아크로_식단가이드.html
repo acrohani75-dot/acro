@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로한의원 · 다이어트 식사 가이드</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#eef2f0; --surface:#ffffff;
+    --ink:#16241f; --ink-soft:#46574f; --ink-faint:#7d8c84;
+    --green:#2f6b54; --green-deep:#1d4636; --green-soft:#e4efe9;
+    --amber:#cf7f33; --amber-soft:#f6ead9;
+    --navy:#3a4a63; --navy-soft:#eef1f6;
+    --line:#d6dedb; --line-strong:#bcc8c3;
+    --radius:18px; --maxw:980px;
+    --kr:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--kr); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.6; overflow:hidden;}
+
+  .stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:clamp(16px,3.5vw,48px) clamp(16px,4vw,64px) 92px;}
+  .slide{display:none; width:100%; max-width:var(--maxw); max-height:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 18px 48px -28px rgba(20,40,32,.35); padding:clamp(28px,4.4vw,56px); overflow-y:auto; animation:fade .42s ease both;}
+  .slide.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @media(prefers-reduced-motion:reduce){.slide{animation:none;}}
+
+  .eyebrow{display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  .badge{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 12px; border-radius:999px;}
+  .badge.amberb{color:#9a560f; background:var(--amber-soft); border-color:#ecd6b6;}
+  .badge.navyb{color:#fff; background:var(--navy); border-color:var(--navy);}
+  .sidx{font-size:.78rem; font-weight:600; color:var(--ink-faint); letter-spacing:.06em;}
+  h2{font-size:clamp(1.5rem,3.2vw,2.2rem); line-height:1.25; font-weight:800; letter-spacing:-.01em; color:var(--ink);}
+  h2 .accent{color:var(--green);}
+  h2 .amber{color:var(--amber);}
+  .kicker{font-size:.82rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--amber); margin-bottom:8px;}
+
+  .body{margin-top:18px;}
+  .body p{font-size:clamp(1rem,1.5vw,1.14rem); color:var(--ink-soft); margin-bottom:12px;}
+  .body strong{color:var(--ink); font-weight:700;}
+  .hl{color:var(--green-deep); font-weight:700; background:linear-gradient(transparent 58%, #cfe7dd 58%); padding:0 2px;}
+  .hl-amber{color:#9a560f; font-weight:700; background:linear-gradient(transparent 58%, var(--amber-soft) 58%); padding:0 2px;}
+  .lead{font-size:clamp(1.08rem,1.8vw,1.32rem)!important; color:var(--ink)!important; font-weight:600; line-height:1.5;}
+
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:16px 0;}
+  .duo.three{grid-template-columns:repeat(3,1fr);}
+  .duo.one{grid-template-columns:1fr;}
+  .card{border:1px solid var(--line); border-radius:12px; padding:16px 16px 18px; background:#fafcfb;}
+  .card h4{font-size:1.04rem; font-weight:800; margin-bottom:8px; color:var(--green-deep); display:flex; align-items:center; gap:7px;}
+  .card.amberc h4{color:#9a560f;}
+  .card p{font-size:.97rem; margin-bottom:0; color:var(--ink-soft);}
+  .card .kcal{font-weight:800; color:var(--amber);}
+  @media(max-width:680px){.duo,.duo.three{grid-template-columns:1fr;}}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0;}
+  .chip{font-size:.92rem; font-weight:600; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:6px 12px; border-radius:8px;}
+  .chip .k{color:var(--ink-faint); font-weight:600; margin-left:4px;}
+  .chip.warn{color:#9a560f; background:var(--amber-soft); border-color:#ecd6b6;}
+
+  .note{font-size:.9rem!important; color:var(--ink-faint)!important; border-top:1px dashed var(--line-strong); padding-top:12px; margin-top:16px;}
+
+  /* meal table */
+  table.meal{width:100%; border-collapse:collapse; margin:14px 0; font-size:.95rem;}
+  table.meal th, table.meal td{border:1px solid var(--line); padding:9px 12px; text-align:left; vertical-align:top;}
+  table.meal th{background:var(--green-soft); color:var(--green-deep); font-weight:700; white-space:nowrap; width:88px;}
+  table.meal td .k{display:inline-block; margin-left:6px; font-size:.82rem; color:var(--amber); font-weight:700;}
+  table.meal tr.total th{background:var(--green-deep); color:#eaf4ef;}
+  table.meal tr.total td{background:#f1f7f4; font-weight:800; color:var(--green-deep);}
+
+  /* portion / hand guide */
+  .flow{margin:16px 0; display:flex; flex-direction:column; gap:10px;}
+  .step{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); border-radius:12px; padding:13px 16px; background:#fafcfb;}
+  .step .n{flex:none; width:30px; height:30px; border-radius:50%; background:var(--green); color:#fff; font-weight:800; font-size:.95rem; display:flex; align-items:center; justify-content:center;}
+  .step.warn .n{background:var(--amber);}
+  .step .c{flex:1;}
+  .step .label{font-size:1.02rem; font-weight:800; color:var(--green-deep); margin-bottom:2px;}
+  .step.warn .label{color:#9a560f;}
+  .step .desc{font-size:.95rem; color:var(--ink-soft);}
+
+  /* warning panel */
+  .warnbox{border-left:4px solid var(--amber); background:#fbf7f1; padding:16px 18px; border-radius:0 12px 12px 0; margin:16px 0;}
+  .warnbox .tag{font-size:.78rem; font-weight:800; letter-spacing:.04em; color:#9a560f; text-transform:uppercase; margin-bottom:8px; display:flex; align-items:center; gap:7px;}
+  .warnbox p{font-size:.98rem; margin-bottom:6px;}
+  .symptoms{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px;}
+  .symptom{font-size:.86rem; font-weight:600; color:#9a560f; background:#fff; border:1px solid #ecd6b6; padding:5px 11px; border-radius:999px;}
+
+  .cover{text-align:center;}
+  .cover .mark{font-size:.9rem; font-weight:700; letter-spacing:.22em; color:var(--green); text-transform:uppercase; margin-bottom:20px;}
+  .cover .rule{width:54px; height:3px; background:var(--amber); border-radius:2px; margin:0 auto 22px;}
+  .cover h1{font-size:clamp(1.7rem,4.4vw,2.8rem); font-weight:800; line-height:1.22; letter-spacing:-.02em; margin-bottom:16px;}
+  .cover h1 .accent{color:var(--green);}
+  .cover .who{font-size:clamp(1.02rem,1.9vw,1.26rem); color:var(--ink-soft); font-weight:600;}
+  .cover .sub{font-size:1rem; color:var(--ink-faint); margin-top:22px; line-height:1.6;}
+  .cover .seclist{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:26px;}
+  .cover .seclist span{font-size:.9rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:7px 14px; border-radius:999px;}
+  .cover .jumphint{font-size:.92rem; color:var(--ink-faint); margin-top:26px;}
+  .cover .seclist.nav{margin-top:12px;}
+  .cover .seclist.nav span{cursor:pointer; transition:transform .12s ease, background .15s ease, box-shadow .15s ease; user-select:none;}
+  .cover .seclist.nav span:hover{background:var(--green); color:#fff; border-color:var(--green); transform:translateY(-1px); box-shadow:0 6px 14px -8px rgba(31,70,55,.6);}
+  .cover .seclist.nav span:active{transform:translateY(0);}
+  .cover .seclist.nav span:focus-visible{outline:3px solid #94c4b1; outline-offset:2px;}
+
+  .bar{position:fixed; left:0; right:0; bottom:0; height:64px; display:flex; align-items:center; gap:12px; padding:0 clamp(14px,3vw,28px); background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-top:1px solid var(--line); z-index:30;}
+  .progress{position:absolute; top:0; left:0; height:3px; background:var(--green); transition:width .3s ease;}
+  .btn{appearance:none; border:1px solid var(--line-strong); background:#fff; color:var(--ink); font-family:inherit; font-weight:600; font-size:.95rem; height:40px; min-width:40px; padding:0 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+  .btn:hover{background:var(--green-soft); border-color:#bcd5ca;}
+  .btn:focus-visible{outline:3px solid #94c4b1; outline-offset:2px;}
+  .btn.icon{padding:0; width:40px;}
+  .counter{font-size:.92rem; font-weight:700; min-width:58px; text-align:center;}
+  .counter .total{color:var(--ink-faint); font-weight:600;}
+  .spacer{flex:1;}
+  .pagetag{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 11px; border-radius:999px;}
+  @media(max-width:600px){.btn .lbl{display:none;}}
+
+  .toc-backdrop{position:fixed; inset:0; background:rgba(16,30,24,.5); display:none; z-index:40; align-items:center; justify-content:center; padding:20px;}
+  .toc-backdrop.open{display:flex;}
+  .toc{background:#fff; border-radius:16px; width:min(520px,100%); max-height:80vh; overflow-y:auto; padding:22px 22px 26px; box-shadow:0 24px 60px -20px rgba(16,30,24,.5);}
+  .toc h3{font-size:1.05rem; margin-bottom:4px;}
+  .toc .hint{font-size:.85rem; color:var(--ink-faint); margin-bottom:14px;}
+  .toc-item{display:flex; gap:10px; align-items:baseline; padding:9px 10px; border-radius:9px; cursor:pointer;}
+  .toc-item:hover{background:var(--green-soft);}
+  .toc-item .n{font-size:.78rem; font-weight:700; color:var(--ink-faint); min-width:34px;}
+  .toc-item .t{font-size:.97rem;}
+
+  .clinic{margin-top:18px; border-top:1px solid var(--line); padding-top:16px; display:flex; flex-direction:column; gap:5px; font-size:.95rem; color:var(--ink-soft);}
+  .clinic strong{color:var(--green-deep);}
+
+  /* illustrations */
+  .hero-art{width:min(280px,70%); margin:0 auto 8px; display:block;}
+  .sec-head{display:flex; align-items:center; gap:18px; margin-bottom:14px;}
+  .sec-head .txt{flex:1;}
+  .sec-art{flex:none; width:84px; height:84px;}
+  @media(max-width:560px){.sec-art{width:64px; height:64px;} .sec-head{gap:12px;}}
+  .ill .st{stroke:var(--green); stroke-width:6; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  .ill .sa{stroke:var(--amber); stroke-width:6; fill:none; stroke-linecap:round; stroke-linejoin:round;}
+  .ill .fg{fill:var(--green-soft);}
+  .ill .fa{fill:var(--amber-soft);}
+  .ill .fw{fill:#fff;}
+  .ill .fgd{fill:var(--green);}
+  .ill .fad{fill:var(--amber);}
+</style>
+</head>
+<body>
+
+<main class="stage" id="stage">
+
+  <!-- 0. COVER -->
+  <section class="slide cover active">
+    <div class="mark">ACRO DIET GUIDE</div>
+    <div class="rule"></div>
+    <svg class="hero-art ill" viewBox="0 0 240 150" role="img" aria-label="식사 가이드 일러스트">
+      <ellipse cx="120" cy="132" rx="92" ry="9" fill="#dfe8e3"/>
+      <circle cx="120" cy="72" r="54" class="fw" stroke="#cfe0d8" stroke-width="3"/>
+      <circle cx="120" cy="72" r="44" class="fg"/>
+      <path d="M120 72 L120 28 A44 44 0 0 1 158 94 Z" class="fad" opacity=".85"/>
+      <path d="M120 72 L158 94 A44 44 0 0 1 90 110 Z" class="fgd"/>
+      <circle cx="120" cy="72" r="13" class="fw"/>
+      <path d="M44 50 v44 M38 50 v16 a6 6 0 0 0 12 0 v-16" class="st"/>
+      <path d="M196 50 c-10 4 -10 24 0 28 v16" class="sa"/>
+      <circle cx="190" cy="40" r="6" class="fad"/>
+      <circle cx="58" cy="36" r="5" class="fgd"/>
+    </svg>
+    <h1>다이어트 <span class="accent">식사 가이드</span></h1>
+    <p class="who">아크로한의원 식이요법 안내자료</p>
+    <p class="sub">본 자료는 <strong>본원 식이요법을 진행 중인 분</strong>을 위한 안내자료입니다.<br>
+      혼자 판단해 따라 하기보다, 진료·상담을 통해 본인에게 맞는 방법을 확인하신 뒤 참고해 주세요.</p>
+    <p class="jumphint">아래 항목을 누르면 해당 섹션으로 바로 이동합니다.</p>
+    <div class="seclist nav">
+      <span data-go="1">1200kcal 식단</span>
+      <span data-go="4">단백질</span>
+      <span data-go="6">과일</span>
+      <span data-go="7">800kcal 식이요법</span>
+      <span data-go="10">외식</span>
+      <span data-go="11">배달음식</span>
+      <span data-go="12">술자리</span>
+      <span data-go="13">간식</span>
+    </div>
+  </section>
+
+  <!-- 1. 1200kcal -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge">하루 1200kcal</span><span class="sidx">S01</span></div>
+    <div class="kicker">1. 일반 감량 식단</div>
+    <div class="sec-head">
+      <div class="txt"><h2>하루 <span class="accent">1200kcal</span> 추천 식단</h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <path d="M14 44 a28 16 0 0 0 56 0 Z" class="fg"/>
+        <path d="M14 44 a28 16 0 0 1 56 0" class="st"/>
+        <path d="M22 38 q6 -8 12 0 M38 36 q6 -8 12 0 M50 39 q6 -7 11 0" class="sa" stroke-width="4"/>
+        <path d="M22 62 l40 0" class="st" stroke-width="4"/>
+      </svg>
+    </div>
+    <div class="body">
+      <p class="lead">밥 1/2공기 + 단백질 반찬 + 채소 반찬을 기본 구성으로, <span class="hl">아침·점심·저녁</span> 세 끼를 챙겨 드세요.</p>
+      <table class="meal">
+        <tr><th>아침</th><td>현미밥 1/2공기 · 계란찜 · 가지나물 · 배추김치 <span class="k">≈350kcal</span></td></tr>
+        <tr><th>점심</th><td>보리밥 1/2공기 · 미역국 · 불고기 120g · 배추김치 <span class="k">≈340kcal</span></td></tr>
+        <tr><th>저녁</th><td>현미밥 1/2공기 · 시금치된장국 · 갈치구이 · 콩나물 <span class="k">≈360kcal</span></td></tr>
+        <tr class="total"><th>하루 합계</th><td>약 1,050~1,120kcal</td></tr>
+      </table>
+      <p class="note">※ 음식의 칼로리는 재료와 1인 분량 기준에 따라 다를 수 있습니다. 구성을 참고하시되, 꾸준한 체중 측정을 통해 본인에게 적절한 식사량을 찾아가시길 권장드립니다. (요일별 상세 식단은 본원 인쇄용 식단표 참고)</p>
+    </div>
+  </section>
+
+  <!-- 1b. 1200kcal 대체식 / 눈대중 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge">하루 1200kcal</span><span class="sidx">S02</span></div>
+    <div class="kicker">1. 일반 감량 식단</div>
+    <div class="sec-head">
+      <div class="txt"><h2>분량 잡는 법 · <span class="accent">대체식</span></h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <path d="M30 70 V40 q0 -6 6 -6 t6 6 v-4 q0 -6 6 -6 t6 6 v4 q0 -6 6 -6 t6 6 v22 q0 8 -10 8 H40 q-10 0 -10 -8 Z" class="fg"/>
+        <path d="M30 48 q-8 2 -8 10 t8 12" class="st"/>
+        <path d="M30 70 V40 q0 -6 6 -6 t6 6 M42 38 q0 -6 6 -6 t6 6 M54 42 q0 -6 6 -6 t6 6 v22" class="st"/>
+      </svg>
+    </div>
+    <div class="body">
+      <h4 style="color:var(--green-deep);margin-bottom:6px;">양을 재기 어렵다면? 눈대중·손대중 계측법</h4>
+      <div class="duo">
+        <div class="card"><h4>🍚 밥 반 공기</h4><p>종이컵 1컵 분량</p></div>
+        <div class="card"><h4>🍗 육류 100g</h4><p>손가락을 제외한 손바닥 두께와 크기</p></div>
+      </div>
+      <h4 style="color:var(--green-deep);margin:18px 0 6px;">한 끼 대체식 예시</h4>
+      <div class="duo three">
+        <div class="card"><h4>🥗 샐러드식</h4><p>닭가슴살 샐러드 150g + 플레인 그릭요거트 100g <span class="kcal">·353kcal</span></p></div>
+        <div class="card"><h4>🌽 구황작물식</h4><p>찐단호박 100g + 삶은계란 2개 + 딸기 5개 <span class="kcal">·235kcal</span></p></div>
+        <div class="card"><h4>🍞 빵식</h4><p>통밀식빵 1개 + 스크램블에그 55g + 두유 <span class="kcal">·355kcal</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1c. 먹어도 부족할 때 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge">하루 1200kcal</span><span class="sidx">S03</span></div>
+    <div class="kicker">1. 일반 감량 식단</div>
+    <h2>먹어도 <span class="amber">부족할 땐?</span></h2>
+    <div class="body">
+      <div class="duo">
+        <div class="card"><h4>🥒 양이 모자라 포만감이 부족해요</h4><p>오이·셀러리·방울토마토처럼 칼로리가 낮은 채소로 허기를 채워 주세요.</p></div>
+        <div class="card amberc"><h4>🥤 배는 부른데 입맛이 당겨요</h4><p>탄산수·제로칼로리 음료로 입맛(탐닉적 식욕)을 낮춰 주세요.</p></div>
+      </div>
+      <div class="warnbox">
+        <div class="tag">⚠ 탐닉적 식욕 체크</div>
+        <p>· 특정 음식이 자꾸 당긴다 &nbsp; · 스트레스 받을 때 이것저것 먹고 싶다 &nbsp; · 배가 불러도 더 먹게 된다</p>
+        <p>위에 해당한다면 <strong>스트레스가 심하지 않은지, 잠을 잘 자고 있는지</strong> 먼저 확인해 주세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- N1. 단백질 ① 왜 중요 / 얼마나 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge">단백질 가이드</span><span class="sidx">S04</span></div>
+    <div class="kicker">2. 영양소 · 식품 가이드</div>
+    <div class="sec-head">
+      <div class="txt"><h2>단백질, <span class="accent">왜 중요할까</span></h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <ellipse cx="42" cy="76" rx="20" ry="3.2" fill="#000" opacity=".06"/>
+        <path d="M30 30 C20 40 22 56 34 60 C40 62 48 58 50 50 C52 42 60 40 58 32 C56 24 44 22 38 26 C35 27.5 32 28 30 30 Z" style="fill:var(--green-soft);stroke:var(--green);stroke-width:4.5;stroke-linejoin:round"/>
+        <path d="M33 56 L23 67" style="fill:none;stroke:var(--green);stroke-width:6;stroke-linecap:round"/>
+        <circle cx="21" cy="67" r="5.2" style="fill:#fff;stroke:var(--green);stroke-width:4.5"/>
+        <circle cx="24.5" cy="71" r="5.2" style="fill:#fff;stroke:var(--green);stroke-width:4.5"/>
+        <path d="M37 32 C34 34 34 39 37 41" style="fill:none;stroke:var(--amber);stroke-width:3.4;stroke-linecap:round"/>
+      </svg>
+    </div>
+    <div class="body">
+      <p class="lead">다이어트 중에도 단백질은 <span class="hl">충분히</span> 챙겨야 합니다. 줄이면 지방보다 근육부터 빠지거든요.</p>
+      <div class="duo three">
+        <div class="card"><h4>🥗 포만감 증가</h4><p>적게 먹어도 오래 든든해 자연스럽게 과식을 줄여 줍니다.</p></div>
+        <div class="card"><h4>💪 근육 유지</h4><p>감량 중 근손실을 막아 기초대사량을 지키고 요요를 늦춰 줍니다.</p></div>
+        <div class="card"><h4>💇 탈모 예방</h4><p>모발도 단백질이라, 부족하면 머리카락이 함께 빠질 수 있어요.</p></div>
+      </div>
+      <h4 style="color:var(--green-deep);margin:18px 0 8px;">하루에 얼마나? — 체중(kg)만큼!</h4>
+      <p style="margin-bottom:12px;">하루 권장 단백질(g) = <span class="hl">체중(kg) × 1.0</span>. 예) 체중 60kg → 하루 약 <strong>60g</strong>, 끼니마다 1단위씩 나눠 드세요. <span class="note" style="border:none;padding:0;margin:0;display:inline;">(대한비만학회, 비만진료지침 2020)</span></p>
+      <div class="duo">
+        <div class="card amberc">
+          <h4>🖐 손대중 TIP</h4>
+          <div style="display:flex; align-items:center; gap:14px;">
+            <svg class="ill" style="width:84px; height:84px; flex:none;" viewBox="0 0 84 84" aria-hidden="true">
+              <ellipse cx="42" cy="78" rx="18" ry="3" fill="#000" opacity=".06"/>
+              <g style="fill:var(--green-soft);stroke:var(--green);stroke-width:4.5;stroke-linejoin:round" stroke-linecap="round">
+                <path d="M28 48 V26 a3.6 3.6 0 0 1 7.2 0 V46"/>
+                <path d="M35.2 46 V20 a3.6 3.6 0 0 1 7.2 0 V46"/>
+                <path d="M42.4 46 V22 a3.6 3.6 0 0 1 7.2 0 V47"/>
+                <path d="M49.6 47 V27 a3.6 3.6 0 0 1 7.2 0 V50"/>
+                <path d="M28 50 L18 40 a4 4 0 0 1 5.6 -5.6 L33 44"/>
+                <rect x="26" y="44" width="32" height="26" rx="11"/>
+              </g>
+              <rect x="31" y="50" width="22" height="15" rx="6" style="fill:var(--amber)" opacity=".85"/>
+            </svg>
+            <p style="margin:0;">손가락을 제외한 <strong>손바닥의 두께와 면적</strong>이<br>살코기 100g ≈ <span class="hl">단백질 20g</span> 한 덩이입니다.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h4>🍽 단백질 20g = 이만큼</h4>
+          <p style="margin:0;">살코기 100g · 가금류 100g · 생선 130g(2토막) · 달걀 140g(왕란 2개) · 두부 200g(2/3모) · 검정콩·대두콩 50g(5큰술)</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- N2. 단백질 ② 어떤 걸 고를까 / 조리 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge">단백질 가이드</span><span class="sidx">S05</span></div>
+    <div class="kicker">2. 영양소 · 식품 가이드</div>
+    <div class="sec-head">
+      <div class="txt"><h2>단백질, <span class="accent">어떤 걸 고를까</span></h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <ellipse cx="42" cy="74" rx="24" ry="3.2" fill="#000" opacity=".06"/>
+        <path d="M14 44 C24 30 44 30 54 44 C44 58 24 58 14 44 Z" style="fill:var(--green-soft);stroke:var(--green);stroke-width:4.5;stroke-linejoin:round"/>
+        <path d="M54 44 L68 33 L64 44 L68 55 Z" style="fill:var(--amber-soft);stroke:var(--amber);stroke-width:4.5;stroke-linejoin:round"/>
+        <path d="M27 35 C25 40 25 48 27 53" style="fill:none;stroke:var(--green);stroke-width:3;stroke-linecap:round"/>
+        <circle cx="22" cy="42" r="2.8" style="fill:var(--green-deep)"/>
+        <path d="M35 42 q4 4 0 8 M43 40 q4 5 0 9 M50 43 q3 3 0 6" style="fill:none;stroke:var(--amber);stroke-width:2.6;stroke-linecap:round"/>
+      </svg>
+    </div>
+    <div class="body">
+      <p class="lead">같은 고기·생선이라도 <span class="hl">지방량이 적은 부위(저지방군)</span>를 고르는 게 핵심입니다.</p>
+      <table class="meal">
+        <tr><th>구분</th><td><strong style="color:var(--green-deep);">저지방군 (권장)</strong></td></tr>
+        <tr><th>육류</th><td>닭·오리(껍질·기름기 제거) · 소·돼지의 사태 · 우둔 · 설도 · 앞다리살</td></tr>
+        <tr><th>생선</th><td>가자미 · 광어 · 대구 · 병어 · 아귀 · 연어 · 조기 · 참치 · 코다리</td></tr>
+        <tr><th>그 외</th><td>달걀 · 메추리알 · 두부 · 연두부 · 검정콩 · 저지방 우유</td></tr>
+        <tr class="total"><th>중지방 ⚠</th><td>소·돼지 안심·등심·양지·목살 / 갈치·고등어·꽁치·임연수어 (적당량만)</td></tr>
+      </table>
+      <h4 style="color:var(--green-deep);margin:16px 0 8px;">조리만 바꿔도 칼로리가 확 줄어요</h4>
+      <div class="duo three">
+        <div class="card amberc"><h4>🔪 지방·껍질 제거</h4><p>삼겹살 150g <span class="kcal">517 → 282kcal</span></p></div>
+        <div class="card amberc"><h4>🍳 튀김보다 수육</h4><p>돼지 등심 60g · 돈가스 <span class="kcal">360</span> vs 수육 <span class="kcal">110kcal</span></p></div>
+        <div class="card amberc"><h4>🥚 튀김보다 찜</h4><p>달걀 1개 · 후라이 <span class="kcal">90</span> vs 찐 달걀 <span class="kcal">70kcal</span></p></div>
+      </div>
+      <div class="warnbox">
+        <div class="tag">🥛 끼니 대용으로 드실 때</div>
+        <p>· <strong>요거트</strong> — 무가당만으론 부족! <strong>무당·무지방</strong>으로, 견과·그래놀라·시리얼·꿀 등 첨가 없이.</p>
+        <p>· <strong>쉐이크</strong> — 다이어트용 OK, 벌크업용 NO. 칼로리 표기를 꼭 확인하세요. <span class="note" style="border:none;padding:0;margin:0;display:inline;">(우유 200ml: 일반 130 / 저지방 84kcal)</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- N3. 과일 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge amberb">과일 가이드</span><span class="sidx">S06</span></div>
+    <div class="kicker">2. 영양소 · 식품 가이드</div>
+    <div class="sec-head">
+      <div class="txt"><h2>과일, <span class="amber">똑똑하게</span> 먹기</h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <ellipse cx="42" cy="76" rx="20" ry="3.2" fill="#000" opacity=".06"/>
+        <path d="M42 32 C38 26 28 25 23 31 C17 38 18 52 26 62 C30 67 35 68 39 65 C41 64 43 64 45 65 C49 68 54 67 58 62 C66 52 67 38 61 31 C56 25 46 26 42 32 Z" style="fill:var(--amber-soft);stroke:var(--amber);stroke-width:4.5;stroke-linejoin:round"/>
+        <path d="M42 32 C42 24 44 19 49 16" style="fill:none;stroke:var(--green);stroke-width:3.6;stroke-linecap:round"/>
+        <path d="M49 16 C57 12 64 16 62 24 C54 27 47 23 49 16 Z" style="fill:var(--green)"/>
+        <path d="M30 38 C27 42 27 48 29 52" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".85"/>
+      </svg>
+    </div>
+    <div class="body">
+      <p class="lead">과일은 비타민·식이섬유가 풍부하지만 당분도 많아, 과하면 <span class="hl-amber">밥보다 오히려 다이어트를 방해</span>할 수 있어요.</p>
+      <div class="duo three">
+        <div class="card amberc"><h4>🍬 간식으로 NO</h4><p>식사 때 탄수화물(밥) 대신 드세요. 간식이 당기면 방울토마토·토마토·오이를 먼저.</p></div>
+        <div class="card amberc"><h4>🥤 주스·즙 NO</h4><p>포만감이 낮아 과하게 먹게 되고, 영양소도 줄어듭니다.</p></div>
+        <div class="card amberc"><h4>🥫 통조림 NO</h4><p>시럽 때문에 당이 매우 높아요. 꼭 <strong>생과일</strong>로 드세요.</p></div>
+      </div>
+      <h4 style="color:#9a560f;margin:18px 0 6px;">과일은 밥 대신, 하루 1단위만!</h4>
+      <p style="margin-bottom:10px;">1단위 = 약 <span class="hl-amber">50kcal / 당질 12g</span> — 아래에서 하루 한 가지만 골라 드세요.</p>
+      <div class="chips">
+        <span class="chip warn">귤 1개 <span class="k">120g</span></span><span class="chip warn">오렌지 1/2개 <span class="k">100g</span></span><span class="chip warn">자몽 1/2개 <span class="k">150g</span></span><span class="chip warn">자두 1개</span><span class="chip warn">딸기 7개 <span class="k">150g</span></span><span class="chip warn">블루베리 <span class="k">80g</span></span><span class="chip warn">사과 1/3개 <span class="k">80g</span></span><span class="chip warn">수박 1쪽 <span class="k">150g</span></span><span class="chip warn">참외 1/2개 <span class="k">150g</span></span><span class="chip warn">키위 1개 <span class="k">80g</span></span><span class="chip warn">바나나 1/2개 <span class="k">50g</span></span><span class="chip warn">배 1/4개 <span class="k">110g</span></span><span class="chip warn">멜론 <span class="k">120g</span></span><span class="chip warn">포도 19알 <span class="k">80g</span></span><span class="chip warn">파인애플 <span class="k">200g</span></span>
+      </div>
+      <p class="note">※ 과일을 포함한 아침 예시: <strong>과일 1단위 + 단백질</strong> — ① 저지방우유 200ml + 스크램블에그 55g &nbsp;② 닭가슴살 샐러드 150g &nbsp;③ 그릭요거트 100g + 삶은계란 1개</p>
+    </div>
+  </section>
+
+  <!-- 2. 800kcal intro -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge navyb">하루 800kcal</span><span class="sidx">S07</span></div>
+    <div class="kicker">2. 급감량 식이요법 · 본원 관리 하 진행</div>
+    <div class="sec-head">
+      <div class="txt"><h2>하루 <span class="amber">800kcal</span> 식이요법</h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <rect x="20" y="22" width="44" height="44" rx="22" class="fa"/>
+        <path d="M42 24 a18 18 0 0 1 0 36" class="fad"/>
+        <circle cx="42" cy="42" r="22" fill="none" class="sa"/>
+        <path d="M42 42 V28 M42 42 l11 7" class="st" stroke-width="4"/>
+        <circle cx="42" cy="42" r="3" class="fgd"/>
+      </svg>
+    </div>
+    <div class="body">
+      <p class="lead">하루 섭취 칼로리 <span class="hl-amber">800kcal 이내</span>로 <strong>2주간</strong> 진행하는 단기 급감량 식이요법입니다.</p>
+      <div class="duo three">
+        <div class="card"><h4>탄수화물</h4><p>400kcal <span class="kcal">100g</span></p></div>
+        <div class="card"><h4>단백질</h4><p>200kcal <span class="kcal">50g</span></p></div>
+        <div class="card"><h4>지방</h4><p>200kcal <span class="kcal">22g</span></p></div>
+      </div>
+      <div class="warnbox">
+        <div class="tag">⚠ 진행 전 확인</div>
+        <p>강도가 높은 식이요법이므로 <strong>반드시 본원 진료·상담을 통해 진행 여부를 확인</strong>한 뒤 시작하고, 진행 중에는 매일 아침 공복 체중을 기록해 주세요.</p>
+        <p><strong>2주 진행 후에는 본원으로 연락</strong>하여 상담을 받아 주세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2b. 800kcal 구성 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge navyb">하루 800kcal</span><span class="sidx">S08</span></div>
+    <div class="kicker">2. 급감량 식이요법</div>
+    <h2>하루 식사, <span class="accent">이렇게</span></h2>
+    <div class="body">
+      <p class="lead">한 끼 <span class="hl">250kcal</span> 정도씩, 하루 세 번 → 총 800kcal. <strong>한 끼는 일반식, 두 끼는 간편식</strong>을 추천합니다.</p>
+      <div class="duo">
+        <div class="card"><h4>🍽 일반식 (한 끼)</h4><p>밥 1/3공기(70g, 100kcal) + 단백질 반찬 + 채소 반찬<br>단백질은 한 끼 1단위(또는 하루 총 3단위) 기준으로 드세요.</p></div>
+        <div class="card"><h4>🥛 간편식 (두 끼)</h4><p>프로틴 음료·삶은계란·다이어트 도시락·무지방 그릭요거트 등 250kcal 내외로 구성하세요.</p></div>
+      </div>
+      <p style="margin-top:6px;"><strong>단백질 1단위 예시</strong></p>
+      <div class="chips">
+        <span class="chip">살코기 40g</span><span class="chip">생선 1토막 50g</span><span class="chip">두부 80g(1/4모)</span>
+        <span class="chip">계란 1개</span><span class="chip">오징어 50g</span><span class="chip">새우 50g(3마리)</span>
+      </div>
+      <p class="hl-amber" style="font-size:.95rem;">기름기가 적은 부위를 골라 찜·구이·삶기로 조리하세요.</p>
+    </div>
+  </section>
+
+  <!-- 2c. 800kcal 권고/주의 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge navyb">하루 800kcal</span><span class="sidx">S09</span></div>
+    <div class="kicker">2. 급감량 식이요법</div>
+    <h2>권고사항 · <span class="amber">주의사항</span></h2>
+    <div class="body">
+      <div class="flow">
+        <div class="step"><div class="n">1</div><div class="c"><div class="label">매일 아침 공복 체중 측정</div><div class="desc">체크표에 기록해 주세요.</div></div></div>
+        <div class="step warn"><div class="n">2</div><div class="c"><div class="label">운동 조심</div><div class="desc">급감량 시기엔 저혈당 증상이 쉽게 나타날 수 있으니, 운동을 쉬거나 저강도로 진행해 주세요.</div></div></div>
+        <div class="step"><div class="n">3</div><div class="c"><div class="label">금주</div><div class="desc">단기 감량 효율을 위해 금주는 필수입니다.</div></div></div>
+        <div class="step"><div class="n">4</div><div class="c"><div class="label">하루 2L 이상 수분</div><div class="desc">단 음료 대신 물·탄산수·제로칼로리 음료로.</div></div></div>
+      </div>
+      <div class="warnbox">
+        <div class="tag">🚨 저혈당 주의 — 심하실 경우 중단하신 뒤 본원으로 연락주세요</div>
+        <div class="symptoms">
+          <span class="symptom">어지럼증</span><span class="symptom">울렁거림</span><span class="symptom">두통</span>
+          <span class="symptom">두근거림</span><span class="symptom">식은땀</span>
+        </div>
+        <p>증상이 있을 땐 <strong>주스·이온음료를 소량 드시고 휴식</strong>해 주세요. 호전되지 않거나 심하면 본원으로 연락 주세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. 외식 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge amberb">외식 가이드</span><span class="sidx">S10</span></div>
+    <div class="kicker">3. 상황별 가이드</div>
+    <div class="sec-head">
+      <div class="txt"><h2>외식할 때 <span class="accent">이렇게</span></h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <path d="M30 18 v20 a6 6 0 0 1 -12 0 V18 M24 18 v22" class="st"/>
+        <path d="M58 18 c-8 3 -8 22 0 24 v22" class="sa"/>
+        <ellipse cx="42" cy="58" rx="26" ry="8" class="fg"/>
+        <path d="M16 58 a26 8 0 0 0 52 0" class="st" stroke-width="4"/>
+      </svg>
+    </div>
+    <div class="body">
+      <div class="duo">
+        <div class="card"><h4>✅ 고르면 좋아요</h4><p>국물보다 건더기 / 구이·찜·삶은 조리 / 백반·정식의 채소 반찬 위주 / 회·수육·생선구이</p></div>
+        <div class="card amberc"><h4>⚠ 조심해요</h4><p>튀김·전·볶음 / 양념·소스가 많은 메뉴 / 면+밥 조합 / 국물까지 다 마시기</p></div>
+      </div>
+      <p style="margin-top:8px;"><strong>실전 요령</strong></p>
+      <div class="flow">
+        <div class="step"><div class="n">1</div><div class="c"><div class="label">밥은 1/2~2/3만</div><div class="desc">덜어내고 시작하면 자연스럽게 줄어듭니다.</div></div></div>
+        <div class="step"><div class="n">2</div><div class="c"><div class="label">채소·단백질 먼저</div><div class="desc">탄수화물보다 채소·단백질부터 드시면 포만감이 빨리 옵니다.</div></div></div>
+        <div class="step warn"><div class="n">3</div><div class="c"><div class="label">소스는 찍어서</div><div class="desc">부어 먹기보다 찍어 먹어 양을 조절하세요.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 배달음식 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge amberb">배달음식 가이드</span><span class="sidx">S11</span></div>
+    <div class="kicker">3. 상황별 가이드</div>
+    <div class="sec-head">
+      <div class="txt"><h2>배달 시킬 때 <span class="accent">선택 요령</span></h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <rect x="22" y="34" width="40" height="32" rx="4" class="fa"/>
+        <rect x="22" y="34" width="40" height="32" rx="4" fill="none" class="sa"/>
+        <path d="M22 46 h40" class="sa" stroke-width="4"/>
+        <path d="M34 28 h16 l4 6 H30 Z" class="fgd"/>
+        <path d="M38 52 h8" class="st" stroke-width="4"/>
+      </svg>
+    </div>
+    <div class="body">
+      <p class="lead">배달은 <span class="hl">메뉴 선택과 양 조절</span>이 절반입니다. 1인분이라도 양이 많은 경우가 흔하니 미리 나눠 두세요.</p>
+      <div class="duo three">
+        <div class="card"><h4>👍 추천</h4><p>샤브샤브 · 회/물회 · 구이류 · 닭가슴살/샐러드 · 쌀국수(국물 적게)</p></div>
+        <div class="card amberc"><h4>🤏 양 조절</h4><p>족발·보쌈(채소 곁들여) · 비빔류(밥 줄이기) · 초밥(8pcs 내외)</p></div>
+        <div class="card amberc"><h4>🚫 피하면 좋아요</h4><p>치킨·피자·중식 튀김류 · 떡볶이+튀김 · 야식 세트</p></div>
+      </div>
+      <div class="warnbox">
+        <div class="tag">💡 배달 꿀팁</div>
+        <p>· 시키기 전에 <strong>먹을 만큼만 덜어내고</strong> 나머지는 바로 정리하세요.</p>
+        <p>· 단무지·소스·콜라 같은 <strong>곁들임은 빼거나 제로 음료</strong>로 바꾸세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- N4. 술자리 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge amberb">술자리 가이드</span><span class="sidx">S12</span></div>
+    <div class="kicker">3. 상황별 가이드</div>
+    <div class="sec-head">
+      <div class="txt"><h2>술자리, <span class="amber">피할 수 없다면</span></h2></div>
+      <svg class="sec-art ill" viewBox="0 0 84 84" aria-hidden="true">
+        <ellipse cx="42" cy="76" rx="24" ry="3.2" fill="#000" opacity=".06"/>
+        <path d="M31 20 h10 v9 c0 2 1 3 2 4 c3 2 4 5 4 9 v25 c0 3 -2 5 -5 5 h-12 c-3 0 -5 -2 -5 -5 V42 c0 -4 1 -7 4 -9 c1 -1 2 -2 2 -4 Z" style="fill:var(--green-soft);stroke:var(--green);stroke-width:4.5;stroke-linejoin:round"/>
+        <rect x="31" y="13" width="10" height="8" rx="2" style="fill:var(--green)"/>
+        <path d="M23 50 h22" style="fill:none;stroke:var(--green);stroke-width:2.6;opacity:.5"/>
+        <path d="M52 42 h17 l-2.5 23 c-.2 2 -1.8 3.5 -3.8 3.5 h-4.4 c-2 0 -3.6 -1.5 -3.8 -3.5 Z" style="fill:var(--amber-soft);stroke:var(--amber);stroke-width:4.5;stroke-linejoin:round"/>
+        <path d="M53.5 51 h14" style="fill:none;stroke:var(--amber);stroke-width:2.6;opacity:.55"/>
+      </svg>
+    </div>
+    <div class="body">
+      <p class="lead">술 자체가 칼로리예요. <span class="hl-amber">소주 한 병 ≈ 밥 1과 1/4공기</span>, 맥주 한 병 ≈ 밥 한 공기랍니다.</p>
+      <div class="duo">
+        <div class="card amberc"><h4>🍶 술 칼로리</h4><p>소주 1병(360ml) <span class="kcal">400kcal</span><br>맥주 1병(630cc) <span class="kcal">300kcal</span></p></div>
+        <div class="card"><h4>📏 기준</h4><p>술자리는 <strong>주 1회 이하</strong><br>안주 + 술 합쳐 <strong>400~600kcal</strong> 이내로</p></div>
+      </div>
+      <div class="duo">
+        <div class="card"><h4>👍 좋은 예</h4><p>광어회 100g + 소주 1/2병 <span class="kcal">320kcal</span><br>목살 100g + 소주 1/2병 <span class="kcal">464kcal</span></p></div>
+        <div class="card amberc"><h4>🚫 나쁜 예 — 각 1,200kcal</h4><p>치킨 4조각+맥주 · 피자 2조각+맥주 · 삼겹살 1인분+소주 · 뼈해장국+소주</p></div>
+      </div>
+      <div class="warnbox">
+        <div class="tag">💡 술자리 꿀팁</div>
+        <p>· 살코기·회 등 <strong>단백질 안주를 쌈채소와 소량</strong>으로. 튀김·과일·밥·면 같은 탄수화물 안주는 피하세요.</p>
+        <p>· <strong>물을 충분히</strong> 드세요. 이뇨작용을 하는 커피·차, 칼로리 높은 이온음료·과일음료는 권하지 않아요.</p>
+        <p>· 전날 과음했더라도 다음 날 <strong>굶지 말고</strong>, 수분 + 단백질 위주로 가볍게 식사하세요.</p>
+        <p style="margin-bottom:0;">· 숙취가 심하면 칼로리 높은 해장국보다 본원 <strong>숙취환</strong>의 도움을 받아보세요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. 간식 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge">간식 가이드</span><span class="sidx">S13</span></div>
+    <div class="kicker">3. 상황별 가이드</div>
+    <h2>간식, <span class="accent">먹어도 되는</span> 것</h2>
+    <div class="body">
+      <p class="lead">간식이 꼭 필요할 땐 <span class="hl">단백질이나 저칼로리 채소</span> 위주로. 단 음료·과자·빵류는 가급적 피해 주세요.</p>
+      <div class="duo three">
+        <div class="card"><h4>🥒 허기 채우기</h4><p>오이 1개 <span class="kcal">19kcal</span><br>방울토마토 7~8개 <span class="kcal">20kcal</span></p></div>
+        <div class="card"><h4>🥚 단백질 간식</h4><p>삶은계란 1개 <span class="kcal">70kcal</span><br>무지방 그릭요거트 100g <span class="kcal">55kcal</span></p></div>
+        <div class="card amberc"><h4>🍌 당길 땐 소량</h4><p>방울토마토·오이 먼저, 그래도 당기면 바나나 1/2개 · 견과 한 줌으로</p></div>
+      </div>
+      <p class="note">※ "저당 = 저칼로리"가 아닙니다. 저당 디저트도 지방·열량이 높을 수 있으니 표기를 확인하세요.</p>
+    </div>
+  </section>
+
+  <!-- 6. 마무리 -->
+  <section class="slide">
+    <div class="eyebrow"><span class="badge">마무리</span><span class="sidx">S14</span></div>
+    <div class="kicker">함께 기억해요</div>
+    <h2>핵심 <span class="accent">요약</span></h2>
+    <div class="body">
+      <div class="flow">
+        <div class="step"><div class="n">❶</div><div class="c"><div class="label">밥 1/2공기 + 단백질 + 채소</div><div class="desc">1200kcal 식단의 기본 구성.</div></div></div>
+        <div class="step"><div class="n">❷</div><div class="c"><div class="label">단백질은 매일 체중(kg)만큼</div><div class="desc">저지방 부위로, 찜·구이·삶기로 조리하기.</div></div></div>
+        <div class="step"><div class="n">❸</div><div class="c"><div class="label">과일은 밥 대신 하루 1단위만</div><div class="desc">간식·주스·통조림 대신 생과일로 소량.</div></div></div>
+        <div class="step"><div class="n">❹</div><div class="c"><div class="label">800kcal는 본원 관리 하에서만</div><div class="desc">진료로 확인 후 시작, 2주 후 상담.</div></div></div>
+        <div class="step"><div class="n">❺</div><div class="c"><div class="label">외식·배달은 메뉴 선택과 양 조절</div><div class="desc">구이·찜·채소 먼저, 밥은 덜어내기.</div></div></div>
+        <div class="step"><div class="n">❻</div><div class="c"><div class="label">술자리는 주 1회·400~600kcal</div><div class="desc">단백질 안주 + 쌈채소, 물 충분히.</div></div></div>
+        <div class="step warn"><div class="n">❼</div><div class="c"><div class="label">불편한 증상이 있으면 멈추고 연락</div><div class="desc">어지럼·두근거림 등 저혈당 증상 시 휴식 후 본원으로.</div></div></div>
+      </div>
+      <p class="lead" style="margin-top:14px;">무리하지 않고 꾸준히 — 아크로한의원이 응원합니다.</p>
+      <div class="clinic">
+        <div>📍 강남대로 480 보라티알빌딩 2층 (신논현역)</div>
+        <div>📞 02-6925-1175 &nbsp;·&nbsp; 💬 카카오톡 <strong>@아크로한의원</strong></div>
+        <div>🔍 <strong>acrohani.com</strong></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="bar">
+  <div class="progress" id="progress"></div>
+  <button class="btn icon" id="prev" aria-label="이전">←</button>
+  <button class="btn icon" id="next" aria-label="다음">→</button>
+  <span class="counter"><span id="cur">1</span> <span class="total">/ <span id="tot">15</span></span></span>
+  <span class="spacer"></span>
+  <span class="pagetag" id="pagetag">표지</span>
+  <button class="btn" id="tocBtn">☰<span class="lbl"> 목차</span></button>
+  <button class="btn" id="fsBtn">⤢<span class="lbl"> 전체화면</span></button>
+</div>
+
+<div class="toc-backdrop" id="tocBackdrop">
+  <div class="toc" role="dialog" aria-label="목차">
+    <h3>목차 · 빠른 이동</h3>
+    <p class="hint">보고 싶은 항목을 눌러 바로 이동할 수 있어요.</p>
+    <div id="tocList"></div>
+  </div>
+</div>
+
+<script>
+const TAGS=["표지","1200kcal","1200kcal","1200kcal","단백질","단백질","과일","800kcal","800kcal","800kcal","외식","배달음식","술자리","간식","마무리"];
+const TITLES=["다이어트 식사 가이드","하루 1200kcal 추천 식단","분량 잡는 법·대체식","먹어도 부족할 땐?","단백질, 왜 중요할까","단백질, 어떤 걸 고를까","과일, 똑똑하게 먹기","하루 800kcal 식이요법","하루 식사 이렇게","권고·주의사항","외식 가이드","배달음식 가이드","술자리 가이드","간식 가이드","핵심 요약"];
+const slides=[...document.querySelectorAll('.slide')];
+const total=slides.length; let idx=0;
+const elCur=document.getElementById('cur'), elTot=document.getElementById('tot'),
+      elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
+elTot.textContent=total;
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('active',i===idx));
+  elCur.textContent=idx+1; elTag.textContent=TAGS[idx];
+  elProg.style.width=((idx+1)/total*100)+'%';
+  const a=slides[idx]; if(a) a.scrollTop=0;
+}
+function go(n){ idx=Math.max(0,Math.min(total-1,n)); render(); }
+document.getElementById('next').onclick=()=>go(idx+1);
+document.getElementById('prev').onclick=()=>go(idx-1);
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('tocBackdrop').classList.contains('open')){ if(e.key==='Escape') closeToc(); return; }
+  if(['ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();go(idx+1);}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
+  else if(e.key==='Home')go(0); else if(e.key==='End')go(total-1);
+  else if(e.key==='f'||e.key==='F')toggleFs();
+});
+let tx=0,ty=0;
+document.getElementById('stage').addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX;ty=e.changedTouches[0].clientY;},{passive:true});
+document.getElementById('stage').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)) dx<0?go(idx+1):go(idx-1);},{passive:true});
+function toggleFs(){ if(!document.fullscreenElement){(document.documentElement.requestFullscreen||function(){})();}else{(document.exitFullscreen||function(){})();} }
+document.getElementById('fsBtn').onclick=toggleFs;
+const backdrop=document.getElementById('tocBackdrop');
+function openToc(){backdrop.classList.add('open');}
+function closeToc(){backdrop.classList.remove('open');}
+document.getElementById('tocBtn').onclick=openToc;
+backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeToc();});
+const list=document.getElementById('tocList');
+list.innerHTML=TITLES.map((t,i)=>`<div class="toc-item" data-go="${i}"><span class="n">${TAGS[i]}</span><span class="t">${t}</span></div>`).join('');
+list.onclick=e=>{const it=e.target.closest('.toc-item'); if(it){go(parseInt(it.dataset.go,10));closeToc();}};
+document.querySelectorAll('.seclist.nav span[data-go]').forEach(el=>{
+  el.setAttribute('role','button'); el.setAttribute('tabindex','0');
+  el.addEventListener('click',()=>go(parseInt(el.dataset.go,10)));
+  el.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go(parseInt(el.dataset.go,10));}});
+});
+render();
+</script>
+</body>
+</html>

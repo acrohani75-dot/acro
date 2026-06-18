@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로한의원 다이어트 초진 설명 · 다국어</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700;800&family=Noto+Sans+Thai:wght@400;500;700;800&display=swap">
+<style>
+  :root{
+    --bg:#eef2f0; --surface:#ffffff;
+    --ink:#16241f; --ink-soft:#46574f; --ink-faint:#7d8c84;
+    --green:#2f6b54; --green-deep:#1d4636; --green-soft:#e4efe9;
+    --amber:#cf7f33; --amber-soft:#f6ead9;
+    --line:#d6dedb; --line-strong:#bcc8c3;
+    --radius:18px; --maxw:980px;
+    --kr:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+    --jp:'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--kr); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.6; overflow:hidden;}
+  body[data-lang="ja"]{font-family:var(--jp);}
+  body[data-lang="zh-cn"]{font-family:'Noto Sans SC',var(--kr);}
+  body[data-lang="zh-tw"]{font-family:'Noto Sans TC',var(--kr);}
+  body[data-lang="th"]{font-family:'Noto Sans Thai',var(--kr);}
+  .gloss, body[data-lang] .gloss{font-family:var(--kr);}
+
+  .stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:clamp(16px,3.5vw,48px) clamp(16px,4vw,64px) 92px;}
+  .slide{display:none; width:100%; max-width:var(--maxw); max-height:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 18px 48px -28px rgba(20,40,32,.35); padding:clamp(28px,4.4vw,60px); overflow-y:auto; animation:fade .42s ease both;}
+  .slide.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @media(prefers-reduced-motion:reduce){.slide{animation:none;}}
+
+  .eyebrow{display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
+  .badge{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 12px; border-radius:999px;}
+  .sidx{font-size:.78rem; font-weight:600; color:var(--ink-faint); letter-spacing:.06em;}
+  h2{font-size:clamp(1.55rem,3.4vw,2.35rem); line-height:1.25; font-weight:800; letter-spacing:-.01em; color:var(--ink);}
+  h2 .accent{color:var(--green);}
+  .kicker{font-size:.82rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--amber); margin-bottom:10px;}
+
+  .body{margin-top:20px;}
+  .body p{font-size:clamp(1.04rem,1.6vw,1.22rem); color:var(--ink-soft); margin-bottom:14px;}
+  .body strong{color:var(--ink); font-weight:700;}
+  .hl{color:var(--green-deep); font-weight:700; background:linear-gradient(transparent 58%, #cfe7dd 58%); padding:0 2px;}
+  .hl-amber{color:#9a560f; font-weight:700; background:linear-gradient(transparent 58%, var(--amber-soft) 58%); padding:0 2px;}
+  .lead{font-size:clamp(1.12rem,1.9vw,1.4rem)!important; color:var(--ink)!important; font-weight:600; line-height:1.5;}
+
+  .gloss{font-family:var(--kr); font-size:.8rem; color:var(--ink-faint); line-height:1.45; margin:-8px 0 14px; opacity:.85;}
+  .gloss.h2g{font-size:.92rem; font-weight:600; margin:8px 0 0;}
+  .gloss.kg{margin:-2px 0 10px;}
+
+  .case{border-left:3px solid var(--amber); background:#fbf7f1; padding:14px 18px; border-radius:0 12px 12px 0; margin:18px 0;}
+  .case .tag{font-size:.74rem; font-weight:700; letter-spacing:.06em; color:var(--amber); text-transform:uppercase; margin-bottom:6px;}
+  .case p{font-size:clamp(.98rem,1.5vw,1.12rem); margin-bottom:8px;}
+  .case .gloss{margin:-4px 0 8px;}
+
+  .equation{display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; background:var(--green-deep); color:#eaf4ef; border-radius:14px; padding:22px 18px; margin:20px 0;}
+  .equation .term{text-align:center;}
+  .equation .term .t{font-size:.8rem; opacity:.75;}
+  .equation .term .v{font-size:clamp(1.05rem,2.3vw,1.5rem); font-weight:800;}
+  .equation .op{font-size:clamp(1.3rem,2.6vw,1.8rem); font-weight:300; opacity:.7;}
+  .equation .term.out .v{color:#f3c98a;}
+
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0;}
+  .duo.one{grid-template-columns:1fr;}
+  .duo .card{border:1px solid var(--line); border-radius:12px; padding:16px 16px 18px; background:#fafcfb;}
+  .duo .card h4{font-size:1.04rem; font-weight:800; margin-bottom:8px; color:var(--green-deep);}
+  .duo .card p{font-size:.99rem; margin-bottom:0;}
+  .duo .card .gloss{margin:6px 0 0;}
+  @media(max-width:640px){.duo{grid-template-columns:1fr;}}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;}
+  .chip{font-size:.92rem; font-weight:600; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:6px 12px; border-radius:8px;}
+  .chip.warn{color:#9a560f; background:var(--amber-soft); border-color:#ecd6b6;}
+
+  .note{font-size:.92rem!important; color:var(--ink-faint)!important; border-top:1px dashed var(--line-strong); padding-top:12px; margin-top:16px;}
+
+  .cover{text-align:center;}
+  .cover .mark{font-size:.9rem; font-weight:700; letter-spacing:.22em; color:var(--green); text-transform:uppercase; margin-bottom:22px;}
+  .cover .rule{width:54px; height:3px; background:var(--amber); border-radius:2px; margin:0 auto 22px;}
+  .cover h1{font-size:clamp(1.7rem,4.4vw,2.8rem); font-weight:800; line-height:1.22; letter-spacing:-.02em; margin-bottom:18px;}
+  .cover h1 .accent{color:var(--green);}
+  .cover .who{font-size:clamp(1.05rem,2vw,1.3rem); color:var(--ink-soft); font-weight:600;}
+  .cover .sub{font-size:1.02rem; color:var(--ink-faint); margin-top:24px;}
+  .cover .gloss{text-align:center;}
+
+  .setup{display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin:20px 0 8px;}
+  .field{display:flex; flex-direction:column; align-items:center; gap:5px;}
+  .field label{font-size:.76rem; font-weight:700; color:var(--ink-faint);}
+  .field input{font-family:inherit; font-size:1.05rem; font-weight:700; color:var(--green-deep); border:none; border-bottom:2px solid var(--line-strong); background:transparent; padding:5px 8px; width:160px; text-align:center;}
+  .field input:focus{outline:none; border-bottom-color:var(--green);}
+  .inl{font-family:inherit; font-weight:800; color:var(--green-deep); border:none; border-bottom:2px solid var(--amber); background:var(--amber-soft); width:3em; text-align:center; font-size:1em; padding:1px 2px; border-radius:5px 5px 0 0;}
+  .inl:focus{outline:none; border-bottom-color:var(--green);}
+
+  .bar{position:fixed; left:0; right:0; bottom:0; height:64px; display:flex; align-items:center; gap:12px; padding:0 clamp(14px,3vw,28px); background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-top:1px solid var(--line); z-index:30;}
+  .progress{position:absolute; top:0; left:0; height:3px; background:var(--green); transition:width .3s ease;}
+  .btn{appearance:none; border:1px solid var(--line-strong); background:#fff; color:var(--ink); font-family:inherit; font-weight:600; font-size:.95rem; height:40px; min-width:40px; padding:0 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+  .btn:hover{background:var(--green-soft); border-color:#bcd5ca;}
+  .btn:focus-visible{outline:3px solid #94c4b1; outline-offset:2px;}
+  .btn.icon{padding:0; width:40px;}
+  .langsel{height:40px; border:1px solid var(--line-strong); border-radius:10px; background:#fff; font-family:inherit; font-weight:700; font-size:.92rem; color:var(--green-deep); padding:0 10px; cursor:pointer;}
+  .counter{font-size:.92rem; font-weight:700; min-width:58px; text-align:center;}
+  .counter .total{color:var(--ink-faint); font-weight:600;}
+  .spacer{flex:1;}
+  .pagetag{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 11px; border-radius:999px;}
+
+  .toc-backdrop{position:fixed; inset:0; background:rgba(16,30,24,.5); display:none; z-index:40; align-items:center; justify-content:center; padding:20px;}
+  .toc-backdrop.open{display:flex;}
+  .toc{background:#fff; border-radius:16px; width:min(560px,100%); max-height:80vh; overflow-y:auto; padding:22px 22px 26px; box-shadow:0 24px 60px -20px rgba(16,30,24,.5);}
+  .toc h3{font-size:1.05rem; margin-bottom:4px;}
+  .toc .hint{font-size:.85rem; color:var(--ink-faint); margin-bottom:14px;}
+  .toc-group{margin-bottom:14px;}
+  .toc-group .gl{font-size:.76rem; font-weight:700; letter-spacing:.06em; color:var(--amber); text-transform:uppercase; margin-bottom:6px;}
+  .toc-item{display:flex; gap:10px; align-items:baseline; padding:8px 10px; border-radius:9px; cursor:pointer;}
+  .toc-item:hover{background:var(--green-soft);}
+  .toc-item .n{font-size:.78rem; font-weight:700; color:var(--ink-faint); min-width:30px;}
+  .toc-item .t{font-size:.96rem;}
+
+  @media(max-width:600px){.btn .lbl{display:none;}}
+</style>
+</head>
+<body data-lang="ko">
+
+<main class="stage" id="stage"></main>
+
+<div class="bar">
+  <div class="progress" id="progress"></div>
+  <button class="btn icon" id="prev">←</button>
+  <button class="btn icon" id="next">→</button>
+  <span class="counter"><span id="cur">1</span> <span class="total">/ <span id="tot">30</span></span></span>
+  <span class="spacer"></span>
+  <span class="pagetag" id="pagetag"></span>
+  <select class="langsel" id="lang" aria-label="언어 / Language">
+    <option value="ko">한국어</option>
+    <option value="ja">日本語</option>
+    <option value="en">English</option>
+    <option value="zh-cn">简体中文</option>
+    <option value="zh-tw">繁體中文</option>
+    <option value="th">ภาษาไทย</option>
+  </select>
+  <button class="btn" id="tocBtn">☰<span class="lbl" id="tocLbl"> 목차</span></button>
+  <button class="btn" id="fsBtn">⤢<span class="lbl" id="fsLbl"> 전체화면</span></button>
+</div>
+
+<div class="toc-backdrop" id="tocBackdrop">
+  <div class="toc" role="dialog">
+    <h3 id="tocTitle"></h3>
+    <p class="hint" id="tocHint"></p>
+    <div id="tocList"></div>
+  </div>
+</div>
+
+<script>
+const UI = {
+  prevAria:{ko:"이전 슬라이드", ja:"前のスライド", en:"Previous slide", "zh-cn":"上一页", "zh-tw":"上一頁", th:"สไลด์ก่อนหน้า"},
+  nextAria:{ko:"다음 슬라이드", ja:"次のスライド", en:"Next slide", "zh-cn":"下一页", "zh-tw":"下一頁", th:"สไลด์ถัดไป"},
+  toc:{ko:"목차", ja:"目次", en:"Contents", "zh-cn":"目录", "zh-tw":"目錄", th:"สารบัญ"},
+  fullscreen:{ko:"전체화면", ja:"全画面", en:"Fullscreen", "zh-cn":"全屏", "zh-tw":"全螢幕", th:"เต็มจอ"},
+  bookPrefix:{ko:"책자 ", ja:"テキスト ", en:"Booklet ", "zh-cn":"手册 ", "zh-tw":"手冊 ", th:"หน้า "},
+  tocTitle:{ko:"목차 · 빠른 이동", ja:"目次・クイック移動", en:"Contents · Quick jump", "zh-cn":"目录 · 快速跳转", "zh-tw":"目錄 · 快速跳轉", th:"สารบัญ · ไปยังหัวข้อ"},
+  tocHint:{ko:"진료 흐름은 책자 페이지 순서가 아닙니다 (의도된 비선형 구성).", ja:"診療の流れはテキストのページ順ではありません（意図的な非線形構成）。", en:"The flow is not the booklet's page order (intentional non-linear structure).", "zh-cn":"讲解顺序并非手册页码顺序（有意的非线性结构）。", "zh-tw":"講解順序並非手冊頁碼順序（刻意的非線性結構）。", th:"ลำดับการอธิบายไม่ใช่ลำดับหน้าหนังสือ (จัดเรียงแบบไม่เป็นเส้นตรงโดยตั้งใจ)"},
+  patientLabel:{ko:"환자분 성함", ja:"患者様のお名前", en:"Patient name", "zh-cn":"患者姓名", "zh-tw":"患者姓名", th:"ชื่อผู้ป่วย"},
+  patientPh:{ko:"성함 입력", ja:"お名前", en:"Name", "zh-cn":"姓名", "zh-tw":"姓名", th:"ชื่อ"},
+  doctorLabel:{ko:"의료진", ja:"担当医", en:"Doctor", "zh-cn":"主治医师", "zh-tw":"主治醫師", th:"แพทย์"},
+  doctorPh:{ko:"임주혁", ja:"イム・ジュヒョク", en:"Yim Ju-hyuk", "zh-cn":"任柱赫", "zh-tw":"任柱赫", th:"อิม จูฮยอก"}
+};
+
+const PAGES = {
+  cover:{book:false, label:{ko:"표지", ja:"表紙", en:"Cover", "zh-cn":"封面", "zh-tw":"封面", th:"หน้าปก"}},
+  p1:{book:true, label:{ko:"1p", ja:"1p"}},
+  p2:{book:true, label:{ko:"2p", ja:"2p"}},
+  p3:{book:true, label:{ko:"3p", ja:"3p"}},
+  p4:{book:true, label:{ko:"4p", ja:"4p"}},
+  self:{book:false, label:{ko:"셀프모니터링 · 마무리", ja:"セルフモニタリング・まとめ", en:"Self-monitoring", "zh-cn":"自我监测", "zh-tw":"自我監測", th:"การติดตามตนเอง"}},
+  p11:{book:true, label:{ko:"11p", ja:"11p"}},
+  p5:{book:true, label:{ko:"5p", ja:"5p"}},
+  end:{book:false, label:{ko:"마무리", ja:"まとめ", en:"Wrap-up", "zh-cn":"总结", "zh-tw":"總結", th:"สรุป"}}
+};
+
+const SLIDES = [
+{ id:"S01", page:"cover", cover:true,
+  mark:"ACRO KOREAN MEDICINE CLINIC",
+  h1:{ko:`지금부터 <span class="accent">다이어트 개념과 약 복용</span><br>설명을 도와드리겠습니다`, ja:`これから<span class="accent">ダイエットの考え方とお薬の飲み方</span>を<br>ご説明します`},
+  sub:{ko:`핵심 개념과 방향성을 함께 보겠습니다.`, ja:`核心となる考え方と方向性を一緒に見ていきましょう。`} },
+
+{ id:"S02", page:"p1", kicker:{ko:"1. 다이어트 기본개념", ja:"1. ダイエットの基本概念"},
+  h2:{ko:`‘체중감량’은 곧 <span class="accent">‘칼로리 결핍’</span>입니다`, ja:`「体重減少」とはすなわち<span class="accent">「カロリー不足」</span>`},
+  body:[
+    {t:"p", v:{ko:`다이어트는 약 처방도 중요하지만, <strong>개념과 방향성</strong>이 매우 중요합니다. 한 번 잘 들어두시면 추후에도 도움이 많이 되실 거예요.`, ja:`ダイエットは薬の処方も大切ですが、<strong>考え方と方向性</strong>がとても重要です。一度しっかり理解しておくと、今後も大いに役立ちます。`}},
+    {t:"p", v:{ko:`살이 빠지는 것은 운동한다·식단한다·약 먹는다가 아니라, 바로 <span class="hl">칼로리 결핍을 지속해서 유도하는 것</span>입니다.`, ja:`痩せるというのは「運動する・食事制限する・薬を飲む」ことではなく、<span class="hl">カロリー不足を継続して作り出すこと</span>です。`}},
+    {t:"p", v:{ko:`이러한 칼로리 결핍은 <strong>6개월 정도</strong>는 지속해서 할 수 있습니다.`, ja:`このカロリー不足は、<strong>6か月ほど</strong>は継続して行えます。`}}
+  ]},
+
+{ id:"S03", page:"p1",
+  h2:{ko:`3개월부터는 더뎌지고,<br>6개월 이후엔 점점 안 빠질 수 있어요`, ja:`3か月目からは緩やかに、<br>6か月以降は落ちにくくなります`},
+  body:[
+    {t:"p", v:{ko:`식이조절, 운동, 약물 — <strong>어떤 방식을 진행해도 모두 비슷한 경향</strong>을 보입니다.`, ja:`食事制限、運動、薬物 — <strong>どの方法でも同じような傾向</strong>を示します。`}},
+    {t:"p", v:{ko:`왜 그럴까요? 바로 <span class="hl">‘실천’ 문제</span>입니다. 기초대사량이 떨어지거나, 약에 내성이 생겨서 그런 것이 아닙니다.`, ja:`なぜでしょう？ それは<span class="hl">「実践」の問題</span>です。基礎代謝が落ちたり、薬に耐性ができたからではありません。`}},
+    {t:"case", tag:{ko:"연구 이야기", ja:"研究のお話"}, ps:[
+      {ko:`실제로 요요 없이 <strong>두 번 연속 감량을 성공</strong>시킨 연구가 있었는데요, 바로 <span class="hl-amber">금전적인 대가</span>를 주었습니다.`, ja:`実際に、リバウンドなく<strong>2回連続で減量を成功</strong>させた研究があります。その方法は<span class="hl-amber">金銭的な報酬</span>でした。`},
+      {ko:`신체 반응보다 <strong>동기부여</strong>가 대단히 중요하다는 반증입니다. 장기전에서는 더더욱 그래요.`, ja:`身体の反応より<strong>モチベーション</strong>が非常に重要だという証拠です。長期戦ではなおさらです。`}
+    ]}
+  ]},
+
+{ id:"S04", page:"p1",
+  h2:{ko:`칼로리 결핍이란<br>무엇일까요?`, ja:`カロリー不足とは<br>何でしょうか？`},
+  body:[
+    {t:"lead", v:{ko:`칼로리 섭취량보다 소비량이 많은 상태입니다.`, ja:`カロリー摂取量より消費量が多い状態です。`}},
+    {t:"p", v:{ko:`먹는 것보다 나가는 게 많으면 살이 빠집니다.`, ja:`食べる量より出ていく量が多ければ痩せます。`}},
+    {t:"eq", terms:[{t:{ko:"섭취",ja:"摂取"},v:{ko:"먹는 것",ja:"食べる量"}},{t:{ko:"소비",ja:"消費"},v:{ko:"나가는 것",ja:"出ていく量"}},{t:{ko:"결과",ja:"結果"},v:{ko:"감량",ja:"減量"},out:true}], ops:["&lt;","→"]},
+    {t:"p", v:{ko:`그런데 문제는, 사람들이 여기에 영향을 미치는 요인이 다양하다고 생각합니다 — <strong>체질, 장내세균, 나이, 근육량, 기초대사량</strong> 등등.`, ja:`ところが問題は、ここに影響する要因が多いと考えてしまうことです — <strong>体質、腸内細菌、年齢、筋肉量、基礎代謝</strong>など。`}}
+  ]},
+
+{ id:"S05", page:"p1",
+  h2:{ko:`이 중에 중요한 것이 있을까요?<br><span class="accent">사실 없습니다.</span>`, ja:`この中に重要なものは？<br><span class="accent">実はありません。</span>`},
+  body:[
+    {t:"p", v:{ko:`<strong>기초대사량</strong>은 측정도 어렵고, 20살부터 60살까지 그대로라는 연구도 있습니다. 생명 유지장치에 가까워서 체중을 움직이는 큰 변수로 보기 어렵습니다.`, ja:`<strong>基礎代謝</strong>は測定も難しく、20歳から60歳まで変わらないという研究もあります。生命維持装置に近く、体重を動かす大きな変数とは言えません。`}},
+    {t:"p", v:{ko:`<strong>근육량</strong>도 비슷합니다. 근육이 부족해져서 갑자기 살이 쪘다고 보기는 어렵죠.`, ja:`<strong>筋肉量</strong>も同様です。筋肉が減って急に太ったとは考えにくいですね。`}},
+    {t:"p", v:{ko:`<strong>나이</strong>는 아쉽지만 바꿀 수 없고, <strong>장내세균</strong>도 10년 넘게 연구했지만 아직 살을 빼준다고 보긴 어렵습니다. <strong>체질</strong>도 관리하면 좋지만, 갑자기 체질이 바뀌어 살쪘다고 보긴 힘들죠.`, ja:`<strong>年齢</strong>は残念ながら変えられず、<strong>腸内細菌</strong>も10年以上研究されていますが、まだ痩せさせるとは言えません。<strong>体質</strong>も管理できれば良いですが、急に体質が変わって太ったとは考えにくいでしょう。`}}
+  ]},
+
+{ id:"S06", page:"p1",
+  h2:{ko:`여러 변수 말고,<br>딱 <span class="accent">2가지</span>만 집중하세요`, ja:`多くの変数ではなく、<br>たった<span class="accent">2つ</span>だけに集中`},
+  body:[
+    {t:"duo", cols:2, cards:[
+      {h4:{ko:"① 식이조절",ja:"① 食事制限"}, p:{ko:`둘 중 <strong>더 중요한 쪽.</strong> 결국 여기서 승부가 납니다.`, ja:`2つのうち<strong>より重要な方。</strong>結局ここで勝負が決まります。`}},
+      {h4:{ko:"② 운동",ja:"② 運動"}, p:{ko:`몸에 좋고 무조건 좋지만, 칼로리 소비를 급격히 늘리긴 생각보다 어렵습니다.`, ja:`体に良く、絶対に良いですが、カロリー消費を急に増やすのは思ったより難しいです。`}}
+    ]},
+    {t:"p", v:{ko:`하루를 잘 살면 약 <span class="hl-amber">1,800kcal(여성)·2,000kcal(남성)</span>를 소비한다고 할 때, 한 시간 운동을 추가하면 <span class="hl-amber">300~400kcal</span> 정도가 더해진다고 보시면 됩니다.`, ja:`1日をしっかり過ごすと約<span class="hl-amber">1,800kcal（女性）・2,000kcal（男性）</span>を消費すると仮定すると、1時間の運動で<span class="hl-amber">300〜400kcal</span>ほどが加わると考えてください。`}},
+    {t:"p", v:{ko:`운동은 좋지만, <span class="hl">칼로리 소비량은 사실상 ‘고정값’</span>이라고 가정하면 유리해집니다.`, ja:`運動は良いですが、<span class="hl">カロリー消費量は事実上「固定値」</span>と仮定すると有利になります。`}}
+  ]},
+
+{ id:"S07", page:"p1",
+  h2:{ko:`섭취는 ‘변수’,<br>소비는 ‘고정값’`, ja:`摂取は「変数」、<br>消費は「固定値」`},
+  body:[
+    {t:"p", v:{ko:`먹는 것은 굶으면 0kcal, 많이 먹으면 <span class="hl-amber">4~5,000kcal</span> — 하루 <strong>1,000kcal 이상</strong> 왔다 갔다 합니다.`, ja:`食べる量は、断食すれば0kcal、たくさん食べれば<span class="hl-amber">4〜5,000kcal</span> — 1日<strong>1,000kcal以上</strong>変動します。`}},
+    {t:"p", v:{ko:`섭취량은 크게 출렁이는 변수, 소비량은 상대적으로 고정값인데, “내일 운동하면 되지” 하며 2~3,000kcal 더 먹고 3~400kcal 태우면 좋지 않겠죠?`, ja:`摂取量は大きく揺れる変数、消費量は比較的固定値なのに、「明日運動すればいい」と2〜3,000kcal多く食べて3〜400kcal燃やしても割に合いませんよね。`}},
+    {t:"lead", v:{ko:`그래서 체중의 원인을 <span class="hl">‘먹는 것’ 하나로 좁힙니다.</span>`, ja:`だから体重の原因を<span class="hl">「食べること」一つに絞ります。</span>`}},
+    {t:"p", v:{ko:`살쪘으면? 먹었구나. 먹는 것 줄이면? 빠지는구나! 여기서만 왔다 갔다 하면 됩니다. 인과관계를 하나로 좁혔습니다.`, ja:`太ったら？ 食べたんだ。食べる量を減らしたら？ 痩せるんだ！ ここだけを行き来すればいい。因果関係を一つに絞りました。`}}
+  ]},
+
+{ id:"S08", page:"p1",
+  h2:{ko:`“똑같이 먹었는데<br>왜 살쪘지?”`, ja:`「同じだけ食べたのに、<br>なぜ太った？」`},
+  body:[
+    {t:"p", v:{ko:`단순해 보이는데, 사람들이 이게 잘 안 됩니다. “나 많이 안 먹었는데? 예전엔 이 정도면 잘 빠졌는데?” 하며 인과관계에서 벗어나죠. “나이살인가? 기초대사량이 떨어졌나?” 생각이 또 튑니다.`, ja:`単純に見えて、これが意外とできません。「そんなに食べてないのに？ 昔はこのくらいで痩せたのに？」と因果関係から外れます。「歳のせい？ 基礎代謝が落ちた？」と考えが飛びます。`}},
+    {t:"p", v:{ko:`오래 연구한 답은 생각보다 싱겁습니다. <span class="hl">‘똑같이 안 먹었는데 본인은 몰랐다’</span>는 겁니다.`, ja:`長年研究した答えは意外と単純です。<span class="hl">「同じだけ食べていないのに、本人が気づいていなかった」</span>のです。`}},
+    {t:"case", tag:{ko:"비유", ja:"たとえ"}, ps:[
+      {ko:`마치 “이번 달 신용카드값 왜 이렇게 많이 나왔어? 말도 안 돼!” 처럼요.`, ja:`まるで「今月のカード請求、なぜこんなに高いの？ ありえない！」のように。`},
+      {ko:`하루 2~3,000kcal를 먹어도 <span class="hl-amber">1,200kcal밖에 안 먹었다</span>고 착각할 수 있고, 하루 800~1,000kcal까지 차이날 수 있습니다.`, ja:`1日2〜3,000kcal食べても<span class="hl-amber">1,200kcalしか食べていない</span>と錯覚することがあり、1日800〜1,000kcalもの差が出ることがあります。`}
+    ]},
+    {t:"p", v:{ko:`그래서 “에이 그냥 많이 먹었겠지~” 하고 <strong>먹는 것에서 원인을 찾으면</strong> 생각의 흐름이 어긋나지 않습니다.`, ja:`だから「まあ、たくさん食べたんだろう」と<strong>食べることに原因を求めれば</strong>、考えの流れがぶれません。`}}
+  ]},
+
+{ id:"S09", page:"p1",
+  h2:{ko:`줄였는데 안 빠지면?<br><span class="accent">더 줄이면 됩니다</span>`, ja:`減らしても痩せないなら？<br><span class="accent">もっと減らせばいい</span>`},
+  body:[
+    {t:"p", v:{ko:`먹는 것을 줄이고 다시 쟀는데 안 빠지면 생각이 또 튀기 쉽습니다. 하지만 먹는 것에 대한 고민이 멈췄다는 게 함정이에요. <span class="hl">덜 빠지면 더 줄이고, 더 검토</span>하면 됩니다.`, ja:`食べる量を減らして測り直しても痩せないと、また考えが飛びがちです。でも食べることへの検討が止まるのが落とし穴。<span class="hl">痩せなければもっと減らし、さらに検討</span>すればいいのです。`}},
+    {t:"case", tag:{ko:"실제 사례 · 미용실 선생님", ja:"実際の事例・美容師さん"}, ps:[
+      {ko:`“먹는 것도 없는데 살쪄서” 식단을 다 찍어 PT 선생님께 보여드렸더니 “이걸로 살찔 수 없다”고 했대요.`, ja:`「食べていないのに太る」と食事を全部撮ってトレーナーに見せたら「これで太るはずがない」と言われたそうです。`},
+      {ko:`여쭤보니 <span class="hl-amber">우유를 1L씩</span> 드시더라고요 — 단백질이라고 생각해서요.`, ja:`伺うと<span class="hl-amber">牛乳を1Lずつ</span>飲んでいました — タンパク質だと思って。`}
+    ]},
+    {t:"p", v:{ko:`두유도, 바나나도, 견과류도, 오트밀·현미밥·고구마도 다 살찔 수 있습니다. <strong>답은 항상 먹는 것에 있습니다.</strong>`, ja:`豆乳もバナナもナッツも、オートミール・玄米・さつまいもも、すべて太る可能性があります。<strong>答えは常に「食べること」にあります。</strong>`}}
+  ]},
+
+{ id:"S10", page:"p1",
+  h2:{ko:`이것이 바로 <span class="accent">셀프모니터링</span>입니다`, ja:`これこそが<span class="accent">セルフモニタリング</span>`},
+  body:[
+    {t:"lead", v:{ko:`먹는 것 검토 → 체중 측정 → 검토 → 체중 측정. 이 인과관계를 오가며 <span class="hl">관찰과 학습을 반복</span>하는 것.`, ja:`食べる量を検討 → 体重測定 → 検討 → 体重測定。この因果関係を行き来しながら<span class="hl">観察と学習を繰り返すこと</span>。`}},
+    {t:"p", v:{ko:`이걸 기본으로 가진 사람이 그때 추가하는 게 바로 — <strong>운동, 약, 시술</strong>입니다.`, ja:`これを基本として持つ人が、そこで追加するのが — <strong>運動、薬、施術</strong>です。`}},
+    {t:"p", v:{ko:`항상 <strong>식이조절을 우선</strong>하고 그다음에 나머지를 만들어 나가야 휘둘리지 않습니다.`, ja:`常に<strong>食事制限を優先</strong>し、その次に残りを組み立てていけば振り回されません。`}}
+  ]},
+
+{ id:"S11", page:"p2", kicker:{ko:"2. 약의 효과, 그리고 식욕", ja:"2. 薬の効果、そして食欲"},
+  h2:{ko:`한약은 왜 먹고,<br>어떤 효과가 있을까요?`, ja:`韓方薬はなぜ飲み、<br>どんな効果があるのか？`},
+  body:[
+    {t:"duo", cols:1, cards:[
+      {h4:{ko:"① 감량 가속",ja:"① 減量の加速"}, p:{ko:`같은 노력 대비 감량이 <span class="hl-amber">2~3배</span>가 됩니다. 칼로리 소비를 높여 감량을 가속합니다.`, ja:`同じ努力でも減量が<span class="hl-amber">2〜3倍</span>になります。カロリー消費を高めて減量を加速します。`}},
+      {h4:{ko:"② 식욕 억제",ja:"② 食欲の抑制"}, p:{ko:`포만감을 주고 식욕 억제를 도와, 식이조절을 보다 수월하게 합니다.`, ja:`満腹感を与えて食欲抑制を助け、食事制限をより楽にします。`}},
+      {h4:{ko:"③ 불편증상 완화",ja:"③ 不快症状の緩和"}, p:{ko:`몸에 맞는 한약재로 불편증상을 줄이고 다이어트 과정을 돕습니다.`, ja:`体に合った韓方薬剤で不快な症状を減らし、ダイエットの過程を助けます。`}}
+    ]}
+  ]},
+
+{ id:"S12", page:"p2",
+  h2:{ko:`식욕은 크게 <span class="accent">두 종류</span>`, ja:`食欲は大きく<span class="accent">2種類</span>`},
+  body:[
+    {t:"duo", cols:2, cards:[
+      {h4:{ko:"정말 굶어서 생기는 식욕",ja:"本当に飢えて生じる食欲"}, p:{ko:`한 일주일 굶었다고 해보세요. 지치고 꼬르륵거리고 힘들죠. 그때 빵·과자를 먹는 건 <strong>정말 칼로리가 필요한 식욕</strong>입니다.`, ja:`1週間断食したとします。疲れてお腹が鳴り、とても辛いですよね。その時パンやお菓子を食べるのは<strong>本当にカロリーが必要な食欲</strong>です。`}},
+      {h4:{ko:"그렇지 않은 식욕",ja:"そうでない食欲"}, p:{ko:`빵·과자는 살찌우려고 먹는 게 아니라 맛있어서 먹죠. <strong>칼로리가 아닌 자극과 즐거움</strong>을 위한 식욕입니다.`, ja:`パンやお菓子は太るために食べるのではなく、美味しいから食べますよね。<strong>カロリーではなく刺激と楽しみ</strong>のための食欲です。`}}
+    ]}
+  ]},
+
+{ id:"S13", page:"p2",
+  h2:{ko:`한약이 잡는 식욕 vs<br>약으로 다 못 잡는 식욕`, ja:`薬が抑える食欲 vs<br>薬では抑えきれない食欲`},
+  body:[
+    {t:"p", v:{ko:`한약은 <span class="hl">‘굶어서 생기는 식욕’</span>을 줄이는 데 도움을 줍니다. 꼬르륵거리거나 지치고 피곤한 게 많이 줄어, 식이조절을 해도 크게 힘들지 않아요.`, ja:`韓方薬は<span class="hl">「飢えて生じる食欲」</span>を減らすのを助けます。お腹が鳴ったり疲れたりが大きく減り、食事制限をしても辛くありません。`}},
+    {t:"p", v:{ko:`그런데 <strong>자극·즐거움을 위한 식욕</strong>은 한약이 전부 잡기는 어렵습니다. 스트레스받고 잠 못 자면 단 게 당기거든요 — 수면 등 다양한 요인이 결합한 식욕입니다.`, ja:`ところが<strong>刺激・楽しみのための食欲</strong>は韓方薬で完全には抑えきれません。ストレスや睡眠不足で甘い物が欲しくなるからです — 睡眠など様々な要因が絡む食欲です。`}},
+    {t:"p", v:{ko:`이 식욕을 약으로 너무 억누르면, <span class="hl-amber">약이 끊긴 뒤 식욕이 폭발해 요요</span>가 올 수 있어요. 그래서 어느 정도는 이해하고 관리하는 과정이 필요합니다.`, ja:`この食欲を薬で抑えすぎると、<span class="hl-amber">薬をやめた後に食欲が爆発してリバウンド</span>することがあります。だからある程度は理解し、管理する過程が必要です。`}}
+  ]},
+
+{ id:"S14", page:"p2",
+  h2:{ko:`칼로리는 빼고,<br><span class="accent">자극과 즐거움</span>만 공급`, ja:`カロリーは抜き、<br><span class="accent">刺激と楽しみ</span>だけ供給`},
+  body:[
+    {t:"p", v:{ko:`이 식욕이 원하는 건 ‘자극과 즐거움’이니, 칼로리를 빼고 그것만 잘 공급해주면 됩니다. 하루 종일 집에 있으면 입이 심심한데, 나가서 돌아다니면 하루가 지나가잖아요.`, ja:`この食欲が求めるのは「刺激と楽しみ」なので、カロリーを抜いてそれだけを供給すればいいのです。1日中家にいると口が寂しいですが、外出して動き回ると1日が過ぎますよね。`}},
+    {t:"lead", v:{ko:`그래서 필요한 게 바로 — <span class="hl">맛있는데 살이 안 찌는 음식</span>입니다.`, ja:`だから必要なのが — <span class="hl">美味しいのに太らない食べ物</span>です。`}},
+    {t:"p", v:{ko:`정답은 <strong>‘찾는다’</strong>입니다. 제로콜라, 곤약젤리, 버섯, 양배추, 방울토마토… 정말 다양해요. 하나씩 늘어나면 다이어트가 점점 편해집니다.`, ja:`答えは<strong>「探す」</strong>こと。ゼロコーラ、こんにゃくゼリー、きのこ、キャベツ、ミニトマト… 本当に色々あります。一つずつ増えると、ダイエットが段々楽になります。`}}
+  ]},
+
+{ id:"S15", page:"p2",
+  h2:{ko:`자꾸 찾고, 다른 즐거움으로<br>대체해 보세요`, ja:`どんどん探し、<br>別の楽しみで代える`},
+  body:[
+    {t:"case", tag:{ko:"사례 · 3주 10kg 감량", ja:"事例・3週間で10kg減"}, ps:[
+      {ko:`크리스탈라이트 가루를 제로사이다에 넣어 드시니 맛있어서 다른 걸 잘 안 먹어도 됐다고 하셨어요. (저는 사봤는데 제 입엔 안 맞더라고요 — 입맛은 사람마다 다릅니다.)`, ja:`クリスタルライトの粉をゼロサイダーに入れて飲むと美味しくて、他をあまり食べずに済んだそうです。（私も買ってみましたが、私の口には合いませんでした — 好みは人それぞれです。）`}
+    ]},
+    {t:"p", v:{ko:`여름마다 아이스크림 때문에 감량이 안 되던 분들이, 작년부터 <span class="hl-amber">제로칼로리 아이스크림</span> 덕에 실감나게 줄었습니다.`, ja:`夏になるとアイスクリームで減量できなかった方々が、昨年から<span class="hl-amber">ゼロカロリーアイスクリーム</span>のおかげで実感できるほど減りました。`}},
+    {t:"chips", items:[{ko:"수면 7시간 이상",ja:"睡眠7時間以上"},{ko:"취미활동으로 대체",ja:"趣味で代える"}]},
+    {t:"p", v:{ko:`특히 <strong>잠을 못 자면 이 식욕이 안 잡힙니다.</strong> 한 분은 퇴근 후 매일 마시던 술을 끊으려고, 그 시간에 골프 연습을 하며 다른 즐거움으로 대체해 3개월에 20kg 넘게 빼셨어요.`, ja:`特に<strong>眠れないと、この食欲は抑えられません。</strong>ある方は退社後に毎日飲んでいたお酒をやめるため、その時間にゴルフ練習をして別の楽しみに代え、3か月で20kg以上減らしました。`}}
+  ]},
+
+{ id:"S16", page:"p3", kicker:{ko:"3. 식이조절", ja:"3. 食事制限"},
+  h2:{ko:`식이조절의 핵심은 <span class="accent">‘실천’</span>`, ja:`食事制限の核心は<span class="accent">「実践」</span>`},
+  body:[
+    {t:"p", v:{ko:`그런데 사람들은 이상하게 실천을 <strong>어렵게 만드는 걸</strong> 좋아합니다 — 저염식, 저탄고지, 간헐적 단식, 탄단지, 혈당 스파이크, “저녁에 먹으면 살찐다” 등등. 너무 많은 요인을 생각하면 실천이 오히려 어려워집니다.`, ja:`ところが人は不思議と、実践を<strong>難しくするのが</strong>好きです — 減塩、低糖質高脂質、間欠的断食、PFCバランス、血糖値スパイク、「夜食べると太る」など。多くの要因を考えると、実践がかえって難しくなります。`}},
+    {t:"case", tag:{ko:"연구 이야기 · 식사 시간대", ja:"研究のお話・食事の時間帯"}, ps:[
+      {ko:`같은 식사를 아침/점심/저녁 시간대만 바꿔 실험한 연구가 4번 있었는데, 3번은 똑같이 빠지고 1번만 저녁 그룹이 덜 빠졌대요.`, ja:`同じ食事を朝／昼／夜の時間帯だけ変えて実験した研究が4回あり、3回は同じく痩せ、1回だけ夜のグループが痩せにくかったそうです。`},
+      {ko:`먹고 바로 자서가 아니라, <span class="hl">사회·문화적 영향으로 저녁에 조금 더 먹어서</span> — 즉 실천이 덜 된 거였습니다.`, ja:`食べてすぐ寝たからではなく、<span class="hl">社会・文化的な影響で夜に少し多く食べた</span> — つまり実践が不十分だっただけでした。`}
+    ]}
+  ]},
+
+{ id:"S17", page:"p3",
+  h2:{ko:`결국 볼 것은 <span class="accent">칼로리</span> 하나`, ja:`結局見るべきは<span class="accent">カロリー</span>一つ`},
+  body:[
+    {t:"p", v:{ko:`이것도 저것도 아니면 뭘 실천하냐? 바로 1p에서 나온 <strong>칼로리</strong>입니다. 칼로리만 보세요. 나머지는 신경 쓰지 마세요.`, ja:`あれもこれもでなければ、何を実践する？ 1pで出た<strong>カロリー</strong>です。カロリーだけ見てください。他は気にしないで。`}},
+    {t:"duo", cols:2, cards:[
+      {h4:{ko:"저열량식 (VLD)",ja:"低カロリー食 (VLD)"}, p:{ko:`하루 <span class="hl-amber">1,200~1,500kcal</span>. 6개월도 지속 권고할 수 있는 <strong>가장 기본·교과서 수준</strong>의 근거입니다.`, ja:`1日<span class="hl-amber">1,200〜1,500kcal</span>。6か月も継続して勧められる<strong>最も基本・教科書レベル</strong>の根拠です。`}},
+      {h4:{ko:"초저열량식 (VLCD)",ja:"超低カロリー食 (VLCD)"}, p:{ko:`하루 <span class="hl-amber">800kcal 이하</span>. 잘 쓰면 좋지만 <strong>2주 이상</strong>이면 부담을 줄 수 있어요.`, ja:`1日<span class="hl-amber">800kcal以下</span>。うまく使えば良いですが<strong>2週間以上</strong>は負担をかけることがあります。`}}
+    ]},
+    {t:"chips", warn:true, items:[{ko:"담석증",ja:"胆石症"},{ko:"탈모",ja:"脱毛"},{ko:"어지러움",ja:"めまい"},{ko:"폭식 유발",ja:"過食を誘発"}]},
+    {t:"p", v:{ko:`2일 정도는 괜찮고, 오히려 건강에 좋다고도 해요 — 인간은 원래 굶던 몸이라서요.`, ja:`2日ほどなら大丈夫で、むしろ健康に良いとも言われます — 人間はもともと飢える体だからです。`}}
+  ]},
+
+{ id:"S18", page:"p3",
+  h2:{ko:`초저열량식,<br><span class="accent">식욕을 줄이는 수단</span>으로`, ja:`超低カロリー食を<br><span class="accent">食欲を抑える手段</span>に`},
+  body:[
+    {t:"case", tag:{ko:"원장 본인 경험", ja:"院長本人の経験"}, ps:[
+      {ko:`2개월에 10kg 넘게 찌워본 적이 있는데, 식욕이 주체가 안 돼 합리화하며 너무 많이 먹게 되더라고요. 그래서 약이 아니라 <span class="hl">초저열량식을 2일</span> 진행하니 식욕이 잡혀, 저열량식으로 넘어가 잘 뺐습니다.`, ja:`2か月で10kg以上太らせたことがありますが、食欲が抑えられず、言い訳しながら食べすぎてしまいました。そこで薬ではなく<span class="hl">超低カロリー食を2日</span>行うと食欲が落ち着き、低カロリー食に移行してうまく減らしました。`}
+    ]},
+    {t:"p", v:{ko:`예를 들어 1,200~1,500kcal를 잘 하다가 여행 가서 하루 3~4,000kcal를 먹었다고 해보죠. 먹는 것 자체가 식욕을 올려 다녀와서도 많이 먹게 됩니다.`, ja:`例えば1,200〜1,500kcalを続けていて、旅行で1日3〜4,000kcal食べたとします。食べること自体が食欲を上げ、帰ってからも多く食べてしまいます。`}},
+    {t:"p", v:{ko:`그럴 땐 당황하지 말고 <strong>하루이틀 초저열량식으로 대처</strong>해 식욕을 잡은 뒤, 다시 저열량식으로 넘어가면 좋습니다.`, ja:`そんな時は慌てず<strong>1〜2日、超低カロリー食で対処</strong>して食欲を抑え、また低カロリー食に戻れば良いです。`}}
+  ]},
+
+{ id:"S19", page:"p3",
+  h2:{ko:`빵·떡·과일·음료는<br>왜 살찔까요?`, ja:`パン・餅・果物・飲料は<br>なぜ太る？`},
+  body:[
+    {t:"p", v:{ko:`“탄수화물이라 찐다”고 볼 수도 있지만, 빵도 한 개만 먹고 굶으면 빠집니다. <span class="hl">탄수화물이라 무조건 찌는 건 아니에요.</span>`, ja:`「炭水化物だから太る」とも言えますが、パンも1個だけ食べて断食すれば痩せます。<span class="hl">炭水化物だから必ず太るわけではありません。</span>`}},
+    {t:"p", v:{ko:`문제는 이들이 <strong>맛있고, 소화 잘되고, 많이 먹기 쉬워서</strong> 칼로리가 금방 엄청 많이 들어간다는 점입니다.`, ja:`問題は、これらが<strong>美味しく、消化が良く、たくさん食べやすい</strong>ので、カロリーがあっという間にたくさん入ることです。`}},
+    {t:"chips", warn:true, items:[{ko:"케이크 한 조각 500~700kcal",ja:"ケーキ1切れ 500〜700kcal"},{ko:"과일·고구마·바나나도 주의",ja:"果物・さつまいも・バナナも注意"}]}
+  ]},
+
+{ id:"S20", page:"p4", kicker:{ko:"4. 식이조절 ②", ja:"4. 食事制限 ②"},
+  h2:{ko:`단백질·채소는 좋지만,<br><span class="accent">함정</span>도 있어요`, ja:`タンパク質・野菜は良いが、<br><span class="accent">落とし穴</span>もある`},
+  body:[
+    {t:"p", v:{ko:`단백질과 채소는 포만감이 있어 좋은데, <strong>두부도 단백질이 반이 안 되고, 우유도 절반 이상이 탄수화물</strong>이에요. 단백질의 최대 단점은 ‘단백질이라 괜찮겠지’ 하고 많이 먹는 것 — 에너지바, 단백질 쉐이크도 조심하세요.`, ja:`タンパク質と野菜は満腹感があって良いですが、<strong>豆腐もタンパク質が半分以下、牛乳も半分以上が炭水化物</strong>です。タンパク質の最大の欠点は「タンパク質だから大丈夫」と多く食べること — プロテインバー、プロテインシェイクも注意です。`}},
+    {t:"case", tag:{ko:"사례 · 치킨 먹고 2개월 10kg", ja:"事例・チキンを食べて2か月で10kg"}, ps:[
+      {ko:`비결은 ‘조금 먹기’. 한 마리 드시던 분이 <span class="hl-amber">2조각</span>만. 아예 먹지 말라는 것보다 할 만하다고 하셨어요.`, ja:`秘訣は「少しだけ食べる」。1羽食べていた方が<span class="hl-amber">2切れ</span>だけ。完全に禁止するより続けやすいそうです。`}
+    ]},
+    {t:"lead", v:{ko:`이 방식의 연장이 바로 <span class="hl">유지</span>입니다. 짜장면을 평생 안 먹을 순 없죠 — <strong>‘종류’보다 ‘양’</strong> 개념으로 접근합니다.`, ja:`この方法の延長が<span class="hl">維持</span>です。ジャージャー麺を一生食べないなんて無理ですよね — <strong>「種類」より「量」</strong>で捉えます。`}}
+  ]},
+
+{ id:"S21", page:"p4",
+  h2:{ko:`식욕이 오를 때를<br><span class="accent">예측해서 대비</span>하세요`, ja:`食欲が上がる時を<br><span class="accent">予測して備える</span>`},
+  body:[
+    {t:"p", v:{ko:`옛 연구를 보니 인간은 굶다가 사냥에 성공하면 폭식하는 본능이 있대요. <span class="hl">입에 음식이 들어가면 식욕을 올려 계속 먹게</span> 하는 생존본능 — 사람도 고양이도 강아지도 똑같습니다.`, ja:`昔の研究では、人間は飢えてから狩りに成功すると過食する本能があるそうです。<span class="hl">口に食べ物が入ると食欲を上げ、食べ続けさせる</span>生存本能 — 人も猫も犬も同じです。`}},
+    {t:"case", tag:{ko:"대비 요령", ja:"備えのコツ"}, ps:[
+      {ko:`· 치킨 한 마리 다 먹을 게 뻔하니 <strong>2조각만 두고 나머지는 냉동실</strong>에.`, ja:`・チキンは1羽食べ切るのが目に見えているので<strong>2切れだけ残し、残りは冷凍庫</strong>へ。`},
+      {ko:`· 라면도 끓이기 전 <strong>절반을 부러뜨려 버리고</strong> 끓입니다.`, ja:`・ラーメンも茹でる前に<strong>半分を折って捨てて</strong>から茹でます。`},
+      {ko:`· 젤리가 너무 당겨 사면 2~3개만 남기고 <strong>팀원들에게 나눠</strong> 주기.`, ja:`・ゼリーがどうしても欲しくて買ったら、2〜3個だけ残して<strong>チームの皆に配る</strong>。`}
+    ]},
+    {t:"p", v:{ko:`단팥빵 3개를 그 자리에서 다 드신 분께는 — “하나 먹으면 식욕이 올라 3개를 다 먹게 되니, <strong>애초에 하나만 사야 한다</strong>”고 말씀드렸어요. 약 먹는 동안 식욕이 잡힐 때 자꾸 연습해 보세요.`, ja:`あんぱんを3個その場で食べた方には — 「1個食べると食欲が上がって3個食べてしまうから、<strong>最初から1個だけ買うべき</strong>」とお伝えしました。薬を飲んでいる間、食欲が抑えられている時に何度も練習してみてください。`}}
+  ]},
+
+{ id:"S22", page:"self",
+  h2:{ko:`‘<span class="accent">400kcal</span>’를 기억하세요`, ja:`「<span class="accent">400kcal</span>」を覚えておく`},
+  body:[
+    {t:"p", v:{ko:`다이어트 도시락을 활용해 보면 좋습니다. 거의 <span class="hl-amber">400kcal 이내</span>로 나오는데, ×3 하면 1,200kcal로 저열량식 기준이거든요. 양감(量感)이 없으니 도시락을 샘플 삼아 일반식에 응용해 보세요.`, ja:`ダイエット弁当を活用すると良いです。ほぼ<span class="hl-amber">400kcal以内</span>で、×3すると1,200kcalで低カロリー食基準だからです。量の感覚がないので、弁当をサンプルにして普通の食事に応用してみてください。`}},
+    {t:"case", tag:{ko:"감 잡기 예시", ja:"感覚をつかむ例"}, ps:[
+      {ko:`버거킹 주니어와퍼 <span class="hl-amber">390kcal</span> + 제로콜라 → “이거 먹으면 빠지겠구나.” 콰트로치즈와퍼 <span class="hl-amber">800kcal</span> → “반만 먹어야겠다.”`, ja:`バーガーキング ジュニアワッパー<span class="hl-amber">390kcal</span> + ゼロコーラ →「これなら痩せそう」。クアトロチーズワッパー<span class="hl-amber">800kcal</span> →「半分にしよう」。`},
+      {ko:`파리바게뜨 아침 — 맛있는 거 500kcal, 맛없는 거 300kcal라면? <strong>맛있는 걸 절반</strong> 먹어도 됩니다.`, ja:`パン屋の朝 — 美味しいの500kcal、そうでないの300kcalなら？ <strong>美味しいのを半分</strong>食べてもOK。`}
+    ]},
+    {t:"p", v:{ko:`안 보이던 숫자가 자꾸 보입니다. <strong>먹고 싶은 것 먹되, ‘양’으로 접근 — 그 단위는 ‘칼로리’</strong>입니다.`, ja:`見えなかった数字が見えてきます。<strong>食べたい物を食べつつ「量」で捉える — その単位は「カロリー」</strong>です。`}}
+  ]},
+
+{ id:"S23", page:"self",
+  h2:{ko:`많이 먹었다 · 적게 먹었다<br>그 <span class="accent">기준</span>은 무엇일까요?`, ja:`「食べすぎ」「少なめ」<br>その<span class="accent">基準</span>は何でしょう？`},
+  body:[
+    {t:"p", v:{ko:`칼로리만 잘 보면 된다는 건 알겠는데, 매번 칼로리를 계산할 순 없죠. 전문가도 어렵습니다.`, ja:`カロリーだけ見ればいいのは分かったけれど、毎回カロリーを計算はできませんよね。専門家でも難しいです。`}},
+    {t:"p", v:{ko:`그래서 ‘많이 먹는다 / 적게 먹는다’를 가늠할 기준이, <strong>칼로리 말고 하나 더</strong> 있으면 좋습니다.`, ja:`だから「多い／少ない」を測る基準が、<strong>カロリー以外にもう一つ</strong>あると良いのです。`}},
+    {t:"lead", v:{ko:`칼로리(kcal) 말고 — <span class="hl">무엇으로</span> 많이/적게를 판단할 수 있을까요?`, ja:`カロリー（kcal）以外に — <span class="hl">何で</span>多い／少ないを判断できるでしょうか？`}},
+    {t:"note", v:{ko:`포만감? 예전의 내 기억? 친구들 이야기? … 잠깐 떠올려 보세요.`, ja:`満腹感？ 昔の記憶？ 友達の話？ … 少し思い浮かべてみてください。`}}
+  ]},
+
+{ id:"S24", page:"self",
+  h2:{ko:`사실은, 배웠습니다 —<br>바로 <span class="accent">체중 변화</span>`, ja:`実は、習いましたね —<br>それは<span class="accent">体重の変化</span>`},
+  body:[
+    {t:"p", v:{ko:`포만감도, 예전의 기억도, 친구 이야기도 — <strong>전부 부정확합니다.</strong> 정답은 <span class="hl">체중 변화</span>예요.`, ja:`満腹感も、昔の記憶も、友達の話も — <strong>すべて不正確です。</strong>正解は<span class="hl">体重の変化</span>です。`}},
+    {t:"p", v:{ko:`살이 쪘으면 먹었다, 빠지면 적게 먹었다, 유지되면 유지식을 했다. 빵 먹고 술 먹어도 체중이 유지됐으면 그게 유지식입니다.`, ja:`太ったら食べた、痩せたら少なく食べた、維持なら維持食をした。パンを食べてお酒を飲んでも体重が維持されれば、それが維持食です。`}},
+    {t:"eq", terms:[{t:{ko:"섭취",ja:"摂取"},v:{ko:"칼로리 섭취량",ja:"カロリー摂取量"}},{t:{ko:"소비(고정)",ja:"消費（固定）"},v:{ko:"칼로리 소비량",ja:"カロリー消費量"}},{t:{ko:"관찰값",ja:"観察値"},v:{ko:"체중 변화",ja:"体重の変化"},out:true}], ops:["−","="]},
+    {t:"p", v:{ko:`섭취량은 매번 재기 어렵지만 <strong>체중은 아침에 측정하면 끝</strong>이죠. 체중 변화로 먹는 것을 학습하는 셀프모니터링 — 이 방향성을 놓치지 마세요.`, ja:`摂取量は毎回測りにくいですが<strong>体重は朝に測れば終わり</strong>です。体重の変化で食べることを学ぶセルフモニタリング — この方向性を見失わないでください。`}}
+  ]},
+
+{ id:"S25", page:"p11", kicker:{ko:"음주", ja:"飲酒"},
+  h2:{ko:`술 마시는 날의 약,<br>그리고 <span class="accent">안주</span>`, ja:`お酒を飲む日の薬、<br>そして<span class="accent">おつまみ</span>`},
+  body:[
+    {t:"p", v:{ko:`술 먹는 날에는 <strong>저녁약을 드시지 마시고</strong>, 다음 날 힘들면 약을 잠시 쉬세요. 평소보다 빨리 취할 수 있으니 물 많이 드시고 조심하세요.`, ja:`お酒を飲む日は<strong>夜の薬を飲まず</strong>、翌日辛ければ薬を少し休んでください。普段より早く酔うことがあるので、水を多めに、お気をつけて。`}},
+    {t:"chips", items:[{ko:"먹태",ja:"干しスケトウダラ"},{ko:"마른오징어",ja:"するめ"},{ko:"광어회",ja:"ヒラメの刺身"},{ko:"우럭회",ja:"クロソイの刺身"}]},
+    {t:"p", v:{ko:`위 안주는 닭가슴살 수준의 단백질 비율이라 잘 활용해 보세요.`, ja:`上記のおつまみは鶏むね肉並みのタンパク質比率なので、上手に活用してください。`}},
+    {t:"p", v:{ko:`소주 한 병 = <span class="hl-amber">400kcal</span>. 반 병 + 손바닥만 한 안주면 400kcal로 “오늘 살 빠진 날!” 감이 옵니다. 한 병 다 드셨으면 안주 조심해도 600kcal — 나쁘진 않아요. 하지만 <span class="hl-amber">2차 1,500 · 3차 3,000kcal</span>면 그날 다이어트는 망친 거니, 다음 날 초저열량식으로 대처하세요.`, ja:`焼酎1本 = <span class="hl-amber">400kcal</span>。半分＋手のひらほどのおつまみで400kcalなら「今日は痩せた日！」という感覚に。1本飲んでもおつまみに気をつければ600kcal — 悪くありません。でも<span class="hl-amber">2軒目で1,500・3軒目で3,000kcal</span>なら、その日のダイエットは台無しなので、翌日は超低カロリー食で対処してください。`}}
+  ]},
+
+{ id:"S26", page:"p11", kicker:{ko:"운동", ja:"運動"},
+  h2:{ko:`운동과 약은<br><span class="accent">겹치지 않게</span>`, ja:`運動と薬は<br><span class="accent">重ならないように</span>`},
+  body:[
+    {t:"p", v:{ko:`저녁 운동을 하시면 <strong>아침·점심 약만</strong> 드시고 저녁약은 드시지 마세요.`, ja:`夜に運動する場合は<strong>朝・昼の薬だけ</strong>飲み、夜の薬は飲まないでください。`}},
+    {t:"p", v:{ko:`등산이나 하루 종일 야외활동을 하는 날은 <strong>하루 정도 약을 안 드시는 것</strong>도 좋습니다. <span class="hl-amber">(저혈당 주의)</span>`, ja:`登山や1日中の野外活動の日は<strong>1日ほど薬を飲まない</strong>のも良いです。<span class="hl-amber">（低血糖に注意）</span>`}},
+    {t:"p", v:{ko:`<strong>공복 운동</strong>도 조심하거나 피하는 게 좋아요.`, ja:`<strong>空腹時の運動</strong>も、控えるか避ける方が良いです。`}}
+  ]},
+
+{ id:"S27", page:"p5", kicker:{ko:"5. 불편증상", ja:"5. 不快な症状"},
+  h2:{ko:`에너지 쓰는 순서와<br><span class="accent">케톤대사</span>`, ja:`エネルギーを使う順序と<br><span class="accent">ケトン代謝</span>`},
+  body:[
+    {t:"p", v:{ko:`에너지를 쓸 때는 <strong>탄수화물 → 지방 → 단백질</strong> 순서로 씁니다. (단백질까지는 사실 쓰기 어렵습니다.)`, ja:`エネルギーは<strong>炭水化物 → 脂肪 → タンパク質</strong>の順で使います。（タンパク質までは実際には使いにくいです。）`}},
+    {t:"p", v:{ko:`탄수화물을 고갈시켜 지방을 쓰게 하는 전략이 간헐적 단식·저탄고지·공복 유산소인데, 뒤에 다시 먹으면 또 찝니다. 우리는 <span class="hl">‘저열량식’을 지속하며 약을 먹는 방식</span>으로 갑니다.`, ja:`炭水化物を枯渇させて脂肪を使わせる戦略が間欠的断食・低糖質高脂質・空腹有酸素ですが、後でまた食べると太ります。私たちは<span class="hl">「低カロリー食」を続けながら薬を飲む方法</span>で進めます。`}},
+    {t:"p", v:{ko:`지방을 에너지로 쓰는 것을 <strong>케톤대사</strong>라 합니다. 살도 빠지고 좋은데, 입냄새가 나고 입이 시큼하고 바싹 마릅니다. 그럴 땐 “오, 잘 빠지네!” 하고 <span class="hl-amber">물을 하루 2L 이상</span> 드시면 됩니다.`, ja:`脂肪をエネルギーに使うことを<strong>ケトン代謝</strong>といいます。痩せて体にも良いですが、口臭がして口が酸っぱく、カラカラに乾きます。その時は「お、よく痩せてる！」と思って<span class="hl-amber">水を1日2L以上</span>飲んでください。`}}
+  ]},
+
+{ id:"S28", page:"p5",
+  h2:{ko:`진짜 문제는 <span class="accent">수분과 저혈당</span>`, ja:`本当の問題は<span class="accent">水分と低血糖</span>`},
+  body:[
+    {t:"p", v:{ko:`탄수화물이 배출되며 <strong>수분을 끌고 나갑니다.</strong> 하루에도 1kg 이상 왔다 갔다 할 수 있어요. “붓기 빠져 좋네!”가 아니라 페트병 하나가 나간 셈입니다.`, ja:`炭水化物が排出される時に<strong>水分を引き連れて出ます。</strong>1日でも1kg以上変動することがあります。「むくみが取れて良い！」ではなく、ペットボトル1本分が出ただけです。`}},
+    {t:"p", v:{ko:`피가 부족한 것처럼 앉았다 일어나면 눈앞이 깜깜한 <span class="hl-amber">저혈당</span>을 조심해야 합니다. 아침·오후에 생기기 쉬우니 <strong>당 보충 + 수분 보충</strong>을 잘 해주세요.`, ja:`血が足りないように、座って立つと目の前が暗くなる<span class="hl-amber">低血糖</span>に注意が必要です。朝や午後に起きやすいので<strong>糖分補給＋水分補給</strong>をしっかり。`}},
+    {t:"p", v:{ko:`탄수화물은 근육 안 <strong>글리코겐</strong> 형태로도 있다가 빠지는데, 그러면 근육이 긴장돼 두통·손떨림·쥐남이 생길 수 있어요. 그래서 <span class="hl">운동 전에는 오히려 탄수화물을 드셔야</span> 할 수 있습니다.`, ja:`炭水化物は筋肉内に<strong>グリコーゲン</strong>としてもあり、それが抜けると筋肉が緊張して頭痛・手の震え・こむら返りが起きることがあります。だから<span class="hl">運動前はむしろ炭水化物を摂る</span>必要があるかもしれません。`}}
+  ]},
+
+{ id:"S29", page:"p5",
+  h2:{ko:`그 밖의 증상과<br><span class="accent">복용법</span>`, ja:`その他の症状と<br><span class="accent">服用法</span>`},
+  body:[
+    {t:"p", v:{ko:`공복에 약 먹고 속쓰리면 <strong>식전·식후</strong>에 드세요. 아몬드브리즈 등과 함께 드셔도 좋습니다.`, ja:`空腹で薬を飲んで胃がもたれるなら<strong>食前・食後</strong>に。アーモンドミルクなどと一緒でもOKです。`}},
+    {t:"p", v:{ko:`여성은 체지방 변화가 여성호르몬과 관련돼 일시적 <strong>생리불순</strong>이, 남성은 일시적 <strong>발기부전</strong>이 생길 수 있는데 하루이틀만 안 드셔도 회복되며, 살이 빠지면 오히려 개선됩니다. <strong>변비</strong>는 따로 챙겨드리는 약이 있어요.`, ja:`女性は体脂肪の変化が女性ホルモンと関連し、一時的な<strong>生理不順</strong>が、男性は一時的な<strong>勃起不全</strong>が起こることがありますが、1〜2日飲まなければ回復し、痩せればむしろ改善します。<strong>便秘</strong>には別途お渡しする薬があります。`}},
+    {t:"lead", v:{ko:`<strong>알러지</strong>가 생기면 중단하고 연락 주세요. (특히 알러지 없으시죠?) 그 외 불편증상도 중단하고 바로 연락 주세요.`, ja:`<strong>アレルギー</strong>が出たら中止してご連絡を。（特にアレルギーはありませんか？）その他の不快な症状も、中止してすぐご連絡ください。`}},
+    {t:"dose"}
+  ]},
+
+{ id:"S30", page:"end",
+  h2:{ko:`마지막 퀴즈 ·<br>그 1~2kg는 왜 <span class="accent">갑자기</span> 돌아왔나?`, ja:`最後のクイズ ·<br>その1〜2kgはなぜ<span class="accent">急に</span>戻った？`},
+  body:[
+    {t:"goal"},
+    {t:"p", v:{ko:`10kg을 잘 뺐는데 한 끼 많이 먹었다고 바로 1~2kg 돌아오면 억울하죠. 많이 먹어서이긴 하지만 — 핵심은 <span class="hl">수분 이동</span>입니다.`, ja:`10kgをうまく落としたのに、一食多く食べただけで1〜2kg戻ると悔しいですよね。多く食べたのは事実ですが — 核心は<span class="hl">水分の移動</span>です。`}},
+    {t:"p", v:{ko:`하루 1~2kg 이동은 지방일 수 없어요. 수분이 왔다 갔다 하며 우리를 헷갈리게 합니다. 그래서 잘 빠지다 안 빠지다 <strong>계단식</strong>으로 빠질 수 있어요.`, ja:`1日1〜2kgの移動は脂肪ではありえません。水分が行き来して私たちを惑わせます。だからよく痩せたり止まったり、<strong>階段状</strong>に痩せることがあります。`}},
+    {t:"lead", v:{ko:`수분인지 진짜 안 빠지는지 어떻게 아냐? → <span class="hl">허리 사이즈(부피·눈바디)</span>로 확인하세요. 허리가 줄고 있으면 잘하고 있는 겁니다.`, ja:`水分か、本当に痩せていないか、どう見分ける？ → <span class="hl">ウエストサイズ（体積・見た目）</span>で確認します。ウエストが減っていれば順調です。`}},
+    {t:"p", v:{ko:`<strong>여기까지입니다. 궁금하신 점 있으신가요? 고생 많으셨습니다.</strong>`, ja:`<strong>ここまでです。ご質問はありますか？ お疲れさまでした。</strong>`}}
+  ]}
+];
+
+// ---------- state & dynamic ----------
+let idx = 0;
+let lang = "ko";
+const STATE = { patient:"", doctor:"", wake:8, g_m1:"3", g_kg1:"7", g_m2:"6", g_kg2:"15", g_pm:"2.3" };
+
+function esc(s){ return (s==null?"":String(s)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function strip(html){ return html.replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').trim(); }
+function vN(x){ return (x===""||x==null)?"N":esc(x); }
+
+// 인사 (의료진명 연동)
+function docName(lg){
+  return STATE.doctor.trim() || "___";
+}
+function greetMain(lg){
+  const p=STATE.patient.trim(), d=docName(lg), P=esc(p), D=esc(d);
+  if(lg==="ja") return (p?P+"様、":"")+"こんにちは。担当医の"+D+"です。";
+  if(lg==="en") return (p?P+", ":"")+"hello. I'm Dr. "+D+", and I'll be helping you today.";
+  if(lg==="zh-cn") return (p?P+"，":"")+"您好。我是您的主治医师"+D+"。";
+  if(lg==="zh-tw") return (p?P+"，":"")+"您好。我是您的主治醫師"+D+"。";
+  if(lg==="th") return (p?"คุณ"+P+" ":"")+"สวัสดีครับ ผมเป็นแพทย์ผู้ดูแลของคุณ "+D;
+  return (p?P+"님, ":"")+"안녕하세요. 담당의 "+D+"입니다.";
+}
+function updateGreet(){
+  const g=document.getElementById('greet'); if(!g) return;
+  g.innerHTML=greetMain(lang);
+  const nx=g.nextElementSibling;
+  if(lang!=="ko" && nx && nx.classList.contains('gloss')) nx.innerHTML=strip(greetMain("ko"));
+}
+
+// 복용시각 (기상시각 연동)
+function curWake(){ const w=STATE.wake; return (w===""||w==null||isNaN(w))?8:(((w%24)+24)%24); }
+function doseTimes(w, sep){ return [w,(w+4)%24,(w+8)%24].join(sep); }
+const DOSE = {
+  ko:{ tag:"복용법", pre:"기상 ", mid:"시 기준 → ", sep:"·",
+       post:"시, 4시간 간격으로 3알씩 3번. 마지막 약이 남으면 불면을 유발할 수 있어 저녁약은 줄이거나 안 드셔도 됩니다. 잠은 충분히.",
+       p2:`처음엔 <strong>1~2알</strong>부터, 괜찮으면 3알씩. 특히 <span class="hl-amber">초반 2주</span>에 불편증상이 생기기 쉬우니 조심하세요.` },
+  ja:{ tag:"服用法", pre:"起床 ", mid:"時を基準に → ", sep:"・",
+       post:"時、4時間おきに3錠ずつ3回。最後の薬が残ると不眠を招くことがあるので、夜の薬は減らすか飲まなくてもOK。睡眠は十分に。",
+       p2:`最初は<strong>1〜2錠</strong>から、大丈夫なら3錠ずつ。特に<span class="hl-amber">最初の2週間</span>に不快な症状が出やすいので注意してください。` },
+  en:{ tag:"How to take", pre:"Wake-up at ", mid:":00 → take at ", sep:":00, ",
+       post:":00 — 3 tablets each, 3 times a day, 4 hours apart. If the last dose runs too late it may cause insomnia, so feel free to reduce or skip the evening dose. Be sure to sleep well.",
+       p2:`Start with <strong>1–2 tablets</strong>, and 3 if you tolerate it. Side effects are most likely in the <span class="hl-amber">first 2 weeks</span>, so take care.` },
+  "zh-cn":{ tag:"服用方法", pre:"起床 ", mid:"点为准 → ", sep:"·",
+       post:"点，每隔4小时3粒、共3次。最后一次太晚可能影响睡眠，晚上那次可减量或不服。请保证充足睡眠。",
+       p2:`先从<strong>1~2粒</strong>开始，适应后每次3粒。<span class="hl-amber">前两周</span>最容易出现不适，请多留意。` },
+  "zh-tw":{ tag:"服用方式", pre:"起床 ", mid:"點為準 → ", sep:"·",
+       post:"點，每隔4小時3粒、共3次。最後一次太晚可能影響睡眠，晚上那次可減量或不服。請保持充足睡眠。",
+       p2:`先從<strong>1~2粒</strong>開始，適應後每次3粒。<span class="hl-amber">前兩週</span>最容易出現不適，請多留意。` },
+  th:{ tag:"วิธีรับประทาน", pre:"ตื่นนอน ", mid:" น. เป็นเกณฑ์ → ", sep:" น., ",
+       post:" น. ห่างกัน 4 ชม. ครั้งละ 3 เม็ด วันละ 3 ครั้ง หากมื้อสุดท้ายดึกเกินไปอาจนอนไม่หลับ มื้อเย็นลดหรืองดได้ พักผ่อนให้เพียงพอ",
+       p2:`เริ่มจาก <strong>1–2 เม็ด</strong> ถ้าไหวค่อยเพิ่มเป็น 3 เม็ด ช่วง <span class="hl-amber">2 สัปดาห์แรก</span> มักมีอาการไม่สบายตัว โปรดระวัง` }
+};
+function doseGlossKo(w){ return "기상 <span id=\"wakeKo\">"+w+"</span>시 기준 → <span id=\"doseTimesKo\">"+doseTimes(w,"·")+"</span>시, 4시간 간격으로 3알씩 3번. 마지막 약이 남으면 불면을 유발할 수 있어 저녁약은 줄이거나 안 드셔도 됩니다. 잠은 충분히."; }
+function updateDose(){
+  const w=curWake(), sep=(lang==="ja"?DOSE.ja.sep:DOSE.ko.sep);
+  const a=document.getElementById('doseTimes'); if(a) a.textContent=doseTimes(w,sep);
+  const wk=document.getElementById('wakeKo'); if(wk) wk.textContent=w;
+  const dk=document.getElementById('doseTimesKo'); if(dk) dk.textContent=doseTimes(w,"·");
+}
+
+// 감량 목표 (개월·kg 연동, 월 단위 자동 계산)
+const GOAL = {
+  ko:{ a:"감량 목표는 ", b:"개월간 ", c:"kg, ", d:"개월간 ", e:"kg입니다. 한 달에 약 ", f:"kg씩 꾸준히 빠지면 잘 되고 있는 거예요." },
+  ja:{ a:"減量目標は ", b:"か月で ", c:"kg、", d:"か月で ", e:"kgです。1か月に約 ", f:"kgずつ着実に減れば順調です。" },
+  en:{ a:"Target: in ", b:" months lose ", c:"kg; in ", d:" months lose ", e:"kg — about ", f:"kg per month means you're on track." },
+  "zh-cn":{ a:"减重目标：", b:"个月减 ", c:"kg，", d:"个月减 ", e:"kg。每月约 ", f:"kg，保持这个速度就很好。" },
+  "zh-tw":{ a:"減重目標：", b:"個月減 ", c:"kg，", d:"個月減 ", e:"kg。每月約 ", f:"kg，維持這個速度就很好。" },
+  th:{ a:"เป้าหมาย: ", b:" เดือนลด ", c:"kg, ", d:" เดือนลด ", e:"kg — เดือนละประมาณ ", f:"kg ถ้าได้ประมาณนี้ถือว่าดี" }
+};
+function goalGlossKo(){
+  const g=GOAL.ko;
+  return g.a+vN(STATE.g_m1)+g.b+vN(STATE.g_kg1)+g.c+vN(STATE.g_m2)+g.d+vN(STATE.g_kg2)+g.e+vN(STATE.g_pm)+g.f;
+}
+function updateGoal(){
+  const gg=document.getElementById('goalGloss'); if(gg) gg.innerHTML=goalGlossKo();
+}
+
+// ---------- translation merge ----------
+function trNodes(s){
+  const o=[];
+  if(s.cover){ o.push(s.h1); o.push(s.sub); return o; }
+  if(s.kicker) o.push(s.kicker);
+  o.push(s.h2);
+  s.body.forEach(function(b){
+    if(b.t==='p'||b.t==='lead'||b.t==='note') o.push(b.v);
+    else if(b.t==='case'){ o.push(b.tag); b.ps.forEach(function(p){o.push(p);}); }
+    else if(b.t==='duo'){ b.cards.forEach(function(c){o.push(c.h4);o.push(c.p);}); }
+    else if(b.t==='chips'){ b.items.forEach(function(c){o.push(c);}); }
+    else if(b.t==='eq'){ b.terms.forEach(function(t){o.push(t.t);o.push(t.v);}); }
+  });
+  return o;
+}
+const TR = {
+S01:{en:[`Let me walk you through <span class="accent">how dieting works and how to take your medication</span>`,`Let's look at the core ideas and direction together.`]},
+S02:{en:[`1. Diet Basics`,`‘Losing weight’ means <span class="accent">‘a calorie deficit’</span>`,`Medication matters, but the <strong>concepts and direction</strong> matter even more. Understand them once and they'll help you for a long time.`,`Losing weight isn't 'exercising,' 'dieting,' or 'taking pills' — it's <span class="hl">continuously creating a calorie deficit</span>.`,`You can keep up this calorie deficit for <strong>about 6 months</strong>.`]},
+S03:{en:[`It slows from month 3,<br>and stalls after month 6`,`Diet, exercise, medication — <strong>whatever the method, the trend is the same</strong>.`,`Why? It's a matter of <span class="hl">‘practice’</span> — not a drop in metabolism or drug tolerance.`,`A research story`,`In one study, people lost weight twice in a row without rebound — the method was a <span class="hl-amber">cash reward</span>.`,`Proof that <strong>motivation</strong> matters more than the body's response — even more so over the long haul.`]},
+S04:{en:[`What is a<br>calorie deficit?`,`It's when you burn more calories than you take in.`,`If more goes out than comes in, you lose weight.`,`Intake`,`what you eat`,`Output`,`what you burn`,`Result`,`weight loss`,`The problem is people think many factors affect this — <strong>body type, gut bacteria, age, muscle mass, metabolism</strong>, and so on.`]},
+S05:{en:[`Do any of these matter?<br><span class="accent">Actually, no.</span>`,`<strong>Metabolism</strong> is hard to measure, and some studies show it's stable from age 20 to 60. It's close to a life-support function, so it's hard to see it as a big driver of weight.`,`<strong>Muscle mass</strong> is similar. It's unlikely you suddenly gained because you lost muscle.`,`<strong>Age</strong> sadly can't be changed, and <strong>gut bacteria</strong>, studied for over a decade, still can't be said to make you lose weight. <strong>Body type</strong> is worth managing, but it's unlikely it suddenly changed and made you gain.`]},
+S06:{en:[`Forget the many variables —<br>focus on just <span class="accent">2</span>`,`① Diet`,`The <strong>more important</strong> of the two. This is where it's won or lost.`,`② Exercise`,`Always good for you — but raising calorie burn sharply is harder than you'd think.`,`If a good day burns about <span class="hl-amber">1,800kcal (women) / 2,000kcal (men)</span>, adding an hour of exercise adds only about <span class="hl-amber">300–400kcal</span>.`,`Exercise is good, but it helps to assume <span class="hl">calorie burn is essentially ‘fixed’</span>.`]},
+S07:{en:[`Intake is the ‘variable’,<br>output is ‘fixed’`,`Eating ranges from 0kcal when fasting to <span class="hl-amber">4–5,000kcal</span> when overeating — swinging <strong>over 1,000kcal a day</strong>.`,`Intake swings widely; output is relatively fixed. So eating 2–3,000kcal extra thinking "I'll work out tomorrow" and burning 3–400kcal doesn't add up, right?`,`So we narrow the cause of weight to <span class="hl">one thing — ‘what you eat’</span>.`,`Gained? You ate. Ate less? You lost! Just go back and forth here. We've narrowed cause and effect to one.`]},
+S08:{en:[`“I ate the same —<br>why did I gain?”`,`It looks simple, but people struggle. "I didn't eat much? This used to be enough to lose!" — and they drift off the cause. "Is it age? Did my metabolism drop?" the mind jumps again.`,`The long-researched answer is anticlimactic: <span class="hl">you didn't actually eat the same — you just didn't notice</span>.`,`An analogy`,`Like, "Why is this month's credit card bill so high? No way!"`,`You can eat 2–3,000kcal yet believe you only had <span class="hl-amber">1,200kcal</span> — a daily gap of up to 800–1,000kcal.`,`So if you shrug and say "I guess I just ate a lot" and <strong>look to food for the cause</strong>, your reasoning stays on track.`]},
+S09:{en:[`Cut back and still no loss?<br><span class="accent">Cut back more</span>`,`Cut back, weigh again, no loss — and the mind drifts again. The trap is that you stopped questioning your food. <span class="hl">If less isn't enough, cut more and review more</span>.`,`Real case · a hair stylist`,`"I gain even though I barely eat" — she photographed every meal for her trainer, who said "you can't gain weight on this."`,`Turns out she drank <span class="hl-amber">1L of milk</span> a day — thinking it was protein.`,`Soy milk, bananas, nuts, oatmeal, brown rice, sweet potato — all can cause gain. <strong>The answer is always in what you eat.</strong>`]},
+S10:{en:[`This is exactly <span class="accent">self-monitoring</span>`,`Review food → measure weight → review → measure. Going back and forth through this cause-and-effect, <span class="hl">observing and learning, again and again</span>.`,`Someone with this foundation then adds — <strong>exercise, medication, procedures</strong>.`,`Always <strong>put diet first</strong>, then build the rest, so you won't be thrown off.`]},
+S11:{en:[`2. The Medication's Effect, and Appetite`,`Why take the herbal medicine,<br>and what does it do?`,`① Accelerates loss`,`For the same effort, loss becomes <span class="hl-amber">2–3×</span>. It raises calorie burn to speed up loss.`,`② Curbs appetite`,`It adds fullness and helps suppress appetite, making the diet easier.`,`③ Eases discomfort`,`Herbs suited to your body reduce discomfort and support the process.`]},
+S12:{en:[`Appetite comes in <span class="accent">two kinds</span>`,`Real hunger appetite`,`Imagine fasting a week — tired, stomach growling, miserable. Eating bread or snacks then is <strong>appetite that truly needs calories</strong>.`,`The other appetite`,`We eat bread and snacks not to gain weight but because they're tasty. It's appetite for <strong>stimulation and pleasure, not calories</strong>.`]},
+S13:{en:[`Appetite the medicine curbs vs<br>appetite it can't fully curb`,`The herbal medicine helps reduce <span class="hl">‘hunger appetite’</span>. Growling, fatigue, and tiredness drop a lot, so dieting isn't very hard.`,`But <strong>appetite for stimulation and pleasure</strong> can't be fully curbed by medicine. Stress and poor sleep make you crave sweets — appetite tied to many factors like sleep.`,`Suppress this appetite too hard with medicine and <span class="hl-amber">it can explode after stopping, causing rebound</span>. So you need to understand and manage it to some degree.`]},
+S14:{en:[`Cut the calories,<br>supply only <span class="accent">stimulation and pleasure</span>`,`This appetite wants ‘stimulation and pleasure,’ so cut the calories and supply just that. Stuck home all day your mouth gets restless; go out and about and the day passes.`,`So what you need is — <span class="hl">tasty food that doesn't make you gain</span>.`,`The answer is <strong>‘to find them’</strong>. Zero cola, konjac jelly, mushrooms, cabbage, cherry tomatoes… so many. As they add up, dieting gets easier.`]},
+S15:{en:[`Keep finding them, and<br>swap in other pleasures`,`Case · 10kg in 3 weeks`,`She mixed Crystal Light powder into zero soda; it was tasty enough that she didn't need much else. (I tried it — not to my taste; preferences vary.)`,`People who couldn't lose every summer because of ice cream have, since last year, noticeably slimmed thanks to <span class="hl-amber">zero-calorie ice cream</span>.`,`7+ hours of sleep`,`Swap with hobbies`,`Especially, <strong>if you can't sleep, this appetite won't settle.</strong> One person, to quit his daily after-work drinks, practiced golf in that time as a different pleasure and lost over 20kg in 3 months.`]},
+S16:{en:[`3. Diet`,`The heart of dieting is <span class="accent">‘practice’</span>`,`Oddly, people love making practice <strong>hard</strong> — low-salt, keto, intermittent fasting, macros, blood-sugar spikes, "eating at night makes you fat," and so on. Too many factors make practice harder.`,`A research story · meal timing`,`Four studies changed only the timing (morning/noon/night) of the same meal; three showed equal loss, and only one had the evening group lose less.`,`Not from eating then sleeping, but because <span class="hl">social and cultural factors led to eating a bit more at night</span> — i.e., just less practice.`]},
+S17:{en:[`In the end, watch one thing: <span class="accent">calories</span>`,`If not this or that, then what? The <strong>calories</strong> from page 1. Watch only calories. Don't worry about the rest.`,`Low-calorie diet (VLD)`,`<span class="hl-amber">1,200–1,500kcal</span> a day. The <strong>most basic, textbook-level</strong> evidence, fine to sustain even for 6 months.`,`Very-low-calorie diet (VLCD)`,`<span class="hl-amber">Under 800kcal</span> a day. Useful done right, but <strong>over 2 weeks</strong> can be a strain.`,`Gallstones`,`Hair loss`,`Dizziness`,`Triggers bingeing`,`About 2 days is fine — even said to be healthy, since humans evolved to go hungry.`]},
+S18:{en:[`VLCD,<br>as a way to <span class="accent">reduce appetite</span>`,`The director's own experience`,`I once gained over 10kg in 2 months; appetite ran wild and I rationalized eating too much. So instead of medicine, I did <span class="hl">2 days of VLCD</span>, appetite settled, I moved to a low-calorie diet and lost it well.`,`Say you keep to 1,200–1,500kcal, then eat 3–4,000kcal a day on a trip. Eating itself raises appetite, so you keep overeating even after you're back.`,`Then don't panic — <strong>handle it with a day or two of VLCD</strong> to settle appetite, then return to the low-calorie diet.`]},
+S19:{en:[`Why do bread, rice cakes,<br>fruit, and drinks cause gain?`,`You could say "they're carbs," but eat just one piece of bread then fast and you'll lose. <span class="hl">Carbs don't always cause gain.</span>`,`The issue is they're <strong>tasty, easy to digest, and easy to overeat</strong>, so calories pile up fast.`,`A slice of cake 500–700kcal`,`Fruit, sweet potato, banana too`]},
+S20:{en:[`4. Diet ②`,`Protein and veg are good,<br>but there's a <span class="accent">trap</span>`,`Protein and vegetables are good for fullness, but <strong>tofu is under half protein, and milk is over half carbs</strong>. Protein's big downside is eating a lot thinking "it's protein, so it's fine" — watch energy bars and protein shakes too.`,`Case · chicken, 10kg in 2 months`,`The trick: ‘eat a little.’ Someone who ate a whole chicken switched to <span class="hl-amber">2 pieces</span>. More doable than banning it entirely, she said.`,`The extension of this is <span class="hl">maintenance</span>. You can't avoid jajangmyeon forever — approach it by <strong>‘amount’ rather than ‘type’</strong>.`]},
+S21:{en:[`Predict when appetite rises<br>and <span class="accent">prepare</span>`,`Old research says humans have an instinct to binge after a successful hunt following hunger. <span class="hl">Once food enters the mouth, appetite rises and keeps you eating</span> — a survival instinct shared by people, cats, and dogs.`,`Prep tips`,`· You'll obviously finish a whole chicken, so <strong>keep 2 pieces out and freeze the rest</strong>.`,`· For ramen too, <strong>snap off and toss half</strong> before cooking.`,`· If you crave jelly and buy it, keep 2–3 and <strong>share the rest with your team</strong>.`,`To someone who ate 3 red-bean buns on the spot — "One raises appetite so you eat all 3, so <strong>buy just one to begin with</strong>." Practice while the medicine keeps appetite in check.`]},
+S22:{en:[`Remember ‘<span class="accent">400kcal</span>’`,`Diet lunchboxes help. Most are <span class="hl-amber">within 400kcal</span>, and ×3 is 1,200kcal — the low-calorie standard. Without a sense of portions, use the box as a sample for regular meals.`,`Getting a feel`,`Burger King Jr. Whopper <span class="hl-amber">390kcal</span> + zero cola → "I'll lose on this." Quattro Cheese Whopper <span class="hl-amber">800kcal</span> → "I'll eat half."`,`Bakery breakfast — tasty one 500kcal, plain one 300kcal? You can eat <strong>half the tasty one</strong>.`,`Numbers you couldn't see start appearing. <strong>Eat what you want, but by ‘amount’ — the unit is ‘calories’.</strong>`]},
+S23:{en:[`Ate too much · ate too little —<br>by what <span class="accent">standard</span>?`,`Watching calories is the point, but you can't count them every time. Even experts find it hard.`,`So it'd help to have one more gauge of ‘a lot / a little,’ <strong>besides calories</strong>.`,`Besides calories (kcal) — <span class="hl">by what</span> can you judge a lot vs. a little?`,`Fullness? Your past memory? Friends' talk? … Take a moment to think.`]},
+S24:{en:[`You actually learned it —<br>it's <span class="accent">weight change</span>`,`Fullness, old memory, friends' talk — <strong>all inaccurate.</strong> The answer is <span class="hl">weight change</span>.`,`Gained? You ate. Lost? You ate less. Held steady? You ate at maintenance. Even with bread and drinks, if weight held, that was maintenance eating.`,`Intake`,`calories in`,`Output (fixed)`,`calories out`,`Observed`,`weight change`,`Intake is hard to measure each time, but <strong>weight just takes a morning check</strong>. Self-monitoring that learns eating from weight change — don't lose this direction.`]},
+S25:{en:[`Alcohol`,`Medication on drinking days,<br>and <span class="accent">snacks</span>`,`On drinking days, <strong>skip the evening dose</strong>, and if the next day is rough, pause the medicine briefly. You may get drunk faster than usual, so drink plenty of water and be careful.`,`Dried pollack`,`Dried squid`,`Flatfish sashimi`,`Rockfish sashimi`,`These snacks have a protein ratio like chicken breast, so use them well.`,`A bottle of soju = <span class="hl-amber">400kcal</span>. Half a bottle + a palm-sized snack is 400kcal — a "lost weight today!" feeling. Finish a bottle and, even with careful snacks, it's 600kcal — not bad. But <span class="hl-amber">1,500 at a second venue, 3,000kcal at a third</span> wrecks the day's diet, so handle it next day with VLCD.`]},
+S26:{en:[`Exercise`,`Don't overlap<br>exercise and medication`,`If you exercise in the evening, take <strong>only the morning and noon doses</strong> and skip the evening one.`,`On days of hiking or all-day outdoor activity, <strong>skipping the medicine for a day</strong> is fine too. <span class="hl-amber">(Watch for low blood sugar.)</span>`,`It's also best to be careful with or avoid <strong>fasted exercise</strong>.`]},
+S27:{en:[`5. Discomfort`,`The order energy is used, and<br><span class="accent">ketone metabolism</span>`,`Energy is used in the order <strong>carbs → fat → protein</strong>. (Reaching protein is actually hard.)`,`Depleting carbs to burn fat is the idea behind intermittent fasting, keto, and fasted cardio — but eat again afterward and you regain. We go with <span class="hl">sustaining a low-calorie diet while taking medicine</span>.`,`Burning fat for energy is <strong>ketone metabolism</strong>. You lose weight and it's good, but breath smells, the mouth turns sour and bone-dry. When that happens, think "oh, I'm losing well!" and <span class="hl-amber">drink 2L+ of water a day</span>.`]},
+S28:{en:[`The real issues are <span class="accent">water and low blood sugar</span>`,`As carbs are flushed out, they <strong>drag water with them.</strong> You can swing 1kg+ in a single day. It's not "nice, swelling's gone" — it's just a water bottle leaving.`,`Watch for <span class="hl-amber">low blood sugar</span> — standing up and going dark, as if low on blood. It's common in the morning and afternoon, so <strong>top up sugar + water</strong> well.`,`Carbs also sit in muscle as <strong>glycogen</strong> and leave; then muscles tense, causing headaches, hand tremors, and cramps. So <span class="hl">before exercise you may actually need carbs</span>.`]},
+S29:{en:[`Other symptoms and<br><span class="accent">how to take it</span>`,`If your stomach burns taking it on an empty stomach, take it <strong>before or after meals</strong>. With almond milk and the like is fine too.`,`In women, body-fat change relates to female hormones and can cause temporary <strong>menstrual irregularity</strong>; in men, temporary <strong>erectile difficulty</strong> — both recover after skipping a day or two, and improve as you lose weight. For <strong>constipation</strong>, there's a separate medicine we provide.`,`If <strong>an allergy</strong> appears, stop and contact us. (No allergies, right?) For any other discomfort too, stop and contact us right away.`]},
+S30:{en:[`Final quiz · why did those<br>1–2kg <span class="accent">suddenly</span> come back?`,`Lose 10kg well, then gain 1–2kg right after one big meal — frustrating. It is from eating more, but the key is <span class="hl">water shift</span>.`,`A 1–2kg daily move can't be fat. Water moving back and forth confuses us. So loss can come in <strong>steps</strong> — dropping, stalling, dropping.`,`How to tell water from a real stall? → Check by <span class="hl">waist size (volume, the mirror)</span>. If your waist is shrinking, you're doing well.`,`<strong>That's all. Any questions? Thank you for your hard work.</strong>`]}
+};
+function addLang(code,obj){ Object.keys(obj).forEach(function(id){ if(!TR[id])TR[id]={}; TR[id][code]=obj[id]; }); }
+addLang('zh-cn', {
+S01:[`现在开始为您讲解<span class="accent">减重原理与中药服用方法</span>`,`我们一起来看核心概念与方向。`],
+S02:[`1. 减重基本概念`,`“减重”其实就是<span class="accent">“热量不足”</span>`,`开药很重要，但<strong>概念与方向</strong>更重要。理解一次，今后都会很有帮助。`,`变瘦不是“运动、节食、吃药”，而是<span class="hl">持续制造热量不足</span>。`,`这种热量不足，可以持续<strong>大约6个月</strong>。`],
+S03:[`从第3个月开始变慢，<br>6个月后会越来越难掉`,`节食、运动、药物——<strong>无论哪种方式，趋势都相似</strong>。`,`为什么？是<span class="hl">“执行”问题</span>，不是基础代谢下降或对药产生耐受。`,`研究小故事`,`有研究让人不反弹地连续两次成功减重，方法就是<span class="hl-amber">给予金钱奖励</span>。`,`这说明<strong>动机</strong>比身体反应更重要——长期战更是如此。`],
+S04:[`什么是<br>热量不足？`,`就是消耗的热量多于摄入的热量。`,`出去的比进来的多，就会变瘦。`,`摄入`,`吃进去的`,`消耗`,`消耗掉的`,`结果`,`减重`,`问题是，大家以为影响它的因素很多——<strong>体质、肠道菌群、年龄、肌肉量、基础代谢</strong>等等。`],
+S05:[`这些之中有重要的吗？<br><span class="accent">其实没有。</span>`,`<strong>基础代谢</strong>难以测量，有研究显示从20岁到60岁基本不变。它接近生命维持装置，很难视为左右体重的大变量。`,`<strong>肌肉量</strong>也类似。很难说是因为肌肉减少而突然变胖。`,`<strong>年龄</strong>可惜无法改变；<strong>肠道菌群</strong>研究了十多年，仍很难说能让人变瘦。<strong>体质</strong>管理虽好，但很难说是体质突然改变让人变胖。`],
+S06:[`别管众多变量，<br>只专注<span class="accent">2件事</span>`,`① 饮食控制`,`两者中<strong>更重要的一个</strong>。胜负最终在这里分出。`,`② 运动`,`对身体绝对有益，但要急剧增加热量消耗比想象中难。`,`若一天大约消耗<span class="hl-amber">1,800kcal（女）·2,000kcal（男）</span>，加一小时运动也只增加约<span class="hl-amber">300~400kcal</span>。`,`运动虽好，但把<span class="hl">热量消耗视为“固定值”</span>会更有利。`],
+S07:[`摄入是“变量”，<br>消耗是“固定值”`,`吃东西：断食0kcal，吃多了<span class="hl-amber">4~5,000kcal</span>——一天波动<strong>1,000kcal以上</strong>。`,`摄入大幅波动，消耗相对固定。想着“明天运动就好”而多吃2~3,000kcal、只烧3~400kcal，划得来吗？`,`所以把体重的原因收窄到<span class="hl">一件事——“吃”</span>。`,`胖了？是吃了。吃少了？掉了！只在这里来回即可。我们把因果收窄成一个。`],
+S08:[`“吃得一样，<br>为什么胖了？”`,`看似简单，但大家做不到。“我没吃多啊？以前这样就掉了！”于是脱离因果。“是年龄？基础代谢降了？”想法又乱跳。`,`长期研究的答案很平淡：<span class="hl">其实没吃得一样，只是自己没察觉</span>。`,`比喻`,`就像“这个月信用卡怎么这么多？不可能！”`,`明明吃了2~3,000kcal，却以为只吃了<span class="hl-amber">1,200kcal</span>——一天可差800~1,000kcal。`,`所以耸耸肩说“大概就是吃多了吧”，<strong>从“吃”里找原因</strong>，思路就不会偏。`],
+S09:[`少吃了还不掉？<br><span class="accent">那就再少吃</span>`,`少吃、再称、不掉——想法又乱跳。陷阱在于你停止了对“吃”的检讨。<span class="hl">不够就再减、再检讨</span>即可。`,`真实案例 · 一位发型师`,`“我几乎没吃却还胖”，她把每餐都拍给教练看，教练说“这样不可能胖”。`,`一问，她每天喝<span class="hl-amber">1L牛奶</span>——以为是蛋白质。`,`豆浆、香蕉、坚果、燕麦、糙米饭、红薯——都可能让人胖。<strong>答案永远在“吃”里。</strong>`],
+S10:[`这就是<span class="accent">自我监测</span>`,`检讨饮食 → 测体重 → 检讨 → 测体重。在这个因果里来回，<span class="hl">反复观察与学习</span>。`,`以此为基础的人，再去添加——<strong>运动、药物、施术</strong>。`,`始终<strong>以饮食控制为先</strong>，再搭建其余，才不会被牵着走。`],
+S11:[`2. 药的效果，以及食欲`,`为什么要吃中药，<br>有什么效果？`,`① 加速减重`,`同样努力，减重可达<span class="hl-amber">2~3倍</span>。提高热量消耗以加速减重。`,`② 抑制食欲`,`带来饱腹感、帮助抑制食欲，让饮食控制更轻松。`,`③ 缓解不适`,`用适合体质的药材减轻不适，辅助减重过程。`],
+S12:[`食欲大致分<span class="accent">两类</span>`,`真正饿出来的食欲`,`想象断食一周——疲惫、肚子咕咕、很难受。那时吃面包零食，是<strong>真正需要热量的食欲</strong>。`,`并非如此的食欲`,`吃面包零食不是为了变胖，而是因为好吃。这是为了<strong>刺激与愉悦、而非热量</strong>的食欲。`],
+S13:[`中药能压的食欲 vs<br>药压不住的食欲`,`中药有助于减少<span class="hl">“饿出来的食欲”</span>。咕咕叫、疲惫、困倦明显减少，节食也不太辛苦。`,`但<strong>为刺激与愉悦的食欲</strong>，中药难以完全压住。压力大、睡不好就想吃甜的——这是结合睡眠等多因素的食欲。`,`用药把这种食欲压得太狠，<span class="hl-amber">停药后食欲可能爆发、导致反弹</span>。所以需要一定程度的理解与管理。`],
+S14:[`去掉热量，<br>只提供<span class="accent">刺激与愉悦</span>`,`这种食欲想要的是“刺激与愉悦”，所以去掉热量、只供给这部分即可。整天在家嘴会闲，出门走动一天就过去了。`,`所以需要的就是——<span class="hl">好吃又不发胖的食物</span>。`,`答案是<strong>“去找”</strong>。零度可乐、蒟蒻果冻、蘑菇、卷心菜、圣女果……非常多。一样样增多，减重就越来越轻松。`],
+S15:[`不断去找，<br>用别的愉悦来替代`,`案例 · 3周减10kg`,`她把Crystal Light粉冲进零度汽水，好喝到不太需要吃别的。（我也买过，不合我口味——口味因人而异。）`,`每到夏天因冰淇淋而减不下来的人，自去年起靠<span class="hl-amber">零卡冰淇淋</span>明显瘦了。`,`睡眠7小时以上`,`用兴趣爱好替代`,`尤其<strong>睡不好时，这种食欲压不住。</strong>有位为戒掉下班后每天的酒，把那段时间用来练高尔夫作为别的愉悦，3个月减了20kg以上。`],
+S16:[`3. 饮食控制`,`饮食控制的核心是<span class="accent">“执行”</span>`,`可大家偏偏喜欢把执行<strong>变难</strong>——低盐、生酮、间歇性断食、营养素配比、血糖飙升、“晚上吃会胖”等等。想太多因素，执行反而更难。`,`研究小故事 · 进食时间`,`把同一份餐只改早/午/晚时间的研究做过4次，3次掉得一样，只有1次晚餐组掉得少。`,`并非吃完就睡，而是<span class="hl">受社会文化影响，晚上多吃了一点</span>——也就是执行不够而已。`],
+S17:[`最终只看一样：<span class="accent">热量</span>`,`不是这也不是那，那执行什么？就是第1页的<strong>热量</strong>。只看热量，其余别管。`,`低热量饮食 (VLD)`,`每天<span class="hl-amber">1,200~1,500kcal</span>。可持续6个月的<strong>最基本、教科书级</strong>依据。`,`极低热量饮食 (VLCD)`,`每天<span class="hl-amber">800kcal以下</span>。用得好很棒，但<strong>超过2周</strong>可能造成负担。`,`胆结石`,`脱发`,`头晕`,`诱发暴食`,`2天左右没问题，甚至说有益健康——人类本就是会挨饿的身体。`],
+S18:[`极低热量饮食，<br>作为<span class="accent">降低食欲的手段</span>`,`院长亲身经历`,`我曾在2个月增重超过10kg，食欲失控、不断找借口吃太多。于是不靠药，而是做了<span class="hl">2天极低热量饮食</span>，食欲稳住，再转低热量饮食，顺利减下。`,`比如一直保持1,200~1,500kcal，旅行时一天吃了3~4,000kcal。吃这件事本身会抬高食欲，回来后也会继续多吃。`,`这时别慌——<strong>用一两天极低热量饮食应对</strong>、稳住食欲，再回到低热量饮食即可。`],
+S19:[`面包·年糕·水果·饮料<br>为什么会让人胖？`,`可以说“因为是碳水”，但面包只吃一个再断食也会掉。<span class="hl">不是碳水就一定胖。</span>`,`问题在于它们<strong>好吃、好消化、容易多吃</strong>，热量很快就堆得很高。`,`一块蛋糕 500~700kcal`,`水果·红薯·香蕉也要注意`],
+S20:[`4. 饮食控制 ②`,`蛋白质·蔬菜虽好，<br>也有<span class="accent">陷阱</span>`,`蛋白质和蔬菜有饱腹感很好，但<strong>豆腐的蛋白质不到一半，牛奶一半以上是碳水</strong>。蛋白质最大的缺点是“是蛋白质应该没事吧”而吃很多——能量棒、蛋白奶昔也要小心。`,`案例 · 吃鸡2个月10kg`,`秘诀是“少吃”。本来吃一整只的人改成<span class="hl-amber">2块</span>。比完全禁止更可行。`,`这种方式的延伸就是<span class="hl">维持</span>。炸酱面不可能一辈子不吃——用<strong>“量”而非“种类”</strong>来思考。`],
+S21:[`预测食欲上来的时刻，<br>提前<span class="accent">做准备</span>`,`旧研究显示，人类有“挨饿后狩猎成功就暴食”的本能。<span class="hl">食物一入口就抬高食欲、让你继续吃</span>——人、猫、狗都一样，是生存本能。`,`应对要领`,`· 一整只鸡明摆着会吃光，<strong>只留2块，其余放冷冻</strong>。`,`· 泡面也在煮之前<strong>掰掉一半扔掉</strong>再煮。`,`· 太想吃果冻而买了，就留2~3个，<strong>其余分给同事</strong>。`,`对当场吃完3个红豆面包的人——“吃一个就抬高食欲、结果三个都吃光，所以<strong>一开始就只买一个</strong>。”趁吃药、食欲被压住时多多练习。`],
+S22:[`记住“<span class="accent">400kcal</span>”`,`善用减脂便当。大多在<span class="hl-amber">400kcal以内</span>，×3就是1,200kcal、低热量饮食标准。没有分量感时，就拿便当当样本套用到平常餐。`,`找感觉的例子`,`汉堡王小皇堡<span class="hl-amber">390kcal</span>+零度可乐 →“吃这个会掉。”四重芝士皇堡<span class="hl-amber">800kcal</span> →“吃一半就好。”`,`面包店早餐——好吃的500kcal、一般的300kcal？<strong>好吃的吃一半</strong>也可以。`,`看不见的数字会渐渐看见。<strong>想吃就吃，但用“量”来看——单位是“热量”。</strong>`],
+S23:[`吃多了·吃少了，<br>那个<span class="accent">标准</span>是什么？`,`只看热量是对的，但不可能每次都算。专家也很难。`,`所以最好再有一个判断“多/少”的标准，<strong>热量之外</strong>。`,`除了热量(kcal)——<span class="hl">用什么</span>来判断多与少？`,`饱腹感？过去的记忆？朋友说的？……稍微想一想。`],
+S24:[`其实，已经学过了——<br>就是<span class="accent">体重变化</span>`,`饱腹感、过去记忆、朋友说的——<strong>全都不准。</strong>答案是<span class="hl">体重变化</span>。`,`胖了就是吃了，瘦了就是吃少了，维持就是吃了维持量。即使吃面包喝酒，只要体重维持，那就是维持餐。`,`摄入`,`热量摄入`,`消耗(固定)`,`热量消耗`,`观测值`,`体重变化`,`摄入每次都难测，但<strong>体重早上一称就好</strong>。用体重变化来学习“吃”的自我监测——别丢掉这个方向。`],
+S25:[`饮酒`,`喝酒日的用药，<br>以及<span class="accent">下酒菜</span>`,`喝酒日<strong>别吃晚上那次药</strong>，第二天难受就先停药。可能比平时醉得快，请多喝水、多注意。`,`明太鱼干`,`鱿鱼干`,`比目鱼生鱼片`,`黑鲪鱼生鱼片`,`以上下酒菜的蛋白质比例堪比鸡胸肉，可好好利用。`,`一瓶烧酒=<span class="hl-amber">400kcal</span>。半瓶+巴掌大的下酒菜就是400kcal，会有“今天瘦了！”的感觉。喝完一瓶、就算注意下酒菜也约600kcal——不算差。但<span class="hl-amber">第二摊1,500、第三摊3,000kcal</span>，当天减重就毁了，第二天用极低热量饮食应对。`],
+S26:[`运动`,`运动和药<br><span class="accent">别重叠</span>`,`晚上运动，就<strong>只吃早、午的药</strong>，别吃晚上那次。`,`爬山或一整天户外活动的日子，<strong>停药一天</strong>也好。<span class="hl-amber">（注意低血糖）</span>`,`<strong>空腹运动</strong>也最好小心或避免。`],
+S27:[`5. 不适症状`,`能量使用顺序与<br><span class="accent">酮体代谢</span>`,`能量按<strong>碳水 → 脂肪 → 蛋白质</strong>顺序使用。（其实很难用到蛋白质。）`,`耗尽碳水以燃烧脂肪，是间歇性断食、生酮、空腹有氧的思路——但之后再吃又会胖。我们采取<span class="hl">持续低热量饮食并服药</span>的方式。`,`把脂肪当能量用叫<strong>酮体代谢</strong>。会瘦、也好，但会口臭、口酸、口干。那时就想“哦，掉得不错！”然后<span class="hl-amber">每天喝2L以上的水</span>。`],
+S28:[`真正的问题是<span class="accent">水分与低血糖</span>`,`碳水排出时会<strong>把水分一起带走。</strong>一天也能波动1kg以上。不是“消肿真好”，而是出去了一瓶水而已。`,`要小心<span class="hl-amber">低血糖</span>——像血不够一样，坐着站起来眼前发黑。早晨和午后易发生，所以<strong>补糖+补水</strong>要做好。`,`碳水也以<strong>糖原</strong>形式存在肌肉里、随之流失，肌肉就紧张，可能头痛、手抖、抽筋。所以<span class="hl">运动前反而可能需要吃碳水</span>。`],
+S29:[`其他症状与<br><span class="accent">服用方法</span>`,`空腹吃药会烧心的话，请<strong>饭前或饭后</strong>吃。与杏仁奶等同服也可以。`,`女性因体脂变化与女性激素相关，可能出现暂时性<strong>月经不调</strong>；男性可能暂时性<strong>勃起障碍</strong>——停一两天即可恢复，瘦下来反而改善。<strong>便秘</strong>另有提供的药。`,`若出现<strong>过敏</strong>，请停用并联系我们。（应该没有过敏吧？）其他不适也请停用并立即联系。`],
+S30:[`最后小测 · 那1~2kg<br>为何<span class="accent">突然</span>回来了？`,`好不容易减了10kg，一顿多吃就马上回来1~2kg，很冤吧。确实是吃多了，但关键是<span class="hl">水分移动</span>。`,`一天1~2kg的变动不可能是脂肪。水分来回移动让我们困惑。所以可能呈<strong>阶梯式</strong>掉——掉、停、再掉。`,`怎么分辨是水分还是真停滞？→ 用<span class="hl">腰围（体积、镜子里的身形）</span>来确认。腰在变细，就说明做得好。`,`<strong>到这里就结束了。有什么问题吗？辛苦了。</strong>`]
+});
+addLang('zh-tw', {
+S01:[`現在開始為您講解<span class="accent">減重原理與中藥服用方法</span>`,`我們一起來看核心概念與方向。`],
+S02:[`1. 減重基本概念`,`“減重”其實就是<span class="accent">“熱量不足”</span>`,`開藥很重要，但<strong>概念與方向</strong>更重要。理解一次，今後都會很有幫助。`,`變瘦不是“運動、節食、吃藥”，而是<span class="hl">持續製造熱量不足</span>。`,`這種熱量不足，可以持續<strong>大約6個月</strong>。`],
+S03:[`從第3個月開始變慢，<br>6個月後會越來越難掉`,`節食、運動、藥物——<strong>無論哪種方式，趨勢都相似</strong>。`,`為什麼？是<span class="hl">“執行”問題</span>，不是基礎代謝下降或對藥產生耐受。`,`研究小故事`,`有研究讓人不反彈地連續兩次成功減重，方法就是<span class="hl-amber">給予金錢獎勵</span>。`,`這說明<strong>動機</strong>比身體反應更重要——長期戰更是如此。`],
+S04:[`什麼是<br>熱量不足？`,`就是消耗的熱量多於攝入的熱量。`,`出去的比進來的多，就會變瘦。`,`攝入`,`吃進去的`,`消耗`,`消耗掉的`,`結果`,`減重`,`問題是，大家以為影響它的因素很多——<strong>體質、腸道菌群、年齡、肌肉量、基礎代謝</strong>等等。`],
+S05:[`這些之中有重要的嗎？<br><span class="accent">其實沒有。</span>`,`<strong>基礎代謝</strong>難以測量，有研究顯示從20歲到60歲基本不變。它接近生命維持裝置，很難視為左右體重的大變數。`,`<strong>肌肉量</strong>也類似。很難說是因為肌肉減少而突然變胖。`,`<strong>年齡</strong>可惜無法改變；<strong>腸道菌群</strong>研究了十多年，仍很難說能讓人變瘦。<strong>體質</strong>管理雖好，但很難說是體質突然改變讓人變胖。`],
+S06:[`別管眾多變數，<br>只專注<span class="accent">2件事</span>`,`① 飲食控制`,`兩者中<strong>更重要的一個</strong>。勝負最終在這裡分出。`,`② 運動`,`對身體絕對有益，但要急劇增加熱量消耗比想象中難。`,`若一天大約消耗<span class="hl-amber">1,800kcal（女）·2,000kcal（男）</span>，加一小時運動也只增加約<span class="hl-amber">300~400kcal</span>。`,`運動雖好，但把<span class="hl">熱量消耗視為“固定值”</span>會更有利。`],
+S07:[`攝入是“變數”，<br>消耗是“固定值”`,`吃東西：斷食0kcal，吃多了<span class="hl-amber">4~5,000kcal</span>——一天波動<strong>1,000kcal以上</strong>。`,`攝入大幅波動，消耗相對固定。想著“明天運動就好”而多吃2~3,000kcal、只燒3~400kcal，划得來嗎？`,`所以把體重的原因收窄到<span class="hl">一件事——“吃”</span>。`,`胖了？是吃了。吃少了？掉了！只在這裡來回即可。我們把因果收窄成一個。`],
+S08:[`“吃得一樣，<br>為什麼胖了？”`,`看似簡單，但大家做不到。“我沒吃多啊？以前這樣就掉了！”於是脫離因果。“是年齡？基礎代謝降了？”想法又亂跳。`,`長期研究的答案很平淡：<span class="hl">其實沒吃得一樣，只是自己沒察覺</span>。`,`比喻`,`就像“這個月信用卡怎麼這麼多？不可能！”`,`明明吃了2~3,000kcal，卻以為只吃了<span class="hl-amber">1,200kcal</span>——一天可差800~1,000kcal。`,`所以聳聳肩說“大概就是吃多了吧”，<strong>從“吃”裡找原因</strong>，思路就不會偏。`],
+S09:[`少吃了還不掉？<br><span class="accent">那就再少吃</span>`,`少吃、再稱、不掉——想法又亂跳。陷阱在於你停止了對“吃”的檢討。<span class="hl">不夠就再減、再檢討</span>即可。`,`真實案例 · 一位髮型師`,`“我幾乎沒吃卻還胖”，她把每餐都拍給教練看，教練說“這樣不可能胖”。`,`一問，她每天喝<span class="hl-amber">1L牛奶</span>——以為是蛋白質。`,`豆漿、香蕉、堅果、燕麥、糙米飯、地瓜——都可能讓人胖。<strong>答案永遠在“吃”裡。</strong>`],
+S10:[`這就是<span class="accent">自我監測</span>`,`檢討飲食 → 測體重 → 檢討 → 測體重。在這個因果裡來回，<span class="hl">反覆觀察與學習</span>。`,`以此為基礎的人，再去新增——<strong>運動、藥物、施術</strong>。`,`始終<strong>以飲食控制為先</strong>，再搭建其餘，才不會被牽著走。`],
+S11:[`2. 藥的效果，以及食慾`,`為什麼要吃中藥，<br>有什麼效果？`,`① 加速減重`,`同樣努力，減重可達<span class="hl-amber">2~3倍</span>。提高熱量消耗以加速減重。`,`② 抑制食慾`,`帶來飽腹感、幫助抑制食慾，讓飲食控制更輕鬆。`,`③ 緩解不適`,`用適合體質的藥材減輕不適，輔助減重過程。`],
+S12:[`食慾大致分<span class="accent">兩類</span>`,`真正餓出來的食慾`,`想象斷食一週——疲憊、肚子咕咕、很難受。那時吃麵包零食，是<strong>真正需要熱量的食慾</strong>。`,`並非如此的食慾`,`吃麵包零食不是為了變胖，而是因為好吃。這是為了<strong>刺激與愉悅、而非熱量</strong>的食慾。`],
+S13:[`中藥能壓的食慾 vs<br>藥壓不住的食慾`,`中藥有助於減少<span class="hl">“餓出來的食慾”</span>。咕咕叫、疲憊、睏倦明顯減少，節食也不太辛苦。`,`但<strong>為刺激與愉悅的食慾</strong>，中藥難以完全壓住。壓力大、睡不好就想吃甜的——這是結合睡眠等多因素的食慾。`,`用藥把這種食慾壓得太狠，<span class="hl-amber">停藥後食慾可能爆發、導致反彈</span>。所以需要一定程度的理解與管理。`],
+S14:[`去掉熱量，<br>只提供<span class="accent">刺激與愉悅</span>`,`這種食慾想要的是“刺激與愉悅”，所以去掉熱量、只供給這部分即可。整天在家嘴會閒，出門走動一天就過去了。`,`所以需要的就是——<span class="hl">好吃又不發胖的食物</span>。`,`答案是<strong>“去找”</strong>。無糖可樂、蒟蒻果凍、蘑菇、高麗菜、小番茄……非常多。一樣樣增多，減重就越來越輕鬆。`],
+S15:[`不斷去找，<br>用別的愉悅來替代`,`案例 · 3周減10kg`,`她把Crystal Light粉衝進零度汽水，好喝到不太需要吃別的。（我也買過，不合我口味——口味因人而異。）`,`每到夏天因冰淇淋而減不下來的人，自去年起靠<span class="hl-amber">零卡冰淇淋</span>明顯瘦了。`,`睡眠7小時以上`,`用興趣愛好替代`,`尤其<strong>睡不好時，這種食慾壓不住。</strong>有位為戒掉下班後每天的酒，把那段時間用來練高爾夫作為別的愉悅，3個月減了20kg以上。`],
+S16:[`3. 飲食控制`,`飲食控制的核心是<span class="accent">“執行”</span>`,`可大家偏偏喜歡把執行<strong>變難</strong>——低鹽、生酮、間歇性斷食、營養素配比、血糖飆升、“晚上吃會胖”等等。想太多因素，執行反而更難。`,`研究小故事 · 進食時間`,`把同一份餐只改早/午/晚時間的研究做過4次，3次掉得一樣，只有1次晚餐組掉得少。`,`並非吃完就睡，而是<span class="hl">受社會文化影響，晚上多吃了一點</span>——也就是執行不夠而已。`],
+S17:[`最終只看一樣：<span class="accent">熱量</span>`,`不是這也不是那，那執行什麼？就是第1頁的<strong>熱量</strong>。只看熱量，其餘別管。`,`低熱量飲食 (VLD)`,`每天<span class="hl-amber">1,200~1,500kcal</span>。可持續6個月的<strong>最基本、教科書級</strong>依據。`,`極低熱量飲食 (VLCD)`,`每天<span class="hl-amber">800kcal以下</span>。用得好很棒，但<strong>超過2周</strong>可能造成負擔。`,`膽結石`,`脫髮`,`頭暈`,`誘發暴食`,`2天左右沒問題，甚至說有益健康——人類本就是會捱餓的身體。`],
+S18:[`極低熱量飲食，<br>作為<span class="accent">降低食慾的手段</span>`,`院長親身經歷`,`我曾在2個月增重超過10kg，食慾失控、不斷找藉口吃太多。於是不靠藥，而是做了<span class="hl">2天極低熱量飲食</span>，食慾穩住，再轉低熱量飲食，順利減下。`,`比如一直保持1,200~1,500kcal，旅行時一天吃了3~4,000kcal。吃這件事本身會抬高食慾，回來後也會繼續多吃。`,`這時別慌——<strong>用一兩天極低熱量飲食應對</strong>、穩住食慾，再回到低熱量飲食即可。`],
+S19:[`麵包·年糕·水果·飲料<br>為什麼會讓人胖？`,`可以說“因為是碳水”，但麵包只吃一個再斷食也會掉。<span class="hl">不是碳水就一定胖。</span>`,`問題在於它們<strong>好吃、好消化、容易多吃</strong>，熱量很快就堆得很高。`,`一塊蛋糕 500~700kcal`,`水果·地瓜·香蕉也要注意`],
+S20:[`4. 飲食控制 ②`,`蛋白質·蔬菜雖好，<br>也有<span class="accent">陷阱</span>`,`蛋白質和蔬菜有飽腹感很好，但<strong>豆腐的蛋白質不到一半，牛奶一半以上是碳水</strong>。蛋白質最大的缺點是“是蛋白質應該沒事吧”而吃很多——能量棒、蛋白奶昔也要小心。`,`案例 · 吃雞2個月10kg`,`秘訣是“少吃”。本來吃一整隻的人改成<span class="hl-amber">2塊</span>。比完全禁止更可行。`,`這種方式的延伸就是<span class="hl">維持</span>。炸醬麵不可能一輩子不吃——用<strong>“量”而非“種類”</strong>來思考。`],
+S21:[`預測食慾上來的時刻，<br>提前<span class="accent">做準備</span>`,`舊研究顯示，人類有“捱餓後狩獵成功就暴食”的本能。<span class="hl">食物一入口就抬高食慾、讓你繼續吃</span>——人、貓、狗都一樣，是生存本能。`,`應對要領`,`· 一整隻雞明擺著會吃光，<strong>只留2塊，其餘放冷凍</strong>。`,`· 泡麵也在煮之前<strong>掰掉一半扔掉</strong>再煮。`,`· 太想吃果凍而買了，就留2~3個，<strong>其餘分給同事</strong>。`,`對當場吃完3個紅豆麵包的人——“吃一個就抬高食慾、結果三個都吃光，所以<strong>一開始就只買一個</strong>。”趁吃藥、食慾被壓住時多多練習。`],
+S22:[`記住“<span class="accent">400kcal</span>”`,`善用減脂便當。大多在<span class="hl-amber">400kcal以內</span>，×3就是1,200kcal、低熱量飲食標準。沒有分量感時，就拿便當當樣本套用到平常餐。`,`找感覺的例子`,`漢堡王小皇堡<span class="hl-amber">390kcal</span>+無糖可樂 →“吃這個會掉。”四重芝士皇堡<span class="hl-amber">800kcal</span> →“吃一半就好。”`,`麵包店早餐——好吃的500kcal、一般的300kcal？<strong>好吃的吃一半</strong>也可以。`,`看不見的數字會漸漸看見。<strong>想吃就吃，但用“量”來看——單位是“熱量”。</strong>`],
+S23:[`吃多了·吃少了，<br>那個<span class="accent">標準</span>是什麼？`,`只看熱量是對的，但不可能每次都算。專家也很難。`,`所以最好再有一個判斷“多/少”的標準，<strong>熱量之外</strong>。`,`除了熱量(kcal)——<span class="hl">用什麼</span>來判斷多與少？`,`飽腹感？過去的記憶？朋友說的？……稍微想一想。`],
+S24:[`其實，已經學過了——<br>就是<span class="accent">體重變化</span>`,`飽腹感、過去記憶、朋友說的——<strong>全都不準。</strong>答案是<span class="hl">體重變化</span>。`,`胖了就是吃了，瘦了就是吃少了，維持就是吃了維持量。即使吃麵包喝酒，只要體重維持，那就是維持餐。`,`攝入`,`熱量攝入`,`消耗(固定)`,`熱量消耗`,`觀測值`,`體重變化`,`攝入每次都難測，但<strong>體重早上一稱就好</strong>。用體重變化來學習“吃”的自我監測——別丟掉這個方向。`],
+S25:[`飲酒`,`喝酒日的用藥，<br>以及<span class="accent">下酒菜</span>`,`喝酒日<strong>別吃晚上那次藥</strong>，第二天難受就先停藥。可能比平時醉得快，請多喝水、多注意。`,`明太魚乾`,`魷魚乾`,`比目魚生魚片`,`黑鮶魚生魚片`,`以上下酒菜的蛋白質比例堪比雞胸肉，可好好利用。`,`一瓶燒酒=<span class="hl-amber">400kcal</span>。半瓶+巴掌大的下酒菜就是400kcal，會有“今天瘦了！”的感覺。喝完一瓶、就算注意下酒菜也約600kcal——不算差。但<span class="hl-amber">第二攤1,500、第三攤3,000kcal</span>，當天減重就毀了，第二天用極低熱量飲食應對。`],
+S26:[`運動`,`運動和藥<br><span class="accent">別重疊</span>`,`晚上運動，就<strong>只吃早、午的藥</strong>，別吃晚上那次。`,`爬山或一整天戶外活動的日子，<strong>停藥一天</strong>也好。<span class="hl-amber">（注意低血糖）</span>`,`<strong>空腹運動</strong>也最好小心或避免。`],
+S27:[`5. 不適症狀`,`能量使用順序與<br><span class="accent">酮體代謝</span>`,`能量按<strong>碳水 → 脂肪 → 蛋白質</strong>順序使用。（其實很難用到蛋白質。）`,`耗盡碳水以燃燒脂肪，是間歇性斷食、生酮、空腹有氧的思路——但之後再吃又會胖。我們採取<span class="hl">持續低熱量飲食並服藥</span>的方式。`,`把脂肪當能量用叫<strong>酮體代謝</strong>。會瘦、也好，但會口臭、口酸、口乾。那時就想“哦，掉得不錯！”然後<span class="hl-amber">每天喝2L以上的水</span>。`],
+S28:[`真正的問題是<span class="accent">水分與低血糖</span>`,`碳水排出時會<strong>把水分一起帶走。</strong>一天也能波動1kg以上。不是“消腫真好”，而是出去了一瓶水而已。`,`要小心<span class="hl-amber">低血糖</span>——像血不夠一樣，坐著站起來眼前發黑。早晨和午後易發生，所以<strong>補糖+補水</strong>要做好。`,`碳水也以<strong>糖原</strong>形式存在肌肉裡、隨之流失，肌肉就緊張，可能頭痛、手抖、抽筋。所以<span class="hl">運動前反而可能需要吃碳水</span>。`],
+S29:[`其他症狀與<br><span class="accent">服用方法</span>`,`空腹吃藥會燒心的話，請<strong>飯前或飯後</strong>吃。與杏仁奶等同服也可以。`,`女性因體脂變化與女性激素相關，可能出現暫時性<strong>月經不調</strong>；男性可能暫時性<strong>勃起障礙</strong>——停一兩天即可恢復，瘦下來反而改善。<strong>便秘</strong>另有提供的藥。`,`若出現<strong>過敏</strong>，請停用並聯系我們。（應該沒有過敏吧？）其他不適也請停用並立即聯絡。`],
+S30:[`最後小測 · 那1~2kg<br>為何<span class="accent">突然</span>回來了？`,`好不容易減了10kg，一頓多吃就馬上回來1~2kg，很冤吧。確實是吃多了，但關鍵是<span class="hl">水分移動</span>。`,`一天1~2kg的變動不可能是脂肪。水分來回移動讓我們困惑。所以可能呈<strong>階梯式</strong>掉——掉、停、再掉。`,`怎麼分辨是水分還是真停滯？→ 用<span class="hl">腰圍（體積、鏡子裡的身形）</span>來確認。腰在變細，就說明做得好。`,`<strong>到這裡就結束了。有什麼問題嗎？辛苦了。</strong>`],
+});
+addLang('th', {
+S01:[`ต่อไปนี้จะอธิบาย<span class="accent">หลักการลดน้ำหนักและวิธีรับประทานยา</span>ให้คุณ`,`เรามาดูแนวคิดหลักและทิศทางไปด้วยกัน`],
+S02:[`1. พื้นฐานการลดน้ำหนัก`,`“การลดน้ำหนัก” ก็คือ<span class="accent">“ภาวะแคลอรีขาดดุล”</span>`,`การจ่ายยาก็สำคัญ แต่<strong>แนวคิดและทิศทาง</strong>สำคัญยิ่งกว่า เข้าใจครั้งเดียวก็จะช่วยคุณได้ในระยะยาว`,`การผอมลงไม่ใช่ “ออกกำลังกาย/คุมอาหาร/กินยา” แต่คือ<span class="hl">การสร้างภาวะแคลอรีขาดดุลอย่างต่อเนื่อง</span>`,`ภาวะแคลอรีขาดดุลนี้สามารถทำต่อเนื่องได้<strong>ประมาณ 6 เดือน</strong>`],
+S03:[`ตั้งแต่เดือนที่ 3 จะช้าลง<br>หลัง 6 เดือนจะลดยากขึ้นเรื่อยๆ`,`คุมอาหาร ออกกำลังกาย ยา — <strong>ไม่ว่าวิธีใดก็มีแนวโน้มคล้ายกัน</strong>`,`ทำไม? เป็นเรื่องของ<span class="hl">“การลงมือทำ”</span> ไม่ใช่เพราะการเผาผลาญลดลงหรือดื้อยา`,`เรื่องเล่าจากงานวิจัย`,`มีงานวิจัยที่ทำให้คนลดน้ำหนักสำเร็จติดต่อกันสองครั้งโดยไม่โยโย่ วิธีคือ<span class="hl-amber">ให้รางวัลเป็นเงิน</span>`,`เป็นข้อพิสูจน์ว่า<strong>แรงจูงใจ</strong>สำคัญกว่าปฏิกิริยาของร่างกาย — ยิ่งในระยะยาวยิ่งจริง`],
+S04:[`ภาวะแคลอรีขาดดุล<br>คืออะไร?`,`คือภาวะที่เผาผลาญมากกว่าที่กินเข้าไป`,`ถ้าออกมากกว่าเข้า ก็จะผอมลง`,`กินเข้า`,`สิ่งที่กิน`,`เผาผลาญ`,`สิ่งที่ใช้ไป`,`ผลลัพธ์`,`น้ำหนักลด`,`ปัญหาคือคนคิดว่ามีหลายปัจจัยที่ส่งผล — <strong>ชนิดของร่างกาย แบคทีเรียในลำไส้ อายุ มวลกล้ามเนื้อ การเผาผลาญ</strong> ฯลฯ`],
+S05:[`ในนี้มีอะไรสำคัญไหม?<br><span class="accent">จริงๆ แล้วไม่มี</span>`,`<strong>การเผาผลาญพื้นฐาน</strong>วัดได้ยาก และมีงานวิจัยว่าตั้งแต่อายุ 20 ถึง 60 แทบไม่เปลี่ยน มันใกล้เคียงระบบประคองชีวิต จึงยากที่จะมองว่าเป็นตัวแปรใหญ่ของน้ำหนัก`,`<strong>มวลกล้ามเนื้อ</strong>ก็คล้ายกัน ยากที่จะบอกว่าอ้วนขึ้นเพราะกล้ามเนื้อลดลง`,`<strong>อายุ</strong>น่าเสียดายที่เปลี่ยนไม่ได้ ส่วน<strong>แบคทีเรียในลำไส้</strong>ศึกษามากว่าสิบปีก็ยังบอกไม่ได้ว่าช่วยให้ผอม <strong>ชนิดของร่างกาย</strong>ดูแลได้ก็ดี แต่ยากที่จะบอกว่าเปลี่ยนกะทันหันจนอ้วน`],
+S06:[`อย่าสนใจตัวแปรมากมาย<br>โฟกัสแค่ <span class="accent">2 อย่าง</span>`,`① การคุมอาหาร`,`อย่างที่<strong>สำคัญกว่า</strong>ในสองอย่าง สุดท้ายแพ้ชนะตัดสินกันที่นี่`,`② การออกกำลังกาย`,`ดีต่อร่างกายแน่นอน แต่การเพิ่มการเผาผลาญแบบก้าวกระโดดยากกว่าที่คิด`,`ถ้าวันหนึ่งใช้พลังงานราว <span class="hl-amber">1,800kcal (หญิง)·2,000kcal (ชาย)</span> การเพิ่มออกกำลังกาย 1 ชั่วโมงก็เพิ่มเพียงราว <span class="hl-amber">300~400kcal</span>`,`ออกกำลังกายดี แต่ถ้าสมมติว่า<span class="hl">การเผาผลาญเป็น “ค่าคงที่”</span> จะได้เปรียบ`],
+S07:[`กินเข้าคือ “ตัวแปร”<br>เผาผลาญคือ “ค่าคงที่”`,`การกิน: อดอาหาร 0kcal กินเยอะ <span class="hl-amber">4~5,000kcal</span> — แกว่ง<strong>เกินวันละ 1,000kcal</strong>`,`กินเข้าแกว่งมาก เผาผลาญค่อนข้างคงที่ การคิดว่า “พรุ่งนี้ค่อยออกกำลังกาย” แล้วกินเพิ่ม 2~3,000kcal เผาแค่ 3~400kcal ไม่คุ้มใช่ไหม?`,`ดังนั้นจึงจำกัดสาเหตุของน้ำหนักให้เหลือ<span class="hl">เรื่องเดียว — “การกิน”</span>`,`อ้วนขึ้น? ก็กินไป กินน้อยลง? ก็ผอม! แค่วนอยู่ตรงนี้ก็พอ เราจำกัดเหตุและผลให้เหลืออย่างเดียว`],
+S08:[`“กินเท่าเดิม<br>ทำไมอ้วนขึ้น?”`,`ดูง่ายแต่คนทำไม่ค่อยได้ “ฉันไม่ได้กินเยอะนะ? เมื่อก่อนแค่นี้ก็ผอม!” แล้วก็หลุดจากเหตุผล “เพราะอายุ? เผาผลาญลดลง?” ความคิดก็กระโดดอีก`,`คำตอบที่ศึกษามานานกลับเรียบง่าย: <span class="hl">จริงๆ ไม่ได้กินเท่าเดิม เพียงแต่ตัวเองไม่รู้ตัว</span>`,`อุปมา`,`เหมือน “บิลบัตรเครดิตเดือนนี้ทำไมเยอะจัง? เป็นไปไม่ได้!”`,`กิน 2~3,000kcal แต่เข้าใจว่ากินแค่ <span class="hl-amber">1,200kcal</span> ได้ — วันหนึ่งต่างกันได้ถึง 800~1,000kcal`,`ดังนั้นถ้ายักไหล่บอก “คงกินเยอะแหละ” แล้ว<strong>หาสาเหตุจากการกิน</strong> แนวคิดก็จะไม่เพี้ยน`],
+S09:[`ลดแล้วยังไม่ผอม?<br><span class="accent">ก็ลดอีก</span>`,`ลด ชั่งใหม่ ไม่ผอม ความคิดก็กระโดดอีก กับดักคือคุณหยุดทบทวนเรื่องการกิน <span class="hl">ถ้ายังไม่พอก็ลดอีก ทบทวนอีก</span>`,`เคสจริง · ช่างทำผม`,`“แทบไม่ได้กินแต่ก็อ้วน” เธอถ่ายทุกมื้อให้เทรนเนอร์ดู เทรนเนอร์บอก “แบบนี้อ้วนไม่ได้”`,`พอถามจึงรู้ว่าดื่ม<span class="hl-amber">นม 1 ลิตร</span>ทุกวัน — เพราะคิดว่าเป็นโปรตีน`,`นมถั่วเหลือง กล้วย ถั่ว ข้าวโอ๊ต ข้าวกล้อง มันหวาน — ล้วนทำให้อ้วนได้ <strong>คำตอบอยู่ที่การกินเสมอ</strong>`],
+S10:[`นี่แหละคือ<span class="accent">การติดตามตนเอง</span>`,`ทบทวนอาหาร → ชั่งน้ำหนัก → ทบทวน → ชั่งน้ำหนัก วนไปมาในเหตุและผลนี้ <span class="hl">สังเกตและเรียนรู้ซ้ำๆ</span>`,`คนที่มีพื้นฐานนี้แล้วค่อยเพิ่ม — <strong>ออกกำลังกาย ยา หัตถการ</strong>`,`<strong>ให้การคุมอาหารมาก่อนเสมอ</strong> แล้วค่อยสร้างส่วนที่เหลือ จะได้ไม่ถูกพาออกนอกทาง`],
+S11:[`2. ผลของยา และความอยากอาหาร`,`ทำไมต้องกินยาสมุนไพร<br>และมีผลอย่างไร?`,`① เร่งการลด`,`เมื่อเทียบกับความพยายามเท่ากัน ลดได้ <span class="hl-amber">2~3 เท่า</span> เพิ่มการเผาผลาญเพื่อเร่งการลด`,`② ลดความอยากอาหาร`,`ให้ความอิ่มและช่วยลดความอยากอาหาร ทำให้คุมอาหารง่ายขึ้น`,`③ บรรเทาอาการไม่สบายตัว`,`ใช้สมุนไพรที่เหมาะกับร่างกายเพื่อลดอาการไม่สบายและช่วยกระบวนการลด`],
+S12:[`ความอยากอาหารมี <span class="accent">2 แบบ</span>`,`ความอยากจากความหิวจริง`,`ลองนึกว่าอดอาหารหนึ่งสัปดาห์ — เหนื่อย ท้องร้อง ทรมาน ตอนนั้นกินขนมปังขนมคือ<strong>ความอยากที่ต้องการแคลอรีจริงๆ</strong>`,`ความอยากที่ไม่ใช่แบบนั้น`,`เรากินขนมปังขนมไม่ใช่เพื่ออ้วน แต่เพราะอร่อย เป็นความอยากเพื่อ<strong>ความเร้าใจและความสุข ไม่ใช่แคลอรี</strong>`],
+S13:[`ความอยากที่ยาคุมได้ vs<br>ความอยากที่ยาคุมไม่หมด`,`ยาสมุนไพรช่วยลด<span class="hl">“ความอยากจากความหิว”</span> ท้องร้อง เหนื่อยล้าลดลงมาก คุมอาหารก็ไม่ลำบากนัก`,`แต่<strong>ความอยากเพื่อความเร้าใจและความสุข</strong> ยาคุมไม่หมด เครียดหรือนอนไม่พอก็อยากของหวาน — เป็นความอยากที่ผูกกับหลายปัจจัยรวมถึงการนอน`,`ถ้ากดความอยากนี้ด้วยยามากไป <span class="hl-amber">พอหยุดยาความอยากอาจพุ่งจนโยโย่</span> จึงต้องเข้าใจและจัดการในระดับหนึ่ง`],
+S14:[`ตัดแคลอรีออก<br>ให้แค่<span class="accent">ความเร้าใจและความสุข</span>`,`ความอยากนี้ต้องการ “ความเร้าใจและความสุข” จึงตัดแคลอรีออกแล้วให้แค่สิ่งนั้น อยู่บ้านทั้งวันปากจะว่าง ออกไปข้างนอกเดินเล่นวันก็ผ่านไป`,`สิ่งที่ต้องการคือ — <span class="hl">อาหารอร่อยที่ไม่ทำให้อ้วน</span>`,`คำตอบคือ<strong>“ไปหา”</strong> โค้กซีโร่ เยลลี่บุก เห็ด กะหล่ำปลี มะเขือเทศราชินี… มีเยอะมาก เพิ่มทีละอย่างการลดก็ยิ่งสบายขึ้น`],
+S15:[`หามันเรื่อยๆ<br>แล้วแทนด้วยความสุขอื่น`,`เคส · 3 สัปดาห์ลด 10kg`,`เธอผสมผง Crystal Light ลงในโซดาซีโร่ อร่อยจนแทบไม่ต้องกินอย่างอื่น (ผมลองแล้ว ไม่ถูกปากผม — รสนิยมแต่ละคนต่างกัน)`,`คนที่ทุกฤดูร้อนลดไม่ได้เพราะไอศกรีม ตั้งแต่ปีที่แล้วผอมลงชัดเจนเพราะ<span class="hl-amber">ไอศกรีมศูนย์แคลอรี</span>`,`นอน 7 ชั่วโมงขึ้นไป`,`แทนด้วยงานอดิเรก`,`โดยเฉพาะ<strong>ถ้านอนไม่หลับ ความอยากนี้จะคุมไม่ได้</strong> มีคนหนึ่งเพื่อเลิกดื่มหลังเลิกงานทุกวัน เอาเวลานั้นไปซ้อมกอล์ฟแทนเป็นความสุขอื่น 3 เดือนลดเกิน 20kg`],
+S16:[`3. การคุมอาหาร`,`หัวใจของการคุมอาหารคือ <span class="accent">“การลงมือทำ”</span>`,`แต่คนกลับชอบทำให้การลงมือทำ<strong>ยากขึ้น</strong> — ลดเกลือ คีโต อดอาหารเป็นช่วง สัดส่วนสารอาหาร น้ำตาลพุ่ง “กินตอนกลางคืนแล้วอ้วน” ฯลฯ คิดปัจจัยมากไปยิ่งทำยาก`,`เรื่องเล่างานวิจัย · ช่วงเวลากิน`,`มีงานวิจัยเปลี่ยนแค่ช่วงเวลา (เช้า/กลางวัน/เย็น) ของมื้อเดียวกัน 4 ครั้ง 3 ครั้งลดเท่ากัน มีเพียง 1 ครั้งที่กลุ่มมื้อเย็นลดน้อยกว่า`,`ไม่ใช่เพราะกินแล้วนอนเลย แต่เพราะ<span class="hl">อิทธิพลทางสังคมวัฒนธรรมทำให้กินตอนเย็นมากขึ้นนิดหน่อย</span> — คือลงมือทำได้น้อยกว่าเท่านั้น`],
+S17:[`สุดท้ายดูอย่างเดียว: <span class="accent">แคลอรี</span>`,`ไม่ใช่นั่นไม่ใช่นี่ แล้วจะทำอะไร? ก็<strong>แคลอรี</strong>จากหน้า 1 ดูแค่แคลอรี อย่างอื่นไม่ต้องสนใจ`,`อาหารแคลอรีต่ำ (VLD)`,`วันละ <span class="hl-amber">1,200~1,500kcal</span> หลักฐาน<strong>พื้นฐานที่สุด ระดับตำรา</strong> ทำต่อเนื่องได้ถึง 6 เดือน`,`อาหารแคลอรีต่ำมาก (VLCD)`,`วันละ <span class="hl-amber">ต่ำกว่า 800kcal</span> ใช้ดีๆ ก็ดี แต่<strong>เกิน 2 สัปดาห์</strong>อาจเป็นภาระ`,`นิ่วในถุงน้ำดี`,`ผมร่วง`,`เวียนศีรษะ`,`กระตุ้นการกินจุบจิบ`,`ราว 2 วันไม่เป็นไร ว่ากันว่าดีต่อสุขภาพด้วยซ้ำ — มนุษย์เป็นร่างกายที่เคยอดมาแต่เดิม`],
+S18:[`VLCD<br>ใช้เป็น<span class="accent">วิธีลดความอยากอาหาร</span>`,`ประสบการณ์ของผู้อำนวยการเอง`,`ผมเคยเพิ่มน้ำหนักเกิน 10kg ใน 2 เดือน ความอยากคุมไม่อยู่ หาเหตุผลให้ตัวเองจนกินมากไป จึงไม่ใช้ยา แต่ทำ<span class="hl">VLCD 2 วัน</span> ความอยากสงบ แล้วเปลี่ยนเป็นอาหารแคลอรีต่ำ ลดได้ดี`,`เช่นทำ 1,200~1,500kcal มาดี แล้วไปเที่ยวกินวันละ 3~4,000kcal การกินเองทำให้ความอยากสูงขึ้น กลับมาก็ยังกินเยอะ`,`ตอนนั้นอย่าตกใจ — <strong>รับมือด้วย VLCD หนึ่งสองวัน</strong>ให้ความอยากสงบ แล้วกลับไปอาหารแคลอรีต่ำ`],
+S19:[`ขนมปัง·ต๊อก·ผลไม้·เครื่องดื่ม<br>ทำไมทำให้อ้วน?`,`จะบอกว่า “เพราะเป็นคาร์บ” ก็ได้ แต่ขนมปังกินชิ้นเดียวแล้วอดก็ผอม <span class="hl">เป็นคาร์บไม่ได้แปลว่าอ้วนเสมอไป</span>`,`ปัญหาคือมัน<strong>อร่อย ย่อยง่าย กินเยอะง่าย</strong> แคลอรีจึงพุ่งเร็วมาก`,`เค้ก 1 ชิ้น 500~700kcal`,`ผลไม้·มันหวาน·กล้วยก็ต้องระวัง`],
+S20:[`4. การคุมอาหาร ②`,`โปรตีน·ผักดี<br>แต่ก็มี<span class="accent">กับดัก</span>`,`โปรตีนและผักให้ความอิ่มจึงดี แต่<strong>เต้าหู้มีโปรตีนไม่ถึงครึ่ง นมเกินครึ่งเป็นคาร์บ</strong> ข้อเสียใหญ่ของโปรตีนคือคิดว่า “เป็นโปรตีนคงไม่เป็นไร” แล้วกินเยอะ — เอเนอร์จีบาร์ โปรตีนเชคก็ต้องระวัง`,`เคส · กินไก่ 2 เดือน 10kg`,`เคล็ดลับคือ “กินนิดเดียว” คนที่เคยกินทั้งตัวเปลี่ยนเป็น <span class="hl-amber">2 ชิ้น</span> ทำได้จริงกว่าการห้ามทั้งหมด`,`ส่วนต่อขยายของวิธีนี้คือ<span class="hl">การคงน้ำหนัก</span> จะไม่กินจาจังเมียนทั้งชีวิตคงไม่ได้ — มองด้วย<strong>“ปริมาณ” มากกว่า “ชนิด”</strong>`],
+S21:[`คาดเดาตอนที่ความอยากจะพุ่ง<br>แล้ว<span class="accent">เตรียมรับมือ</span>`,`งานวิจัยเก่าว่ามนุษย์มีสัญชาตญาณกินมูมมามหลังล่าสำเร็จจากการอดอยาก <span class="hl">พออาหารเข้าปากความอยากก็พุ่งให้กินต่อ</span> — คน แมว หมาเหมือนกัน เป็นสัญชาตญาณเอาตัวรอด`,`เคล็ดการเตรียม`,`· ไก่ทั้งตัวยังไงก็กินหมด จึง<strong>เหลือไว้ 2 ชิ้น ที่เหลือแช่แข็ง</strong>`,`· บะหมี่กึ่งสำเร็จก็<strong>หักทิ้งครึ่งหนึ่ง</strong>ก่อนต้ม`,`· อยากเยลลี่มากจนซื้อมา ก็เหลือ 2~3 ชิ้น <strong>ที่เหลือแบ่งให้เพื่อนร่วมทีม</strong>`,`กับคนที่กินขนมปังไส้ถั่วแดง 3 ชิ้นรวดเดียว — “กินชิ้นเดียวความอยากก็พุ่งจนกินครบ 3 ชิ้น ดังนั้น<strong>ตั้งแต่แรกซื้อชิ้นเดียวพอ</strong>” ช่วงกินยาที่ความอยากถูกคุม ลองฝึกบ่อยๆ`],
+S22:[`จำ “<span class="accent">400kcal</span>” ไว้`,`ลองใช้กล่องอาหารไดเอต ส่วนใหญ่อยู่<span class="hl-amber">ในราว 400kcal</span> ×3 ก็เป็น 1,200kcal มาตรฐานอาหารแคลอรีต่ำ เมื่อยังไม่มีความรู้สึกเรื่องปริมาณ ใช้กล่องเป็นตัวอย่างปรับใช้กับมื้อปกติ`,`ตัวอย่างจับความรู้สึก`,`เบอร์เกอร์คิง จูเนียร์วอปเปอร์ <span class="hl-amber">390kcal</span> + โค้กซีโร่ → “กินนี่แล้วผอม” ควอโทรชีสวอปเปอร์ <span class="hl-amber">800kcal</span> → “กินครึ่งเดียวพอ”`,`มื้อเช้าร้านเบเกอรี่ — อันอร่อย 500kcal อันธรรมดา 300kcal? กิน<strong>อันอร่อยครึ่งเดียว</strong>ก็ได้`,`ตัวเลขที่เคยมองไม่เห็นจะค่อยๆ เห็น <strong>กินสิ่งที่อยากได้ แต่มองด้วย “ปริมาณ” — หน่วยคือ “แคลอรี”</strong>`],
+S23:[`กินมาก·กินน้อย<br><span class="accent">เกณฑ์</span>คืออะไร?`,`รู้ว่าดูแคลอรีก็พอ แต่จะคำนวณทุกครั้งไม่ได้ ผู้เชี่ยวชาญก็ยาก`,`จึงน่าจะมีเกณฑ์วัด “มาก/น้อย” อีกอย่าง <strong>นอกจากแคลอรี</strong>`,`นอกจากแคลอรี (kcal) — <span class="hl">ใช้อะไร</span>ตัดสินมากหรือน้อยได้?`,`ความอิ่ม? ความจำเก่า? เรื่องที่เพื่อนเล่า? … ลองนึกสักครู่`],
+S24:[`จริงๆ เราเรียนมาแล้ว —<br>คือ<span class="accent">การเปลี่ยนของน้ำหนัก</span>`,`ความอิ่ม ความจำเก่า เรื่องเพื่อน — <strong>ไม่แม่นทั้งหมด</strong> คำตอบคือ<span class="hl">การเปลี่ยนของน้ำหนัก</span>`,`อ้วนขึ้น = กินไป ผอมลง = กินน้อย คงที่ = กินระดับคงน้ำหนัก แม้กินขนมปังดื่มเหล้า ถ้าน้ำหนักคงที่ นั่นคือมื้อคงน้ำหนัก`,`กินเข้า`,`แคลอรีที่กิน`,`เผาผลาญ(คงที่)`,`แคลอรีที่ใช้`,`ค่าที่สังเกต`,`การเปลี่ยนน้ำหนัก`,`ปริมาณที่กินวัดยากทุกครั้ง แต่<strong>น้ำหนักชั่งตอนเช้าก็จบ</strong> การติดตามตนเองที่เรียนรู้การกินจากการเปลี่ยนน้ำหนัก — อย่าทิ้งทิศทางนี้`],
+S25:[`การดื่มสุรา`,`ยาในวันดื่ม<br>และ<span class="accent">กับแกล้ม</span>`,`วันดื่ม<strong>งดยามื้อเย็น</strong> ถ้าวันรุ่งขึ้นไม่ไหวก็พักยาสักพัก อาจเมาเร็วกว่าปกติ ดื่มน้ำเยอะๆ และระวัง`,`ปลาพอลล็อกตากแห้ง`,`ปลาหมึกแห้ง`,`ปลาตาเดียวดิบ (ซาชิมิ)`,`ปลาเก๋าหินดิบ (ซาชิมิ)`,`กับแกล้มข้างต้นมีสัดส่วนโปรตีนพอๆ กับอกไก่ ใช้ให้เป็นประโยชน์`,`โซจู 1 ขวด = <span class="hl-amber">400kcal</span> ครึ่งขวด + กับแกล้มขนาดฝ่ามือก็ 400kcal รู้สึก “วันนี้ผอม!” ดื่มหมดขวดแม้ระวังกับแกล้มก็ราว 600kcal — ไม่แย่ แต่ถ้า<span class="hl-amber">ร้านที่สอง 1,500 ร้านที่สาม 3,000kcal</span> วันนั้นไดเอตพังเลย วันรุ่งขึ้นรับมือด้วย VLCD`],
+S26:[`การออกกำลังกาย`,`ออกกำลังกายกับยา<br><span class="accent">อย่าให้ทับกัน</span>`,`ถ้าออกกำลังกายตอนเย็น ให้กิน<strong>แค่ยามื้อเช้าและกลางวัน</strong> งดมื้อเย็น`,`วันที่ปีนเขาหรือทำกิจกรรมกลางแจ้งทั้งวัน <strong>งดยาสักวันก็ได้</strong> <span class="hl-amber">(ระวังน้ำตาลต่ำ)</span>`,`<strong>ออกกำลังกายตอนท้องว่าง</strong>ก็ควรระวังหรือเลี่ยง`],
+S27:[`5. อาการไม่สบายตัว`,`ลำดับการใช้พลังงานและ<br><span class="accent">เมแทบอลิซึมคีโตน</span>`,`พลังงานใช้ตามลำดับ <strong>คาร์บ → ไขมัน → โปรตีน</strong> (จริงๆ ใช้ถึงโปรตีนยาก)`,`การทำให้คาร์บหมดเพื่อใช้ไขมันคือแนวคิดของอดอาหารเป็นช่วง คีโต คาร์ดิโอตอนท้องว่าง แต่พอกินอีกก็อ้วน เราใช้วิธี<span class="hl">คงอาหารแคลอรีต่ำพร้อมกินยา</span>`,`การใช้ไขมันเป็นพลังงานเรียกว่า<strong>เมแทบอลิซึมคีโตน</strong> ผอมและดี แต่ลมหายใจมีกลิ่น ปากเปรี้ยวและแห้งผาก ตอนนั้นคิด “โอ้ ผอมดีนี่!” แล้ว<span class="hl-amber">ดื่มน้ำวันละ 2 ลิตรขึ้นไป</span>`],
+S28:[`ปัญหาจริงคือ<span class="accent">น้ำและน้ำตาลต่ำ</span>`,`เมื่อคาร์บถูกขับออก จะ<strong>ดึงน้ำออกไปด้วย</strong> วันหนึ่งแกว่งได้เกิน 1kg ไม่ใช่ “ยุบบวมดีจัง” แต่คือน้ำขวดหนึ่งออกไป`,`ต้องระวัง<span class="hl-amber">น้ำตาลต่ำ</span> — เหมือนเลือดไม่พอ ลุกขึ้นยืนแล้วตาลาย เกิดง่ายตอนเช้าและบ่าย จึง<strong>เติมน้ำตาล + เติมน้ำ</strong>ให้ดี`,`คาร์บยังอยู่ในกล้ามเนื้อในรูป<strong>ไกลโคเจน</strong>แล้วหลุดออก กล้ามเนื้อก็ตึง อาจปวดหัว มือสั่น ตะคริว ดังนั้น<span class="hl">ก่อนออกกำลังกายอาจต้องกินคาร์บ</span>`],
+S29:[`อาการอื่นๆ และ<br><span class="accent">วิธีรับประทาน</span>`,`ถ้ากินยาตอนท้องว่างแล้วแสบท้อง ให้กิน<strong>ก่อนหรือหลังอาหาร</strong> กินคู่กับนมอัลมอนด์ก็ได้`,`ผู้หญิง การเปลี่ยนไขมันสัมพันธ์กับฮอร์โมนเพศหญิง อาจมี<strong>ประจำเดือนผิดปกติชั่วคราว</strong> ผู้ชายอาจมี<strong>อวัยวะเพศไม่แข็งตัวชั่วคราว</strong> งดหนึ่งสองวันก็ฟื้น และพอผอมก็ดีขึ้น ส่วน<strong>ท้องผูก</strong>มียาแยกให้ต่างหาก`,`ถ้าเกิด<strong>อาการแพ้</strong> ให้หยุดและติดต่อเรา (ไม่มีอาการแพ้ใช่ไหม?) อาการไม่สบายอื่นๆ ก็หยุดและติดต่อทันที`],
+S30:[`ควิซสุดท้าย · ทำไม 1~2kg นั้น<br><span class="accent">จู่ๆ</span> ก็กลับมา?`,`ลด 10kg มาอย่างดี แค่กินมื้อใหญ่มื้อเดียวก็กลับมา 1~2kg เลย น่าน้อยใจ จริงที่กินเยอะ แต่หัวใจคือ<span class="hl">การเคลื่อนของน้ำ</span>`,`การเปลี่ยน 1~2kg ในวันเดียวเป็นไขมันไม่ได้ น้ำเคลื่อนไปมาทำให้เราสับสน จึงอาจผอมแบบ<strong>ขั้นบันได</strong> — ลด หยุด ลด`,`จะรู้ได้ไงว่าเป็นน้ำหรือหยุดจริง? → ดูจาก<span class="hl">รอบเอว (ปริมาตร รูปร่างในกระจก)</span> ถ้าเอวเล็กลงแสดงว่าทำได้ดี`,`<strong>จบเพียงเท่านี้ มีคำถามไหม? ขอบคุณที่ตั้งใจนะครับ</strong>`]
+});
+/*__LANGS__*/
+function applyTR(){
+  SLIDES.forEach(function(s){
+    const t=TR[s.id]; if(!t) return;
+    const nodes=trNodes(s);
+    Object.keys(t).forEach(function(L){
+      const arr=t[L]; if(!arr) return;
+      nodes.forEach(function(node,i){ if(arr[i]!=null) node[L]=arr[i]; });
+    });
+  });
+}
+applyTR();
+
+// ---------- render ----------
+const stage = document.getElementById('stage');
+const total = SLIDES.length;
+document.getElementById('tot').textContent = total;
+
+function L(obj){ return obj[lang] || obj.ko; }
+function gloss(obj, cls){ if(lang==="ko") return ""; return '<div class="gloss '+(cls||'')+'">'+strip(obj.ko)+'</div>'; }
+function inl(id, val){ return '<input id="'+id+'" class="inl" type="text" value="'+esc(val)+'" placeholder="N">'; }
+
+function renderBlock(b){
+  if(b.t==="p")    return '<p>'+L(b.v)+'</p>'+gloss(b.v);
+  if(b.t==="lead") return '<p class="lead">'+L(b.v)+'</p>'+gloss(b.v);
+  if(b.t==="note") return '<p class="note">'+L(b.v)+'</p>'+gloss(b.v,'kg');
+  if(b.t==="case"){
+    let h='<div class="case"><div class="tag">'+L(b.tag)+'</div>';
+    b.ps.forEach(function(p){ h+='<p>'+L(p)+'</p>'+gloss(p); });
+    return h+'</div>';
+  }
+  if(b.t==="duo"){
+    let h='<div class="duo'+(b.cols===1?' one':'')+'">';
+    b.cards.forEach(function(c){ h+='<div class="card"><h4>'+L(c.h4)+'</h4>'+gloss(c.h4,'kg')+'<p>'+L(c.p)+'</p>'+gloss(c.p)+'</div>'; });
+    return h+'</div>';
+  }
+  if(b.t==="chips"){
+    let h='<div class="chips">';
+    b.items.forEach(function(c){ h+='<span class="chip'+(b.warn?' warn':'')+'">'+L(c)+'</span>'; });
+    return h+'</div>';
+  }
+  if(b.t==="eq"){
+    let h='<div class="equation">';
+    b.terms.forEach(function(tm,i){
+      h+='<div class="term'+(tm.out?' out':'')+'"><div class="t">'+L(tm.t)+'</div><div class="v">'+L(tm.v)+'</div></div>';
+      if(i<b.ops.length) h+='<div class="op">'+b.ops[i]+'</div>';
+    });
+    return h+'</div>';
+  }
+  if(b.t==="dose"){
+    const d=DOSE[lang]||DOSE.ko, w=curWake();
+    let h='<div class="case"><div class="tag">'+d.tag+'</div>';
+    h+='<p>'+d.pre+'<input id="inWake" class="inl" type="number" min="0" max="23" value="'+w+'">'+d.mid+'<span id="doseTimes">'+doseTimes(w,d.sep)+'</span>'+d.post+'</p>';
+    if(lang!=="ko") h+='<div class="gloss">'+doseGlossKo(w)+'</div>';
+    h+='<p>'+d.p2+'</p>';
+    if(lang!=="ko") h+='<div class="gloss">'+strip(DOSE.ko.p2)+'</div>';
+    return h+'</div>';
+  }
+  if(b.t==="goal"){
+    const g=GOAL[lang]||GOAL.ko;
+    let h='<p>'+g.a+inl('inGm1',STATE.g_m1)+g.b+inl('inGkg1',STATE.g_kg1)+g.c+inl('inGm2',STATE.g_m2)+g.d+inl('inGkg2',STATE.g_kg2)+g.e+inl('inGpm',STATE.g_pm)+g.f+'</p>';
+    if(lang!=="ko") h+='<div class="gloss" id="goalGloss">'+goalGlossKo()+'</div>';
+    return h;
+  }
+  return "";
+}
+
+function pageLabel(s){
+  const pg=PAGES[s.page]; let txt=L(pg.label);
+  if(pg.book) txt=L(UI.bookPrefix)+txt;
+  return {txt:txt, book:pg.book};
+}
+
+function buildStage(){
+  let html='';
+  SLIDES.forEach(function(s,i){
+    const pg=pageLabel(s);
+    html+='<section class="slide'+(i===idx?' active':'')+(s.cover?' cover':'')+'">';
+    if(s.cover){
+      html+='<div class="mark">'+s.mark+'</div><div class="rule"></div>';
+      html+='<h1>'+L(s.h1)+'</h1>'+gloss(s.h1,'h2g');
+      html+='<div class="setup">';
+      html+='<div class="field"><label>'+L(UI.patientLabel)+'</label><input id="inPatient" type="text" value="'+esc(STATE.patient)+'" placeholder="'+L(UI.patientPh)+'"></div>';
+      html+='<div class="field"><label>'+L(UI.doctorLabel)+'</label><input id="inDoctor" type="text" value="'+esc(STATE.doctor)+'" placeholder="'+L(UI.doctorPh)+'"></div>';
+      html+='</div>';
+      html+='<p class="who" id="greet">'+greetMain(lang)+'</p>';
+      if(lang!=="ko") html+='<div class="gloss">'+strip(greetMain("ko"))+'</div>';
+      html+='<p class="sub">'+L(s.sub)+'</p>'+gloss(s.sub);
+    } else {
+      html+='<div class="eyebrow"><span class="badge">'+pg.txt+'</span><span class="sidx">'+s.id+'</span></div>';
+      if(s.kicker) html+='<div class="kicker">'+L(s.kicker)+'</div>';
+      html+='<h2>'+L(s.h2)+'</h2>'+gloss(s.h2,'h2g');
+      html+='<div class="body">';
+      s.body.forEach(function(b){ html+=renderBlock(b); });
+      html+='</div>';
+    }
+    html+='</section>';
+  });
+  stage.innerHTML=html;
+}
+
+const elCur=document.getElementById('cur'), elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
+function render(){
+  const slides=stage.querySelectorAll('.slide');
+  slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  elCur.textContent=idx+1;
+  elTag.textContent=pageLabel(SLIDES[idx]).txt;
+  elProg.style.width=((idx+1)/total*100)+'%';
+  const act=slides[idx]; if(act) act.scrollTop=0;
+}
+function go(n){ idx=Math.max(0,Math.min(total-1,n)); render(); }
+function next(){ go(idx+1); } function prev(){ go(idx-1); }
+
+function applyUILabels(){
+  document.getElementById('prev').setAttribute('aria-label', L(UI.prevAria));
+  document.getElementById('next').setAttribute('aria-label', L(UI.nextAria));
+  document.getElementById('tocLbl').textContent=' '+L(UI.toc);
+  document.getElementById('fsLbl').textContent=' '+L(UI.fullscreen);
+  document.getElementById('tocTitle').textContent=L(UI.tocTitle);
+  document.getElementById('tocHint').textContent=L(UI.tocHint);
+}
+
+function changeLang(nl){ lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); }
+
+document.getElementById('next').addEventListener('click', next);
+document.getElementById('prev').addEventListener('click', prev);
+document.getElementById('lang').addEventListener('change', function(e){ changeLang(e.target.value); });
+
+document.addEventListener('keydown', function(e){
+  if(document.getElementById('tocBackdrop').classList.contains('open')){ if(e.key==='Escape') closeToc(); return; }
+  if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='SELECT')) { if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return; }
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); next(); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); prev(); }
+  else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(total-1); }
+  else if(e.key==='f'||e.key==='F'){ toggleFs(); }
+});
+let tx=0,ty=0;
+stage.addEventListener('touchstart',function(e){ tx=e.changedTouches[0].clientX; ty=e.changedTouches[0].clientY; },{passive:true});
+stage.addEventListener('touchend',function(e){ const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); } },{passive:true});
+
+stage.addEventListener('input', function(e){
+  const id=e.target.id, v=e.target.value;
+  if(id==='inPatient'){ STATE.patient=v; updateGreet(); }
+  else if(id==='inDoctor'){ STATE.doctor=v; updateGreet(); }
+  else if(id==='inWake'){ STATE.wake=(v===''?'':parseInt(v,10)); updateDose(); }
+  else if(id==='inGm1'){ STATE.g_m1=v; updateGoal(); }
+  else if(id==='inGkg1'){ STATE.g_kg1=v; updateGoal(); }
+  else if(id==='inGm2'){ STATE.g_m2=v; updateGoal(); }
+  else if(id==='inGkg2'){ STATE.g_kg2=v; updateGoal(); }
+  else if(id==='inGpm'){ STATE.g_pm=v; updateGoal(); }
+});
+
+function toggleFs(){ if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})(); } else { (document.exitFullscreen||function(){})(); } }
+document.getElementById('fsBtn').addEventListener('click', toggleFs);
+
+const tocBackdrop=document.getElementById('tocBackdrop');
+function openToc(){ tocBackdrop.classList.add('open'); }
+function closeToc(){ tocBackdrop.classList.remove('open'); }
+document.getElementById('tocBtn').addEventListener('click', openToc);
+tocBackdrop.addEventListener('click', function(e){ if(e.target===tocBackdrop) closeToc(); });
+
+function buildTOC(){
+  const groups=[], gmap={};
+  SLIDES.forEach(function(s,i){
+    const key=s.page, gl=pageLabel(s).txt;
+    if(!gmap[key]){ gmap[key]={label:gl, items:[]}; groups.push(gmap[key]); }
+    const h=s.cover?L(s.h1):L(s.h2);
+    gmap[key].items.push({i:i, title:strip(h)});
+  });
+  let html='';
+  groups.forEach(function(g){
+    html+='<div class="toc-group"><div class="gl">'+g.label+'</div>';
+    g.items.forEach(function(it){ html+='<div class="toc-item" data-go="'+it.i+'"><span class="n">'+SLIDES[it.i].id+'</span><span class="t">'+it.title+'</span></div>'; });
+    html+='</div>';
+  });
+  const list=document.getElementById('tocList');
+  list.innerHTML=html;
+  list.onclick=function(e){ const it=e.target.closest('.toc-item'); if(it){ go(parseInt(it.getAttribute('data-go'),10)); closeToc(); } };
+}
+
+buildStage(); render(); applyUILabels(); buildTOC();
+</script>
+</body>
+</html>

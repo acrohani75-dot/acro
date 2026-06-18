@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로 바디 프로그램 직원 카드</title>
+<style>
+  :root{
+    --ink:#1b1b1f; --muted:#6b7280; --line:#e7e5e0; --bg:#fbfbf9; --soft:#f4f6f8;
+    --onda:#2563a6; --wave:#1f8a7a; --cut:#7b54c4;
+    --hi:#fff5d6; --hi-edge:#e6b800;
+    --warn:#b23a3a; --warn-bg:#fcefef; --ok:#1f8a7a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:880px; margin:0 auto; padding:28px 20px 64px;}
+  header{border-bottom:3px solid var(--ink); padding-bottom:14px; margin-bottom:22px;}
+  .kicker{font-size:12px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; font-weight:700;}
+  h1{font-size:25px; margin:6px 0 6px; letter-spacing:-.02em;}
+  .sub{font-size:13.5px; color:var(--muted);}
+  .endchip{display:inline-block; margin-top:10px; background:var(--ink); color:#fff;
+    font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px;}
+
+  h2{font-size:13px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase;
+    font-weight:800; margin:30px 0 12px; display:flex; align-items:center; gap:10px;}
+  h2::after{content:""; flex:1; height:1px; background:var(--line);}
+
+  /* thesis + matrix */
+  .thesis{font-size:17px; font-weight:800; margin:0 0 12px; letter-spacing:-.01em;}
+  .thesis b.cut{color:var(--cut);} .thesis b.mw{color:var(--onda);}
+  table.matrix{width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  table.matrix th, table.matrix td{padding:11px 10px; text-align:center; font-size:14px; border-bottom:1px solid var(--line);}
+  table.matrix thead th{background:var(--soft); font-weight:800; font-size:13px; color:#444;}
+  table.matrix tbody th{text-align:left; font-weight:800; padding-left:16px;}
+  table.matrix tbody tr:last-child td, table.matrix tbody tr:last-child th{border-bottom:none;}
+  .nm-cut{color:var(--cut);} .nm-wave{color:var(--wave);} .nm-onda{color:var(--onda);}
+  .dot{font-size:17px; color:#222;} .dash{color:#c2c2c2;}
+  .mcap{font-size:12.5px; color:var(--muted); margin-top:7px;}
+
+  /* hooks */
+  .hook{background:var(--hi); border:1px solid var(--hi-edge); border-left:7px solid var(--hi-edge);
+    border-radius:10px; padding:13px 18px; margin-bottom:11px;}
+  .hook .tag{font-size:12px; font-weight:800; color:#9a7b00; letter-spacing:.04em;}
+  .hook .line{font-size:20px; font-weight:800; margin-top:3px; letter-spacing:-.01em;}
+  .hook .line b.onda{color:var(--onda);} .hook .line b.wave{color:var(--wave);} .hook .line b.cut{color:var(--cut);}
+  .hook .sep{color:#bba23a; margin:0 6px; font-weight:400;}
+
+  /* program flow */
+  .flow{display:flex; align-items:stretch; gap:10px;}
+  .step{flex:1; background:#fff; border:1px solid var(--line); border-radius:10px; padding:13px 14px; border-top:4px solid var(--muted);}
+  .step.s1{border-top-color:#9aa0a6;} .step.s2{border-top-color:var(--cut);} .step.s3{border-top-color:var(--wave);}
+  .step .st{font-size:11px; font-weight:800; letter-spacing:.1em; color:var(--muted);}
+  .step .nm{font-weight:800; font-size:15px; margin:3px 0 4px;}
+  .step.s2 .nm{color:var(--cut);} .step.s3 .nm{color:var(--wave);}
+  .step .ds{font-size:12.5px; color:#444;}
+  .arrow{display:flex; align-items:center; color:#bbb; font-weight:800; font-size:18px;}
+  .flownote{font-size:13px; color:#444; margin-top:9px;}
+  .flownote b{color:var(--cut);}
+
+  /* treatment cards */
+  .cards{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;}
+  .card{background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 15px; border-top:4px solid var(--line);}
+  .card.onda{border-top-color:var(--onda);} .card.wave{border-top-color:var(--wave);} .card.cut{border-top-color:var(--cut);}
+  .card .nm{font-weight:800; font-size:15.5px;}
+  .card.onda .nm{color:var(--onda);} .card.wave .nm{color:var(--wave);} .card.cut .nm{color:var(--cut);}
+  .card .role{font-size:11.5px; font-weight:800; color:var(--muted); margin-top:2px;}
+  .card .desc{font-size:13px; color:#333; margin:7px 0 10px; min-height:52px;}
+  .card .price{font-size:13px; font-weight:700;}
+  .card .price span{color:var(--muted); font-weight:500;}
+
+  /* scripts */
+  .scr{background:#fff; border:1px solid var(--line); border-radius:10px; padding:13px 16px; margin-bottom:10px;}
+  .scr .q{font-weight:800; font-size:14.5px; margin-bottom:5px;}
+  .scr .a{font-size:14px; color:#2a2a2a;}
+  .scr .a::before{content:"→ "; color:var(--wave); font-weight:800;}
+
+  /* interval */
+  .iv{background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .iv .row{display:flex; gap:12px; padding:11px 16px; border-top:1px solid var(--line); font-size:14px;}
+  .iv .row:first-child{border-top:none;}
+  .iv .row .k{flex:0 0 46%; font-weight:700;}
+  .iv .row .v{flex:1; color:#333;}
+  .iv .row.cut .k{color:var(--cut);} .iv .row.mw .k{color:var(--onda);}
+  .iv .row.warn{background:var(--warn-bg);} .iv .row.warn .k{color:var(--warn);}
+  .big{font-weight:800;}
+
+  /* rules */
+  .rules{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:1fr 1fr; gap:8px 18px;}
+  .rules li{font-size:14px; padding-left:24px; position:relative;}
+  .rules li::before{position:absolute; left:0; top:0; font-weight:800;}
+  .rules li.no::before{content:"✕"; color:var(--warn);}
+  .rules li.yes::before{content:"✓"; color:var(--ok);}
+
+  /* details */
+  details{background:#fff; border:1px solid var(--line); border-radius:10px; margin-bottom:10px; overflow:hidden;}
+  summary{cursor:pointer; padding:13px 16px; font-weight:700; font-size:14.5px; list-style:none;
+    display:flex; align-items:center; justify-content:space-between;}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:"펼치기 ▾"; font-size:12px; color:var(--muted); font-weight:600;}
+  details[open] summary::after{content:"접기 ▴";}
+  details .body{padding:0 16px 14px; font-size:13.5px;}
+  .dose{display:grid; grid-template-columns:1fr 1fr; gap:5px 18px;}
+  .dose .d{display:flex; justify-content:space-between; border-bottom:1px dotted var(--line); padding:4px 0;}
+  .miniq{margin:9px 0;} .miniq .q{font-weight:700;} .miniq .a{color:#444;}
+  .note{font-size:12px; color:var(--muted); margin-top:6px;}
+
+  table.cmp{width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:10px;}
+  table.cmp th, table.cmp td{padding:10px 11px; font-size:13.5px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top;}
+  table.cmp thead th{background:var(--soft); font-weight:800; font-size:12.5px;}
+  table.cmp thead th.c-onda{color:var(--onda);} table.cmp thead th.c-wave{color:var(--wave);}
+  table.cmp tbody th{font-weight:800; width:24%; color:#555; background:#fcfcfb;}
+  table.cmp tbody tr:last-child td, table.cmp tbody tr:last-child th{border-bottom:none;}
+  .tip{display:inline-block; font-weight:800; padding:1px 7px; border-radius:5px; font-size:12.5px; color:#fff; white-space:nowrap;}
+  .tip.o3{background:var(--onda);} .tip.w5{background:var(--wave);} .tip.o7{background:#16407a;}
+
+  .skinfig{background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 12px 8px; margin-bottom:12px;}
+  .skinsvg{width:100%; height:auto; display:block; max-width:560px; margin:0 auto;}
+  .skinsvg text{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;}
+
+  @media (max-width:640px){
+    .cards{grid-template-columns:1fr;}
+    .rules{grid-template-columns:1fr;}
+    .flow{flex-direction:column;}
+    .arrow{justify-content:center; transform:rotate(90deg); height:14px;}
+    .hook .line{font-size:17px;}
+    .iv .row{flex-direction:column; gap:2px;} .iv .row .k{flex:none;}
+    .dose{grid-template-columns:1fr;}
+  }
+  @media print{
+    body{background:#fff;} .wrap{padding:0;}
+    details > *:not(summary){display:block !important;}
+    summary::after{content:"";} details{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="kicker">아크로 한의원 · 바디 프로그램 직원 카드</div>
+    <h1>컷 · 온다 · 웨이브 — 한 장으로 이해하기</h1>
+    <div class="sub">상담 중 바로 보는 핵심 카드입니다. 세부 판단은 원장님 상담으로 연결하세요.</div>
+    <div class="endchip">모든 안내 마무리 — “예약 잡아드릴까요? ^^”</div>
+  </header>
+
+  <h2>한눈에 — 시술은 셋, 하는 일은 둘</h2>
+  <p class="thesis"><b class="cut">컷</b>은 지방을 분해해 줄이고, <b class="mw">온다·웨이브</b>는 줄이는 동시에 탄력·리프팅까지 합니다.</p>
+  <table class="matrix">
+    <thead><tr><th style="text-align:left;padding-left:16px;">시술</th><th>지방 분해 (사이즈↓)</th><th>탄력 · 리프팅</th></tr></thead>
+    <tbody>
+      <tr><th class="nm-cut">아크로컷</th><td><span class="dot">●</span></td><td><span class="dash">—</span></td></tr>
+      <tr><th class="nm-wave">아크로웨이브</th><td><span class="dot">●</span></td><td><span class="dot">●</span></td></tr>
+      <tr><th class="nm-onda">온다리프팅</th><td><span class="dot">●</span></td><td><span class="dot">●</span></td></tr>
+    </tbody>
+  </table>
+  <p class="mcap">온다와 웨이브는 <b>하는 일이 같습니다.</b> 차이는 정밀도와 가격 — 얼굴엔 정밀한 온다, 넓은 바디엔 합리적인 웨이브.</p>
+
+  <h2>외울 것 — 두 줄</h2>
+  <div class="hook">
+    <div class="tag">시술의 역할</div>
+    <div class="line"><b class="cut">컷 = 사이즈</b><span class="sep">·</span><b class="wave">온다·웨이브 = 사이즈 + 리프팅</b></div>
+  </div>
+  <div class="hook">
+    <div class="tag">마이크로웨이브 선택</div>
+    <div class="line"><b class="onda">얼굴 온다</b><span class="sep">·</span><b class="wave">바디 웨이브</b><span class="sep">·</span>확실하면 온다</div>
+  </div>
+
+  <h2>프로그램 흐름 (3단계 솔루션)</h2>
+  <div class="flow">
+    <div class="step s1"><div class="st">STEP 1</div><div class="nm">감량</div><div class="ds">한약·캡슐로 전체 체지방을 먼저 줄임</div></div>
+    <div class="arrow">→</div>
+    <div class="step s2"><div class="st">STEP 2</div><div class="nm">컷</div><div class="ds">고민 부위 지방을 약침으로 직접 분해 (사이즈)</div></div>
+    <div class="arrow">→</div>
+    <div class="step s3"><div class="st">STEP 3</div><div class="nm">온다 · 웨이브</div><div class="ds">마이크로웨이브로 리프팅·탄력 마무리</div></div>
+  </div>
+  <p class="flownote"><b>컷 + 마이크로웨이브를 함께</b> 받으면 사이즈 감소와 탄력 개선이 동시에 — 라인이 매끄럽게 정리됩니다.</p>
+
+  <h2>세 시술 한 줄</h2>
+  <div class="cards">
+    <div class="card cut">
+      <div class="nm">아크로컷</div><div class="role">지방분해 약침</div>
+      <div class="desc">고민 부위 지방을 분해해 사이즈를 줄임. 100% 생약(스테로이드·히알라제 無).</div>
+      <div class="price">2cc 3.3만원 <span>VAT 포함</span></div>
+    </div>
+    <div class="card wave">
+      <div class="nm">아크로웨이브</div><div class="role">마이크로웨이브 · 국산</div>
+      <div class="desc">지방분해 + 탄력·리프팅. 온다와 같은 원리의 합리적 장비. 바디에 적합.</div>
+      <div class="price">부위별 상담</div>
+    </div>
+    <div class="card onda">
+      <div class="nm">온다리프팅</div><div class="role">마이크로웨이브 · 정품</div>
+      <div class="desc">지방분해 + 탄력·리프팅. 깊이를 나눠 정밀하게 보는 프리미엄. 얼굴에 적합.</div>
+      <div class="price">부위별 상담</div>
+    </div>
+  </div>
+
+  <h2>온다 vs 웨이브 — 자세히 (환자가 물으면)</h2>
+  <p class="mcap" style="margin-bottom:10px;">둘 다 마이크로웨이브라 원리는 같습니다. 차이는 <b>팁 깊이(정밀도)</b>와 <b>가격</b>이에요. 요즘은 깊이(mm)를 직접 묻는 환자도 많습니다.</p>
+
+  <div class="skinfig">
+    <svg class="skinsvg" viewBox="0 0 620 348" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="피부 깊이별 시술 팁 도달 그림">
+      <!-- mm scale -->
+      <text x="58" y="30" font-size="11" fill="#999" text-anchor="end">(mm)</text>
+      <line x1="72" y1="40" x2="72" y2="320" stroke="#cfcfcf" stroke-width="1"/>
+      <g font-size="11" fill="#999" text-anchor="end">
+        <line x1="66" y1="40" x2="72" y2="40" stroke="#cfcfcf"/><text x="60" y="44">0</text>
+        <line x1="66" y1="96" x2="72" y2="96" stroke="#cfcfcf"/><text x="60" y="100">2</text>
+        <line x1="66" y1="152" x2="72" y2="152" stroke="#cfcfcf"/><text x="60" y="156">4</text>
+        <line x1="66" y1="208" x2="72" y2="208" stroke="#cfcfcf"/><text x="60" y="212">6</text>
+        <line x1="66" y1="264" x2="72" y2="264" stroke="#cfcfcf"/><text x="60" y="268">8</text>
+        <line x1="66" y1="320" x2="72" y2="320" stroke="#cfcfcf"/><text x="60" y="324">10</text>
+      </g>
+      <!-- skin column -->
+      <text x="95" y="33" font-size="11" fill="#8a7a6a">피부 표면</text>
+      <rect x="95" y="40" width="250" height="14" fill="#f4dcc8"/>
+      <rect x="95" y="54" width="250" height="56" fill="#efc3a6"/>
+      <rect x="95" y="110" width="250" height="168" fill="#fdeebe"/>
+      <rect x="95" y="278" width="250" height="42" fill="#d99a8e"/>
+      <rect x="95" y="40" width="250" height="280" fill="none" stroke="#b9a89a" stroke-width="1"/>
+      <g font-size="12" font-weight="700" fill="#6b5a4a">
+        <text x="105" y="51" font-size="10">표피</text>
+        <text x="105" y="87">진피</text>
+        <text x="105" y="199">피하지방층</text>
+        <text x="105" y="303" fill="#7a4a44">근육층</text>
+      </g>
+      <!-- tip depth lines -->
+      <!-- 온다 3mm @ y124 -->
+      <line x1="72" y1="124" x2="345" y2="124" stroke="#2563a6" stroke-width="2" stroke-dasharray="4 3"/>
+      <circle cx="345" cy="124" r="4.5" fill="#2563a6"/>
+      <text x="357" y="121" font-size="13.5" font-weight="800" fill="#2563a6">온다 3mm</text>
+      <text x="357" y="136" font-size="11.5" fill="#777">탄력 · 타이트닝</text>
+      <!-- 웨이브 5mm @ y180 -->
+      <line x1="72" y1="180" x2="345" y2="180" stroke="#1f8a7a" stroke-width="2" stroke-dasharray="4 3"/>
+      <circle cx="345" cy="180" r="4.5" fill="#1f8a7a"/>
+      <text x="357" y="177" font-size="13.5" font-weight="800" fill="#1f8a7a">웨이브 5mm</text>
+      <text x="357" y="192" font-size="11.5" fill="#777">지방 감소</text>
+      <!-- 온다 7mm @ y236 -->
+      <line x1="72" y1="236" x2="345" y2="236" stroke="#16407a" stroke-width="2" stroke-dasharray="4 3"/>
+      <circle cx="345" cy="236" r="4.5" fill="#16407a"/>
+      <text x="357" y="233" font-size="13.5" font-weight="800" fill="#16407a">온다 7mm</text>
+      <text x="357" y="248" font-size="11.5" fill="#777">깊은 지방 감소</text>
+    </svg>
+    <p class="note" style="text-align:center; margin:4px 0 2px;">팁 깊이 = 에너지가 가장 집중되는 깊이. 실제 효과는 에너지 밀도·총 샷 수에도 좌우돼요.</p>
+  </div>
+
+  <table class="cmp">
+    <thead><tr><th>팁</th><th>깊이 타겟</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><th><span class="tip o3">온다 3mm</span></th><td>진피 하부~얕은 지방</td><td>탄력 · 타이트닝</td></tr>
+      <tr><th><span class="tip w5">웨이브 5mm</span></th><td>진피 하부~지방층</td><td>지방 감소</td></tr>
+      <tr><th><span class="tip o7">온다 7mm</span></th><td>중간~깊은 피하지방</td><td>깊은 지방 감소</td></tr>
+    </tbody>
+  </table>
+  <table class="cmp">
+    <thead><tr><th>구분</th><th class="c-onda">온다리프팅</th><th class="c-wave">아크로웨이브</th></tr></thead>
+    <tbody>
+      <tr><th>장비</th><td>정품 DEKA (이탈리아 수입)</td><td>국산</td></tr>
+      <tr><th>원리</th><td>마이크로웨이브 2.45GHz</td><td>극초단파(마이크로웨이브) — 동일</td></tr>
+      <tr><th>깊이(팁)</th><td>3mm + 7mm — 표면·심부를 나눠 선택</td><td>5mm — 그 사이 지방층</td></tr>
+      <tr><th>강점</th><td>깊이를 나눠 정밀하게 시술</td><td>합리적 가격에 충분한 용량·출력</td></tr>
+      <tr><th>적합</th><td>얼굴 정밀 리프팅</td><td>넓은 바디</td></tr>
+      <tr><th>가격</th><td>프리미엄</td><td>합리적</td></tr>
+    </tbody>
+  </table>
+  <p class="note">깊이(mm) 응대 — “온다는 3mm로 표면 탄력, 7mm로 깊은 지방을 나눠 보고, 웨이브는 5mm로 그 사이 지방층을 합리적으로 봅니다. 효과는 깊이만이 아니라 에너지 밀도·총 샷 수에도 좌우돼요.”</p>
+
+  <h2>핵심 응대</h2>
+  <div class="scr">
+    <div class="q">“컷·온다·웨이브 셋이 어떻게 달라요?”</div>
+    <div class="a">컷은 지방을 분해해 사이즈를 줄이는 약침이고, 온다·웨이브는 지방분해에 탄력·리프팅까지 하는 마이크로웨이브예요. 온다는 정밀한 프리미엄, 웨이브는 합리적인 국산이고요. 사이즈는 컷, 탄력은 온다·웨이브, 함께 받으시면 가장 좋으세요.</div>
+  </div>
+  <div class="scr">
+    <div class="q">“온다랑 웨이브 뭐가 달라요?”</div>
+    <div class="a">기전은 같은 마이크로웨이브예요. 온다는 정품 장비로 깊이를 나눠 정밀하게 보고, 웨이브는 같은 원리를 더 합리적인 가격에 보시는 거예요. 얼굴은 정밀한 온다, 넓은 바디는 합리적인 웨이브로도 충분하세요.</div>
+  </div>
+  <div class="scr">
+    <div class="q">“온다가 좀 비싸네요”</div>
+    <div class="a">같은 원리의 국산 웨이브가 합리적이세요. 바디는 충분한 에너지 용량이 중요한데, 합리적인 비용으로 충분히 받아보실 수 있어요 😊</div>
+  </div>
+  <div class="scr">
+    <div class="q">“복부·허벅지 하고 싶어요”</div>
+    <div class="a">바디는 온다로도 가능하고, 같은 기전에 가격이 더 합리적인 웨이브도 있으세요. 바디는 충분히 덮는 용량이랑 출력이 둘 다 중요한데, 웨이브가 그걸 합리적으로 채워서 가성비가 좋으세요. 예산이랑 목표 보고 같이 정해드릴게요.</div>
+  </div>
+
+  <h2>시술 간격 (꼭 지키기)</h2>
+  <div class="iv">
+    <div class="row cut"><div class="k">보톡스·필러 → 컷</div><div class="v"><span class="big">2~3일</span> 뒤 가능</div></div>
+    <div class="row mw"><div class="k">보톡스·필러 → 웨이브·온다</div><div class="v"><span class="big">2주</span> 뒤 가능</div></div>
+    <div class="row"><div class="k">시술 → 스킨부스터·보톡스·필러</div><div class="v">바로 가능</div></div>
+    <div class="row"><div class="k">지방흡입 → 컷·웨이브</div><div class="v">4~6주 뒤 (회복 후)</div></div>
+    <div class="row warn"><div class="k">임산부·수유부</div><div class="v">시술 제한 (단유 후 가능)</div></div>
+  </div>
+  <p class="note">외우기 — 보톡스·필러 후 컷은 ‘2~3일’, 웨이브·온다는 ‘2주’.</p>
+
+  <h2>절대 규칙</h2>
+  <ul class="rules">
+    <li class="no">“카피” 금지 → “합리적 국산 장비”</li>
+    <li class="no">“효과 보장·최고·100%” 금지</li>
+    <li class="yes">“정품”은 온다에만</li>
+    <li class="yes">세부 안전성·금기·고령 → 원장 확인</li>
+  </ul>
+
+  <h2>필요할 때만 — 펼쳐보기</h2>
+
+  <details>
+    <summary>부위별 시술 용량</summary>
+    <div class="body">
+      <p style="font-weight:700;margin:4px 0;color:var(--cut)">아크로컷 (주 1~2회, 최소 5회)</p>
+      <div class="dose">
+        <div class="d"><span>부유방</span><b>2~4cc</b></div>
+        <div class="d"><span>팔·등·종아리</span><b>4~8cc</b></div>
+        <div class="d"><span>복부</span><b>6~12cc</b></div>
+        <div class="d"><span>허벅지</span><b>8~16cc</b></div>
+        <div class="d"><span>볼</span><b>2cc (많으면 4cc)</b></div>
+      </div>
+      <p style="font-weight:700;margin:12px 0 4px;color:var(--wave)">아크로웨이브 (한달 간격, 3회 권장)</p>
+      <div class="dose">
+        <div class="d"><span>이중턱·부유방</span><b>6만줄</b></div>
+        <div class="d"><span>등</span><b>10만줄</b></div>
+        <div class="d"><span>팔·종아리</span><b>12만줄</b></div>
+        <div class="d"><span>복부</span><b>15만줄</b></div>
+        <div class="d"><span>허벅지</span><b>18~20만줄</b></div>
+      </div>
+      <p class="note">용량은 지방량에 따라 달라질 수 있어요. 정확한 용량은 원장 상담으로 안내.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>자주 묻는 답</summary>
+    <div class="body">
+      <div class="miniq"><span class="q">한약 없이 시술만?</span> <span class="a">효과 좋아요. 감량 병행 시 변화가 더 빨라요.</span></div>
+      <div class="miniq"><span class="q">몇 회?</span> <span class="a">컷 주 1~2회 최소 5회 / 웨이브 한달 간격 3회.</span></div>
+      <div class="miniq"><span class="q">유지 기간?</span> <span class="a">지방분해는 살 안 찌면 오래 유지 / 웨이브 탄력은 최대 1년.</span></div>
+      <div class="miniq"><span class="q">아픈가요?</span> <span class="a">컷은 살 꼬집는 정도 / 웨이브·온다는 통증 거의 없음.</span></div>
+      <div class="miniq"><span class="q">일상생활 바로?</span> <span class="a">네. 컷은 작은 멍 가능, 웨이브·온다는 멍·통증 없음.</span></div>
+      <div class="miniq"><span class="q">미성년자?</span> <span class="a">부모님 동의 하에 가능.</span></div>
+      <div class="miniq"><span class="q">컷 성분?</span> <span class="a">100% 생약, 스테로이드·히알라제 없음. (세부 질문은 원장)</span></div>
+      <div class="miniq"><span class="q">셀룰라이트?</span> <span class="a">웨이브가 적합, 컷·웨이브 함께가 가장 좋음.</span></div>
+    </div>
+  </details>
+
+  <details>
+    <summary>시술 후 생활 수칙</summary>
+    <div class="body">
+      <div class="miniq"><span class="q">운동</span> <span class="a">당일·다음날 격렬한 운동 금지, 3일차부터 가볍게.</span></div>
+      <div class="miniq"><span class="q">음주</span> <span class="a">당일·다음날 쉬고 3일차부터(열감·붓기 후). 디톡스 중 금주.</span></div>
+      <div class="miniq"><span class="q">사우나·찜질방</span> <span class="a">컷 당일 / 웨이브 1주일 피하기.</span></div>
+      <div class="miniq"><span class="q">경락</span> <span class="a">시술 부위만 1주일 피하기.</span></div>
+      <div class="miniq"><span class="q">헌혈</span> <span class="a">컷 후 1주일 뒤.</span></div>
+    </div>
+  </details>
+
+</div>
+</body>
+</html>

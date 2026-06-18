@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로한의원 · 다이어트 한약 복용법 · 다국어</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700;800&family=Noto+Sans+Thai:wght@400;500;700;800&display=swap">
+<style>
+  :root{
+    --bg:#eef2f0; --surface:#ffffff;
+    --ink:#16241f; --ink-soft:#46574f; --ink-faint:#7d8c84;
+    --green:#2f6b54; --green-deep:#1d4636; --green-soft:#e4efe9;
+    --amber:#cf7f33; --amber-deep:#9a560f; --amber-soft:#f6ead9;
+    --line:#d6dedb; --line-strong:#bcc8c3;
+    --radius:18px; --maxw:980px;
+    --kr:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+    --jp:'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--kr); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.6; overflow:hidden;}
+  body[data-lang="ja"]{font-family:var(--jp);}
+  body[data-lang="zh-cn"]{font-family:'Noto Sans SC',var(--kr);}
+  body[data-lang="zh-tw"]{font-family:'Noto Sans TC',var(--kr);}
+  body[data-lang="th"]{font-family:'Noto Sans Thai',var(--kr);}
+  .gloss, body[data-lang] .gloss{font-family:var(--kr);}
+
+  .stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:clamp(16px,3.5vw,48px) clamp(16px,4vw,64px) 92px;}
+  .slide{display:none; width:100%; max-width:var(--maxw); max-height:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 18px 48px -28px rgba(20,40,32,.35); padding:clamp(28px,4.4vw,60px); overflow-y:auto; animation:fade .42s ease both;}
+  .slide.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @media(prefers-reduced-motion:reduce){.slide{animation:none;}}
+
+  .eyebrow{display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
+  .badge{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 12px; border-radius:999px;}
+  .sidx{font-size:.78rem; font-weight:600; color:var(--ink-faint); letter-spacing:.06em;}
+  h2{font-size:clamp(1.55rem,3.4vw,2.35rem); line-height:1.25; font-weight:800; letter-spacing:-.01em; color:var(--ink);}
+  h2 .accent{color:var(--green);}
+  .kicker{font-size:.82rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--amber); margin-bottom:10px;}
+
+  .body{margin-top:20px;}
+  .body p{font-size:clamp(1.04rem,1.6vw,1.22rem); color:var(--ink-soft); margin-bottom:14px;}
+  .body strong{color:var(--ink); font-weight:700;}
+  .hl{color:var(--green-deep); font-weight:700; background:linear-gradient(transparent 58%, #cfe7dd 58%); padding:0 2px;}
+  .hl-amber{color:var(--amber-deep); font-weight:700; background:linear-gradient(transparent 58%, var(--amber-soft) 58%); padding:0 2px;}
+  .lead{font-size:clamp(1.12rem,1.9vw,1.4rem)!important; color:var(--ink)!important; font-weight:600; line-height:1.5;}
+
+  .gloss{font-family:var(--kr); font-size:.8rem; color:var(--ink-faint); line-height:1.45; margin:-8px 0 14px; opacity:.85;}
+  .gloss.h2g{font-size:.92rem; font-weight:600; margin:8px 0 0;}
+  .gloss.kg{margin:-2px 0 10px;}
+
+  .case{border-left:3px solid var(--amber); background:#fbf7f1; padding:14px 18px; border-radius:0 12px 12px 0; margin:18px 0;}
+  .case .tag{font-size:.74rem; font-weight:700; letter-spacing:.06em; color:var(--amber); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:7px;}
+  .case .tag .ic{width:18px;height:18px;}
+  .case p{font-size:clamp(.98rem,1.5vw,1.12rem); margin-bottom:8px;}
+  .case .gloss{margin:-4px 0 8px;}
+
+  .note{font-size:.92rem!important; color:var(--ink-faint)!important; border-top:1px dashed var(--line-strong); padding-top:12px; margin-top:16px;}
+
+  /* pictogram */
+  .ic{display:inline-flex; align-items:center; justify-content:center;}
+  .ic svg{width:100%; height:100%; display:block;}
+  .icbubble{display:inline-flex; align-items:center; justify-content:center; border-radius:50%; background:var(--green-soft); color:var(--green-deep); flex:none;}
+  .icbubble.amber{background:var(--amber-soft); color:var(--amber-deep);}
+  .icbubble .ic{width:58%; height:58%;}
+
+  /* iconrow: grid of pictogram cards */
+  .iconrow{display:grid; gap:12px; margin:18px 0; grid-template-columns:repeat(3,1fr);}
+  .iconrow.c2{grid-template-columns:repeat(2,1fr);}
+  .iconrow.c4{grid-template-columns:repeat(4,1fr);}
+  .iitem{display:flex; flex-direction:column; align-items:center; text-align:center; gap:9px; padding:16px 12px; border:1px solid var(--line); border-radius:13px; background:#fafcfb;}
+  .iitem .icbubble{width:46px; height:46px;}
+  .iitem .lbl{font-size:.95rem; font-weight:700; color:var(--ink); line-height:1.35;}
+  .iitem .lbl .gloss{font-weight:400; margin:4px 0 0;}
+  @media(max-width:640px){.iconrow,.iconrow.c4{grid-template-columns:repeat(2,1fr);}}
+
+  /* iconlist: vertical pictogram steps */
+  .iconlist{margin:18px 0; display:flex; flex-direction:column; gap:10px;}
+  .iconlist .row{display:flex; gap:14px; align-items:flex-start; border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:#fafcfb;}
+  .iconlist .row.amber{background:#fbf7f1; border-color:#ecd6b6;}
+  .iconlist .row .icbubble{width:40px; height:40px;}
+  .iconlist .row .c{flex:1;}
+  .iconlist .row .h{font-size:1.02rem; font-weight:800; color:var(--green-deep); margin-bottom:3px;}
+  .iconlist .row.amber .h{color:var(--amber-deep);}
+  .iconlist .row .d{font-size:.97rem; color:var(--ink-soft);}
+  .iconlist .row .gloss{margin:5px 0 0;}
+
+  /* capsule pill callout */
+  .pill{display:flex; align-items:center; gap:16px; padding:16px 18px; border-radius:14px; background:var(--green-soft); border:1px solid #cfe0d8; margin:16px 0;}
+  .pill.amber{background:var(--amber-soft); border-color:#ecd6b6;}
+  .pill .cap{width:62px; height:32px; border-radius:16px; background:var(--green); color:#fff; font-weight:800; font-size:1.15rem; letter-spacing:.04em; display:flex; align-items:center; justify-content:center; flex:none; box-shadow:inset 0 -2px 6px rgba(0,0,0,.12);}
+  .pill.amber .cap{background:var(--amber);}
+  .pill .meta .name{font-weight:800; font-size:1.12rem; color:var(--ink);}
+  .pill .meta .sub{font-size:.95rem; color:var(--ink-soft);}
+  .pill .meta .gloss{margin:3px 0 0;}
+
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0;}
+  .duo.one{grid-template-columns:1fr;}
+  .duo .card{border:1px solid var(--line); border-radius:12px; padding:16px; background:#fafcfb;}
+  .duo .card .icbubble{width:42px; height:42px; margin-bottom:10px;}
+  .duo .card h4{font-size:1.04rem; font-weight:800; margin-bottom:8px; color:var(--green-deep);}
+  .duo .card p{font-size:.99rem; margin-bottom:0;}
+  .duo .card .gloss{margin:6px 0 0;}
+  @media(max-width:640px){.duo{grid-template-columns:1fr;}}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;}
+  .chip{font-size:.92rem; font-weight:600; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:6px 12px; border-radius:8px;}
+  .chip.warn{color:var(--amber-deep); background:var(--amber-soft); border-color:#ecd6b6;}
+
+  /* dose calculator */
+  .dosecalc{background:var(--green-deep); color:#eaf4ef; border-radius:14px; padding:20px 18px; margin:18px 0;}
+  .dosecalc .tag{font-size:.74rem; font-weight:700; letter-spacing:.06em; color:#f3c98a; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:7px;}
+  .dosecalc .tag .ic{width:18px;height:18px;}
+  .dosecalc p{font-size:clamp(1rem,1.5vw,1.16rem); color:#eaf4ef!important; margin-bottom:0;}
+  .dosecalc .times{font-weight:800; color:#f3c98a; font-size:1.15em;}
+  .dosecalc .gloss{color:#bcd3c8; opacity:.85; margin:8px 0 0;}
+  .inl{font-family:inherit; font-weight:800; color:#1d4636; border:none; border-bottom:2px solid var(--amber); background:#f3c98a; width:2.6em; text-align:center; font-size:1em; padding:1px 2px; border-radius:6px 6px 0 0;}
+  .inl:focus{outline:none; border-bottom-color:#fff;}
+
+  .cover{text-align:center;}
+  .cover .mark{font-size:.9rem; font-weight:700; letter-spacing:.22em; color:var(--green); text-transform:uppercase; margin-bottom:22px;}
+  .cover .rule{width:54px; height:3px; background:var(--amber); border-radius:2px; margin:0 auto 22px;}
+  .cover h1{font-size:clamp(1.7rem,4.4vw,2.8rem); font-weight:800; line-height:1.22; letter-spacing:-.02em; margin-bottom:18px;}
+  .cover h1 .accent{color:var(--green);}
+  .cover .who{font-size:clamp(1.05rem,2vw,1.3rem); color:var(--ink-soft); font-weight:600;}
+  .cover .sub{font-size:1.02rem; color:var(--ink-faint); margin-top:24px;}
+  .cover .gloss{text-align:center;}
+
+  .setup{display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin:20px 0 8px;}
+  .field{display:flex; flex-direction:column; align-items:center; gap:5px;}
+  .field label{font-size:.76rem; font-weight:700; color:var(--ink-faint);}
+  .field input{font-family:inherit; font-size:1.05rem; font-weight:700; color:var(--green-deep); border:none; border-bottom:2px solid var(--line-strong); background:transparent; padding:5px 8px; width:160px; text-align:center;}
+  .field input:focus{outline:none; border-bottom-color:var(--green);}
+
+  .bar{position:fixed; left:0; right:0; bottom:0; height:64px; display:flex; align-items:center; gap:12px; padding:0 clamp(14px,3vw,28px); background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-top:1px solid var(--line); z-index:30;}
+  .progress{position:absolute; top:0; left:0; height:3px; background:var(--green); transition:width .3s ease;}
+  .btn{appearance:none; border:1px solid var(--line-strong); background:#fff; color:var(--ink); font-family:inherit; font-weight:600; font-size:.95rem; height:40px; min-width:40px; padding:0 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+  .btn:hover{background:var(--green-soft); border-color:#bcd5ca;}
+  .btn:focus-visible{outline:3px solid #94c4b1; outline-offset:2px;}
+  .btn.icon{padding:0; width:40px;}
+  .langsel{height:40px; border:1px solid var(--line-strong); border-radius:10px; background:#fff; font-family:inherit; font-weight:700; font-size:.92rem; color:var(--green-deep); padding:0 10px; cursor:pointer;}
+  .counter{font-size:.92rem; font-weight:700; min-width:58px; text-align:center;}
+  .counter .total{color:var(--ink-faint); font-weight:600;}
+  .spacer{flex:1;}
+  .pagetag{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 11px; border-radius:999px;}
+
+  .toc-backdrop{position:fixed; inset:0; background:rgba(16,30,24,.5); display:none; z-index:40; align-items:center; justify-content:center; padding:20px;}
+  .toc-backdrop.open{display:flex;}
+  .toc{background:#fff; border-radius:16px; width:min(560px,100%); max-height:80vh; overflow-y:auto; padding:22px 22px 26px; box-shadow:0 24px 60px -20px rgba(16,30,24,.5);}
+  .toc h3{font-size:1.05rem; margin-bottom:4px;}
+  .toc .hint{font-size:.85rem; color:var(--ink-faint); margin-bottom:14px;}
+  .toc-group{margin-bottom:14px;}
+  .toc-group .gl{font-size:.76rem; font-weight:700; letter-spacing:.06em; color:var(--amber); text-transform:uppercase; margin-bottom:6px;}
+  .toc-item{display:flex; gap:10px; align-items:baseline; padding:8px 10px; border-radius:9px; cursor:pointer;}
+  .toc-item:hover{background:var(--green-soft);}
+  .toc-item .n{font-size:.78rem; font-weight:700; color:var(--ink-faint); min-width:30px;}
+  .toc-item .t{font-size:.96rem;}
+
+  @media(max-width:600px){.btn .lbl{display:none;}}
+</style>
+</head>
+<body data-lang="ko">
+
+<main class="stage" id="stage"></main>
+
+<div class="bar">
+  <div class="progress" id="progress"></div>
+  <button class="btn icon" id="prev">←</button>
+  <button class="btn icon" id="next">→</button>
+  <span class="counter"><span id="cur">1</span> <span class="total">/ <span id="tot">15</span></span></span>
+  <span class="spacer"></span>
+  <span class="pagetag" id="pagetag"></span>
+  <select class="langsel" id="lang" aria-label="언어 / Language">
+    <option value="ko">한국어</option>
+    <option value="ja">日本語</option>
+    <option value="en">English</option>
+    <option value="zh-cn">简体中文</option>
+    <option value="zh-tw">繁體中文</option>
+    <option value="th">ภาษาไทย</option>
+  </select>
+  <button class="btn" id="speakBtn">🔊<span class="lbl" id="speakLbl"> 듣기</span></button>
+  <button class="btn" id="tocBtn">☰<span class="lbl" id="tocLbl"> 목차</span></button>
+  <button class="btn" id="fsBtn">⤢<span class="lbl" id="fsLbl"> 전체화면</span></button>
+</div>
+
+<div class="toc-backdrop" id="tocBackdrop">
+  <div class="toc" role="dialog">
+    <h3 id="tocTitle"></h3>
+    <p class="hint" id="tocHint"></p>
+    <div id="tocList"></div>
+  </div>
+</div>
+
+<script>
+// ---------- pictograms (inline SVG) ----------
+const PICTO = {
+  capsule:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2.5" y="8" width="19" height="8" rx="4"/><line x1="12" y1="8" x2="12" y2="16"/></svg>`,
+  fullness:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11h17a8.5 8.5 0 0 1-17 0Z"/><path d="M6 11a6 6 0 0 1 12 0"/></svg>`,
+  metabolism:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3c3 4 5 6 5 9a5 5 0 0 1-10 0c0-1.2.6-2.3 1.6-3.3C9.5 10 11 8 12 3Z"/></svg>`,
+  comfort:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V6l7-3Z"/><path d="M9 11.5l2 2 3.5-3.5"/></svg>`,
+  appetite:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v6M5 3v4a2 2 0 0 0 4 0V3M7 9v12"/><path d="M15 3c-1.5 1.5-2 3-2 5s.5 2.5 2 2.5V21"/></svg>`,
+  scale:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 12l4-4"/></svg>`,
+  water:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11Z"/></svg>`,
+  noCoffee:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h12v4a6 6 0 0 1-12 0V8Z"/><path d="M16 9h2a2.5 2.5 0 0 1 0 5h-2"/><line x1="3" y1="21" x2="21" y2="3"/></svg>`,
+  noAlcohol:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 6a3 3 0 0 1-6 0L8 3Z"/><line x1="12" y1="12" x2="12" y2="20"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="3" y1="21" x2="21" y2="3"/></svg>`,
+  clock:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>`,
+  steps:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h4v-4h4v-4h4V7h4"/></svg>`,
+  moon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z"/></svg>`,
+  digest:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v4h-4"/></svg>`,
+  warn:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 2.5 20h19L12 4Z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17.5" r=".7" fill="currentColor" stroke="none"/></svg>`,
+  thermo:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5a2 2 0 0 1 4 0v8.2a4 4 0 1 1-4 0V5Z"/><line x1="12" y1="9" x2="12" y2="14"/></svg>`,
+  sweat:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M8 4c3 4 4.2 6 4.2 8a4.2 4.2 0 0 1-8.4 0c0-2 1.2-4 4.2-8Z"/><path d="M17.5 11c1.4 2 1.9 3 1.9 4a2 2 0 0 1-3.8 0c0-1 .5-2 1.9-4Z"/></svg>`,
+  thirst:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l-1 4H8L7 4Z"/><path d="M8 8c1 3 1 6 1 8a3 3 0 0 0 6 0c0-2 0-5 1-8"/><path d="M9 13h6"/></svg>`,
+  heart:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-9-9a4.5 4.5 0 0 1 9-1.2A4.5 4.5 0 0 1 21 11c-2 4.6-9 9-9 9Z"/><path d="M3 12.5h3l1.3-2.3 2 4 1.4-2.2H21"/></svg>`,
+  dizzy:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l1.5 1.5M10.5 9 9 10.5M13.5 9 15 10.5M15 9l-1.5 1.5"/><path d="M8 16c1-1.3 2.5-1.3 4 0s3 1.3 4 0"/></svg>`,
+  juice:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1.1 11a1 1 0 0 1-1 .9H8.1a1 1 0 0 1-1-.9L6 8Z"/><path d="M9 8 8.2 4H15"/><line x1="14.5" y1="3" x2="16.5" y2="6"/></svg>`,
+  shield:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4-3 7-7 8-4-1-7-4-7-8V6l7-3Z"/></svg>`,
+  photo:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="13" rx="2.5"/><circle cx="12" cy="13" r="3.2"/><path d="M8.5 6.5 10 4h4l1.5 2.5"/></svg>`,
+  hospital:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg>`,
+  phone:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l2 5-2.2 1.1a11 11 0 0 0 4.1 4.1L13 12l5 2v3a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2Z"/></svg>`,
+  plate:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg>`,
+  list3:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1.3"/><circle cx="4.5" cy="12" r="1.3"/><circle cx="4.5" cy="18" r="1.3"/></svg>`,
+  rest:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-5a3 3 0 0 1 3-3h10a4 4 0 0 1 4 4v4"/><path d="M3 14h18M6 10V8a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v2"/></svg>`
+};
+
+// ---------- UI labels ----------
+const UI = {
+  prevAria:{ko:"이전 슬라이드", ja:"前のスライド", en:"Previous slide", "zh-cn":"上一页", "zh-tw":"上一頁", th:"สไลด์ก่อนหน้า"},
+  nextAria:{ko:"다음 슬라이드", ja:"次のスライド", en:"Next slide", "zh-cn":"下一页", "zh-tw":"下一頁", th:"สไลด์ถัดไป"},
+  toc:{ko:"목차", ja:"目次", en:"Contents", "zh-cn":"目录", "zh-tw":"目錄", th:"สารบัญ"},
+  fullscreen:{ko:"전체화면", ja:"全画面", en:"Fullscreen", "zh-cn":"全屏", "zh-tw":"全螢幕", th:"เต็มจอ"},
+  bookPrefix:{ko:"", ja:"", en:"", "zh-cn":"", "zh-tw":"", th:""},
+  tocTitle:{ko:"목차 · 빠른 이동", ja:"目次・クイック移動", en:"Contents · Quick jump", "zh-cn":"目录 · 快速跳转", "zh-tw":"目錄 · 快速跳轉", th:"สารบัญ · ไปยังหัวข้อ"},
+  tocHint:{ko:"보고 싶은 항목을 눌러 바로 이동할 수 있어요.", ja:"見たい項目をタップしてすぐ移動できます。", en:"Tap any item to jump straight there.", "zh-cn":"点按任意条目即可直接跳转。", "zh-tw":"點按任意項目即可直接跳轉。", th:"แตะหัวข้อใดก็ได้เพื่อไปยังส่วนนั้นทันที"},
+  patientLabel:{ko:"환자분 성함", ja:"患者様のお名前", en:"Patient name", "zh-cn":"患者姓名", "zh-tw":"患者姓名", th:"ชื่อผู้ป่วย"},
+  patientPh:{ko:"성함 입력", ja:"お名前", en:"Name", "zh-cn":"姓名", "zh-tw":"姓名", th:"ชื่อ"},
+  doctorLabel:{ko:"의료진", ja:"担当医", en:"Doctor", "zh-cn":"主治医师", "zh-tw":"主治醫師", th:"แพทย์"},
+  doctorPh:{ko:"의료진 성함", ja:"担当医名", en:"Doctor name", "zh-cn":"医师姓名", "zh-tw":"醫師姓名", th:"ชื่อแพทย์"},
+  listen:{ko:"듣기", ja:"聞く", en:"Listen", "zh-cn":"朗读", "zh-tw":"朗讀", th:"ฟัง"},
+  stop:{ko:"멈춤", ja:"停止", en:"Stop", "zh-cn":"停止", "zh-tw":"停止", th:"หยุด"}
+};
+
+const PAGES = {
+  cover:{label:{ko:"표지", ja:"表紙", en:"Cover", "zh-cn":"封面", "zh-tw":"封面", th:"หน้าปก"}},
+  course:{label:{ko:"복용 코스", ja:"服用コース", en:"Course", "zh-cn":"服用流程", "zh-tw":"服用流程", th:"คอร์ส"}},
+  detox:{label:{ko:"디톡스기 · D캡슐", ja:"デトックス期・Dカプセル", en:"Detox · D-capsule", "zh-cn":"排毒期·D胶囊", "zh-tw":"排毒期·D膠囊", th:"ดีท็อกซ์ · แคปซูล D"}},
+  slim:{label:{ko:"감량기 · S캡슐", ja:"減量期・Sカプセル", en:"Slimming · S-capsule", "zh-cn":"减重期·S胶囊", "zh-tw":"減重期·S膠囊", th:"ลดน้ำหนัก · แคปซูล S"}},
+  extra:{label:{ko:"편안환 · 수면환", ja:"便安丸・睡眠丸", en:"Comfort · Sleep pills", "zh-cn":"便安丸·睡眠丸", "zh-tw":"便安丸·睡眠丸", th:"ยาเม็ดเสริม"}},
+  symptom:{label:{ko:"불편증상", ja:"不快症状", en:"Side effects", "zh-cn":"不适症状", "zh-tw":"不適症狀", th:"อาการ"}},
+  end:{label:{ko:"마무리", ja:"まとめ", en:"Wrap-up", "zh-cn":"总结", "zh-tw":"總結", th:"สรุป"}}
+};
+
+const SLIDES = [
+{ id:"S01", page:"cover", cover:true,
+  mark:"ACRO KOREAN MEDICINE CLINIC",
+  h1:{ko:`다이어트 한약 <span class="accent">복용법</span>을<br>설명해 드리겠습니다`, ja:`ダイエット韓方薬の<span class="accent">飲み方</span>を<br>ご説明します`},
+  sub:{ko:`오늘은 디톡스기와 감량기를 중심으로 함께 보겠습니다.`, ja:`今日はデトックス期と減量期を中心に一緒に見ていきましょう。`} },
+
+{ id:"S02", page:"course", kicker:{ko:"복용 코스", ja:"服用コース"},
+  h2:{ko:`다이어트는 <span class="accent">3단계</span>로 진행됩니다`, ja:`ダイエットは<span class="accent">3段階</span>で進みます`},
+  body:[
+    {t:"iconlist", items:[
+      {p:"comfort", h4:{ko:"① 디톡스기 — D캡슐",ja:"① デトックス期 — Dカプセル"}, desc:{ko:"몸을 비우고 식욕을 가라앉히는 시작 단계.",ja:"体をリセットし、食欲を落ち着かせる始まりの段階。"}},
+      {p:"scale", h4:{ko:"② 감량기 — S캡슐",ja:"② 減量期 — Sカプセル"}, desc:{ko:"본격적으로 체중을 줄여가는 핵심 단계.",ja:"本格的に体重を減らしていく中心の段階。"}},
+      {p:"shield", h4:{ko:"③ 유지기",ja:"③ 維持期"}, desc:{ko:"줄인 체중을 안정적으로 지키는 마무리 단계.",ja:"減った体重を安定して維持する仕上げの段階。"}}
+    ]},
+    {t:"note", v:{ko:`오늘은 이 중 <strong>디톡스기와 감량기</strong>의 약 복용법을 설명해 드릴게요.`, ja:`今日はこのうち<strong>デトックス期と減量期</strong>のお薬の飲み方をご説明します。`}}
+  ]},
+
+{ id:"S03", page:"detox", kicker:{ko:"1. 디톡스기", ja:"1. デトックス期"},
+  h2:{ko:`디톡스기엔 <span class="accent">D캡슐</span>을 복용합니다`, ja:`デトックス期は<span class="accent">Dカプセル</span>を飲みます`},
+  body:[
+    {t:"pill", cap:"D", amber:true, name:{ko:"D캡슐 · 디톡스",ja:"Dカプセル・デトックス"}, sub:{ko:"포만감을 주고 대사를 활성화하는 한약",ja:"満腹感を与え代謝を活性化する韓方薬"}},
+    {t:"iconrow", items:[
+      {p:"fullness", label:{ko:"포만감 형성",ja:"満腹感をつくる"}},
+      {p:"metabolism", label:{ko:"대사 활성화",ja:"代謝を活性化"}},
+      {p:"comfort", label:{ko:"불편증상 보완",ja:"不快症状を緩和"}}
+    ]},
+    {t:"p", v:{ko:`초저열량식을 진행할 때 생길 수 있는 불편함을 보완해 주는 약입니다.`, ja:`超低カロリー食を行うときに起こりうる不快感を補ってくれるお薬です。`}}
+  ]},
+
+{ id:"S04", page:"detox",
+  h2:{ko:`D캡슐 <span class="accent">복용법</span>`, ja:`Dカプセルの<span class="accent">飲み方</span>`},
+  body:[
+    {t:"iconlist", items:[
+      {p:"capsule", h4:{ko:"첫째 날 — 하루 3번, 2캡슐씩",ja:"1日目 — 1日3回、2カプセルずつ"}, desc:{ko:"처음에는 한 번에 2캡슐씩 드세요.",ja:"最初は1回2カプセルずつ飲んでください。"}},
+      {p:"capsule", h4:{ko:"둘째 날부터 — 하루 3번, 3캡슐씩",ja:"2日目から — 1日3回、3カプセルずつ"}, desc:{ko:"불편증상이 없으면 3캡슐로 늘립니다.",ja:"不快症状がなければ3カプセルに増やします。"}},
+      {p:"comfort", h4:{ko:"힘들면 1~2알로 줄여도 OK",ja:"つらければ1〜2粒に減らしてもOK"}, desc:{ko:"무리하지 마시고 편하게 조절하세요.",ja:"無理せず楽に調整してください。"}, amber:true}
+    ]},
+    {t:"note", v:{ko:`힘드시면 언제든 일반식(저열량식)으로 진행하셔도 좋습니다.`, ja:`つらいときは、いつでも普通食（低カロリー食）に切り替えてかまいません。`}}
+  ]},
+
+{ id:"S05", page:"detox",
+  h2:{ko:`디톡스기 <span class="accent">식사와 주의</span>`, ja:`デトックス期の<span class="accent">食事と注意</span>`},
+  body:[
+    {t:"lead", v:{ko:`하루 <span class="hl-amber">800kcal 이하</span>의 초저열량식을 진행해 주세요.`, ja:`1日<span class="hl-amber">800kcal以下</span>の超低カロリー食を行ってください。`}},
+    {t:"iconrow", items:[
+      {p:"water", label:{ko:"물 충분히",ja:"水を十分に"}},
+      {p:"noCoffee", label:{ko:"커피 피하기",ja:"コーヒーは控える"}},
+      {p:"noAlcohol", label:{ko:"음주 피하기",ja:"飲酒は控える"}}
+    ]},
+    {t:"p", v:{ko:`무리하지 마시고, 힘드시면 언제든 <strong>일반식(저열량식)</strong>으로 진행하셔도 괜찮습니다.`, ja:`無理せず、つらいときはいつでも<strong>普通食（低カロリー食）</strong>に切り替えても大丈夫です。`}}
+  ]},
+
+{ id:"S06", page:"slim", kicker:{ko:"2. 감량기", ja:"2. 減量期"},
+  h2:{ko:`3일차부터 <span class="accent">S캡슐</span>을 복용합니다`, ja:`3日目から<span class="accent">Sカプセル</span>を飲みます`},
+  body:[
+    {t:"pill", cap:"S", name:{ko:"S캡슐 · 감량",ja:"Sカプセル・減量"}, sub:{ko:"대사를 높이고 식욕을 억제해 감량을 돕는 한약",ja:"代謝を高め食欲を抑えて減量を助ける韓方薬"}},
+    {t:"iconrow", items:[
+      {p:"metabolism", label:{ko:"신진대사 활성화",ja:"新陳代謝を活性化"}},
+      {p:"appetite", label:{ko:"식욕 억제",ja:"食欲を抑制"}},
+      {p:"scale", label:{ko:"체중감량",ja:"体重減少"}}
+    ]},
+    {t:"case", tag:{ko:"맞춤 처방", ja:"オーダーメイド処方"}, ic:"comfort", ps:[
+      {ko:`S캡슐은 <strong>한의사의 진단</strong>에 따라 개인의 건강 상태를 고려해 맞춤으로 처방됩니다.`, ja:`Sカプセルは<strong>韓医師の診断</strong>に基づき、個人の健康状態を考慮してオーダーメイドで処方されます。`}
+    ]}
+  ]},
+
+{ id:"S07", page:"slim",
+  h2:{ko:`S캡슐, <span class="accent">4시간 간격</span>으로 하루 3번`, ja:`Sカプセルは<span class="accent">4時間おき</span>に1日3回`},
+  body:[
+    {t:"doseS"},
+    {t:"p", v:{ko:`예를 들어 <strong>8시</strong>에 일어나신다면 8·12·16시처럼 4시간 간격으로 드시면 무난합니다.`, ja:`例えば<strong>8時</strong>に起きるなら、8・12・16時のように4時間おきに飲むと無理がありません。`}}
+  ]},
+
+{ id:"S08", page:"slim",
+  h2:{ko:`<span class="accent">증량</span>과 복용 요령`, ja:`<span class="accent">増量</span>と飲み方のコツ`},
+  body:[
+    {t:"iconlist", items:[
+      {p:"steps", h4:{ko:"1알 → 2알 → 3알 순차 증량",ja:"1粒 → 2粒 → 3粒 と順に増量"}, desc:{ko:"처음엔 하루 3번 1알씩, 불편감이 없으면 단계적으로 늘리세요.",ja:"最初は1日3回1粒ずつ、不快感がなければ段階的に増やしてください。"}},
+      {p:"plate", h4:{ko:"식전·식후 상관없이",ja:"食前・食後どちらでも"}, desc:{ko:"속쓰림이 있으면 식사 직전 또는 직후에 드세요.",ja:"胃もたれがあれば食事の直前または直後に飲んでください。"}},
+      {p:"moon", h4:{ko:"저녁약은 취침 6~7시간 전",ja:"夜の薬は就寝6〜7時間前"}, desc:{ko:"늦게 드시면 불면을 유발할 수 있어요.",ja:"遅く飲むと不眠を招くことがあります。"}, amber:true}
+    ]}
+  ]},
+
+{ id:"S09", page:"slim",
+  h2:{ko:`감량기 <span class="accent">식사</span>`, ja:`減量期の<span class="accent">食事</span>`},
+  body:[
+    {t:"iconrow", c2:true, items:[
+      {p:"plate", label:{ko:"하루 1,200~1,500kcal",ja:"1日 1,200〜1,500kcal"}},
+      {p:"list3", label:{ko:"저열량식 유지",ja:"低カロリー食を維持"}}
+    ]},
+    {t:"lead", v:{ko:`S캡슐을 드시는 동안은 하루 총 <span class="hl-amber">1,200~1,500kcal</span>의 저열량식으로 진행해 주세요.`, ja:`Sカプセルを飲んでいる間は、1日合計<span class="hl-amber">1,200〜1,500kcal</span>の低カロリー食で進めてください。`}}
+  ]},
+
+{ id:"S10", page:"extra", kicker:{ko:"3. 증상 완화 한약", ja:"3. 症状を和らげる韓方薬"},
+  h2:{ko:`편안환·수면환은 <span class="accent">필요할 때만</span>`, ja:`便安丸・睡眠丸は<span class="accent">必要なときだけ</span>`},
+  body:[
+    {t:"p", v:{ko:`이 두 가지는 매일 꼭 드셔야 하는 약이 아니라, <strong>증상이 있을 때만</strong> 드시는 한약입니다.`, ja:`この2つは毎日必ず飲む薬ではなく、<strong>症状があるときだけ</strong>飲む韓方薬です。`}},
+    {t:"duo", cols:2, cards:[
+      {p:"digest", h4:{ko:"편안환",ja:"便安丸"}, p:{ko:`변비를 풀고 장운동을 돕습니다.`,ja:`便秘を和らげ、腸の動きを助けます。`}},
+      {p:"moon", h4:{ko:"수면환",ja:"睡眠丸"}, p:{ko:`불면을 예방해 편안한 잠을 돕습니다.`,ja:`不眠を防ぎ、快適な睡眠を助けます。`}}
+    ]}
+  ]},
+
+{ id:"S11", page:"extra",
+  h2:{ko:`편안환 — <span class="accent">변비 완화</span>`, ja:`便安丸 — <span class="accent">便秘の緩和</span>`},
+  body:[
+    {t:"iconlist", items:[
+      {p:"digest", h4:{ko:"변비가 있을 때 자기 전 1회 10환",ja:"便秘のとき、寝る前に1回10丸"}, desc:{ko:"먼저 10환으로 시작해 보세요.",ja:"まず10丸から始めてみてください。"}},
+      {p:"steps", h4:{ko:"안 풀리면 조금씩 늘리기",ja:"効かなければ少しずつ増やす"}, desc:{ko:"한 번에 최대 80환까지 드실 수 있어요.",ja:"1回最大80丸まで飲めます。"}},
+      {p:"warn", h4:{ko:"처음부터 많이 드시면 복통 주의",ja:"最初から大量はお腹の痛みに注意"}, desc:{ko:"꼭 천천히 양을 늘려가며 복용해 주세요.",ja:"必ずゆっくり量を増やしながら飲んでください。"}, amber:true}
+    ]}
+  ]},
+
+{ id:"S12", page:"extra",
+  h2:{ko:`수면환 — <span class="accent">불면 예방</span>`, ja:`睡眠丸 — <span class="accent">不眠の予防</span>`},
+  body:[
+    {t:"iconlist", items:[
+      {p:"moon", h4:{ko:"불면이 있을 때 취침 6시간 전 1회 40~80환",ja:"不眠のとき、就寝6時間前に1回40〜80丸"}, desc:{ko:"잠들기 6시간 전에 드시면 좋습니다.",ja:"眠る6時間前に飲むと良いです。"}},
+      {p:"capsule", h4:{ko:"저녁 S캡슐과 함께 드셔도 OK",ja:"夜のSカプセルと一緒でもOK"}, desc:{ko:"저녁 S캡슐도 취침 6~7시간 전에 드시니 함께 복용 가능합니다.",ja:"夜のSカプセルも就寝6〜7時間前なので、一緒に飲めます。"}}
+    ]},
+    {t:"case", tag:{ko:"헷갈림 주의", ja:"取り違え注意"}, ic:"warn", ps:[
+      {ko:`편안환과 수면환은 <strong>통(용기)이 똑같이 생겼습니다.</strong> 드실 때 헷갈리지 않도록 꼭 확인해 주세요.`, ja:`便安丸と睡眠丸は<strong>容器が同じ形です。</strong>飲むときに取り違えないよう必ず確認してください。`}
+    ]}
+  ]},
+
+{ id:"S13", page:"symptom", kicker:{ko:"초기 불편증상", ja:"初期の不快症状"},
+  h2:{ko:`초기에 <span class="accent">생길 수 있는 증상</span>`, ja:`初期に<span class="accent">起こりうる症状</span>`},
+  body:[
+    {t:"iconrow", c4:true, items:[
+      {p:"thermo", label:{ko:"열감",ja:"ほてり"}},
+      {p:"sweat", label:{ko:"땀",ja:"汗"}},
+      {p:"thirst", label:{ko:"갈증",ja:"のどの渇き"}},
+      {p:"heart", label:{ko:"두근거림",ja:"動悸"}},
+      {p:"moon", label:{ko:"불면",ja:"不眠"}},
+      {p:"digest", label:{ko:"속쓰림·울렁거림",ja:"胃もたれ・吐き気"}}
+    ]},
+    {t:"p", v:{ko:`이러한 증상은 시간이 지나면서 조금씩 사라지며, <span class="hl">물을 하루 2L 이상</span> 충분히 드시면 완화에 도움이 됩니다.`, ja:`これらの症状は時間とともに少しずつ消えていき、<span class="hl">水を1日2L以上</span>十分に飲むと和らぐのに役立ちます。`}},
+    {t:"lead", v:{ko:`혹시 불편증상이 심하면 <strong>중단하고 편하게 연락</strong> 주세요.`, ja:`もし症状が強い場合は<strong>中止して、気軽にご連絡</strong>ください。`}}
+  ]},
+
+{ id:"S14", page:"symptom",
+  h2:{ko:`<span class="accent">저혈당</span>을 조심하세요`, ja:`<span class="accent">低血糖</span>に注意してください`},
+  body:[
+    {t:"p", v:{ko:`식단을 과도하게 줄이면 저혈당 증상이 나타날 수 있습니다.`, ja:`食事を過度に減らすと、低血糖の症状が出ることがあります。`}},
+    {t:"iconrow", c4:true, items:[
+      {p:"digest", label:{ko:"울렁거림",ja:"吐き気"}},
+      {p:"sweat", label:{ko:"손떨림",ja:"手の震え"}},
+      {p:"thirst", label:{ko:"구역",ja:"むかつき"}},
+      {p:"thermo", label:{ko:"두통",ja:"頭痛"}},
+      {p:"dizzy", label:{ko:"어지럼증",ja:"めまい"}}
+    ]},
+    {t:"case", tag:{ko:"이렇게 대처하세요", ja:"こう対処してください"}, ic:"juice", ps:[
+      {ko:`이런 증상이 나타나면 바로 <span class="hl-amber">주스 한 컵 또는 이온 음료</span>를 드셔서 수분과 당분을 보충해 주세요.`, ja:`このような症状が出たら、すぐに<span class="hl-amber">ジュース1杯またはスポーツドリンク</span>を飲んで、水分と糖分を補ってください。`}
+    ]}
+  ]},
+
+{ id:"S15", page:"end", kicker:{ko:"마무리", ja:"まとめ"},
+  h2:{ko:`복용 중 <span class="accent">이것만 기억</span>하세요`, ja:`服用中は<span class="accent">これだけ覚えて</span>ください`},
+  body:[
+    {t:"iconlist", items:[
+      {p:"shield", h4:{ko:"복용 중에는 피임을 권장합니다",ja:"服用中は避妊をおすすめします"}, desc:{ko:"한약 복용 기간에는 피임을 권장드립니다.",ja:"韓方薬の服用期間中は避妊を推奨します。"}},
+      {p:"photo", h4:{ko:"다른 약은 사진으로 먼저 확인",ja:"他の薬は写真で先に確認"}, desc:{ko:"처방전이나 약 봉투를 사진 찍어 보내주시면 함께 복용 가능한지 확인해 드립니다.",ja:"処方箋や薬の袋を写真で送っていただければ、一緒に飲めるか確認します。"}},
+      {p:"hospital", h4:{ko:"건강검진·수술은 2~3일 전 중단",ja:"健診・手術は2〜3日前に中止"}, desc:{ko:"검진·수술 48~72시간 전에 복용을 멈추고, 회복 후엔 다시 1알부터 천천히 적응하세요.",ja:"健診・手術の48〜72時間前に中止し、回復後は再び1粒からゆっくり慣らしてください。"}}
+    ]},
+    {t:"case", tag:{ko:"언제든 연락 주세요", ja:"いつでもご連絡を"}, ic:"phone", ps:[
+      {ko:`궁금한 점이 생기거나 복용 중 불편증상이 있으면 <strong>언제든 연락 주세요. 감사합니다.</strong>`, ja:`ご不明な点や服用中の不快な症状があれば<strong>いつでもご連絡ください。ありがとうございました。</strong>`}
+    ]}
+  ]}
+];
+
+// ---------- state ----------
+let idx = 0;
+let lang = "ko";
+const STATE = { patient:"", doctor:"", wake:8 };
+
+function esc(s){ return (s==null?"":String(s)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function strip(html){ return html.replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').trim(); }
+
+// greeting
+function docName(){ return STATE.doctor.trim() || "___"; }
+function greetMain(lg){
+  const p=STATE.patient.trim(), d=docName(), P=esc(p), D=esc(d);
+  if(lg==="ja") return (p?P+"様、":"")+"こんにちは。担当医の"+D+"です。";
+  if(lg==="en") return (p?P+", ":"")+"hello. I'm Dr. "+D+", and I'll explain how to take your medication.";
+  if(lg==="zh-cn") return (p?P+"，":"")+"您好。我是您的主治医师"+D+"。";
+  if(lg==="zh-tw") return (p?P+"，":"")+"您好。我是您的主治醫師"+D+"。";
+  if(lg==="th") return (p?"คุณ"+P+" ":"")+"สวัสดีครับ ผมเป็นแพทย์ผู้ดูแลของคุณ "+D;
+  return (p?P+"님, ":"")+"안녕하세요. 담당의 "+D+"입니다.";
+}
+function updateGreet(){
+  const g=document.getElementById('greet'); if(!g) return;
+  g.innerHTML=greetMain(lang);
+  const nx=g.nextElementSibling;
+  if(lang!=="ko" && nx && nx.classList.contains('gloss')) nx.innerHTML=strip(greetMain("ko"));
+}
+
+// dose calculator (S캡슐)
+function curWake(){ const w=STATE.wake; return (w===""||w==null||isNaN(w))?8:(((w%24)+24)%24); }
+function doseTimes(w, sep){ return [w,(w+4)%24,(w+8)%24].join(sep); }
+const DOSE_S = {
+  ko:{ tag:"복용 시각 (기상시각 기준)", pre:"기상 ", mid:"시 → ",
+       post:"시, 4시간 간격으로 하루 3번. 저녁약은 주무시기 6~7시간 전에 드셔 불면을 예방하세요." },
+  ja:{ tag:"服用時刻（起床時刻が基準）", pre:"起床 ", mid:"時 → ",
+       post:"時、4時間おきに1日3回。夜の薬は就寝6〜7時間前に飲んで不眠を防ぎましょう。" },
+  en:{ tag:"Dose times (based on wake-up)", pre:"Wake-up ", mid:":00 → ",
+       post:":00 — 3 times a day, 4 hours apart. Take the evening dose 6–7 hours before bed to prevent insomnia." },
+  "zh-cn":{ tag:"服用时刻（以起床时间为准）", pre:"起床 ", mid:"点 → ",
+       post:"点，每隔4小时、每天3次。晚上那次请在睡前6~7小时服用，以预防失眠。" },
+  "zh-tw":{ tag:"服用時刻（以起床時間為準）", pre:"起床 ", mid:"點 → ",
+       post:"點，每隔4小時、每天3次。晚上那次請在睡前6~7小時服用，以預防失眠。" },
+  th:{ tag:"เวลารับประทาน (อิงเวลาตื่น)", pre:"ตื่นนอน ", mid:" น. → ",
+       post:" น. ห่างกัน 4 ชม. วันละ 3 ครั้ง มื้อเย็นรับประทานก่อนนอน 6–7 ชม. เพื่อป้องกันการนอนไม่หลับ" }
+};
+function doseGlossKo(w){ return "기상 "+w+"시 → "+doseTimes(w,"·")+"시, 4시간 간격으로 하루 3번. 저녁약은 주무시기 6~7시간 전에 드셔 불면을 예방하세요."; }
+function updateDose(){
+  const w=curWake();
+  const a=document.getElementById('doseTimes'); if(a) a.textContent=doseTimes(w,"·");
+  const wk=document.getElementById('doseGlossS'); if(wk) wk.innerHTML=doseGlossKo(w);
+}
+
+// ---------- translation merge ----------
+function trNodes(s){
+  const o=[];
+  if(s.cover){ o.push(s.h1); o.push(s.sub); return o; }
+  if(s.kicker) o.push(s.kicker);
+  o.push(s.h2);
+  s.body.forEach(function(b){
+    if(b.t==='p'||b.t==='lead'||b.t==='note') o.push(b.v);
+    else if(b.t==='case'){ o.push(b.tag); b.ps.forEach(function(p){o.push(p);}); }
+    else if(b.t==='duo'){ b.cards.forEach(function(c){o.push(c.h4);o.push(c.p);}); }
+    else if(b.t==='chips'){ b.items.forEach(function(c){o.push(c);}); }
+    else if(b.t==='iconrow'){ b.items.forEach(function(c){o.push(c.label);}); }
+    else if(b.t==='iconlist'){ b.items.forEach(function(c){o.push(c.h4);o.push(c.desc);}); }
+    else if(b.t==='pill'){ o.push(b.name); o.push(b.sub); }
+  });
+  return o;
+}
+
+const TR = {
+S01:{en:[`Let me explain <span class="accent">how to take</span> your diet herbal medicine`,`Today we'll focus on the detox and slimming phases together.`]},
+S02:{en:[`Course`,`Dieting runs in <span class="accent">3 phases</span>`,`① Detox — D-capsule`,`The starting phase that resets the body and calms appetite.`,`② Slimming — S-capsule`,`The core phase where you actively reduce weight.`,`③ Maintenance`,`The final phase that holds your reduced weight steady.`,`Today we'll cover the medication for the <strong>detox and slimming</strong> phases.`]},
+S03:{en:[`1. Detox`,`In the detox phase, take the <span class="accent">D-capsule</span>`,`D-capsule · Detox`,`A herbal medicine that adds fullness and activates metabolism`,`Creates fullness`,`Activates metabolism`,`Eases discomfort`,`It's a medicine that eases the discomfort that can come with a very-low-calorie diet.`]},
+S04:{en:[`How to take the <span class="accent">D-capsule</span>`,`Day 1 — 3 times a day, 2 capsules each`,`Start with 2 capsules per dose.`,`From day 2 — 3 times a day, 3 capsules each`,`If you have no discomfort, increase to 3 capsules.`,`Reduce to 1–2 if it's hard — that's OK`,`Don't push yourself; adjust comfortably.`,`If it's hard, you can switch to a regular (low-calorie) diet anytime.`]},
+S05:{en:[`Detox phase: <span class="accent">diet & cautions</span>`,`Follow a very-low-calorie diet of <span class="hl-amber">800kcal or less</span> per day.`,`Drink plenty of water`,`Avoid coffee`,`Avoid alcohol`,`Don't push yourself — if it's hard, you can switch to a <strong>regular (low-calorie) diet</strong> anytime.`]},
+S06:{en:[`2. Slimming`,`From day 3, take the <span class="accent">S-capsule</span>`,`S-capsule · Slimming`,`A herbal medicine that raises metabolism and curbs appetite to aid weight loss`,`Activates metabolism`,`Curbs appetite`,`Weight loss`,`Tailored prescription`,`The S-capsule is prescribed individually by the <strong>doctor's assessment</strong>, considering your health condition.`]},
+S07:{en:[`S-capsule: 3 times a day, <span class="accent">4 hours apart</span>`,`For example, if you wake at <strong>8:00</strong>, taking it at 8, 12, and 16:00 — 4 hours apart — works well.`]},
+S08:{en:[`<span class="accent">Increasing</span> the dose & tips`,`Increase 1 → 2 → 3 tablets gradually`,`Start with 1 tablet 3 times a day, and increase step by step if you have no discomfort.`,`Before or after meals — either is fine`,`If you get heartburn, take it right before or after a meal.`,`Take the evening dose 6–7 hours before bed`,`Taking it late can cause insomnia.`]},
+S09:{en:[`Slimming phase <span class="accent">diet</span>`,`1,200–1,500kcal a day`,`Keep a low-calorie diet`,`While taking the S-capsule, follow a low-calorie diet of <span class="hl-amber">1,200–1,500kcal</span> total per day.`]},
+S10:{en:[`3. Symptom-relief herbal medicine`,`Comfort & Sleep pills — <span class="accent">only when needed</span>`,`These two aren't daily must-takes — they're herbal medicines you take <strong>only when you have symptoms</strong>.`,`Comfort pill`,`Relieves constipation and helps bowel movement.`,`Sleep pill`,`Prevents insomnia for restful sleep.`]},
+S11:{en:[`Comfort pill — <span class="accent">eases constipation</span>`,`When constipated, 10 pills once before bed`,`Start with 10 pills first.`,`If it doesn't help, increase little by little`,`You can take up to 80 pills at once.`,`Taking a lot at first may cause cramps`,`Be sure to increase the amount slowly.`]},
+S12:{en:[`Sleep pill — <span class="accent">prevents insomnia</span>`,`When sleepless, 40–80 pills once, 6 hours before bed`,`Taking them 6 hours before sleep works well.`,`OK to take with the evening S-capsule`,`The evening S-capsule is also 6–7 hours before bed, so you can take them together.`,`Avoid mixing them up`,`The Comfort and Sleep pills come in <strong>identical containers.</strong> Please check carefully so you don't mix them up.`]},
+S13:{en:[`Early side effects`,`Symptoms that <span class="accent">may appear early</span>`,`Hot flushes`,`Sweating`,`Thirst`,`Palpitations`,`Insomnia`,`Heartburn / nausea`,`These fade over time, and drinking <span class="hl">at least 2L of water a day</span> helps ease them.`,`If discomfort is severe, <strong>stop and feel free to contact us</strong>.`]},
+S14:{en:[`Watch out for <span class="accent">low blood sugar</span>`,`Cutting your diet too far can cause low-blood-sugar symptoms.`,`Nausea`,`Hand tremor`,`Queasiness`,`Headache`,`Dizziness`,`Here's how to handle it`,`If these appear, drink <span class="hl-amber">a glass of juice or a sports drink</span> right away to replenish fluids and sugar.`]},
+S15:{en:[`Wrap-up`,`Just <span class="accent">remember these</span> while taking it`,`Use contraception while taking it`,`We recommend contraception during the herbal-medicine period.`,`Check other medicines by photo first`,`Send a photo of the prescription or medicine pouch and we'll check if they can be taken together.`,`Stop 2–3 days before a health check or surgery`,`Stop 48–72 hours before, and after recovery restart slowly from 1 tablet.`,`Contact us anytime`,`If you have questions or any discomfort while taking it, <strong>contact us anytime. Thank you.</strong>`]}
+};
+function addLang(code,obj){ Object.keys(obj).forEach(function(id){ if(!TR[id])TR[id]={}; TR[id][code]=obj[id]; }); }
+
+addLang('zh-cn', {
+S01:[`下面为您讲解减重中药的<span class="accent">服用方法</span>`,`今天主要和您一起看排毒期与减重期。`],
+S02:[`服用流程`,`减重分<span class="accent">3个阶段</span>进行`,`① 排毒期 — D胶囊`,`重置身体、平复食欲的起始阶段。`,`② 减重期 — S胶囊`,`正式减轻体重的核心阶段。`,`③ 维持期`,`稳定保持已减体重的收尾阶段。`,`今天为您讲解其中<strong>排毒期与减重期</strong>的服用方法。`],
+S03:[`1. 排毒期`,`排毒期服用<span class="accent">D胶囊</span>`,`D胶囊 · 排毒`,`带来饱腹感、激活代谢的中药`,`形成饱腹感`,`激活代谢`,`缓解不适`,`是一种缓解进行超低热量饮食时可能出现不适的药。`],
+S04:[`D胶囊<span class="accent">服用方法</span>`,`第一天 — 每天3次，每次2粒`,`刚开始每次服用2粒。`,`第二天起 — 每天3次，每次3粒`,`若无不适，增至3粒。`,`难受时减为1~2粒也可以`,`不要勉强，舒适地调整即可。`,`难受时可随时改为普通饮食（低热量饮食）。`],
+S05:[`排毒期<span class="accent">饮食与注意</span>`,`请进行每天<span class="hl-amber">800kcal以下</span>的超低热量饮食。`,`多喝水`,`避免咖啡`,`避免饮酒`,`不要勉强，难受时可随时改为<strong>普通饮食（低热量饮食）</strong>。`],
+S06:[`2. 减重期`,`第3天起服用<span class="accent">S胶囊</span>`,`S胶囊 · 减重`,`提高代谢、抑制食欲、帮助减重的中药`,`激活新陈代谢`,`抑制食欲`,`减轻体重`,`定制处方`,`S胶囊会根据<strong>韩医师的诊断</strong>、结合个人健康状况进行定制处方。`],
+S07:[`S胶囊：每天3次，<span class="accent">每隔4小时</span>`,`例如<strong>8点</strong>起床，就在8、12、16点这样每隔4小时服用比较合适。`],
+S08:[`<span class="accent">增量</span>与服用要领`,`1粒 → 2粒 → 3粒 逐步增量`,`刚开始每天3次每次1粒，无不适后逐步增加。`,`饭前饭后皆可`,`若有烧心，请在饭前或饭后立即服用。`,`晚上那次请在睡前6~7小时`,`太晚服用可能引起失眠。`],
+S09:[`减重期<span class="accent">饮食</span>`,`每天 1,200~1,500kcal`,`维持低热量饮食`,`服用S胶囊期间，请进行每天共<span class="hl-amber">1,200~1,500kcal</span>的低热量饮食。`],
+S10:[`3. 缓解症状的中药`,`便安丸·睡眠丸<span class="accent">仅在需要时</span>`,`这两种并非每天必服，而是<strong>有症状时才服用</strong>的中药。`,`便安丸`,`缓解便秘、促进肠道蠕动。`,`睡眠丸`,`预防失眠、助安眠。`],
+S11:[`便安丸 — <span class="accent">缓解便秘</span>`,`便秘时睡前1次10丸`,`先从10丸开始。`,`不见效就一点点增加`,`一次最多可服80丸。`,`一开始就大量服用可能腹痛`,`请务必慢慢增加用量。`],
+S12:[`睡眠丸 — <span class="accent">预防失眠</span>`,`失眠时睡前6小时1次40~80丸`,`在睡前6小时服用为佳。`,`可与晚上的S胶囊一起服用`,`晚上的S胶囊也在睡前6~7小时服用，可一起服。`,`注意别弄混`,`便安丸与睡眠丸<strong>容器外形相同。</strong>服用时请仔细确认，以免弄混。`],
+S13:[`初期不适症状`,`初期<span class="accent">可能出现的症状</span>`,`热感`,`出汗`,`口渴`,`心悸`,`失眠`,`烧心·恶心`,`这些症状会随时间逐渐消失，<span class="hl">每天喝2L以上的水</span>有助于缓解。`,`若不适严重，请<strong>停用并随时与我们联系</strong>。`],
+S14:[`当心<span class="accent">低血糖</span>`,`过度节食可能出现低血糖症状。`,`恶心`,`手抖`,`反胃`,`头痛`,`头晕`,`请这样应对`,`出现这些症状时，请立即喝<span class="hl-amber">一杯果汁或运动饮料</span>，补充水分和糖分。`],
+S15:[`总结`,`服用期间<span class="accent">记住这几点</span>`,`服用期间建议避孕`,`中药服用期间建议避孕。`,`其他药先拍照确认`,`把处方或药袋拍照发来，我们会确认能否一起服用。`,`体检·手术前2~3天停药`,`提前48~72小时停药，恢复后再从1粒开始慢慢适应。`,`随时联系我们`,`若有疑问或服用中出现不适，<strong>请随时联系我们。谢谢。</strong>`]
+});
+
+addLang('zh-tw', {
+S01:[`以下為您講解減重中藥的<span class="accent">服用方法</span>`,`今天主要和您一起看排毒期與減重期。`],
+S02:[`服用流程`,`減重分<span class="accent">3個階段</span>進行`,`① 排毒期 — D膠囊`,`重置身體、平復食慾的起始階段。`,`② 減重期 — S膠囊`,`正式減輕體重的核心階段。`,`③ 維持期`,`穩定保持已減體重的收尾階段。`,`今天為您講解其中<strong>排毒期與減重期</strong>的服用方法。`],
+S03:[`1. 排毒期`,`排毒期服用<span class="accent">D膠囊</span>`,`D膠囊 · 排毒`,`帶來飽腹感、活化代謝的中藥`,`形成飽腹感`,`活化代謝`,`緩解不適`,`是一種緩解進行超低熱量飲食時可能出現不適的藥。`],
+S04:[`D膠囊<span class="accent">服用方法</span>`,`第一天 — 每天3次，每次2粒`,`剛開始每次服用2粒。`,`第二天起 — 每天3次，每次3粒`,`若無不適，增至3粒。`,`難受時減為1~2粒也可以`,`不要勉強，舒適地調整即可。`,`難受時可隨時改為普通飲食（低熱量飲食）。`],
+S05:[`排毒期<span class="accent">飲食與注意</span>`,`請進行每天<span class="hl-amber">800kcal以下</span>的超低熱量飲食。`,`多喝水`,`避免咖啡`,`避免飲酒`,`不要勉強，難受時可隨時改為<strong>普通飲食（低熱量飲食）</strong>。`],
+S06:[`2. 減重期`,`第3天起服用<span class="accent">S膠囊</span>`,`S膠囊 · 減重`,`提高代謝、抑制食慾、幫助減重的中藥`,`活化新陳代謝`,`抑制食慾`,`減輕體重`,`客製處方`,`S膠囊會依<strong>韓醫師的診斷</strong>、結合個人健康狀況進行客製處方。`],
+S07:[`S膠囊：每天3次，<span class="accent">每隔4小時</span>`,`例如<strong>8點</strong>起床，就在8、12、16點這樣每隔4小時服用比較合適。`],
+S08:[`<span class="accent">增量</span>與服用要領`,`1粒 → 2粒 → 3粒 逐步增量`,`剛開始每天3次每次1粒，無不適後逐步增加。`,`飯前飯後皆可`,`若有燒心，請在飯前或飯後立即服用。`,`晚上那次請在睡前6~7小時`,`太晚服用可能引起失眠。`],
+S09:[`減重期<span class="accent">飲食</span>`,`每天 1,200~1,500kcal`,`維持低熱量飲食`,`服用S膠囊期間，請進行每天共<span class="hl-amber">1,200~1,500kcal</span>的低熱量飲食。`],
+S10:[`3. 緩解症狀的中藥`,`便安丸·睡眠丸<span class="accent">僅在需要時</span>`,`這兩種並非每天必服，而是<strong>有症狀時才服用</strong>的中藥。`,`便安丸`,`緩解便秘、促進腸道蠕動。`,`睡眠丸`,`預防失眠、助安眠。`],
+S11:[`便安丸 — <span class="accent">緩解便秘</span>`,`便秘時睡前1次10丸`,`先從10丸開始。`,`不見效就一點點增加`,`一次最多可服80丸。`,`一開始就大量服用可能腹痛`,`請務必慢慢增加用量。`],
+S12:[`睡眠丸 — <span class="accent">預防失眠</span>`,`失眠時睡前6小時1次40~80丸`,`在睡前6小時服用為佳。`,`可與晚上的S膠囊一起服用`,`晚上的S膠囊也在睡前6~7小時服用，可一起服。`,`注意別弄混`,`便安丸與睡眠丸<strong>容器外形相同。</strong>服用時請仔細確認，以免弄混。`],
+S13:[`初期不適症狀`,`初期<span class="accent">可能出現的症狀</span>`,`熱感`,`出汗`,`口渴`,`心悸`,`失眠`,`燒心·噁心`,`這些症狀會隨時間逐漸消失，<span class="hl">每天喝2L以上的水</span>有助於緩解。`,`若不適嚴重，請<strong>停用並隨時與我們聯絡</strong>。`],
+S14:[`當心<span class="accent">低血糖</span>`,`過度節食可能出現低血糖症狀。`,`噁心`,`手抖`,`反胃`,`頭痛`,`頭暈`,`請這樣應對`,`出現這些症狀時，請立即喝<span class="hl-amber">一杯果汁或運動飲料</span>，補充水分和糖分。`],
+S15:[`總結`,`服用期間<span class="accent">記住這幾點</span>`,`服用期間建議避孕`,`中藥服用期間建議避孕。`,`其他藥先拍照確認`,`把處方或藥袋拍照傳來，我們會確認能否一起服用。`,`體檢·手術前2~3天停藥`,`提前48~72小時停藥，恢復後再從1粒開始慢慢適應。`,`隨時聯絡我們`,`若有疑問或服用中出現不適，<strong>請隨時聯絡我們。謝謝。</strong>`]
+});
+
+addLang('th', {
+S01:[`ต่อไปจะอธิบาย<span class="accent">วิธีรับประทาน</span>ยาสมุนไพรลดน้ำหนักให้คุณ`,`วันนี้เราจะดูช่วงดีท็อกซ์และช่วงลดน้ำหนักไปด้วยกันเป็นหลัก`],
+S02:[`คอร์ส`,`การลดน้ำหนักแบ่งเป็น <span class="accent">3 ช่วง</span>`,`① ช่วงดีท็อกซ์ — แคปซูล D`,`ช่วงเริ่มต้นที่รีเซ็ตร่างกายและทำให้ความอยากอาหารสงบลง`,`② ช่วงลดน้ำหนัก — แคปซูล S`,`ช่วงหลักที่ลดน้ำหนักอย่างจริงจัง`,`③ ช่วงรักษาน้ำหนัก`,`ช่วงสุดท้ายที่รักษาน้ำหนักที่ลดได้ให้คงที่`,`วันนี้จะอธิบายวิธีรับประทานของ<strong>ช่วงดีท็อกซ์และช่วงลดน้ำหนัก</strong>`],
+S03:[`1. ช่วงดีท็อกซ์`,`ช่วงดีท็อกซ์รับประทาน<span class="accent">แคปซูล D</span>`,`แคปซูล D · ดีท็อกซ์`,`ยาสมุนไพรที่ให้ความอิ่มและกระตุ้นการเผาผลาญ`,`สร้างความอิ่ม`,`กระตุ้นการเผาผลาญ`,`บรรเทาอาการไม่สบาย`,`เป็นยาที่ช่วยบรรเทาอาการไม่สบายที่อาจเกิดขณะทำอาหารแคลอรีต่ำมาก`],
+S04:[`<span class="accent">วิธีรับประทาน</span>แคปซูล D`,`วันแรก — วันละ 3 ครั้ง ครั้งละ 2 แคปซูล`,`เริ่มต้นครั้งละ 2 แคปซูล`,`ตั้งแต่วันที่ 2 — วันละ 3 ครั้ง ครั้งละ 3 แคปซูล`,`ถ้าไม่มีอาการไม่สบาย เพิ่มเป็น 3 แคปซูล`,`ถ้าฝืน ลดเหลือ 1–2 เม็ดก็ได้`,`อย่าฝืน ปรับให้สบายตัว`,`ถ้าฝืน เปลี่ยนเป็นอาหารปกติ (แคลอรีต่ำ) เมื่อไรก็ได้`],
+S05:[`ช่วงดีท็อกซ์ <span class="accent">อาหารและข้อควรระวัง</span>`,`ทำอาหารแคลอรีต่ำมาก <span class="hl-amber">วันละ 800kcal หรือน้อยกว่า</span>`,`ดื่มน้ำมากๆ`,`เลี่ยงกาแฟ`,`เลี่ยงแอลกอฮอล์`,`อย่าฝืน ถ้าฝืนเปลี่ยนเป็น<strong>อาหารปกติ (แคลอรีต่ำ)</strong> เมื่อไรก็ได้`],
+S06:[`2. ช่วงลดน้ำหนัก`,`ตั้งแต่วันที่ 3 รับประทาน<span class="accent">แคปซูล S</span>`,`แคปซูล S · ลดน้ำหนัก`,`ยาสมุนไพรที่เพิ่มการเผาผลาญและลดความอยากอาหารเพื่อช่วยลดน้ำหนัก`,`กระตุ้นการเผาผลาญ`,`ลดความอยากอาหาร`,`ลดน้ำหนัก`,`สั่งจ่ายเฉพาะบุคคล`,`แคปซูล S สั่งจ่ายตาม<strong>การวินิจฉัยของแพทย์</strong> โดยพิจารณาสภาพร่างกายของแต่ละคน`],
+S07:[`แคปซูล S: วันละ 3 ครั้ง <span class="accent">ห่างกัน 4 ชม.</span>`,`เช่นถ้าตื่น <strong>8 โมง</strong> รับประทาน 8, 12, 16 น. ห่างกัน 4 ชม. จะเหมาะดี`],
+S08:[`การ<span class="accent">เพิ่มขนาด</span>และเคล็ดลับ`,`เพิ่ม 1 → 2 → 3 เม็ด ตามลำดับ`,`เริ่มวันละ 3 ครั้ง ครั้งละ 1 เม็ด ถ้าไม่มีอาการไม่สบายค่อยเพิ่มทีละขั้น`,`ก่อนหรือหลังอาหารก็ได้`,`ถ้าแสบท้อง รับประทานก่อนหรือหลังอาหารทันที`,`มื้อเย็นรับประทานก่อนนอน 6–7 ชม.`,`รับประทานดึกเกินไปอาจนอนไม่หลับ`],
+S09:[`<span class="accent">อาหาร</span>ช่วงลดน้ำหนัก`,`วันละ 1,200–1,500kcal`,`คงอาหารแคลอรีต่ำ`,`ขณะรับประทานแคปซูล S ทำอาหารแคลอรีต่ำรวม <span class="hl-amber">วันละ 1,200–1,500kcal</span>`],
+S10:[`3. ยาสมุนไพรบรรเทาอาการ`,`便安丸·睡眠丸 <span class="accent">เฉพาะเมื่อจำเป็น</span>`,`สองตัวนี้ไม่ใช่ยาที่ต้องกินทุกวัน แต่เป็นยาที่<strong>กินเฉพาะเมื่อมีอาการ</strong>`,`便安丸 (เบนอันฮวัน)`,`บรรเทาท้องผูกและช่วยการทำงานของลำไส้`,`睡眠丸 (ซูมยอนฮวัน)`,`ป้องกันการนอนไม่หลับ ช่วยให้นอนสบาย`],
+S11:[`便安丸 — <span class="accent">บรรเทาท้องผูก</span>`,`เมื่อท้องผูก ก่อนนอน 1 ครั้ง 10 เม็ด`,`เริ่มจาก 10 เม็ดก่อน`,`ถ้าไม่ได้ผล ค่อยๆ เพิ่ม`,`รับประทานได้สูงสุด 80 เม็ดต่อครั้ง`,`เริ่มทีละมากอาจปวดท้อง`,`โปรดค่อยๆ เพิ่มปริมาณ`],
+S12:[`睡眠丸 — <span class="accent">ป้องกันการนอนไม่หลับ</span>`,`เมื่อนอนไม่หลับ ก่อนนอน 6 ชม. 1 ครั้ง 40–80 เม็ด`,`รับประทานก่อนนอน 6 ชม. จะดี`,`รับประทานพร้อมแคปซูล S มื้อเย็นได้`,`แคปซูล S มื้อเย็นก็ก่อนนอน 6–7 ชม. จึงรับประทานพร้อมกันได้`,`ระวังหยิบสลับ`,`便安丸 และ 睡眠丸 <strong>ใส่ในภาชนะที่หน้าตาเหมือนกัน</strong> โปรดตรวจให้ดีเพื่อไม่ให้สลับกัน`],
+S13:[`อาการช่วงแรก`,`อาการที่<span class="accent">อาจเกิดในช่วงแรก</span>`,`ร้อนวูบวาบ`,`เหงื่อออก`,`กระหายน้ำ`,`ใจสั่น`,`นอนไม่หลับ`,`แสบท้อง·คลื่นไส้`,`อาการเหล่านี้จะค่อยๆ หายไปตามเวลา และการ<span class="hl">ดื่มน้ำวันละ 2L ขึ้นไป</span>ช่วยบรรเทาได้`,`หากอาการรุนแรง <strong>หยุดและติดต่อเราได้เลย</strong>`],
+S14:[`ระวัง<span class="accent">ภาวะน้ำตาลต่ำ</span>`,`การลดอาหารมากเกินไปอาจทำให้เกิดอาการน้ำตาลต่ำ`,`คลื่นไส้`,`มือสั่น`,`พะอืดพะอม`,`ปวดหัว`,`เวียนศีรษะ`,`รับมือแบบนี้`,`หากมีอาการเหล่านี้ ให้ดื่ม<span class="hl-amber">น้ำผลไม้ 1 แก้วหรือเครื่องดื่มเกลือแร่</span>ทันที เพื่อเติมน้ำและน้ำตาล`],
+S15:[`สรุป`,`ขณะรับประทาน<span class="accent">จำสิ่งเหล่านี้</span>`,`ขณะรับประทานแนะนำให้คุมกำเนิด`,`ช่วงรับประทานยาสมุนไพรแนะนำให้คุมกำเนิด`,`ยาอื่นถ่ายรูปให้ดูก่อน`,`ถ่ายรูปใบสั่งยาหรือซองยาส่งมา เราจะตรวจว่ารับประทานร่วมกันได้ไหม`,`ตรวจสุขภาพ·ผ่าตัด หยุดยา 2–3 วันก่อน`,`หยุด 48–72 ชม. ก่อน หลังฟื้นตัวค่อยเริ่มจาก 1 เม็ดอย่างช้าๆ`,`ติดต่อเราได้ตลอด`,`หากมีคำถามหรืออาการไม่สบายขณะรับประทาน <strong>ติดต่อเราได้ตลอดครับ ขอบคุณครับ</strong>`]
+});
+
+function applyTR(){
+  SLIDES.forEach(function(s){
+    const t=TR[s.id]; if(!t) return;
+    const nodes=trNodes(s);
+    Object.keys(t).forEach(function(L){
+      const arr=t[L]; if(!arr) return;
+      nodes.forEach(function(node,i){ if(arr[i]!=null) node[L]=arr[i]; });
+    });
+  });
+}
+applyTR();
+
+// ---------- voice (text-to-speech) ----------
+const SPEECH_LANG={ko:'ko-KR',ja:'ja-JP',en:'en-US','zh-cn':'zh-CN','zh-tw':'zh-TW',th:'th-TH'};
+let speaking=false, voices=[];
+function loadVoices(){ try{ voices=window.speechSynthesis.getVoices()||[]; }catch(e){ voices=[]; } }
+function pickVoice(code){ if(!voices.length) loadVoices(); const pre=code.split('-')[0].toLowerCase();
+  let v=voices.find(function(x){return x.lang&&x.lang.toLowerCase()===code.toLowerCase();});
+  if(!v) v=voices.find(function(x){return x.lang&&x.lang.toLowerCase().indexOf(pre)===0;}); return v||null; }
+function clean(t){ return strip(t).replace(/\s+/g,' ').trim(); }
+function getSpeechText(s){
+  const parts=[];
+  if(s.cover){ parts.push(clean(L(s.h1))); parts.push(clean(greetMain(lang))); parts.push(clean(L(s.sub))); return parts.filter(Boolean).join('. '); }
+  parts.push(clean(L(s.h2)));
+  s.body.forEach(function(b){
+    if(b.t==='p'||b.t==='lead'||b.t==='note') parts.push(clean(L(b.v)));
+    else if(b.t==='case'){ parts.push(clean(L(b.tag))); b.ps.forEach(function(p){parts.push(clean(L(p)));}); }
+    else if(b.t==='duo'){ b.cards.forEach(function(c){ parts.push(clean(L(c.h4))); parts.push(clean(L(c.p))); }); }
+    else if(b.t==='chips'){ b.items.forEach(function(c){ parts.push(clean(L(c))); }); }
+    else if(b.t==='iconrow'){ b.items.forEach(function(c){ parts.push(clean(L(c.label))); }); }
+    else if(b.t==='iconlist'){ b.items.forEach(function(c){ parts.push(clean(L(c.h4))); parts.push(clean(L(c.desc))); }); }
+    else if(b.t==='pill'){ parts.push(clean(L(b.name))); parts.push(clean(L(b.sub))); }
+    else if(b.t==='doseS'){ const d=DOSE_S[lang]||DOSE_S.ko, w=curWake(); parts.push(clean(d.pre+w+d.mid+doseTimes(w,', ')+d.post)); }
+  });
+  return parts.filter(Boolean).join('. ');
+}
+function updateSpeakBtn(){ const btn=document.getElementById('speakBtn'); if(!btn) return; const lbl=document.getElementById('speakLbl');
+  if(btn.firstChild) btn.firstChild.nodeValue = speaking ? '\u23F9' : '\uD83D\uDD0A';
+  if(lbl) lbl.textContent=' '+(speaking?L(UI.stop):L(UI.listen)); }
+function stopSpeak(){ try{ if(typeof window!=='undefined'&&window.speechSynthesis) window.speechSynthesis.cancel(); }catch(e){} speaking=false; updateSpeakBtn(); }
+function speakCurrent(){
+  if(typeof window==='undefined'||!('speechSynthesis' in window)){ return; }
+  try{ window.speechSynthesis.cancel(); }catch(e){}
+  const text=getSpeechText(SLIDES[idx]); if(!text){ return; }
+  const u=new SpeechSynthesisUtterance(text); const code=SPEECH_LANG[lang]||'ko-KR';
+  u.lang=code; const v=pickVoice(code); if(v) u.voice=v; u.rate=0.98; u.pitch=1;
+  u.onend=function(){ speaking=false; updateSpeakBtn(); };
+  u.onerror=function(){ speaking=false; updateSpeakBtn(); };
+  speaking=true; updateSpeakBtn(); window.speechSynthesis.speak(u);
+}
+function toggleSpeak(){ if(speaking) stopSpeak(); else speakCurrent(); }
+if(typeof window!=='undefined' && 'speechSynthesis' in window){ try{ window.speechSynthesis.onvoiceschanged=loadVoices; loadVoices(); }catch(e){} }
+
+// ---------- render ----------
+const stage = document.getElementById('stage');
+const total = SLIDES.length;
+document.getElementById('tot').textContent = total;
+
+function L(obj){ return obj[lang] || obj.ko; }
+function gloss(obj, cls){ if(lang==="ko") return ""; return '<div class="gloss '+(cls||'')+'">'+strip(obj.ko)+'</div>'; }
+function bubble(key,amber){ return '<span class="icbubble'+(amber?' amber':'')+'"><span class="ic">'+(PICTO[key]||'')+'</span></span>'; }
+
+function renderBlock(b){
+  if(b.t==="p")    return '<p>'+L(b.v)+'</p>'+gloss(b.v);
+  if(b.t==="lead") return '<p class="lead">'+L(b.v)+'</p>'+gloss(b.v);
+  if(b.t==="note") return '<p class="note">'+L(b.v)+'</p>'+gloss(b.v,'kg');
+  if(b.t==="case"){
+    let h='<div class="case"><div class="tag">'+(b.ic?'<span class="ic">'+(PICTO[b.ic]||'')+'</span>':'')+L(b.tag)+'</div>';
+    b.ps.forEach(function(p){ h+='<p>'+L(p)+'</p>'+gloss(p); });
+    return h+'</div>';
+  }
+  if(b.t==="duo"){
+    let h='<div class="duo'+(b.cols===1?' one':'')+'">';
+    b.cards.forEach(function(c){ h+='<div class="card">'+(c.p?bubble(c.p):'')+'<h4>'+L(c.h4)+'</h4>'+gloss(c.h4,'kg')+'<p>'+L(c.p_||c.p)+'</p>'+gloss(c.p_||c.p)+'</div>'; });
+    return h+'</div>';
+  }
+  if(b.t==="chips"){
+    let h='<div class="chips">';
+    b.items.forEach(function(c){ h+='<span class="chip'+(b.warn?' warn':'')+'">'+L(c)+'</span>'; });
+    return h+'</div>';
+  }
+  if(b.t==="iconrow"){
+    let cls='iconrow'+(b.c2?' c2':'')+(b.c4?' c4':'');
+    let h='<div class="'+cls+'">';
+    b.items.forEach(function(c){ h+='<div class="iitem">'+bubble(c.p,b.warn)+'<div class="lbl">'+L(c.label)+gloss(c.label)+'</div></div>'; });
+    return h+'</div>';
+  }
+  if(b.t==="iconlist"){
+    let h='<div class="iconlist">';
+    b.items.forEach(function(c){ h+='<div class="row'+(c.amber?' amber':'')+'">'+bubble(c.p,c.amber)+'<div class="c"><div class="h">'+L(c.h4)+'</div>'+gloss(c.h4,'kg')+'<div class="d">'+L(c.desc)+'</div>'+gloss(c.desc)+'</div></div>'; });
+    return h+'</div>';
+  }
+  if(b.t==="pill"){
+    let h='<div class="pill'+(b.amber?' amber':'')+'"><div class="cap">'+b.cap+'</div><div class="meta"><div class="name">'+L(b.name)+'</div>'+gloss(b.name,'kg')+'<div class="sub">'+L(b.sub)+'</div>'+gloss(b.sub)+'</div></div>';
+    return h;
+  }
+  if(b.t==="doseS"){
+    const d=DOSE_S[lang]||DOSE_S.ko, w=curWake();
+    let h='<div class="dosecalc"><div class="tag"><span class="ic">'+PICTO.clock+'</span>'+d.tag+'</div>';
+    h+='<p>'+d.pre+'<input id="inWake" class="inl" type="number" min="0" max="23" value="'+w+'">'+d.mid+'<span class="times" id="doseTimes">'+doseTimes(w,'·')+'</span>'+d.post+'</p>';
+    if(lang!=="ko") h+='<div class="gloss" id="doseGlossS">'+doseGlossKo(w)+'</div>';
+    return h+'</div>';
+  }
+  return "";
+}
+
+function pageLabel(s){ return {txt:L(PAGES[s.page].label)}; }
+
+function buildStage(){
+  let html='';
+  SLIDES.forEach(function(s,i){
+    html+='<section class="slide'+(i===idx?' active':'')+(s.cover?' cover':'')+'">';
+    if(s.cover){
+      html+='<div class="mark">'+s.mark+'</div><div class="rule"></div>';
+      html+='<h1>'+L(s.h1)+'</h1>'+gloss(s.h1,'h2g');
+      html+='<div class="setup">';
+      html+='<div class="field"><label>'+L(UI.patientLabel)+'</label><input id="inPatient" type="text" value="'+esc(STATE.patient)+'" placeholder="'+L(UI.patientPh)+'"></div>';
+      html+='<div class="field"><label>'+L(UI.doctorLabel)+'</label><input id="inDoctor" type="text" value="'+esc(STATE.doctor)+'" placeholder="'+L(UI.doctorPh)+'"></div>';
+      html+='</div>';
+      html+='<p class="who" id="greet">'+greetMain(lang)+'</p>';
+      if(lang!=="ko") html+='<div class="gloss">'+strip(greetMain("ko"))+'</div>';
+      html+='<p class="sub">'+L(s.sub)+'</p>'+gloss(s.sub);
+    } else {
+      const pg=pageLabel(s);
+      html+='<div class="eyebrow"><span class="badge">'+pg.txt+'</span><span class="sidx">'+s.id+'</span></div>';
+      if(s.kicker) html+='<div class="kicker">'+L(s.kicker)+'</div>';
+      html+='<h2>'+L(s.h2)+'</h2>'+gloss(s.h2,'h2g');
+      html+='<div class="body">';
+      s.body.forEach(function(b){ html+=renderBlock(b); });
+      html+='</div>';
+    }
+    html+='</section>';
+  });
+  stage.innerHTML=html;
+}
+
+const elCur=document.getElementById('cur'), elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
+function render(){
+  const slides=stage.querySelectorAll('.slide');
+  slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  elCur.textContent=idx+1;
+  elTag.textContent=pageLabel(SLIDES[idx]).txt;
+  elProg.style.width=((idx+1)/total*100)+'%';
+  const act=slides[idx]; if(act) act.scrollTop=0;
+}
+function go(n){ stopSpeak(); idx=Math.max(0,Math.min(total-1,n)); render(); }
+function next(){ go(idx+1); } function prev(){ go(idx-1); }
+
+function applyUILabels(){
+  document.getElementById('prev').setAttribute('aria-label', L(UI.prevAria));
+  document.getElementById('next').setAttribute('aria-label', L(UI.nextAria));
+  document.getElementById('tocLbl').textContent=' '+L(UI.toc);
+  document.getElementById('fsLbl').textContent=' '+L(UI.fullscreen);
+  document.getElementById('tocTitle').textContent=L(UI.tocTitle);
+  document.getElementById('tocHint').textContent=L(UI.tocHint);
+  updateSpeakBtn();
+}
+
+function changeLang(nl){ stopSpeak(); lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); updateSpeakBtn(); }
+
+document.getElementById('next').addEventListener('click', next);
+document.getElementById('prev').addEventListener('click', prev);
+document.getElementById('lang').addEventListener('change', function(e){ changeLang(e.target.value); });
+
+document.addEventListener('keydown', function(e){
+  if(document.getElementById('tocBackdrop').classList.contains('open')){ if(e.key==='Escape') closeToc(); return; }
+  if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='SELECT')) { if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return; }
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); next(); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); prev(); }
+  else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(total-1); }
+  else if(e.key==='f'||e.key==='F'){ toggleFs(); }
+  else if(e.key==='s'||e.key==='S'){ toggleSpeak(); }
+});
+let tx=0,ty=0;
+stage.addEventListener('touchstart',function(e){ tx=e.changedTouches[0].clientX; ty=e.changedTouches[0].clientY; },{passive:true});
+stage.addEventListener('touchend',function(e){ const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); } },{passive:true});
+
+stage.addEventListener('input', function(e){
+  const id=e.target.id, v=e.target.value;
+  if(id==='inPatient'){ STATE.patient=v; updateGreet(); }
+  else if(id==='inDoctor'){ STATE.doctor=v; updateGreet(); }
+  else if(id==='inWake'){ STATE.wake=(v===''?'':parseInt(v,10)); updateDose(); }
+});
+
+function toggleFs(){ if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})(); } else { (document.exitFullscreen||function(){})(); } }
+document.getElementById('fsBtn').addEventListener('click', toggleFs);
+document.getElementById('speakBtn').addEventListener('click', toggleSpeak);
+
+const tocBackdrop=document.getElementById('tocBackdrop');
+function openToc(){ tocBackdrop.classList.add('open'); }
+function closeToc(){ tocBackdrop.classList.remove('open'); }
+document.getElementById('tocBtn').addEventListener('click', openToc);
+tocBackdrop.addEventListener('click', function(e){ if(e.target===tocBackdrop) closeToc(); });
+
+function buildTOC(){
+  const groups=[], gmap={};
+  SLIDES.forEach(function(s,i){
+    const key=s.page, gl=pageLabel(s).txt;
+    if(!gmap[key]){ gmap[key]={label:gl, items:[]}; groups.push(gmap[key]); }
+    const h=s.cover?L(s.h1):L(s.h2);
+    gmap[key].items.push({i:i, title:strip(h)});
+  });
+  let html='';
+  groups.forEach(function(g){
+    html+='<div class="toc-group"><div class="gl">'+g.label+'</div>';
+    g.items.forEach(function(it){ html+='<div class="toc-item" data-go="'+it.i+'"><span class="n">'+SLIDES[it.i].id+'</span><span class="t">'+it.title+'</span></div>'; });
+    html+='</div>';
+  });
+  const list=document.getElementById('tocList');
+  list.innerHTML=html;
+  list.onclick=function(e){ const it=e.target.closest('.toc-item'); if(it){ go(parseInt(it.getAttribute('data-go'),10)); closeToc(); } };
+}
+
+buildStage(); render(); applyUILabels(); buildTOC();
+</script>
+</body>
+</html>
