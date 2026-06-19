@@ -588,9 +588,9 @@ label.mon[for^="ext-"],label.mon[for^="rext-"]{min-width:62px;padding:0 16px}
 /* === 탭/토글 가시성 개선 === */
 /* 시술설명/이벤트/프로그램 탭: 비선택도 또렷하게 (연한 플럼 배경) */
 .tgl{color:var(--plum);background:var(--plum-soft);border-color:#ddd2f2}
-/* 컷/웨이브: 색 빼기 — 무채색, 선택한 것만 진한 회색으로 표시 */
-.xtbtn[for=show-cuteff],.xtbtn[for=show-waveeff]{background:#f4f3f6;border-color:var(--line);color:var(--ink-soft)}
-#show-cuteff:checked~.app label.xtbtn[for=show-cuteff],#show-waveeff:checked~.app label.xtbtn[for=show-waveeff]{background:var(--ink);border-color:var(--ink);color:#fff}
+/* 컷/웨이브: 흰 바탕, 선택 시 보라색 */
+.xtbtn[for=show-cuteff],.xtbtn[for=show-waveeff]{background:var(--card);border-color:var(--line);color:var(--ink-soft)}
+#show-cuteff:checked~.app label.xtbtn[for=show-cuteff],#show-waveeff:checked~.app label.xtbtn[for=show-waveeff]{background:var(--plum);border-color:var(--plum);color:#fff;box-shadow:0 3px 8px rgba(108,74,140,.22)}
 </style></head>
 <body>
 
