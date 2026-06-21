@@ -85,7 +85,7 @@
   .dirs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:8px;}
   .dirs button{font-size:15px;border:1px solid var(--line2);background:#fff;border-radius:6px;padding:5px 0;cursor:pointer;}
   .dirs button:hover{background:var(--green-soft);}
-  .swatches{display:flex;gap:6px;margin-bottom:8px;}
+  .swatches{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center;}
   .sw{width:26px;height:26px;border-radius:6px;border:2px solid #fff;box-shadow:0 0 0 1px var(--line2);cursor:pointer;}
   .sw.on{box-shadow:0 0 0 2px var(--ink);}
   .status{font-size:12px;font-weight:700;color:var(--green-deep);background:var(--green-soft);border:1px solid #cfe0d8;border-radius:7px;padding:7px 10px;margin-top:8px;min-height:20px;}
@@ -243,6 +243,10 @@
         <div class="sw" style="background:#5f7a64" data-acc="#5f7a64" data-bef="#333a35" title="딥그린"></div>
         <div class="sw" style="background:#4a5a72" data-acc="#4a5a72" data-bef="#2f3641" title="네이비"></div>
         <div class="sw" style="background:#4a453e" data-acc="#4a453e" data-bef="#4a453e" title="차콜"></div>
+        <div class="sw" style="background:#a8264b" data-acc="#a8264b" data-bef="#3a2330" title="와인"></div>
+        <div class="sw" style="background:#e0613f" data-acc="#e0613f" data-bef="#3a2a24" title="코럴"></div>
+        <div class="sw" style="background:#7a3f9c" data-acc="#7a3f9c" data-bef="#2f2640" title="퍼플"></div>
+        <div class="sw" style="background:#1f8f86" data-acc="#1f8f86" data-bef="#1f342f" title="틸"></div>
         <input type="color" class="accpick" id="igAcc" value="#c79a5b">
       </div>
       <div class="help">강조색은 After 배지·중앙 강조선에 적용. 하단 바는 크림톤 유지.</div>
@@ -274,8 +278,12 @@
       <div class="seg sm" id="qrModeSeg" style="margin-top:8px">
         <button data-v="url" class="on">QR URL</button><button data-v="off">QR 없음</button>
       </div>
+      <div class="seg sm" id="qrPresetSeg" style="margin-top:7px;flex-wrap:wrap">
+        <button data-q="gangnamunni">강남언니</button><button data-q="home">홈페이지</button><button data-q="line">LINE</button><button data-q="insta">인스타</button><button data-q="custom" class="on">직접입력</button>
+      </div>
       <input type="url" id="qrUrlIn" value="https://lin.ee/2Y1gNYA" placeholder="QR 연결 주소">
       <input type="text" id="qrCapIn" value="QRコードでもっと見る" placeholder="QR 캡션">
+      <div class="help" id="qrCapKo" style="margin-top:4px;color:var(--green-deep);font-weight:600">🇰🇷 QR로 더 보기</div>
     </section>
 
     <section class="igOnly">
@@ -361,7 +369,7 @@ const IGS={ mode:'clinic', market:'jp', ratio:'3:4', layout:'lr',
   accent:'#c79a5b', beforeBg:'#3c3730', divider:'white',
   wmMode:'text', wmText:'アクロ', wmImg:null, wmPos:'tl', wmOp:.55, wmSz:1,
   showBar:true, title:'アクロウェーブ', desc:'あなたにぴったりの、安心して受けられるケアをご提案します。',
-  qrMode:'url', qrUrl:'https://lin.ee/2Y1gNYA', qrCap:'QRコードでもっと見る' };
+  qrMode:'url', qrUrl:'https://lin.ee/2Y1gNYA', qrCap:'QRコードでもっと見る', qrPreset:'' };
 const isIG=()=>IGS.mode==='ig';
 function dimKey(){return IGS.mode+IGS.ratio+IGS.layout+S.layout+S.ratio;}
 function hexA(hex,a){const h=hex.replace('#','');return'rgba('+parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16)+','+a+')';}
@@ -383,6 +391,20 @@ function getQR(){ if(IGS.qrMode!=='url') return null; const url=(IGS.qrUrl||'').
     for(let r=0;r<n;r++)for(let col=0;col<n;col++)if(qr.isDark(r,col))q.fillRect((col+pad)*cell,(r+pad)*cell,cell,cell);
     qrCache={key:url,canvas:qc};return qc;}catch(e){return null;} }
 
+const QR_CAP_KO={
+ 'QRコードでもっと見る':'QR로 더 보기','掃描 QR 看更多':'QR 스캔 더 보기',
+ '口コミ・予約はこちら':'후기·예약 여기','看評價・預約':'후기·예약',
+ '公式サイトはこちら':'공식 홈페이지','官網看更多':'공식 홈페이지 더보기',
+ 'LINEで相談・予約':'LINE 상담·예약','加 LINE 諮詢預約':'LINE 추가·상담·예약',
+ 'Instagramで見る':'인스타 보기','看 Instagram':'인스타 보기'};
+function setQrKo(){ const el=$('qrCapKo'); if(!el)return; const t=(IGS.qrCap||'').trim();
+  el.textContent='🇰🇷 '+(QR_CAP_KO[t]||'직접 입력 문구'); }
+const QR_PRESETS={
+  gangnamunni:{url:{jp:'https://www.gangnamunni.com/hospitals/2067',tw:'https://www.gangnamunni.com/hospitals/2067'},cap:{jp:'口コミ・予約はこちら',tw:'看評價・預約'}},
+  home:{url:{jp:'https://acrohani.com/',tw:'https://acrohani.com/'},cap:{jp:'公式サイトはこちら',tw:'官網看更多'}},
+  line:{url:{jp:'https://lin.ee/2Y1gNYA',tw:'https://line.me/R/ti/p/@814kgltm'},cap:{jp:'LINEで相談・予約',tw:'加 LINE 諮詢預約'}},
+  insta:{url:{jp:'https://instagram.com/acrohani_jp',tw:'https://instagram.com/acrohani.tw'},cap:{jp:'Instagramで見る',tw:'看 Instagram'}}
+};
 const IG_MARKET={
   jp:{lang:'日本語',wm:'アクロ',title:'アクロウェーブ',desc:'あなたにぴったりの、安心して受けられるケアをご提案します。',
       qrCap:'QRコードでもっと見る',qrUrl:'https://lin.ee/2Y1gNYA',parts:['下腹部','顔','二の腕','その他'],custom:'例）太もも'},
@@ -751,7 +773,9 @@ function applyMarket(mk){ IGS.market=mk; const M=IG_MARKET[mk];
   IGS.desc=M.desc; $('barDesc').value=M.desc; IGS.qrCap=M.qrCap; $('qrCapIn').value=M.qrCap;
   IGS.qrUrl=M.qrUrl; $('qrUrlIn').value=M.qrUrl; qrCache={key:null,canvas:null};
   $('capLang').textContent=M.lang; document.querySelectorAll('#capPartSeg button').forEach(b=>{ if(CAP_LABEL[b.dataset.p]) b.textContent=CAP_LABEL[b.dataset.p][mk]; });
-  $('capCustom').placeholder=M.custom; $('capTagsIn').value=CAP_PARTS[capPart].tags[mk]; render(); buildCaption(); }
+  $('capCustom').placeholder=M.custom; $('capTagsIn').value=CAP_PARTS[capPart].tags[mk];
+  if(IGS.qrPreset && QR_PRESETS[IGS.qrPreset]){ const P=QR_PRESETS[IGS.qrPreset]; IGS.qrUrl=P.url[mk]; IGS.qrCap=P.cap[mk]; $('qrUrlIn').value=IGS.qrUrl; $('qrCapIn').value=IGS.qrCap; qrCache={key:null,canvas:null}; }
+  setQrKo(); render(); buildCaption(); }
 segPick('modeSeg','v',applyMode);
 segPick('marketSeg','v',applyMarket);
 $('igRatioSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
@@ -778,8 +802,17 @@ $('barOn').addEventListener('change',e=>{IGS.showBar=e.target.checked; setCanvas
 $('barTitle').addEventListener('input',e=>{IGS.title=e.target.value;render();});
 $('barDesc').addEventListener('input',e=>{IGS.desc=e.target.value;render();});
 segPick('qrModeSeg','v',v=>{IGS.qrMode=v; $('qrUrlIn').style.display=v==='url'?'':'none'; render();});
-$('qrUrlIn').addEventListener('input',e=>{IGS.qrUrl=e.target.value;render();});
-$('qrCapIn').addEventListener('input',e=>{IGS.qrCap=e.target.value;render();});
+$('qrUrlIn').addEventListener('input',e=>{IGS.qrUrl=e.target.value; IGS.qrPreset='custom';
+  document.querySelectorAll('#qrPresetSeg button').forEach(x=>x.classList.toggle('on',x.dataset.q==='custom')); render();});
+$('qrCapIn').addEventListener('input',e=>{IGS.qrCap=e.target.value;setQrKo();render();});
+function applyQrPreset(k){ IGS.qrPreset=k;
+  document.querySelectorAll('#qrPresetSeg button').forEach(x=>x.classList.toggle('on',x.dataset.q===k));
+  if(k==='custom'){ setQrKo(); $('qrUrlIn').focus(); return; }
+  const P=QR_PRESETS[k]; IGS.qrUrl=P.url[IGS.market]; IGS.qrCap=P.cap[IGS.market];
+  $('qrUrlIn').value=IGS.qrUrl; $('qrCapIn').value=IGS.qrCap; qrCache={key:null,canvas:null}; setQrKo();
+  if(IGS.qrMode!=='url'){ IGS.qrMode='url'; document.querySelectorAll('#qrModeSeg button').forEach(x=>x.classList.toggle('on',x.dataset.v==='url')); $('qrUrlIn').style.display=''; }
+  render(); }
+$('qrPresetSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return; applyQrPreset(b.dataset.q);});
 function buildCaption(){ const P=CAP_PARTS[capPart][IGS.market]; const w=$('capWhoIn').value.trim(), cp=$('capCustom').value.trim();
   const hook=typeof P.hook==='function'?P.hook(cp):P.hook; const body=capPart==='custom'?P.body(w,cp):P.body(w); const close=typeof P.close==='function'?P.close(cp):P.close;
   const parts=[hook,'',body];
@@ -935,7 +968,7 @@ function flash(btn,txt){ const o=btn.textContent; btn.textContent=txt; setTimeou
   $('dateB').value=iso; $('dateA').value=iso; S.dateB=iso; S.dateA=iso;
   document.body.classList.add('mode-clinic');
   setCanvasSize(); _lastDim=dimKey();
-  syncSwatch(); syncPanePick(); updateLmStatus(); buildCaption(); render();
+  syncSwatch(); syncPanePick(); updateLmStatus(); setQrKo(); buildCaption(); render();
 })();
 </script>
 </body>
