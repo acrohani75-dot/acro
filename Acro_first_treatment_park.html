@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acro_first_treatment_park</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700;800&family=Noto+Sans+Thai:wght@400;500;700;800&display=swap">
+<style>
+  :root{
+    --bg:#eef2f0; --surface:#ffffff;
+    --ink:#16241f; --ink-soft:#46574f; --ink-faint:#7d8c84;
+    --green:#2f6b54; --green-deep:#1d4636; --green-soft:#e4efe9;
+    --amber:#cf7f33; --amber-soft:#f6ead9;
+    --line:#d6dedb; --line-strong:#bcc8c3;
+    --radius:18px; --maxw:980px;
+    --kr:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+    --jp:'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--kr); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.6; overflow:hidden;}
+  body[data-lang="ja"]{font-family:var(--jp);}
+  body[data-lang="zh-cn"]{font-family:'Noto Sans SC',var(--kr);}
+  body[data-lang="zh-tw"]{font-family:'Noto Sans TC',var(--kr);}
+  body[data-lang="th"]{font-family:'Noto Sans Thai',var(--kr);}
+  .gloss, body[data-lang] .gloss{font-family:var(--kr);}
+
+  .stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:clamp(16px,3.5vw,48px) clamp(16px,4vw,64px) 92px;}
+  .slide{display:none; width:100%; max-width:var(--maxw); max-height:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 18px 48px -28px rgba(20,40,32,.35); padding:clamp(28px,4.4vw,60px); overflow-y:auto; animation:fade .42s ease both;}
+  .slide.active{display:block;}
+  @keyframes fade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @media(prefers-reduced-motion:reduce){.slide{animation:none;}}
+
+  .eyebrow{display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap;}
+  .badge{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 12px; border-radius:999px;}
+  .sidx{font-size:.78rem; font-weight:600; color:var(--ink-faint); letter-spacing:.06em;}
+  h2{font-size:clamp(1.55rem,3.4vw,2.35rem); line-height:1.25; font-weight:800; letter-spacing:-.01em; color:var(--ink);}
+  h2 .accent{color:var(--green);}
+  .kicker{font-size:.82rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--amber); margin-bottom:10px;}
+
+  .body{margin-top:20px;}
+  .body p{font-size:clamp(1.04rem,1.6vw,1.22rem); color:var(--ink-soft); margin-bottom:14px;}
+  .body strong{color:var(--ink); font-weight:700;}
+  .hl{color:var(--green-deep); font-weight:700; background:linear-gradient(transparent 58%, #cfe7dd 58%); padding:0 2px;}
+  .hl-amber{color:#9a560f; font-weight:700; background:linear-gradient(transparent 58%, var(--amber-soft) 58%); padding:0 2px;}
+  .lead{font-size:clamp(1.12rem,1.9vw,1.4rem)!important; color:var(--ink)!important; font-weight:600; line-height:1.5;}
+
+  .gloss{font-family:var(--kr); font-size:.8rem; color:var(--ink-faint); line-height:1.45; margin:-8px 0 14px; opacity:.85;}
+  .gloss.h2g{font-size:.92rem; font-weight:600; margin:8px 0 0;}
+  .gloss.kg{margin:-2px 0 10px;}
+
+  .case{border-left:3px solid var(--amber); background:#fbf7f1; padding:14px 18px; border-radius:0 12px 12px 0; margin:18px 0;}
+  .case .tag{font-size:.74rem; font-weight:700; letter-spacing:.06em; color:var(--amber); text-transform:uppercase; margin-bottom:6px;}
+  .case p{font-size:clamp(.98rem,1.5vw,1.12rem); margin-bottom:8px;}
+  .case .gloss{margin:-4px 0 8px;}
+
+  .equation{display:flex; align-items:center; justify-content:center; gap:14px; flex-wrap:wrap; background:var(--green-deep); color:#eaf4ef; border-radius:14px; padding:22px 18px; margin:20px 0;}
+  .equation .term{text-align:center;}
+  .equation .term .t{font-size:.8rem; opacity:.75;}
+  .equation .term .v{font-size:clamp(1.05rem,2.3vw,1.5rem); font-weight:800;}
+  .equation .op{font-size:clamp(1.3rem,2.6vw,1.8rem); font-weight:300; opacity:.7;}
+  .equation .term.out .v{color:#f3c98a;}
+
+  .duo{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:18px 0;}
+  .duo.one{grid-template-columns:1fr;}
+  .duo .card{border:1px solid var(--line); border-radius:12px; padding:16px 16px 18px; background:#fafcfb;}
+  .duo .card h4{font-size:1.04rem; font-weight:800; margin-bottom:8px; color:var(--green-deep);}
+  .duo .card p{font-size:.99rem; margin-bottom:0;}
+  .duo .card .gloss{margin:6px 0 0;}
+  @media(max-width:640px){.duo{grid-template-columns:1fr;}}
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;}
+  .chip{font-size:.92rem; font-weight:600; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:6px 12px; border-radius:8px;}
+  .chip.warn{color:#9a560f; background:var(--amber-soft); border-color:#ecd6b6;}
+
+  .note{font-size:.92rem!important; color:var(--ink-faint)!important; border-top:1px dashed var(--line-strong); padding-top:12px; margin-top:16px;}
+
+  .cover{text-align:center;}
+  .cover .mark{font-size:.9rem; font-weight:700; letter-spacing:.22em; color:var(--green); text-transform:uppercase; margin-bottom:22px;}
+  .cover .rule{width:54px; height:3px; background:var(--amber); border-radius:2px; margin:0 auto 22px;}
+  .cover h1{font-size:clamp(1.7rem,4.4vw,2.8rem); font-weight:800; line-height:1.22; letter-spacing:-.02em; margin-bottom:18px;}
+  .cover h1 .accent{color:var(--green);}
+  .cover .who{font-size:clamp(1.05rem,2vw,1.3rem); color:var(--ink-soft); font-weight:600;}
+  .cover .sub{font-size:1.02rem; color:var(--ink-faint); margin-top:24px;}
+  .cover .gloss{text-align:center;}
+
+  .setup{display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin:20px 0 8px;}
+  .field{display:flex; flex-direction:column; align-items:center; gap:5px;}
+  .field label{font-size:.76rem; font-weight:700; color:var(--ink-faint);}
+  .field input{font-family:inherit; font-size:1.05rem; font-weight:700; color:var(--green-deep); border:none; border-bottom:2px solid var(--line-strong); background:transparent; padding:5px 8px; width:160px; text-align:center;}
+  .field input:focus{outline:none; border-bottom-color:var(--green);}
+  .inl{font-family:inherit; font-weight:800; color:var(--green-deep); border:none; border-bottom:2px solid var(--amber); background:var(--amber-soft); width:3em; text-align:center; font-size:1em; padding:1px 2px; border-radius:5px 5px 0 0;}
+  .inl:focus{outline:none; border-bottom-color:var(--green);}
+
+  .bar{position:fixed; left:0; right:0; bottom:0; height:64px; display:flex; align-items:center; gap:12px; padding:0 clamp(14px,3vw,28px); background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-top:1px solid var(--line); z-index:30;}
+  .progress{position:absolute; top:0; left:0; height:3px; background:var(--green); transition:width .3s ease;}
+  .btn{appearance:none; border:1px solid var(--line-strong); background:#fff; color:var(--ink); font-family:inherit; font-weight:600; font-size:.95rem; height:40px; min-width:40px; padding:0 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+  .btn:hover{background:var(--green-soft); border-color:#bcd5ca;}
+  .btn:focus-visible{outline:3px solid #94c4b1; outline-offset:2px;}
+  .btn.icon{padding:0; width:40px;}
+  .langsel{height:40px; border:1px solid var(--line-strong); border-radius:10px; background:#fff; font-family:inherit; font-weight:700; font-size:.92rem; color:var(--green-deep); padding:0 10px; cursor:pointer;}
+  .counter{font-size:.92rem; font-weight:700; min-width:58px; text-align:center;}
+  .counter .total{color:var(--ink-faint); font-weight:600;}
+  .spacer{flex:1;}
+  .pagetag{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 11px; border-radius:999px;}
+
+  .toc-backdrop{position:fixed; inset:0; background:rgba(16,30,24,.5); display:none; z-index:40; align-items:center; justify-content:center; padding:20px;}
+  .toc-backdrop.open{display:flex;}
+  .toc{background:#fff; border-radius:16px; width:min(560px,100%); max-height:80vh; overflow-y:auto; padding:22px 22px 26px; box-shadow:0 24px 60px -20px rgba(16,30,24,.5);}
+  .toc h3{font-size:1.05rem; margin-bottom:4px;}
+  .toc .hint{font-size:.85rem; color:var(--ink-faint); margin-bottom:14px;}
+  .toc-group{margin-bottom:14px;}
+  .toc-group .gl{font-size:.76rem; font-weight:700; letter-spacing:.06em; color:var(--amber); text-transform:uppercase; margin-bottom:6px;}
+  .toc-item{display:flex; gap:10px; align-items:baseline; padding:8px 10px; border-radius:9px; cursor:pointer;}
+  .toc-item:hover{background:var(--green-soft);}
+  .toc-item .n{font-size:.78rem; font-weight:700; color:var(--ink-faint); min-width:30px;}
+  .toc-item .t{font-size:.96rem;}
+
+  @media(max-width:600px){.btn .lbl{display:none;}}
+</style>
+</head>
+<body data-lang="ko">
+
+<main class="stage" id="stage"></main>
+
+<div class="bar">
+  <div class="progress" id="progress"></div>
+  <button class="btn icon" id="prev">←</button>
+  <button class="btn icon" id="next">→</button>
+  <span class="counter"><span id="cur">1</span> <span class="total">/ <span id="tot">16</span></span></span>
+  <span class="spacer"></span>
+  <span class="pagetag" id="pagetag"></span>
+  <select class="langsel" id="lang" aria-label="언어 / Language">
+    <option value="ko">한국어</option>
+  </select>
+  <button class="btn" id="tocBtn">☰<span class="lbl" id="tocLbl"> 목차</span></button>
+  <button class="btn" id="fsBtn">⤢<span class="lbl" id="fsLbl"> 전체화면</span></button>
+</div>
+
+<div class="toc-backdrop" id="tocBackdrop">
+  <div class="toc" role="dialog">
+    <h3 id="tocTitle"></h3>
+    <p class="hint" id="tocHint"></p>
+    <div id="tocList"></div>
+  </div>
+</div>
+
+<script>
+const UI = {
+  prevAria:{ko:"이전 슬라이드", ja:"前のスライド", en:"Previous slide", "zh-cn":"上一页", "zh-tw":"上一頁", th:"สไลด์ก่อนหน้า"},
+  nextAria:{ko:"다음 슬라이드", ja:"次のスライド", en:"Next slide", "zh-cn":"下一页", "zh-tw":"下一頁", th:"สไลด์ถัดไป"},
+  toc:{ko:"목차", ja:"目次", en:"Contents", "zh-cn":"目录", "zh-tw":"目錄", th:"สารบัญ"},
+  fullscreen:{ko:"전체화면", ja:"全画面", en:"Fullscreen", "zh-cn":"全屏", "zh-tw":"全螢幕", th:"เต็มจอ"},
+  bookPrefix:{ko:"책자 ", ja:"テキスト ", en:"Booklet ", "zh-cn":"手册 ", "zh-tw":"手冊 ", th:"หน้า "},
+  tocTitle:{ko:"목차 · 빠른 이동", ja:"目次・クイック移動", en:"Contents · Quick jump", "zh-cn":"目录 · 快速跳转", "zh-tw":"目錄 · 快速跳轉", th:"สารบัญ · ไปยังหัวข้อ"},
+  tocHint:{ko:"진료 흐름은 책자 페이지 순서가 아닙니다 (의도된 비선형 구성).", ja:"診療の流れはテキストのページ順ではありません（意図的な非線形構成）。", en:"The flow is not the booklet's page order (intentional non-linear structure).", "zh-cn":"讲解顺序并非手册页码顺序（有意的非线性结构）。", "zh-tw":"講解順序並非手冊頁碼順序（刻意的非線性結構）。", th:"ลำดับการอธิบายไม่ใช่ลำดับหน้าหนังสือ (จัดเรียงแบบไม่เป็นเส้นตรงโดยตั้งใจ)"},
+  patientLabel:{ko:"환자분 성함", ja:"患者様のお名前", en:"Patient name", "zh-cn":"患者姓名", "zh-tw":"患者姓名", th:"ชื่อผู้ป่วย"},
+  patientPh:{ko:"성함 입력", ja:"お名前", en:"Name", "zh-cn":"姓名", "zh-tw":"姓名", th:"ชื่อ"},
+  doctorLabel:{ko:"의료진", ja:"担当医", en:"Doctor", "zh-cn":"主治医师", "zh-tw":"主治醫師", th:"แพทย์"},
+  doctorPh:{ko:"임주혁", ja:"イム・ジュヒョク", en:"Yim Ju-hyuk", "zh-cn":"任柱赫", "zh-tw":"任柱赫", th:"อิม จูฮยอก"}
+};
+
+const PAGES = {
+  cover:{book:false, label:{ko:"표지", ja:"表紙", en:"Cover", "zh-cn":"封面", "zh-tw":"封面", th:"หน้าปก"}},
+  p1:{book:true, label:{ko:"1p", ja:"1p"}},
+  p2:{book:true, label:{ko:"2p", ja:"2p"}},
+  p3:{book:true, label:{ko:"3p", ja:"3p"}},
+  p4:{book:true, label:{ko:"4p", ja:"4p"}},
+  self:{book:false, label:{ko:"셀프모니터링 · 마무리", ja:"セルフモニタリング・まとめ", en:"Self-monitoring", "zh-cn":"自我监测", "zh-tw":"自我監測", th:"การติดตามตนเอง"}},
+  p11:{book:true, label:{ko:"11p", ja:"11p"}},
+  p5:{book:true, label:{ko:"5p", ja:"5p"}},
+  end:{book:false, label:{ko:"마무리", ja:"まとめ", en:"Wrap-up", "zh-cn":"总结", "zh-tw":"總結", th:"สรุป"}}
+};
+
+const SLIDES = [
+{ id:"S01", page:"cover", cover:true,
+  mark:"ACRO KOREAN MEDICINE CLINIC",
+  h1:{ko:`지금부터 <span class="accent">다이어트 개념과 약 복용</span><br>설명을 도와드릴게요`},
+  sub:{ko:`핵심만 편하게 같이 볼게요.`} },
+
+{ id:"S02", page:"p1", kicker:{ko:"1. 다이어트 기본개념"},
+  h2:{ko:`‘체중감량’은 결국<br><span class="accent">‘칼로리 결핍’</span>이에요`},
+  body:[
+    {t:"p", v:{ko:`살은 운동·식단·약으로 빠진다기보다, <span class="hl">칼로리 결핍을 꾸준히 이어가는 것</span>에 가까워요.`}},
+    {t:"lead", v:{ko:`섭취량보다 소비량이 많은 상태, 그게 칼로리 결핍이에요.`}},
+    {t:"eq", terms:[{t:{ko:"섭취"},v:{ko:"먹는 것"}},{t:{ko:"소비"},v:{ko:"나가는 것"}},{t:{ko:"결과"},v:{ko:"감량"},out:true}], ops:["&lt;","→"]}
+  ]},
+
+{ id:"S03", page:"p1",
+  h2:{ko:`변수는 많아 보여도,<br>결국 <span class="accent">‘먹는 것’</span> 하나예요`},
+  body:[
+    {t:"p", v:{ko:`체질·장내세균·나이·근육량·기초대사량… 다들 신경 쓰지만 <strong>체중을 크게 좌우하진 않거든요.</strong>`}},
+    {t:"p", v:{ko:`운동도 좋지만 한 시간에 <span class="hl-amber">300~400kcal</span> 정도라, 칼로리 <span class="hl">소비는 ‘고정값’</span>으로 봐요.`}},
+    {t:"lead", v:{ko:`그래서 원인을 <span class="hl">‘먹는 것’ 하나로</span> 좁히면 단순해져요.`}}
+  ]},
+
+{ id:"S04", page:"p1",
+  h2:{ko:`“똑같이 먹었는데<br>왜 살쪘지?”`},
+  body:[
+    {t:"p", v:{ko:`대부분 <span class="hl">‘똑같이 안 먹었는데 본인이 몰랐던’</span> 경우예요.`}},
+    {t:"case", tag:{ko:"미용실 선생님 사례"}, ps:[
+      {ko:`“안 먹는데 살쪄서” 식단을 찍어 보니, <span class="hl-amber">우유를 하루 1L씩</span> 드시더라고요 — 단백질인 줄 아시고요.`}
+    ]},
+    {t:"p", v:{ko:`그래서 <strong>줄였는데 안 빠지면 조금 더 줄여보면</strong> 돼요. 답은 보통 먹는 것에 있거든요.`}}
+  ]},
+
+{ id:"S05", page:"p1",
+  h2:{ko:`이게 바로 <span class="accent">셀프모니터링</span>이에요`},
+  body:[
+    {t:"lead", v:{ko:`먹는 것 살펴보기 → 체중 재기 → 다시 살펴보기. 이걸 오가며 <span class="hl">관찰하고 학습하는 것</span>이에요.`}},
+    {t:"p", v:{ko:`이 기본 위에 <strong>운동·약·시술</strong>을 더하면 돼요. 항상 식이조절이 먼저고요.`}},
+    {t:"p", v:{ko:`그리고 장기전에선 <strong>동기부여</strong>가 정말 중요해요. ‘계속 하느냐’가 결과를 갈라요.`}}
+  ]},
+
+{ id:"S06", page:"p2", kicker:{ko:"2. 약의 효과, 그리고 식욕"},
+  h2:{ko:`한약은 어떤 도움이 될까요?`},
+  body:[
+    {t:"duo", cols:1, cards:[
+      {h4:{ko:"① 감량 가속"}, p:{ko:`같은 노력 대비 <span class="hl-amber">2~3배</span>로 빠르게요.`}},
+      {h4:{ko:"② 식욕 억제"}, p:{ko:`포만감을 주고 식욕을 눌러줘요.`}},
+      {h4:{ko:"③ 불편증상 완화"}, p:{ko:`몸에 맞는 약재로 과정을 편하게요.`}}
+    ]}
+  ]},
+
+{ id:"S07", page:"p2",
+  h2:{ko:`식욕은 크게 <span class="accent">두 종류</span>예요`},
+  body:[
+    {t:"duo", cols:2, cards:[
+      {h4:{ko:"굶어서 생기는 식욕"}, p:{ko:`정말 칼로리가 필요한 식욕. <strong>한약이 이걸 줄여줘요.</strong>`}},
+      {h4:{ko:"자극·즐거움 식욕"}, p:{ko:`맛있어서 먹는 식욕. <strong>약으로 다 잡긴 어려워요.</strong>`}}
+    ]},
+    {t:"p", v:{ko:`즐거움 식욕을 약으로 너무 누르면 <span class="hl-amber">약 끊은 뒤 올라와 요요</span>가 올 수 있어요. 그래서 이해하며 관리하는 게 좋아요.`}}
+  ]},
+
+{ id:"S08", page:"p2",
+  h2:{ko:`칼로리는 빼고,<br><span class="accent">즐거움</span>만 채워요`},
+  body:[
+    {t:"lead", v:{ko:`필요한 건 <span class="hl">맛있는데 살은 안 찌는 음식</span>이에요.`}},
+    {t:"p", v:{ko:`제로콜라·곤약젤리·버섯·양배추·방울토마토… <strong>하나씩 찾아두면</strong> 점점 편해져요.`}},
+    {t:"p", v:{ko:`특히 <strong>잠을 못 자면 이 식욕이 안 잡혀요.</strong> 수면도 같이 챙기시고요.`}}
+  ]},
+
+{ id:"S09", page:"p3", kicker:{ko:"3. 식이조절"},
+  h2:{ko:`식이조절의 핵심은 <span class="accent">‘실천’</span>이에요`},
+  body:[
+    {t:"p", v:{ko:`저염식·저탄고지·간헐적 단식·혈당 스파이크… <strong>너무 많이 따지면</strong> 실천이 오히려 어려워져요.`}},
+    {t:"p", v:{ko:`같은 식사를 시간대만 바꿔도 결과는 거의 같았어요. <span class="hl">중요한 건 ‘무엇을 얼마나’</span>였던 거죠.`}}
+  ]},
+
+{ id:"S10", page:"p3",
+  h2:{ko:`결국 볼 것은 <span class="accent">칼로리</span> 하나예요`},
+  body:[
+    {t:"p", v:{ko:`칼로리 위주로만 보셔도 충분해요. 나머지는 너무 신경 안 쓰셔도 되고요.`}},
+    {t:"duo", cols:2, cards:[
+      {h4:{ko:"저열량식 (VLD)"}, p:{ko:`하루 <span class="hl-amber">1,200~1,500kcal</span>. 기본이에요.`}},
+      {h4:{ko:"초저열량식 (VLCD)"}, p:{ko:`하루 <span class="hl-amber">800kcal 이하</span>. <strong>식욕 잡을 때 하루이틀</strong>만.`}}
+    ]}
+  ]},
+
+{ id:"S11", page:"p4", kicker:{ko:"4. 식이조절 ②"},
+  h2:{ko:`어떤 음식이 <span class="accent">살이 될까요?</span>`},
+  body:[
+    {t:"p", v:{ko:`빵·떡·과일·음료는 탄수화물이라서가 아니라, <strong>맛있고 많이 먹기 쉬워서</strong> 칼로리가 훅 올라가요.`}},
+    {t:"p", v:{ko:`단백질도 ‘괜찮겠지’ 하고 많이 드시는 게 함정이에요. 두부도 단백질이 반이 안 되거든요.`}},
+    {t:"lead", v:{ko:`평생 안 먹을 순 없으니 — <strong>‘종류’보다 ‘양’</strong>으로 봐요.`}}
+  ]},
+
+{ id:"S12", page:"self",
+  h2:{ko:`<span class="accent">400kcal</span>와 <span class="accent">체중 변화</span>를 기억하세요`},
+  body:[
+    {t:"p", v:{ko:`다이어트 도시락이 대개 <span class="hl-amber">400kcal</span> 안쪽이에요. ×3 하면 1,200kcal — 이걸 감으로 삼으면 좋아요.`}},
+    {t:"p", v:{ko:`‘많이/적게’의 진짜 기준은 <span class="hl">체중 변화</span>예요. 쪘으면 먹은 거고, 빠졌으면 적게 먹은 거고요.`}},
+    {t:"p", v:{ko:`섭취량은 매번 못 재도 <strong>체중은 아침에 한 번 재면 끝</strong>이에요.`}}
+  ]},
+
+{ id:"S13", page:"p11", kicker:{ko:"음주 · 운동"},
+  h2:{ko:`술·운동이 있는 날의<br><span class="accent">약 복용</span>`},
+  body:[
+    {t:"p", v:{ko:`술 드시는 날은 <strong>저녁약을 빼주세요.</strong> 평소보다 빨리 취할 수 있으니 물 많이 드시고요.`}},
+    {t:"chips", items:[{ko:"먹태"},{ko:"마른오징어"},{ko:"광어회"},{ko:"우럭회"}]},
+    {t:"p", v:{ko:`위 안주는 단백질 비율이 좋아요. 저녁 운동을 하는 날도 <strong>저녁약은 빼고</strong>, 종일 활동하는 날은 하루쯤 쉬어도 돼요.`}}
+  ]},
+
+{ id:"S14", page:"p5", kicker:{ko:"5. 불편증상"},
+  h2:{ko:`<span class="accent">케톤대사</span>와 수분·저혈당`},
+  body:[
+    {t:"p", v:{ko:`지방을 쓰면 <strong>케톤대사</strong>로 잘 빠지는데, 입냄새·입마름이 올 수 있어요. <span class="hl-amber">물 하루 2L 이상</span> 드시면 돼요.`}},
+    {t:"p", v:{ko:`탄수화물이 빠질 때 <strong>수분도 같이 빠져</strong> 하루 1kg쯤 출렁여요. 붓기가 아니라 물이 나간 거예요.`}},
+    {t:"p", v:{ko:`앉았다 일어날 때 핑 도는 <span class="hl-amber">저혈당</span>은 조심 — 당·수분 보충 잘 해주세요.`}}
+  ]},
+
+{ id:"S15", page:"p5",
+  h2:{ko:`그 밖의 증상과<br><span class="accent">복용법</span>`},
+  body:[
+    {t:"p", v:{ko:`공복에 속쓰리면 <strong>식전·식후</strong>에 드셔도 돼요.`}},
+    {t:"p", v:{ko:`일시적 생리불순·발기부전은 하루이틀 쉬면 회복돼요. <strong>변비</strong>약은 따로 드리고, <strong>알러지</strong> 생기면 중단하고 연락 주세요.`}},
+    {t:"dose"}
+  ]},
+
+{ id:"S16", page:"end",
+  h2:{ko:`마지막으로 — 그 1~2kg는<br>왜 <span class="accent">갑자기</span> 돌아왔을까요?`},
+  body:[
+    {t:"goal"},
+    {t:"p", v:{ko:`하루 1~2kg 이동은 지방이 아니라 <span class="hl">수분</span>이에요. 그래서 <strong>계단식</strong>으로 빠져요.`}},
+    {t:"lead", v:{ko:`진짜 빠지는지는 <span class="hl">허리 사이즈</span>로 확인하시면 돼요.`}},
+    {t:"p", v:{ko:`<strong>여기까지예요. 오늘 잘 따라와 주셔서 감사해요.</strong>`}}
+  ]}
+];
+
+// ---------- state & dynamic ----------
+let idx = 0;
+let lang = "ko";
+const STATE = { patient:"", doctor:"박지선", wake:8, g_m1:"3", g_kg1:"7", g_m2:"6", g_kg2:"15", g_pm:"2.3" };
+
+function esc(s){ return (s==null?"":String(s)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function strip(html){ return html.replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,'').trim(); }
+function vN(x){ return (x===""||x==null)?"N":esc(x); }
+
+// 인사 (의료진명 연동)
+function docName(lg){
+  return STATE.doctor.trim() || "___";
+}
+function greetMain(lg){
+  const p=STATE.patient.trim(), d=docName(lg), P=esc(p), D=esc(d);
+  if(lg==="ja") return (p?P+"様、":"")+"こんにちは。担当医の"+D+"です。";
+  if(lg==="en") return (p?P+", ":"")+"hello. I'm Dr. "+D+", and I'll be helping you today.";
+  if(lg==="zh-cn") return (p?P+"，":"")+"您好。我是您的主治医师"+D+"。";
+  if(lg==="zh-tw") return (p?P+"，":"")+"您好。我是您的主治醫師"+D+"。";
+  if(lg==="th") return (p?"คุณ"+P+" ":"")+"สวัสดีครับ ผมเป็นแพทย์ผู้ดูแลของคุณ "+D;
+  return (p?P+"님, ":"")+"안녕하세요. 담당의 "+D+"입니다.";
+}
+function updateGreet(){
+  const g=document.getElementById('greet'); if(!g) return;
+  g.innerHTML=greetMain(lang);
+  const nx=g.nextElementSibling;
+  if(lang!=="ko" && nx && nx.classList.contains('gloss')) nx.innerHTML=strip(greetMain("ko"));
+}
+
+// 복용시각 (기상시각 연동)
+function curWake(){ const w=STATE.wake; return (w===""||w==null||isNaN(w))?8:(((w%24)+24)%24); }
+function doseTimes(w, sep){ return [w,(w+4)%24,(w+8)%24].join(sep); }
+const DOSE = {
+  ko:{ tag:"복용법", pre:"기상 ", mid:"시 기준 → ", sep:"·",
+       post:"시, 4시간 간격으로 3알씩 3번. 마지막 약이 남으면 불면을 유발할 수 있어 저녁약은 줄이거나 안 드셔도 됩니다. 잠은 충분히.",
+       p2:`처음엔 <strong>1~2알</strong>부터, 괜찮으면 3알씩. 특히 <span class="hl-amber">초반 2주</span>에 불편증상이 생기기 쉬우니 조심하세요.` },
+  ja:{ tag:"服用法", pre:"起床 ", mid:"時を基準に → ", sep:"・",
+       post:"時、4時間おきに3錠ずつ3回。最後の薬が残ると不眠を招くことがあるので、夜の薬は減らすか飲まなくてもOK。睡眠は十分に。",
+       p2:`最初は<strong>1〜2錠</strong>から、大丈夫なら3錠ずつ。特に<span class="hl-amber">最初の2週間</span>に不快な症状が出やすいので注意してください。` },
+  en:{ tag:"How to take", pre:"Wake-up at ", mid:":00 → take at ", sep:":00, ",
+       post:":00 — 3 tablets each, 3 times a day, 4 hours apart. If the last dose runs too late it may cause insomnia, so feel free to reduce or skip the evening dose. Be sure to sleep well.",
+       p2:`Start with <strong>1–2 tablets</strong>, and 3 if you tolerate it. Side effects are most likely in the <span class="hl-amber">first 2 weeks</span>, so take care.` },
+  "zh-cn":{ tag:"服用方法", pre:"起床 ", mid:"点为准 → ", sep:"·",
+       post:"点，每隔4小时3粒、共3次。最后一次太晚可能影响睡眠，晚上那次可减量或不服。请保证充足睡眠。",
+       p2:`先从<strong>1~2粒</strong>开始，适应后每次3粒。<span class="hl-amber">前两周</span>最容易出现不适，请多留意。` },
+  "zh-tw":{ tag:"服用方式", pre:"起床 ", mid:"點為準 → ", sep:"·",
+       post:"點，每隔4小時3粒、共3次。最後一次太晚可能影響睡眠，晚上那次可減量或不服。請保持充足睡眠。",
+       p2:`先從<strong>1~2粒</strong>開始，適應後每次3粒。<span class="hl-amber">前兩週</span>最容易出現不適，請多留意。` },
+  th:{ tag:"วิธีรับประทาน", pre:"ตื่นนอน ", mid:" น. เป็นเกณฑ์ → ", sep:" น., ",
+       post:" น. ห่างกัน 4 ชม. ครั้งละ 3 เม็ด วันละ 3 ครั้ง หากมื้อสุดท้ายดึกเกินไปอาจนอนไม่หลับ มื้อเย็นลดหรืองดได้ พักผ่อนให้เพียงพอ",
+       p2:`เริ่มจาก <strong>1–2 เม็ด</strong> ถ้าไหวค่อยเพิ่มเป็น 3 เม็ด ช่วง <span class="hl-amber">2 สัปดาห์แรก</span> มักมีอาการไม่สบายตัว โปรดระวัง` }
+};
+function doseGlossKo(w){ return "기상 <span id=\"wakeKo\">"+w+"</span>시 기준 → <span id=\"doseTimesKo\">"+doseTimes(w,"·")+"</span>시, 4시간 간격으로 3알씩 3번. 마지막 약이 남으면 불면을 유발할 수 있어 저녁약은 줄이거나 안 드셔도 됩니다. 잠은 충분히."; }
+function updateDose(){
+  const w=curWake(), sep=(lang==="ja"?DOSE.ja.sep:DOSE.ko.sep);
+  const a=document.getElementById('doseTimes'); if(a) a.textContent=doseTimes(w,sep);
+  const wk=document.getElementById('wakeKo'); if(wk) wk.textContent=w;
+  const dk=document.getElementById('doseTimesKo'); if(dk) dk.textContent=doseTimes(w,"·");
+}
+
+// 감량 목표 (개월·kg 연동, 월 단위 자동 계산)
+const GOAL = {
+  ko:{ a:"감량 목표는 ", b:"개월간 ", c:"kg, ", d:"개월간 ", e:"kg입니다. 한 달에 약 ", f:"kg씩 꾸준히 빠지면 잘 되고 있는 거예요." },
+  ja:{ a:"減量目標は ", b:"か月で ", c:"kg、", d:"か月で ", e:"kgです。1か月に約 ", f:"kgずつ着実に減れば順調です。" },
+  en:{ a:"Target: in ", b:" months lose ", c:"kg; in ", d:" months lose ", e:"kg — about ", f:"kg per month means you're on track." },
+  "zh-cn":{ a:"减重目标：", b:"个月减 ", c:"kg，", d:"个月减 ", e:"kg。每月约 ", f:"kg，保持这个速度就很好。" },
+  "zh-tw":{ a:"減重目標：", b:"個月減 ", c:"kg，", d:"個月減 ", e:"kg。每月約 ", f:"kg，維持這個速度就很好。" },
+  th:{ a:"เป้าหมาย: ", b:" เดือนลด ", c:"kg, ", d:" เดือนลด ", e:"kg — เดือนละประมาณ ", f:"kg ถ้าได้ประมาณนี้ถือว่าดี" }
+};
+function goalGlossKo(){
+  const g=GOAL.ko;
+  return g.a+vN(STATE.g_m1)+g.b+vN(STATE.g_kg1)+g.c+vN(STATE.g_m2)+g.d+vN(STATE.g_kg2)+g.e+vN(STATE.g_pm)+g.f;
+}
+function updateGoal(){
+  const gg=document.getElementById('goalGloss'); if(gg) gg.innerHTML=goalGlossKo();
+}
+
+// ---------- translation merge ----------
+function trNodes(s){
+  const o=[];
+  if(s.cover){ o.push(s.h1); o.push(s.sub); return o; }
+  if(s.kicker) o.push(s.kicker);
+  o.push(s.h2);
+  s.body.forEach(function(b){
+    if(b.t==='p'||b.t==='lead'||b.t==='note') o.push(b.v);
+    else if(b.t==='case'){ o.push(b.tag); b.ps.forEach(function(p){o.push(p);}); }
+    else if(b.t==='duo'){ b.cards.forEach(function(c){o.push(c.h4);o.push(c.p);}); }
+    else if(b.t==='chips'){ b.items.forEach(function(c){o.push(c);}); }
+    else if(b.t==='eq'){ b.terms.forEach(function(t){o.push(t.t);o.push(t.v);}); }
+  });
+  return o;
+}
+const TR = {};
+
+// ---------- render ----------
+const stage = document.getElementById('stage');
+const total = SLIDES.length;
+document.getElementById('tot').textContent = total;
+
+function L(obj){ return obj[lang] || obj.ko; }
+function gloss(obj, cls){ if(lang==="ko") return ""; return '<div class="gloss '+(cls||'')+'">'+strip(obj.ko)+'</div>'; }
+function inl(id, val){ return '<input id="'+id+'" class="inl" type="text" value="'+esc(val)+'" placeholder="N">'; }
+
+function renderBlock(b){
+  if(b.t==="p")    return '<p>'+L(b.v)+'</p>'+gloss(b.v);
+  if(b.t==="lead") return '<p class="lead">'+L(b.v)+'</p>'+gloss(b.v);
+  if(b.t==="note") return '<p class="note">'+L(b.v)+'</p>'+gloss(b.v,'kg');
+  if(b.t==="case"){
+    let h='<div class="case"><div class="tag">'+L(b.tag)+'</div>';
+    b.ps.forEach(function(p){ h+='<p>'+L(p)+'</p>'+gloss(p); });
+    return h+'</div>';
+  }
+  if(b.t==="duo"){
+    let h='<div class="duo'+(b.cols===1?' one':'')+'">';
+    b.cards.forEach(function(c){ h+='<div class="card"><h4>'+L(c.h4)+'</h4>'+gloss(c.h4,'kg')+'<p>'+L(c.p)+'</p>'+gloss(c.p)+'</div>'; });
+    return h+'</div>';
+  }
+  if(b.t==="chips"){
+    let h='<div class="chips">';
+    b.items.forEach(function(c){ h+='<span class="chip'+(b.warn?' warn':'')+'">'+L(c)+'</span>'; });
+    return h+'</div>';
+  }
+  if(b.t==="eq"){
+    let h='<div class="equation">';
+    b.terms.forEach(function(tm,i){
+      h+='<div class="term'+(tm.out?' out':'')+'"><div class="t">'+L(tm.t)+'</div><div class="v">'+L(tm.v)+'</div></div>';
+      if(i<b.ops.length) h+='<div class="op">'+b.ops[i]+'</div>';
+    });
+    return h+'</div>';
+  }
+  if(b.t==="dose"){
+    const d=DOSE[lang]||DOSE.ko, w=curWake();
+    let h='<div class="case"><div class="tag">'+d.tag+'</div>';
+    h+='<p>'+d.pre+'<input id="inWake" class="inl" type="number" min="0" max="23" value="'+w+'">'+d.mid+'<span id="doseTimes">'+doseTimes(w,d.sep)+'</span>'+d.post+'</p>';
+    if(lang!=="ko") h+='<div class="gloss">'+doseGlossKo(w)+'</div>';
+    h+='<p>'+d.p2+'</p>';
+    if(lang!=="ko") h+='<div class="gloss">'+strip(DOSE.ko.p2)+'</div>';
+    return h+'</div>';
+  }
+  if(b.t==="goal"){
+    const g=GOAL[lang]||GOAL.ko;
+    let h='<p>'+g.a+inl('inGm1',STATE.g_m1)+g.b+inl('inGkg1',STATE.g_kg1)+g.c+inl('inGm2',STATE.g_m2)+g.d+inl('inGkg2',STATE.g_kg2)+g.e+inl('inGpm',STATE.g_pm)+g.f+'</p>';
+    if(lang!=="ko") h+='<div class="gloss" id="goalGloss">'+goalGlossKo()+'</div>';
+    return h;
+  }
+  return "";
+}
+
+function pageLabel(s){
+  const pg=PAGES[s.page]; let txt=L(pg.label);
+  if(pg.book) txt=L(UI.bookPrefix)+txt;
+  return {txt:txt, book:pg.book};
+}
+
+function buildStage(){
+  let html='';
+  SLIDES.forEach(function(s,i){
+    const pg=pageLabel(s);
+    html+='<section class="slide'+(i===idx?' active':'')+(s.cover?' cover':'')+'">';
+    if(s.cover){
+      html+='<div class="mark">'+s.mark+'</div><div class="rule"></div>';
+      html+='<h1>'+L(s.h1)+'</h1>'+gloss(s.h1,'h2g');
+      html+='<div class="setup">';
+      html+='<div class="field"><label>'+L(UI.patientLabel)+'</label><input id="inPatient" type="text" value="'+esc(STATE.patient)+'" placeholder="'+L(UI.patientPh)+'"></div>';
+      html+='</div>';
+      html+='<p class="who" id="greet">'+greetMain(lang)+'</p>';
+      if(lang!=="ko") html+='<div class="gloss">'+strip(greetMain("ko"))+'</div>';
+      html+='<p class="sub">'+L(s.sub)+'</p>'+gloss(s.sub);
+    } else {
+      html+='<div class="eyebrow"><span class="badge">'+pg.txt+'</span><span class="sidx">'+s.id+'</span></div>';
+      if(s.kicker) html+='<div class="kicker">'+L(s.kicker)+'</div>';
+      html+='<h2>'+L(s.h2)+'</h2>'+gloss(s.h2,'h2g');
+      html+='<div class="body">';
+      s.body.forEach(function(b){ html+=renderBlock(b); });
+      html+='</div>';
+    }
+    html+='</section>';
+  });
+  stage.innerHTML=html;
+}
+
+const elCur=document.getElementById('cur'), elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
+function render(){
+  const slides=stage.querySelectorAll('.slide');
+  slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  elCur.textContent=idx+1;
+  elTag.textContent=pageLabel(SLIDES[idx]).txt;
+  elProg.style.width=((idx+1)/total*100)+'%';
+  const act=slides[idx]; if(act) act.scrollTop=0;
+}
+function go(n){ idx=Math.max(0,Math.min(total-1,n)); render(); }
+function next(){ go(idx+1); } function prev(){ go(idx-1); }
+
+function applyUILabels(){
+  document.getElementById('prev').setAttribute('aria-label', L(UI.prevAria));
+  document.getElementById('next').setAttribute('aria-label', L(UI.nextAria));
+  document.getElementById('tocLbl').textContent=' '+L(UI.toc);
+  document.getElementById('fsLbl').textContent=' '+L(UI.fullscreen);
+  document.getElementById('tocTitle').textContent=L(UI.tocTitle);
+  document.getElementById('tocHint').textContent=L(UI.tocHint);
+}
+
+function changeLang(nl){ lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); }
+
+document.getElementById('next').addEventListener('click', next);
+document.getElementById('prev').addEventListener('click', prev);
+document.getElementById('lang').addEventListener('change', function(e){ changeLang(e.target.value); });
+
+document.addEventListener('keydown', function(e){
+  if(document.getElementById('tocBackdrop').classList.contains('open')){ if(e.key==='Escape') closeToc(); return; }
+  if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='SELECT')) { if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return; }
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); next(); }
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); prev(); }
+  else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(total-1); }
+  else if(e.key==='f'||e.key==='F'){ toggleFs(); }
+});
+let tx=0,ty=0;
+stage.addEventListener('touchstart',function(e){ tx=e.changedTouches[0].clientX; ty=e.changedTouches[0].clientY; },{passive:true});
+stage.addEventListener('touchend',function(e){ const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty; if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); } },{passive:true});
+
+stage.addEventListener('input', function(e){
+  const id=e.target.id, v=e.target.value;
+  if(id==='inPatient'){ STATE.patient=v; updateGreet(); }
+  else if(id==='inDoctor'){ STATE.doctor=v; updateGreet(); }
+  else if(id==='inWake'){ STATE.wake=(v===''?'':parseInt(v,10)); updateDose(); }
+  else if(id==='inGm1'){ STATE.g_m1=v; updateGoal(); }
+  else if(id==='inGkg1'){ STATE.g_kg1=v; updateGoal(); }
+  else if(id==='inGm2'){ STATE.g_m2=v; updateGoal(); }
+  else if(id==='inGkg2'){ STATE.g_kg2=v; updateGoal(); }
+  else if(id==='inGpm'){ STATE.g_pm=v; updateGoal(); }
+});
+
+function toggleFs(){ if(!document.fullscreenElement){ (document.documentElement.requestFullscreen||function(){})(); } else { (document.exitFullscreen||function(){})(); } }
+document.getElementById('fsBtn').addEventListener('click', toggleFs);
+
+const tocBackdrop=document.getElementById('tocBackdrop');
+function openToc(){ tocBackdrop.classList.add('open'); }
+function closeToc(){ tocBackdrop.classList.remove('open'); }
+document.getElementById('tocBtn').addEventListener('click', openToc);
+tocBackdrop.addEventListener('click', function(e){ if(e.target===tocBackdrop) closeToc(); });
+
+function buildTOC(){
+  const groups=[], gmap={};
+  SLIDES.forEach(function(s,i){
+    const key=s.page, gl=pageLabel(s).txt;
+    if(!gmap[key]){ gmap[key]={label:gl, items:[]}; groups.push(gmap[key]); }
+    const h=s.cover?L(s.h1):L(s.h2);
+    gmap[key].items.push({i:i, title:strip(h)});
+  });
+  let html='';
+  groups.forEach(function(g){
+    html+='<div class="toc-group"><div class="gl">'+g.label+'</div>';
+    g.items.forEach(function(it){ html+='<div class="toc-item" data-go="'+it.i+'"><span class="n">'+SLIDES[it.i].id+'</span><span class="t">'+it.title+'</span></div>'; });
+    html+='</div>';
+  });
+  const list=document.getElementById('tocList');
+  list.innerHTML=html;
+  list.onclick=function(e){ const it=e.target.closest('.toc-item'); if(it){ go(parseInt(it.getAttribute('data-go'),10)); closeToc(); } };
+}
+
+buildStage(); render(); applyUILabels(); buildTOC();
+</script>
+</body>
+</html>
