@@ -19,7 +19,7 @@ body{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans JP',sans-serif
 
 /* ── TAB RADIO (페이지 탭) ── */
 input.tab{display:none;}
-.tab-nav{background:#fff;border-bottom:2px solid var(--border);padding:0 28px;display:flex;overflow-x:auto;position:sticky;top:49px;z-index:200;}
+.tab-nav{background:#fff;border-bottom:2px solid var(--border);padding:0 28px;display:flex;overflow-x:auto;position:sticky;top:55px;z-index:200;}
 .tab-nav label{font-size:14px;font-weight:700;color:var(--muted);padding:14px 20px;border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer;transition:all .15s;}
 #t0:checked~.wrap .tab-nav label[for=t0],
 #t1:checked~.wrap .tab-nav label[for=t1],
@@ -179,6 +179,17 @@ input.case{display:none;}
 
 /* 수가표 액션 */
 .send-box{background:#e3f2fd;border:2px dashed #90caf9;border-radius:8px;padding:12px 14px;text-align:center;font-size:12px;font-weight:700;color:var(--ra);margin-bottom:8px;}
+/* ── SEARCH ── */
+.search-wrap{display:none;}
+.search-box{position:relative;width:340px;}
+.search-box input{width:100%;padding:7px 34px 7px 14px;border-radius:22px;border:none;font-size:13px;outline:none;background:rgba(255,255,255,.15);color:#fff;}
+.search-box input::placeholder{color:rgba(255,255,255,.55);}
+.search-box input:focus{background:rgba(255,255,255,.25);}
+.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,.6);font-size:15px;display:none;}
+.search-count{color:rgba(255,255,255,.8);font-size:13px;white-space:nowrap;min-width:80px;}
+.search-highlight{background:#fff176;border-radius:2px;padding:0 1px;}
+.card.search-hidden{display:none;}
+.card.search-match{outline:2px solid #52b788;}
 </style>
 </head>
 <body>
@@ -203,7 +214,7 @@ input.case{display:none;}
 <!-- HEADER -->
 <div class="hd"><h1>🌿 아크로 외국인 카카오톡, 라인, 위챗 응대 가이드</h1></div>
 
-<!-- 언어 선택 -->
+<!-- 언어 선택 + 검색 -->
 <div class="lng-nav">
   <span class="lng-tag">전송 언어</span>
   <label for="lja">🇯🇵 日本語</label>
@@ -211,9 +222,13 @@ input.case{display:none;}
   <label for="lzh">🇨🇳 中文(簡)</label>
   <label for="ltw">🇹🇼 中文(繁)</label>
   <label for="lth">🇹🇭 ภาษาไทย</label>
+  <div style="flex:1;"></div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍  키워드 검색 (예: 설문지, 소개, 결제...)">
+    <span class="search-clear" id="searchClear" onclick="clearSearch()">✕</span>
+  </div>
+  <span class="search-count" id="searchCount"></span>
 </div>
-
-<!-- 탭 네비 -->
 <nav class="tab-nav">
   <label for="t0">공통 원칙</label>
   <label for="t1">루트A 내원</label>
@@ -1225,25 +1240,35 @@ https://acrohani75-dot.github.io/acro/acro_diet_guide.html
 オンライン（非対面）でのダイエット漢方のお申し込みを承りました。引き続きご対応させていただきます。
 以下のオンライン診療用アンケートへのご記入をお願いいたします。ご記入いただきましたら、続けてご案内いたします 😊
 
+※ EMS送料および関税が別途発生する場合がございます。あらかじめご了承ください。
+
 ▶ <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
           <div class="s-en script">Hello^^
 We'd like to help you get started with online (non-face-to-face) diet herbal medicine.
 Please fill out the online consultation questionnaire below, and we'll proceed from there 😊
+
+※ Please note that EMS shipping fees and customs duties may apply separately.
 
 ▶ <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
           <div class="s-zh script">您好^^
 感谢您申请线上（非对面）减肥汉方，我们将为您提供全力协助。
 请填写以下线上诊疗问卷，填写完成后我们将继续为您跟进 😊
 
+※ 请注意，EMS运费及关税将另行收取。
+
 ▶ <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
           <div class="s-tw script">您好^^
 感謝您申請線上（非對面）減肥漢方，我們將為您提供全力協助。
 請填寫以下線上診療問卷，填寫完成後我們將繼續為您跟進 😊
 
+※ 請注意，EMS運費及關稅將另行收取。
+
 ▶ <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
           <div class="s-th script">สวัสดีครับ/ค่ะ^^
 ขอบคุณที่สนใจยาสมุนไพรลดน้ำหนักแบบออนไลน์ (ไม่ต้องมาที่คลินิก) เราจะช่วยดูแลคุณครับ/ค่ะ
 กรุณากรอกแบบสอบถามการปรึกษาออนไลน์ด้านล่าง เมื่อกรอกเสร็จแล้วเราจะดำเนินการต่อให้ครับ/ค่ะ 😊
+
+※ โปรดทราบว่าค่าจัดส่ง EMS และภาษีศุลกากรจะคิดแยกต่างหาก
 
 ▶ <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
           <div class="bi-label">설문 확인 후 추가 질문</div>
@@ -1267,6 +1292,8 @@ Could we ask a few more questions? ^^</div>
 아래 온라인 진료용 설문지를 작성해주시면 이어서 진행해드리겠습니다 😊
 ▶ [링크]
 
+※ EMS 배송비 및 관세가 별도로 발생할 수 있습니다.
+
 [설문 확인 후 추가 질문]
 [○○] 님, 설문지 확인했습니다! 감사합니다.
 확인을 위해 몇 가지 추가로 질문드릴게요 ^^</div>
@@ -1274,7 +1301,7 @@ Could we ask a few more questions? ^^</div>
             <div class="col-head note">💡 직원 참고</div>
           <ul class="chk">
             <li>비대면 초진 설문지 링크 전송</li>
-            <li>설문 확인 후 추가 4가지 질문</li>
+            <li class="info">설문지에 EMS 주소 + 내원경로 항목 포함 → 별도 질문 불필요</li>
             <li class="info">이전 복용약 있으면 반드시 원장께 전달</li>
           </ul>
         </div>
@@ -1420,10 +1447,7 @@ https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
           <div class="col-head ja">전송 스크립트</div>
           <div class="bi-label">(A) 패키지 + 경로 확인</div>
           <div class="s-ja script"><span class="ph">○○</span>様、院長の診療は無事に受けられましたでしょうか？！^^
-院長より<span class="ph">○ヶ月</span>パッケージで進めるとのお話がありましたが、そのまま進めてよろしいでしょうか？
-
-ちなみに、当院はどのようにしてお知りになりましたでしょうか？
-（例：カンナムオンニ／ご紹介／インスタグラム など）</div>
+院長より<span class="ph">○ヶ月</span>パッケージで進めるとのお話がありましたが、そのまま進めてよろしいでしょうか？</div>
           <div class="bi-label">(B) 가격 + 결제 방법</div>
           <div class="s-ja script"><span class="ph">○ヶ月</span>パッケージ <span class="ph">○○○,○○○</span>ウォンにてご案内可能です^^
 また、3ヶ月パッケージをお申し込みの場合は、リバウンド防止薬（Yカプセル）1ヶ月分を含めてご案内できます。
@@ -1467,9 +1491,6 @@ Total: <span class="ph">○○○,○○○</span> KRW
           <div class="s-zh script"><span class="ph">○○</span>，院长的诊疗顺利完成了吗?！^^
 院长提到了<span class="ph">○个月</span>套餐，请问这样进行可以吗？
 
-顺便请问，您是通过什么方式了解到我们医院的？
-（例：江南小姐／介绍／Instagram 等）
-
 ─────────────────
 <span class="ph">○个月</span>套餐：<span class="ph">○○○,○○○</span>韩元 ^^
 若申请3个月套餐，可附赠1个月的防反弹药（Y胶囊）。
@@ -1491,9 +1512,6 @@ Total: <span class="ph">○○○,○○○</span> KRW
           <div class="s-tw script"><span class="ph">○○</span>，院長的診療順利完成了嗎?！^^
 院長提到了<span class="ph">○個月</span>套餐，請問這樣進行可以嗎？
 
-順便請問，您是透過什麼方式得知我們醫院的？
-（例：江南小姐／介紹／Instagram 等）
-
 ─────────────────
 <span class="ph">○個月</span>套餐：<span class="ph">○○○,○○○</span>韓元 ^^
 若申請3個月套餐，可附贈1個月的防反彈藥（Y膠囊）。
@@ -1514,9 +1532,6 @@ Total: <span class="ph">○○○,○○○</span> KRW
 【<span class="ph">smartropay 連結</span>】</div>
           <div class="s-th script"><span class="ph">○○</span> การปรึกษากับแพทย์เสร็จสิ้นเรียบร้อยไหมครับ/ค่ะ?! ^^
 แพทย์แนะนำแพ็คเกจ <span class="ph">○ เดือน</span> — ต้องการดำเนินการต่อไหมครับ/ค่ะ?
-
-อีกอย่าง คุณรู้จักคลินิกเราได้อย่างไรครับ/ค่ะ?
-（เช่น Gangnam Unni／แนะนำโดยเพื่อน／Instagram เป็นต้น）
 
 ─────────────────
 แพ็คเกจ <span class="ph">○ เดือน</span>: <span class="ph">○○○,○○○</span> วอน ^^
@@ -1543,7 +1558,6 @@ IBK Industrial Bank / 089-084316-01-012
               <div class="ko-trans">(A) 패키지 + 경로 확인
 [○○] 님, 원장님 진료는 잘 받으셨나요?! ^^
 원장님께서 [○개월] 패키지로 진행하자고 하셨는데, 그대로 진행하셔도 괜찮으신가요?
-참고로 저희 한의원을 어떻게 알게 되셨나요? (예: 강남언니/소개/인스타그램 등)
 
 (B) 가격 + 결제 방법
 [○개월] [○○○,○○○]원으로 안내 가능합니다 ^^
@@ -1630,6 +1644,7 @@ https://www.post.japanpost.jp/int/ems/delivery/index.html</div>
           <ul class="chk">
             <li>입금 확인 즉시 연락</li>
             <li>영문 배송지 주소 폼으로 수집</li>
+            <li class="warn">발송 전 우체국 사이트에 주소 직접 입력 → 정상 조회되는지 확인 후 환자에게 캡처 전송</li>
             <li class="warn">세관 서류 동봉 + 영문 이름 확인</li>
             <li>EMS 추적번호 + 일본우편 링크 전송</li>
           </ul>
@@ -1856,5 +1871,76 @@ https://www.post.japanpost.jp/int/ems/delivery/index.html</div>
 
 </div><!-- /main -->
 </div><!-- /wrap -->
+<script>
+const input = document.getElementById('searchInput');
+const clear = document.getElementById('searchClear');
+const countEl = document.getElementById('searchCount');
+
+input.addEventListener('input', doSearch);
+
+function doSearch() {
+  const q = input.value.trim().toLowerCase();
+  clear.style.display = q ? 'block' : 'none';
+
+  // Remove previous highlights
+  document.querySelectorAll('.search-highlight').forEach(el => {
+    el.replaceWith(document.createTextNode(el.textContent));
+  });
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.remove('search-hidden', 'search-match');
+  });
+
+  if (!q) { countEl.textContent = ''; return; }
+
+  const cards = document.querySelectorAll('.card');
+  let matchCount = 0;
+
+  cards.forEach(card => {
+    const text = card.innerText.toLowerCase();
+    if (text.includes(q)) {
+      card.classList.add('search-match');
+      matchCount++;
+      // Highlight in visible text nodes
+      highlightInEl(card, q);
+    } else {
+      card.classList.add('search-hidden');
+    }
+  });
+
+  countEl.textContent = matchCount > 0 ? `${matchCount}개 카드 검색됨` : '결과 없음';
+
+  // Auto-scroll to first match
+  const first = document.querySelector('.card.search-match');
+  if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function highlightInEl(el, q) {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const val = node.nodeValue;
+    const lower = val.toLowerCase();
+    const idx = lower.indexOf(q);
+    if (idx === -1) return;
+    const span = document.createElement('span');
+    span.className = 'search-highlight';
+    span.textContent = val.slice(idx, idx + q.length);
+    const after = document.createTextNode(val.slice(idx + q.length));
+    const before = document.createTextNode(val.slice(0, idx));
+    const parent = node.parentNode;
+    parent.insertBefore(before, node);
+    parent.insertBefore(span, node);
+    parent.insertBefore(after, node);
+    parent.removeChild(node);
+  });
+}
+
+function clearSearch() {
+  input.value = '';
+  doSearch();
+  input.focus();
+}
+</script>
 </body>
 </html>
