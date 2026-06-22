@@ -54,14 +54,14 @@ input.lng{display:none;}
 
 /* ── CASE RADIO (내원 케이스) ── */
 input.case{display:none;}
-.case-nav{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
-.case-nav label{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid transparent;opacity:.55;transition:all .15s;}
-.case-nav label.c1{background:#e3f2fd;color:var(--case1);border-color:#90caf9;}
-.case-nav label.c2{background:#f3e5f5;color:var(--case2);border-color:#ce93d8;}
-.case-nav label.c3{background:#e8f5e9;color:var(--case3);border-color:#a5d6a7;}
+.case-nav{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.case-nav label{padding:9px 18px;border-radius:24px;font-size:12.5px;font-weight:800;cursor:pointer;border:2px solid transparent;opacity:.5;transition:all .2s;letter-spacing:.2px;}
+.case-nav label.c1{background:var(--case1);color:#fff;border-color:var(--case1);}
+.case-nav label.c2{background:var(--case2);color:#fff;border-color:var(--case2);}
+.case-nav label.c3{background:var(--case3);color:#fff;border-color:var(--case3);}
 #ca:checked~.wrap .p1 .case-nav label[for=ca],
 #cb:checked~.wrap .p1 .case-nav label[for=cb],
-#cc:checked~.wrap .p1 .case-nav label[for=cc]{opacity:1;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+#cc:checked~.wrap .p1 .case-nav label[for=cc]{opacity:1;box-shadow:0 3px 12px rgba(0,0,0,.25);transform:translateY(-1px);}
 .cpage{display:none;}
 #ca:checked~.wrap .p1 .ca{display:block;}
 #cb:checked~.wrap .p1 .cb{display:block;}
@@ -213,8 +213,8 @@ input.case{display:none;}
 <!-- 탭 네비 -->
 <nav class="tab-nav">
   <label for="t0">공통 원칙</label>
-  <label for="t1">ルートA 내원</label>
-  <label for="t2">ルートB 비대면</label>
+  <label for="t1">루트A 내원</label>
+  <label for="t2">루트B 비대면</label>
   <label for="t3">복용 관리</label>
   <label for="t4">빠른 참조</label>
 </nav>
@@ -253,7 +253,7 @@ input.case{display:none;}
 
     <div class="banner a">
       <div class="bnum a">A</div>
-      <div><div class="btitle a">ルート A｜내원 고객</div><div class="bsub">케이스를 선택하세요</div></div>
+      <div><div class="btitle a">루트 A｜내원 고객</div><div class="bsub">케이스를 선택하세요</div></div>
     </div>
     <div class="case-nav">
       <label for="ca" class="c1">① 다이어트만</label>
@@ -268,7 +268,7 @@ input.case{display:none;}
         <div class="shead a"><div class="snum a">1</div><div class="shead-txt"><strong>예약 확인 + 기본 안내</strong><span>예약 확정 직후 발송</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">こんにちは😊 アクロ韓医院です。
 <span class="ph">○月○日（○）○時</span>にダイエット診療のご予約をお取りいたしました。
 
@@ -339,8 +339,7 @@ Also, how did you hear about our clinic?</div>
             <ul class="chk">
               <li>예약 일시 정확히 입력</li>
               <li>이름 확인 필수 (성함 틀리지 않게)</li>
-              <li class="info">경로 확인 후 가격 적용:<br>강남언니 → 이벤트가 적용<br>소개 → 소개자 코드 발급 (STEP 4)<br>인스타/기타 → 일반가 적용</li>
-              <li class="warn">미성년자면 보호자 전화 동의 필수</li>
+              <li class="warn">미성년자면 보호자 동의 필수</li>
             </ul>
           </div>
         </div></div>
@@ -350,7 +349,7 @@ Also, how did you hear about our clinic?</div>
         <div class="shead a"><div class="snum a">2</div><div class="shead-txt"><strong>설문지 발송</strong><span>대면 초진 설문지 링크</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">ご来院時にスムーズに診療を行うため、事前に問診票をお送りしております。
 お薬はご来院当日にそのままお渡しできますので、問診票に記載されている配送内容はご確認不要です。
 可能でしたら、ご来院前にあらかじめご記入をお願いいたします😊
@@ -399,7 +398,7 @@ Please fill it out before your visit if possible 😊
         <div class="shead a"><div class="snum a">3</div><div class="shead-txt"><strong>전날 리마인드</strong><span>내원 전날 카카오톡/LINE 발송</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script"><span class="ph">○○</span>様、こんにちは。アクロ韓医院です。☺
 
 明日、ダイエットのご来院診療のご予約があるため、ご連絡いたしました。^^
@@ -485,38 +484,28 @@ Thank you! ☺</div>
         <div class="shead a"><div class="snum a">4</div><div class="shead-txt"><strong>진료 후 마무리 + 복용 가이드 + 소개 혜택</strong><span>당일 진료 완료 후 발송</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="bi-label">복용 가이드</div>
             <div class="s-ja script">ダイエットの基本案内・服用方法・食事ガイド・注意事項がまとめられたリンクをお送りします。
 特に「ダイエットの基本概念」の動画は、体重減少とリバウンド予防に非常に役立ちますので、ぜひ一度ご視聴ください。
 
-・服用方法（日本語）: https://youtu.be/Z9YQxD4swn4
-・ダイエット基本概念（日本語）: https://youtu.be/-0OPstMcplE
-・食欲コントロール: https://youtu.be/atqTMfc5ntc</div>
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
             <div class="s-en script">We're sending you a link with diet basics, how to take your medicine, meal guide, and precautions.
 Especially, the "Diet Basic Concept" video is very helpful for weight loss and preventing rebound — please watch it!
 
-・How to take medicine (Japanese): https://youtu.be/Z9YQxD4swn4
-・Diet basic concept (Japanese): https://youtu.be/-0OPstMcplE
-・Appetite control: https://youtu.be/atqTMfc5ntc</div>
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
             <div class="s-zh script">我们向您发送减肥基本说明、服药方法、饮食指南及注意事项的链接。
 特别是"减肥基本概念"视频，对减重和防止反弹非常有帮助，请务必观看一次。
 
-・服药方法（日语）: https://youtu.be/Z9YQxD4swn4
-・减肥基本概念（日语）: https://youtu.be/-0OPstMcplE
-・食欲控制: https://youtu.be/atqTMfc5ntc</div>
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
             <div class="s-tw script">我們向您發送減肥基本說明、服藥方法、飲食指南及注意事項的連結。
 特別是「減肥基本概念」影片，對減重和防止反彈非常有幫助，請務必觀看一次。
 
-・服藥方法（日語）: https://youtu.be/Z9YQxD4swn4
-・減肥基本概念（日語）: https://youtu.be/-0OPstMcplE
-・食慾控制: https://youtu.be/atqTMfc5ntc</div>
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
             <div class="s-th script">เราส่งลิงก์รวมข้อมูลพื้นฐานการลดน้ำหนัก วิธีรับประทานยา คู่มืออาหาร และข้อควรระวังให้คุณ
 โดยเฉพาะวิดีโอ "แนวคิดพื้นฐานการลดน้ำหนัก" มีประโยชน์มากสำหรับการลดน้ำหนักและป้องกันการกลับมาอ้วน กรุณาชมสักครั้ง
 
-・วิธีรับประทานยา: https://youtu.be/Z9YQxD4swn4
-・แนวคิดพื้นฐานการลดน้ำหนัก: https://youtu.be/-0OPstMcplE
-・การควบคุมความอยากอาหาร: https://youtu.be/atqTMfc5ntc</div>
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
             <div class="bi-label">소개 혜택</div>
             <div class="s-ja script">アクロ韓医院をご紹介いただくと、1名につき3万ウォンの自費診療割引特典をご提供します。
 
@@ -555,9 +544,7 @@ Especially, the "Diet Basic Concept" video is very helpful for weight loss and p
               <div class="ko-trans">[복용 가이드]
 다이어트 기본 안내·복용 방법·식사 가이드·주의사항이 정리된 링크를 보내드립니다.
 특히 '다이어트 기본 개념' 영상은 체중 감소와 요요 방지에 매우 도움이 되니 꼭 한 번 시청해 주세요.
-· 복용 방법(일본어): youtu.be/Z9YQxD4swn4
-· 다이어트 기본 개념(일본어): youtu.be/-0OPstMcplE
-· 식욕 컨트롤: youtu.be/atqTMfc5ntc
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html
 
 [소개 혜택]
 아크로 한의원 소개 시 1명당 3만 원 비급여 할인 혜택을 드립니다.
@@ -568,7 +555,6 @@ Especially, the "Diet Basic Concept" video is very helpful for weight loss and p
             <div class="col-head note">💡 직원 참고</div>
             <ul class="chk">
               <li>진료 완료 직후 발송</li>
-              <li>유튜브 링크 3개 모두 포함</li>
               <li class="info">소개자 코드는 고객번호로 생성</li>
               <li class="warn">소개 경유 시 → STEP 4에서 코드 발급</li>
             </ul>
@@ -581,74 +567,138 @@ Especially, the "Diet Basic Concept" video is very helpful for weight loss and p
         <div class="shead w"><div class="snum w">!</div><div class="shead-txt"><strong>노쇼 / 취소 발생 시</strong><span>당일 취소 or 무응답 대응</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="bi-label">🔴 당일 취소 — 재예약 or 비대면 전환</div>
-            <div class="s-ja script"><span class="ph">○○</span>님、안녕하세요
+            <div class="s-ja script"><span class="ph">○○</span> 様、こんにちは。
+本日のご来院が難しい場合、ご予約の変更も可能ですが、韓国にはいつまでご滞在のご予定でしょうか？
 
-오늘의 내원이 어려운 경우는, 예약의 변경도 가능합니다만, 한국에는 언제까지 체재 예정입니까?
+ご希望の日時をお知らせいただければ、変更のご対応をいたします。
 
-또, 내원이 어려운 경우는, 비대면으로 원장의 진찰을 받고, 약을 EMS로 받는 것도 가능합니다.
+もし来院が難しい場合は、オンライン（非対面）で院長の診療を受け、EMS でお薬をお受け取りいただくことも可能です。
+よろしければ、非対面でのご対応をお手伝いさせていただけますでしょうか？
+（非対面をご希望の場合は、下記の非対面診療アンケートのご記入をお願いいたします 😊）
 
-만약 괜찮다면, 비대면에서의 약의 접수를 진행시켜 주시겠습니까?</div>
+<span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
             <div class="s-en script">Hello <span class="ph">○○</span>,
+If it's difficult to visit today, we can reschedule your appointment. How long are you planning to stay in Korea?
 
-If it's difficult to visit today, we can reschedule your appointment. How long will you be staying in Korea?
+Please let us know your preferred date and we'll arrange the change.
 
-Also, if visiting is difficult, it's possible to have an online consultation with the doctor and receive your medicine via EMS delivery.
+If visiting is difficult, you can also have an online consultation with the doctor and receive your medicine via EMS.
+Would you like us to help you proceed with the online option?
+(If you'd like to go online, please fill out the questionnaire below 😊)
 
-Would you like to proceed with the online consultation option?</div>
-            <div class="s-zh script"><span class="ph">○○</span>，您好
-
+<span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
+            <div class="s-zh script"><span class="ph">○○</span>，您好。
 如果今天不方便来院，可以更改预约时间。请问您计划在韩国停留到什么时候？
 
-另外，如果来院有困难，也可以通过非对面方式接受院长的诊疗，并通过EMS邮寄收取药品。
+请告知您希望的日期，我们将为您安排更改。
 
-如果方便的话，请问您是否希望进行非对面诊疗呢？</div>
-            <div class="s-tw script"><span class="ph">○○</span>，您好
+如果来院有困难，也可以通过线上（非对面）方式接受院长的诊疗，并通过EMS收取药品。
+如方便，是否希望我们协助您进行线上诊疗？
+（如希望线上进行，请填写下方的线上诊疗问卷 😊）
 
+<span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
+            <div class="s-tw script"><span class="ph">○○</span>，您好。
 如果今天不方便來院，可以更改預約時間。請問您計劃在韓國停留到什麼時候？
 
-另外，如果來院有困難，也可以透過非對面方式接受院長的診療，並透過EMS郵寄收取藥品。
+請告知您希望的日期，我們將為您安排更改。
 
-如果方便的話，請問您是否希望進行非對面診療呢？</div>
+如果來院有困難，也可以透過線上（非對面）方式接受院長的診療，並透過EMS收取藥品。
+如方便，是否希望我們協助您進行線上診療？
+（如希望線上進行，請填寫下方的線上診療問卷 😊）
+
+<span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
             <div class="s-th script">สวัสดีครับ/ค่ะ <span class="ph">○○</span>
-
 หากวันนี้ไม่สะดวกมาพบแพทย์ สามารถเปลี่ยนวันนัดได้ คุณวางแผนจะอยู่เกาหลีถึงเมื่อไหร่ครับ/ค่ะ?
 
-นอกจากนี้ หากมาที่คลินิกไม่ได้ ยังสามารถพบแพทย์ออนไลน์และรับยาผ่าน EMS ได้
+กรุณาแจ้งวันที่ต้องการ แล้วเราจะดำเนินการเปลี่ยนให้ครับ/ค่ะ
 
-หากสะดวก คุณต้องการดำเนินการปรึกษาออนไลน์ไหมครับ/ค่ะ?</div>
+หากมาที่คลินิกไม่ได้ ยังสามารถพบแพทย์ออนไลน์และรับยาผ่าน EMS ได้
+หากสะดวก ต้องการให้เราช่วยดำเนินการออนไลน์ไหมครับ/ค่ะ?
+(หากต้องการดำเนินการออนไลน์ กรุณากรอกแบบสอบถามด้านล่าง 😊)
+
+<span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
             <div class="bi-label">🔵 비대면 전환 시 — 설문지 2종 발송</div>
-            <div class="s-ja script"><span class="ph">○○</span>님, 아크로 한의원입니다. 바쁜 곳에 죄송합니다.
+            <div class="s-ja script"><span class="ph">○○</span> 様、アクロ韓医院です。お忙しいところ申し訳ございません。
+来院が難しい場合、オンライン（非対面）で院長の診療を受け、EMS でお薬をお受け取りいただくことも可能です。
 
-설문지를 2종류 보내드립니다.
-하나는 방문 설문조사, 다른 하나는 온라인 진료용 설문지입니다.
+2種類のアンケートをお送りしますので、ご希望の診療方法に合わせてご記入いただければ、しっかりサポートいたします 😊
 
-내원 진료 문진표: <span class="lnk">https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec</span>
-온라인 진료 문진표: <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
-            <div class="s-en s-zh s-tw s-th script">※ 이 멘트는 현재 일본어 전용입니다. 해당 언어로 자유롭게 안내해 주세요.</div>
+1つは来院用、もう1つはオンライン診療用のアンケートです。
+
+来院診療 問診票: <span class="lnk">https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec</span>
+
+オンライン診療 問診票: <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
+            <div class="s-en script">Hello <span class="ph">○○</span>, this is Acro Korean Medicine Clinic. Sorry to bother you!
+If visiting is difficult, you can receive an online consultation with the doctor and get your medicine delivered via EMS.
+
+We're sending 2 questionnaires — please fill out the one that matches your preferred method and we'll take good care of you 😊
+
+One is for in-person visits, and the other is for online consultations.
+
+In-person questionnaire: <span class="lnk">https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec</span>
+
+Online consultation questionnaire: <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
+            <div class="s-zh script"><span class="ph">○○</span>，这里是Acro韩医院，打扰您了非常抱歉。
+如果来院有困难，可以通过线上方式接受院长的诊疗，并通过EMS收取药品。
+
+我们将发送2份问卷，请按您希望的诊疗方式填写，我们会为您提供全力支持 😊
+
+一份是来院用问卷，另一份是线上诊疗用问卷。
+
+来院诊疗问诊表: <span class="lnk">https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec</span>
+
+线上诊疗问诊表: <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
+            <div class="s-tw script"><span class="ph">○○</span>，這裡是Acro韓醫院，打擾您了非常抱歉。
+如果來院有困難，可以透過線上方式接受院長的診療，並透過EMS收取藥品。
+
+我們將發送2份問卷，請按您希望的診療方式填寫，我們會為您提供全力支持 😊
+
+一份是來院用問卷，另一份是線上診療用問卷。
+
+來院診療問診表: <span class="lnk">https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec</span>
+
+線上診療問診表: <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
+            <div class="s-th script">สวัสดีครับ/ค่ะ <span class="ph">○○</span> นี่คือคลินิก Acro Korean Medicine ขอโทษที่รบกวนนะครับ/ค่ะ
+หากมาที่คลินิกไม่ได้ สามารถพบแพทย์ออนไลน์และรับยาผ่าน EMS ได้
+
+เราจะส่งแบบสอบถาม 2 ชุด กรุณากรอกตามวิธีที่ต้องการ แล้วเราจะดูแลให้อย่างดี 😊
+
+ชุดหนึ่งสำหรับการมาพบแพทย์ที่คลินิก อีกชุดสำหรับการปรึกษาออนไลน์
+
+แบบสอบถามสำหรับมาพบแพทย์: <span class="lnk">https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec</span>
+
+แบบสอบถามปรึกษาออนไลน์: <span class="lnk">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
           </div>
           <div class="bi-note">
             <div class="ko-trans-wrap">
               <div class="ko-trans-head">🇰🇷 한국어 번역</div>
               <div class="ko-trans">[당일 취소 - 재예약 or 비대면 전환]
 [○○] 님, 안녕하세요.
-오늘 내원이 어려우신 경우 예약 변경도 가능한데, 한국에는 언제까지 체류 예정이신가요?
-또한 비대면으로 원장 진료 후 EMS로 약을 받으시는 것도 가능합니다.
-괜찮으시다면 비대면으로 진행할까요?
+오늘 내원이 어려우시면 예약 변경도 가능한데, 한국에는 언제까지 체류 예정이신가요?
+
+원하시는 날짜 말씀주시면 변경 도와드리겠습니다.
+
+혹시 내원이 어려우시다면 비대면으로 원장님 진료 후 EMS로 약을 받으시는 것도 가능합니다.
+괜찮으시다면 비대면으로 진행 도와드릴까요?
+(비대면으로 진행 원하시면 하단의 비대면 진료 설문지 작성 부탁드립니다 😊)
 
 [비대면 전환 시 - 설문지 2종 발송]
 [○○] 님, 아크로 한의원입니다. 바쁘신데 죄송합니다.
-설문지 2종을 보내드립니다.
-하나는 방문 설문지, 다른 하나는 온라인 진료용 설문지입니다.
-내원 문진표: [링크]
-온라인 문진표: [링크]</div>
+내원이 어려우신 경우 비대면으로 원장님 진료 후 EMS로 약을 받아보실 수 있습니다.
+
+설문지 2종을 보내드리니, 원하시는 진료방법으로 설문지 작성해주시면 진료 잘 도와드리겠습니다 😊
+
+하나는 내원용 설문지, 다른 하나는 온라인 진료용 설문지입니다.
+내원 진료 문진표: [링크]
+온라인 진료 문진표: [링크]</div>
             </div>
             <div class="col-head note">💡 직원 참고</div>
             <ul class="chk">
               <li class="info">재예약 or 비대면 전환 중 선택</li>
               <li>한국 체류 일정 먼저 확인</li>
-              <li class="warn">비대면 전환 시 → ルートB 플로우로 이동</li>
+              <li class="warn">비대면 전환 시 → 루트B 플로우로 이동</li>
               <li>설문지 2종 동시 발송</li>
             </ul>
           </div>
@@ -662,7 +712,7 @@ Would you like to proceed with the online consultation option?</div>
         <div class="shead a"><div class="snum a">1</div><div class="shead-txt"><strong>예약 확인 + 기본 안내</strong><span>예약 확정 직후 발송</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">こんにちは😊 アクロ韓医院です。
 <span class="ph">○月○日（○）○時</span>にリフティング施術のご予約をお取りいたしました。
 
@@ -710,7 +760,7 @@ Also, how did you hear about our clinic?</div>
         <div class="shead a"><div class="snum a">2</div><div class="shead-txt"><strong>시술 설문지 발송</strong><span>외국인 시술 설문지</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">施術をスムーズに行うため、事前にアンケートをお送りしております。
 可能でしたら、ご来院前にあらかじめご記入をお願いいたします😊
 
@@ -746,7 +796,7 @@ Please fill it out before your visit if possible 😊
         <div class="shead a"><div class="snum a">3</div><div class="shead-txt"><strong>전날 리마인드</strong></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script"><span class="ph">○○</span>様、こんにちは。アクロ韓医院です。☺
 明日のリフティング施術のご予約についてご連絡いたしました。^^
 ご不明な点や変更事項がございましたら、ご連絡ください。^^
@@ -785,28 +835,33 @@ Thank you! ☺</div>
         <div class="shead a"><div class="snum a">4</div><div class="shead-txt"><strong>시술 후 마무리 + 소개 혜택</strong></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">本日はご来院いただきありがとうございました！
+施術後の注意事項をお送りします。（画像）
 ご不明な点がございましたら、いつでもLINEにてお気軽にご連絡ください^^
 
 アクロ韓医院をご紹介いただくと、1名につき3万ウォンの自費診療割引特典をご提供します。
 ★紹介者コード：【<span class="ph">고객번호</span>】H</div>
             <div class="s-en script">Thank you so much for visiting us today!
+Please find the post-treatment care instructions attached. (image)
 Please feel free to contact us via LINE anytime if you have any questions ^^
 
 If you refer someone to Acro Clinic, you'll receive a 30,000 KRW discount per referral.
 ★ Referral code: 【<span class="ph">고객번호</span>】H</div>
             <div class="s-zh script">感谢您今天的到来！
+为您发送施术后注意事项。（图片）
 如有任何疑问，请随时通过LINE与我们联系^^
 
 如向朋友推荐Acro韩医院，每推荐1人可享受3万韩元的自费项目折扣。
 ★推荐码：【<span class="ph">고객번호</span>】H</div>
             <div class="s-tw script">感謝您今天的到來！
+為您發送施術後注意事項。（圖片）
 如有任何疑問，請隨時透過LINE與我們聯繫^^
 
 如向朋友推薦Acro韓醫院，每推薦1人可享受3萬韓元的自費項目折扣。
 ★推薦碼：【<span class="ph">고객번호</span>】H</div>
             <div class="s-th script">ขอบคุณมากที่มาเยี่ยมชมเราวันนี้!
+ขอส่งข้อควรระวังหลังการรักษาให้คุณ (ภาพ)
 หากมีคำถามใดๆ สามารถติดต่อเราผ่าน LINE ได้เลยครับ/ค่ะ ^^
 
 หากแนะนำเพื่อนมาที่คลินิก Acro จะได้รับส่วนลด 30,000 วอนต่อการแนะนำ 1 คน
@@ -816,6 +871,7 @@ If you refer someone to Acro Clinic, you'll receive a 30,000 KRW discount per re
             <div class="ko-trans-wrap">
               <div class="ko-trans-head">🇰🇷 한국어 번역</div>
               <div class="ko-trans">오늘 내원해 주셔서 감사합니다!
+시술 후 주의사항 보내드립니다. (이미지 첨부)
 궁금한 점은 언제든지 LINE으로 편하게 연락 주세요 ^^
 
 아크로 한의원 소개 시 1명당 3만 원 비급여 할인 혜택을 드립니다.
@@ -824,6 +880,7 @@ If you refer someone to Acro Clinic, you'll receive a 30,000 KRW discount per re
             <div class="col-head note">💡 직원 참고</div>
             <ul class="chk">
               <li>시술 후 즉시 발송</li>
+              <li class="warn">주의사항 이미지 첨부 필수 (컴퓨터에서 직접 전송)</li>
               <li class="warn">체중관리 멘트 넣지 말 것 (리프팅만인 경우)</li>
               <li class="info">소개자 코드 발급 후 전송</li>
             </ul>
@@ -838,7 +895,7 @@ If you refer someone to Acro Clinic, you'll receive a 30,000 KRW discount per re
         <div class="shead a"><div class="snum a">1</div><div class="shead-txt"><strong>예약 확인 + 기본 안내</strong></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">こんにちは😊 アクロ韓医院です。
 <span class="ph">○月○日（○）○時</span>にダイエット診療とリフティング施術のご予約をお取りいたしました。
 
@@ -899,7 +956,7 @@ Also, how did you hear about our clinic?</div>
         <div class="shead a"><div class="snum a">2</div><div class="shead-txt"><strong>설문지 2종 발송</strong><span>대면 초진 설문지 + 시술 설문지</span></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">ご来院時にスムーズに診療・施術を行うため、2種類のアンケートをお送りしております。
 可能でしたら、ご来院前にあらかじめご記入をお願いいたします😊
 
@@ -947,7 +1004,7 @@ Please fill them out before your visit if possible 😊
         <div class="shead a"><div class="snum a">3</div><div class="shead-txt"><strong>전날 리마인드</strong></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script"><span class="ph">○○</span>様、こんにちは。アクロ韓医院です。☺
 明日、ダイエット診療とリフティング施術のご予約があるため、ご連絡いたしました。^^
 体成分検査の際にご不便をおかけする可能性があるため、ストッキングは着用せずにお越しいただくことをおすすめしております。
@@ -987,43 +1044,43 @@ Contact us if you have questions or need changes. ^^</div>
         <div class="shead a"><div class="snum a">4</div><div class="shead-txt"><strong>진료·시술 후 마무리 + 복용 가이드 + 소개 혜택</strong></div></div>
         <div class="sbody"><div class="bi-row">
           <div class="bi-ja">
-            <div class="col-head ja">🇯🇵 전송 스크립트</div>
+            <div class="col-head ja">전송 스크립트</div>
             <div class="s-ja script">本日はご来院いただきありがとうございました！
+
+施術後の注意事項をお送りします。（画像）
 
 ダイエットの基本案内・服用方法・食事ガイド・注意事項がまとめられたリンクをお送りします。
 特に「ダイエットの基本概念」の動画は、体重減少とリバウンド予防に非常に役立ちますので、ぜひ一度ご視聴ください。
 
-・服用方法（日本語）: https://youtu.be/Z9YQxD4swn4
-・ダイエット基本概念（日本語）: https://youtu.be/-0OPstMcplE
-・食欲コントロール: https://youtu.be/atqTMfc5ntc
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html
 
 アクロ韓医院をご紹介いただくと、1名につき3万ウォンの割引特典をご提供します。
 ★紹介者コード：【<span class="ph">고객번호</span>】H</div>
             <div class="s-en script">Thank you for visiting us today!
 
+Please find the post-treatment care instructions attached. (image)
+
 Here is a link with diet basics, medication guide, meal guide and precautions.
 Please especially watch the "Diet Basic Concept" video — it's very helpful!
 
-・How to take medicine: https://youtu.be/Z9YQxD4swn4
-・Diet basic concept: https://youtu.be/-0OPstMcplE
-・Appetite control: https://youtu.be/atqTMfc5ntc
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html
 
 Refer a friend to Acro Clinic → 30,000 KRW discount per referral.
 ★ Referral code: 【<span class="ph">고객번호</span>】H</div>
             <div class="s-zh s-tw script">感谢您今天的到来！/ 感謝您今天的到來！
 
+为您发送施术后注意事项。（图片）/ 為您發送施術後注意事項。（圖片）
+
 减肥基本说明・服药方法・饮食指南链接 / 減肥基本說明・服藥方法・飲食指南連結:
-・https://youtu.be/Z9YQxD4swn4
-・https://youtu.be/-0OPstMcplE
-・https://youtu.be/atqTMfc5ntc
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html
 
 推荐1人 → 3万韩元折扣 ★推荐码 / 推薦碼：【<span class="ph">고객번호</span>】H</div>
             <div class="s-th script">ขอบคุณที่มาเยี่ยมชมเราวันนี้!
 
+ขอส่งข้อควรระวังหลังการรักษาให้คุณ (ภาพ)
+
 ลิงก์รวมข้อมูลการลดน้ำหนัก วิธีรับประทานยา คู่มืออาหาร:
-・https://youtu.be/Z9YQxD4swn4
-・https://youtu.be/-0OPstMcplE
-・https://youtu.be/atqTMfc5ntc
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html
 
 แนะนำเพื่อน 1 คน → ส่วนลด 30,000 วอน ★ รหัส: 【<span class="ph">고객번호</span>】H</div>
           </div>
@@ -1032,11 +1089,11 @@ Refer a friend to Acro Clinic → 30,000 KRW discount per referral.
               <div class="ko-trans-head">🇰🇷 한국어 번역</div>
               <div class="ko-trans">오늘 내원해 주셔서 감사합니다!
 
+시술 후 주의사항 보내드립니다. (이미지 첨부)
+
 다이어트 기본 안내·복용 방법·식사 가이드·주의사항 링크를 보내드립니다.
 특히 '다이어트 기본 개념' 영상은 꼭 한 번 시청해 주세요.
-· youtu.be/Z9YQxD4swn4
-· youtu.be/-0OPstMcplE
-· youtu.be/atqTMfc5ntc
+https://acrohani75-dot.github.io/acro/acro_diet_guide.html
 
 아크로 한의원 소개 시 1명당 3만 원 할인
 ★ 소개자 코드: 【고객번호】H</div>
@@ -1044,6 +1101,7 @@ Refer a friend to Acro Clinic → 30,000 KRW discount per referral.
             <div class="col-head note">💡 직원 참고</div>
             <ul class="chk">
               <li>진료+시술 완료 후 발송</li>
+              <li class="warn">주의사항 이미지 첨부 필수 (컴퓨터에서 직접 전송)</li>
               <li>복용 가이드 + 소개 혜택 모두 포함</li>
               <li class="info">소개자 코드 발급 후 전송</li>
             </ul>
@@ -1077,14 +1135,14 @@ Refer a friend to Acro Clinic → 30,000 KRW discount per referral.
 
     <div class="banner b">
       <div class="bnum b">B</div>
-      <div><div class="btitle b">ルート B｜비대면 고객 (다이어트 한약)</div><div class="bsub">온라인 진료 → 복용가이드 → 결제 → EMS 발송</div></div>
+      <div><div class="btitle b">루트 B｜비대면 고객 (다이어트 한약)</div><div class="bsub">온라인 진료 → 복용가이드 → 결제 → EMS 발송</div></div>
     </div>
 
     <div class="card">
       <div class="shead b"><div class="snum b">1</div><div class="shead-txt"><strong>설문지 발송 + 추가 질문</strong><span>비대면 초진 설문지 + 4가지 추가 확인</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="bi-label">설문지 발송</div>
           <div class="s-ja script">こんにちは^^
 オンライン（非対面）でのダイエット漢方をご希望とのことで、承りました！
@@ -1175,7 +1233,7 @@ Could we ask a few more questions? ^^
       <div class="shead b"><div class="snum b">2</div><div class="shead-txt"><strong>개월수 사전 확인 + 수가표 발송</strong><span>원장 진료 연결 전</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="action">📎 수가표 이미지 먼저 전송 (컴퓨터에서 직접 전송)</div>
           <div class="s-ja script">ダイエットプログラムは3ヶ月・2ヶ月・1ヶ月のパッケージをご用意しております。
 ほとんどの方は3ヶ月コースでご利用いただいております。
@@ -1227,7 +1285,7 @@ Payment will be arranged after the doctor's consultation.</div>
       <div class="shead b"><div class="snum b">3</div><div class="shead-txt"><strong>원장 진료 연결</strong><span>LINE 채팅 진료</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="s-ja script">ご確認ありがとうございます！
 院長先生とチャットで診療のご案内をさせていただきたいのですが、今お時間よろしいでしょうか？^^
 少々お待ちください^^</div>
@@ -1258,7 +1316,7 @@ Please wait a moment ^^</div>
       <div class="shead b"><div class="snum b">4</div><div class="shead-txt"><strong>진료 직후 — 복용 가이드 발송</strong><span>결제 전에 먼저 발송</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="s-ja script">ダイエットの基本案内、服用方法、食事ガイド、注意事項がまとめられたリンクをお送りします。
 特に、ダイエットの基本概念に関する動画は、体重減少と維持に非常に役立ちますので、ぜひ一度ご視聴ください。
 リンクをご確認いただき、ご不明な点がございましたら、いつでもお気軽にご連絡ください。ありがとうございます😊
@@ -1296,7 +1354,6 @@ https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
             </div>
             <div class="col-head note">💡 직원 참고</div>
           <ul class="chk">
-            <li class="warn">결제 전에 복용 가이드 먼저 발송</li>
             <li>acrohani 가이드 링크 전송</li>
             <li class="info">영상 꼭 시청 권유</li>
           </ul>
@@ -1308,7 +1365,7 @@ https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
       <div class="shead b"><div class="snum b">5</div><div class="shead-txt"><strong>결제 안내</strong><span>경로 확인 → 가격 → 카드/계좌 선택</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="bi-label">(A) 패키지 + 경로 확인</div>
           <div class="s-ja script"><span class="ph">○○</span>님、원장의 진료는 무사히 받을 수 있었습니까~?！^^
 원장보다、<span class="ph">○개월</span> 패키지로 진행하면 말씀하셨습니다만、그대로 진행해도 괜찮습니까？
@@ -1376,7 +1433,7 @@ https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div>
       <div class="shead b"><div class="snum b">6</div><div class="shead-txt"><strong>입금 확인 → 발송 안내</strong><span>입금 즉시 / 주소 / 통관 / 추적번호</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="bi-label">(A) 입금 확인 즉시</div>
           <div class="s-ja script">안녕하세요 <span class="ph">○○</span>님
 입금을 확인했습니다.
@@ -1445,7 +1502,7 @@ https://www.post.japanpost.jp/int/ems/delivery/index.html</div>
       <div class="shead c"><div class="snum c">①</div><div class="shead-txt"><strong>부작용 문의 접수</strong></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="bi-label">1단계 — 접수 즉시</div>
           <div class="s-ja script">こんにちは、<span class="ph">○○</span>様。
 お辛かったことと思います。
@@ -1500,7 +1557,7 @@ https://www.post.japanpost.jp/int/ems/delivery/index.html</div>
       <div class="shead c"><div class="snum c">②</div><div class="shead-txt"><strong>중간 상담 권유</strong><span>복용 1개월 전후 정기 발송</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="s-ja script"><span class="ph">○○</span>様、こんにちは
 お薬は問題なく服用されていますでしょうか？
 ご不便な点がないか確認のためご連絡いたしました。
@@ -1535,7 +1592,7 @@ https://www.post.japanpost.jp/int/ems/delivery/index.html</div>
       <div class="shead c"><div class="snum c">③</div><div class="shead-txt"><strong>Y캡슐 복용 안내</strong></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="s-ja script">▶ Yカプセルの服用方法
 
 【機能】体重維持をサポートするカプセルタイプの漢方薬です。
@@ -1578,7 +1635,7 @@ https://www.post.japanpost.jp/int/ems/delivery/index.html</div>
       <div class="shead c"><div class="snum c">④</div><div class="shead-txt"><strong>재처방 / 추가 상담 권유</strong><span>복용 종료 전후</span></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="s-ja script"><span class="ph">○○</span>様、こんにちは
 ご相談の時期となりましたので、ご連絡いたしました。
 ダイエット薬の追加処方や体重維持に関するご相談について、院長とのカウンセリングをご案内しております。
@@ -1606,7 +1663,7 @@ https://www.post.japanpost.jp/int/ems/delivery/index.html</div>
       <div class="shead c"><div class="snum c">⑤</div><div class="shead-txt"><strong>복용 완전 중단 후 케어</strong></div></div>
       <div class="sbody"><div class="bi-row">
         <div class="bi-ja">
-          <div class="col-head ja">🇯🇵 전송 스크립트</div>
+          <div class="col-head ja">전송 스크립트</div>
           <div class="s-ja script"><span class="ph">○○</span>様、こんにちは
 
 ダイエット薬の服用を継続されない場合でも、ダイエットの仕上げや今後の体重管理について、院長先生とのご相談が可能です。
