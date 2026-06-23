@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로한의원 진료 동시통역</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f8faff;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+header {
+  background: #ffffff;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 10px;
+  border-bottom: 2px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.logo { font-size: 14px; font-weight: 800; color: #1e293b; white-space: nowrap; }
+.lang-tabs { display: flex; gap: 5px; overflow-x: auto; }
+.tab-btn {
+  padding: 6px 11px;
+  border: 2px solid #e2e8f0;
+  background: #f8faff;
+  color: #64748b;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tab-btn.active { background: #6366f1; color: white; border-color: #6366f1; }
+.header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.opt-label { font-size: 12px; color: #64748b; display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; }
+.btn-clear { padding: 6px 10px; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 600; }
+.btn-key { padding: 6px 9px; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; cursor: pointer; }
+.btn-key.unset { background: #fef3c7; border-color: #fbbf24; animation: keypulse 1.4s infinite; }
+@keyframes keypulse { 0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0.5)} 50%{box-shadow:0 0 0 5px rgba(251,191,36,0)} }
+
+/* API 키 모달 */
+.modal-bg {
+  position: fixed; inset: 0; background: rgba(15,23,42,0.55);
+  display: none; align-items: center; justify-content: center; z-index: 999; padding: 20px;
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: #fff; border-radius: 18px; padding: 24px; max-width: 440px; width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: fadeUp 0.2s ease-out;
+}
+.modal h2 { font-size: 18px; color: #1e293b; margin-bottom: 6px; display:flex; align-items:center; gap:7px; }
+.modal p { font-size: 13px; color: #64748b; line-height: 1.6; margin-bottom: 14px; }
+.modal input {
+  width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px;
+  font-size: 14px; font-family: monospace; color: #1e293b; margin-bottom: 8px;
+}
+.modal input:focus { outline: none; border-color: #6366f1; }
+.modal .key-status { font-size: 12px; margin-bottom: 14px; min-height: 16px; }
+.modal .key-status.ok { color: #16a34a; }
+.modal .key-status.warn { color: #dc2626; }
+.modal-btns { display: flex; gap: 8px; }
+.modal-btns button { flex: 1; padding: 12px; border-radius: 10px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; }
+.mbtn-save { background: #1d4ed8; color: #fff; }
+.mbtn-save:hover { background: #1e40af; }
+.mbtn-cancel { background: #f1f5f9; color: #64748b; }
+.mbtn-test { background: #ede9fe; color: #7c3aed; }
+.modal .warn-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 12px; font-size: 11px; color: #b91c1c; line-height: 1.6; margin-bottom: 14px; }
+
+/* 대화 */
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f8faff;
+}
+.chat::-webkit-scrollbar { width: 4px; }
+.chat::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
+.msg-group { display: flex; flex-direction: column; gap: 6px; animation: fadeUp 0.2s ease-out; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+
+.msg-row { display: flex; align-items: flex-end; gap: 8px; }
+.msg-row.left  { justify-content: flex-start; }
+.msg-row.right { justify-content: flex-end; }
+
+.bubble {
+  max-width: 75%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.bko   { background: #1d4ed8; color: #ffffff; border-bottom-left-radius: 4px; }
+.btgt  { background: #7c3aed; color: #ffffff; border-bottom-right-radius: 4px; }
+.bpend { background: #e2e8f0; color: #94a3b8; font-style: italic; font-size: 16px; font-weight: 400; }
+.berr  { background: #fee2e2; color: #dc2626; font-size: 14px; font-weight: 400; }
+
+.flag { font-size: 22px; flex-shrink: 0; }
+.spk {
+  background: transparent; border: none; font-size: 18px;
+  cursor: pointer; opacity: 0.3; padding: 4px; border-radius: 4px;
+  transition: opacity 0.15s; flex-shrink: 0;
+}
+.spk:hover { opacity: 1; }
+.spk.on { opacity: 1; animation: spkp 0.8s infinite; }
+@keyframes spkp { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.empty {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:14px; text-align:center; padding:20px;
+}
+.empty .ico { font-size: 56px; }
+.empty .txt { font-size: 17px; line-height: 1.9; color: #64748b; }
+
+/* 하단 */
+.bottom {
+  flex-shrink: 0;
+  background: #ffffff;
+  border-top: 2px solid #e2e8f0;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+}
+
+.mic-btns { display: flex; gap: 10px; }
+.mic-btn {
+  flex: 1;
+  padding: 18px 10px;
+  border-radius: 16px;
+  border: 3px solid;
+  background: transparent;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.mic-btn .bico { font-size: 32px; transition: all 0.2s; }
+.mic-btn .blabel { font-size: 16px; font-weight: 800; }
+.mic-btn .bsub { font-size: 12px; font-weight: 500; }
+
+.mic-btn.ko-btn {
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+  background: #eff6ff;
+}
+.mic-btn.ko-btn:hover { background: #dbeafe; border-color: #93c5fd; }
+.mic-btn.ko-btn.active {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(29,78,216,0.2);
+}
+
+.mic-btn.tgt-btn {
+  border-color: #ddd6fe;
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+.mic-btn.tgt-btn:hover { background: #ede9fe; border-color: #c4b5fd; }
+.mic-btn.tgt-btn.active {
+  border-color: #7c3aed;
+  background: #7c3aed;
+  color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(124,58,237,0.2);
+}
+
+.text-rows { display:flex; flex-direction:column; gap:6px; }
+.text-row { display:flex; gap:8px; }
+.text-row textarea {
+  flex:1; background:#f8faff; border:2px solid #e2e8f0; border-radius:8px;
+  padding:8px 12px; font-size:14px; color:#1e293b; font-family:inherit;
+  resize:none; max-height:60px;
+}
+.text-row textarea:focus { outline:none; border-color:#6366f1; }
+.text-row textarea::placeholder { color:#94a3b8; }
+.btn-send { padding:8px 14px; background:#1d4ed8; color:white; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
+.btn-send:hover { background:#1e40af; }
+.btn-tgt-send { background:#7c3aed; }
+.btn-tgt-send:hover { background:#6d28d9; }
+.wave { display:flex; gap:3px; align-items:center; height:22px; justify-content:center; }
+.wbar { width:4px; border-radius:2px; background:currentColor; animation:wv 0.7s ease-in-out infinite; }
+.wbar:nth-child(1){height:4px;animation-delay:0s}
+.wbar:nth-child(2){height:10px;animation-delay:0.1s}
+.wbar:nth-child(3){height:16px;animation-delay:0.2s}
+.wbar:nth-child(4){height:22px;animation-delay:0.3s}
+.wbar:nth-child(5){height:16px;animation-delay:0.2s}
+.wbar:nth-child(6){height:10px;animation-delay:0.1s}
+.wbar:nth-child(7){height:4px;animation-delay:0s}
+@keyframes wv { 0%,100%{transform:scaleY(0.3)} 50%{transform:scaleY(1)} }
+.wave.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🏥 아크로 동시통역</div>
+  <div class="lang-tabs">
+    <button class="tab-btn active" onclick="switchLang('japanese',this)">🇯🇵 日本語</button>
+    <button class="tab-btn" onclick="switchLang('english',this)">🇺🇸 EN</button>
+    <button class="tab-btn" onclick="switchLang('chinese',this)">🇨🇳 中文</button>
+    <button class="tab-btn" onclick="switchLang('taiwanese',this)">🇹🇼 繁中</button>
+    <button class="tab-btn" onclick="switchLang('thai',this)">🇹🇭 ไทย</button>
+  </div>
+  <div class="header-right">
+    <label class="opt-label"><input type="checkbox" id="chk" checked onchange="autoSpeak=this.checked"> 🔊자동음성</label>
+    <button class="btn-key" id="btn-key" onclick="openKeyModal()" title="API 키 설정">🔑</button>
+    <button class="btn-clear" onclick="clearAll()">초기화</button>
+  </div>
+</header>
+
+<div class="chat" id="chat"></div>
+
+<div class="bottom">
+  <div class="mic-btns">
+    <button class="mic-btn ko-btn" id="btn-ko" onclick="toggle('ko')">
+      <div class="wave hidden" id="wave-ko"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div>
+      <div class="bico" id="icon-ko">🎤</div>
+      <div class="blabel">🇰🇷 한국어</div>
+      <div class="bsub" id="sub-ko">눌러서 말하기</div>
+    </button>
+    <button class="mic-btn tgt-btn" id="btn-tgt" onclick="toggle('tgt')">
+      <div class="wave hidden" id="wave-tgt"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div>
+      <div class="bico" id="icon-tgt">🎤</div>
+      <div class="blabel" id="label-tgt">🇯🇵 日本語</div>
+      <div class="bsub" id="sub-tgt">눌러서 말하기</div>
+    </button>
+  </div>
+  <div class="text-row">
+    <textarea id="ta" placeholder="한국어 또는 외국어로 입력하면 자동 감지..." onkeydown="taKey(event)" rows="1"></textarea>
+    <button class="btn-send" onclick="sendFromTa()">전송</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="keyModal">
+  <div class="modal">
+    <h2>🔑 Claude API 키 설정</h2>
+    <p>console.anthropic.com 에서 발급받은 키를 입력하세요. 키는 이 기기 브라우저에만 저장되고 외부로 전송되지 않습니다 (번역 요청은 Anthropic 서버로 직접 전송).</p>
+    <input type="password" id="keyInput" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+    <div class="key-status" id="keyStatus"></div>
+    <div class="warn-box">⚠️ 이 파일과 키는 <b>진료실 본인 기기 전용</b>입니다. 공용 PC에 두거나 파일을 외부에 공유하면 키가 유출될 수 있습니다.</div>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeKeyModal()">취소</button>
+      <button class="mbtn-test" onclick="testKey()">연결 테스트</button>
+      <button class="mbtn-save" onclick="saveKey()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LANGS = {
+  japanese:  { name:'日本語',   flag:'🇯🇵', code:'ja-JP', eng:'Japanese',           hint:'日本語で話してください...' },
+  english:   { name:'English',  flag:'🇺🇸', code:'en-US', eng:'English',            hint:'Speak in English...' },
+  chinese:   { name:'中文',     flag:'🇨🇳', code:'zh-CN', eng:'Simplified Chinese', hint:'请说中文...' },
+  taiwanese: { name:'繁體中文', flag:'🇹🇼', code:'zh-TW', eng:'Traditional Chinese',hint:'請說繁體中文...' },
+  thai:      { name:'ภาษาไทย', flag:'🇹🇭', code:'th-TH', eng:'Thai',               hint:'กรุณาพูดภาษาไทย...' },
+};
+
+let curLang = 'japanese';
+let history = [];
+let busy = false;
+let autoSpeak = true;
+let ttsId = null;
+let activeSTT = null;
+let rec = null;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+const KEY_STORE = 'acro_claude_key';
+function getKey() { return localStorage.getItem(KEY_STORE) || ''; }
+function openKeyModal() {
+  document.getElementById('keyInput').value = getKey();
+  document.getElementById('keyStatus').textContent = '';
+  document.getElementById('keyStatus').className = 'key-status';
+  document.getElementById('keyModal').classList.add('show');
+  setTimeout(() => document.getElementById('keyInput').focus(), 50);
+}
+function closeKeyModal() { document.getElementById('keyModal').classList.remove('show'); }
+function saveKey() {
+  const k = document.getElementById('keyInput').value.trim();
+  if (!k) { setKeyStatus('키를 입력하세요', 'warn'); return; }
+  if (!k.startsWith('sk-ant-')) { setKeyStatus('형식이 올바르지 않습니다 (sk-ant- 로 시작)', 'warn'); return; }
+  localStorage.setItem(KEY_STORE, k);
+  refreshKeyBtn();
+  closeKeyModal();
+}
+function setKeyStatus(msg, cls) {
+  const el = document.getElementById('keyStatus');
+  el.textContent = msg; el.className = 'key-status ' + (cls || '');
+}
+function refreshKeyBtn() {
+  const btn = document.getElementById('btn-key');
+  if (getKey()) btn.classList.remove('unset'); else btn.classList.add('unset');
+}
+async function testKey() {
+  const k = document.getElementById('keyInput').value.trim();
+  if (!k) { setKeyStatus('키를 입력하세요', 'warn'); return; }
+  setKeyStatus('테스트 중...', '');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': k,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 8, messages: [{ role: 'user', content: 'hi' }] })
+    });
+    const data = await res.json();
+    if (data.error) setKeyStatus('❌ ' + data.error.message, 'warn');
+    else setKeyStatus('✅ 연결 성공! 저장 버튼을 눌러주세요', 'ok');
+  } catch (e) { setKeyStatus('❌ ' + e.message, 'warn'); }
+}
+
+function toggle(side) {
+  if (activeSTT === side) { stopSTT(); return; }
+  stopSTT();
+  startSTT(side);
+}
+
+function startSTT(side) {
+  if (!SR) { alert('음성인식은 Chrome에서만 지원됩니다'); return; }
+  const isKo = side === 'ko';
+  rec = new SR();
+  rec.lang = isKo ? 'ko-KR' : LANGS[curLang].code;
+  rec.continuous = false;
+  rec.interimResults = true;
+  activeSTT = side;
+  setActive(side, true);
+
+  let final = '';
+  rec.onresult = e => {
+    let interim = '';
+    final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    document.getElementById('sub-' + side).textContent = '💬 ' + (final || interim);
+  };
+  rec.onend = () => {
+    setActive(side, false);
+    activeSTT = null;
+    if (final) sendText(final, side);
+  };
+  rec.onerror = e => {
+    setActive(side, false);
+    activeSTT = null;
+    document.getElementById('sub-' + side).textContent =
+      e.error === 'not-allowed' ? '❌ 마이크 권한 필요' : '❌ ' + e.error;
+  };
+  rec.start();
+}
+
+function stopSTT() {
+  if (rec) { try { rec.stop(); } catch(e){} rec = null; }
+  if (activeSTT) { setActive(activeSTT, false); activeSTT = null; }
+}
+
+function setActive(side, on) {
+  const btn  = document.getElementById('btn-' + side);
+  const wave = document.getElementById('wave-' + side);
+  const icon = document.getElementById('icon-' + side);
+  const sub  = document.getElementById('sub-' + side);
+  if (on) {
+    btn.classList.add('active');
+    wave.classList.remove('hidden');
+    icon.style.display = 'none';
+    sub.textContent = '🔴 듣는 중...';
+  } else {
+    btn.classList.remove('active');
+    wave.classList.add('hidden');
+    icon.style.display = '';
+    sub.textContent = '눌러서 말하기';
+  }
+}
+
+async function sendText(text, side) {
+  if (!text || busy) return;
+  const apiKey = getKey();
+  if (!apiKey) { openKeyModal(); setKeyStatus('먼저 API 키를 입력해야 번역됩니다', 'warn'); return; }
+  busy = true;
+  const sendBtn = document.querySelector('.btn-send');
+  if (sendBtn) sendBtn.disabled = true;
+  const isKo = side === 'ko';
+  const cfg = LANGS[curLang];
+  const srcLang = isKo ? 'Korean' : cfg.eng;
+  const tgtLang = isKo ? cfg.eng : 'Korean';
+  const tgtCode = isKo ? cfg.code : 'ko-KR';
+
+  const entry = { id: Date.now() };
+  if (isKo) entry.ko = text; else entry[curLang] = text;
+  history.push(entry);
+  renderChat();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `의료 통역. ${srcLang}→${tgtLang} 번역. 기호 없이 번역문만:\n${text}`
+        }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const translated = data.content[0].text.trim();
+    const idx = history.findIndex(h => h.id === entry.id);
+    if (idx !== -1) {
+      if (isKo) history[idx][curLang] = translated;
+      else history[idx].ko = translated;
+    }
+    if (autoSpeak) speakAuto(translated, tgtCode);
+  } catch(err) {
+    const idx = history.findIndex(h => h.id === entry.id);
+    if (idx !== -1) {
+      if (isKo) history[idx][curLang] = '❌ ' + err.message;
+      else history[idx].ko = '❌ ' + err.message;
+    }
+  }
+
+  busy = false;
+  const sendBtn2 = document.querySelector('.btn-send');
+  if (sendBtn2) sendBtn2.disabled = false;
+  renderChat();
+}
+
+function sendFromTa() {
+  const ta = document.getElementById('ta');
+  const text = ta.value.trim();
+  if (!text) return;
+  ta.value = '';
+  detectAndSend(text);
+}
+function taKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFromTa(); }
+}
+
+async function detectAndSend(text) {
+  if (!text) return;
+  const isKorean = /[\uAC00-\uD7A3]/.test(text);
+  const side = isKorean ? 'ko' : 'tgt';
+  sendText(text, side);
+}
+
+function speakAuto(text, code) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = code; u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+function speakBtn(text, code, id) {
+  if (!window.speechSynthesis) return;
+  if (ttsId === id) {
+    window.speechSynthesis.cancel(); ttsId = null;
+    document.querySelectorAll('.spk').forEach(b => b.classList.remove('on'));
+    return;
+  }
+  window.speechSynthesis.cancel();
+  document.querySelectorAll('.spk').forEach(b => b.classList.remove('on'));
+  const btn = document.getElementById(id);
+  if (btn) btn.classList.add('on');
+  ttsId = id;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = code; u.rate = 0.9;
+  u.onend = u.onerror = () => { ttsId = null; if (btn) btn.classList.remove('on'); };
+  window.speechSynthesis.speak(u);
+}
+
+function renderChat() {
+  const chat = document.getElementById('chat');
+  const cfg = LANGS[curLang];
+  if (history.length === 0) {
+    chat.innerHTML = `<div class="empty">
+      <div class="ico">🎙️</div>
+      <div class="txt">아래 버튼을 눌러 말하면<br>자동으로 번역됩니다<br><br>
+      <span style="color:#1d4ed8;font-weight:700">🇰🇷 한국어</span> — 원장님<br>
+      <span style="color:#7c3aed;font-weight:700">${cfg.flag} ${cfg.name}</span> — 환자</div>
+    </div>`;
+    return;
+  }
+  chat.innerHTML = '';
+  history.forEach((entry, i) => {
+    const koText  = entry.ko;
+    const tgtText = entry[curLang];
+    const g = document.createElement('div');
+    g.className = 'msg-group';
+
+    if (koText) {
+      const err = koText.startsWith('❌');
+      const id = `sk${i}`;
+      g.innerHTML += `<div class="msg-row left">
+        <div class="flag">🇰🇷</div>
+        <div class="bubble ${err?'berr':'bko'}">${esc(koText)}</div>
+        ${!err?`<button class="spk" id="${id}" onclick="speakBtn('${ea(koText)}','ko-KR','${id}')">🔊</button>`:''}
+      </div>`;
+    } else {
+      g.innerHTML += `<div class="msg-row left"><div class="flag">🇰🇷</div><div class="bubble bpend">번역 중...</div></div>`;
+    }
+
+    if (tgtText) {
+      const err = tgtText.startsWith('❌');
+      const id = `st${i}`;
+      g.innerHTML += `<div class="msg-row right">
+        ${!err?`<button class="spk" id="${id}" onclick="speakBtn('${ea(tgtText)}','${cfg.code}','${id}')">🔊</button>`:''}
+        <div class="bubble ${err?'berr':'btgt'}">${esc(tgtText)}</div>
+        <div class="flag">${cfg.flag}</div>
+      </div>`;
+    } else {
+      g.innerHTML += `<div class="msg-row right"><div class="bubble bpend">번역 중...</div><div class="flag">${cfg.flag}</div></div>`;
+    }
+
+    chat.appendChild(g);
+  });
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function switchLang(lang, el) {
+  curLang = lang;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  stopSTT();
+  const cfg = LANGS[lang];
+  document.getElementById('label-tgt').textContent = cfg.flag + ' ' + cfg.name;
+  renderChat();
+}
+
+function clearAll() {
+  if (!confirm('대화 내용을 모두 삭제할까요?')) return;
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  history = []; stopSTT(); renderChat();
+}
+
+function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function ea(t) { return t.replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
+
+document.getElementById('keyModal').addEventListener('click', e => {
+  if (e.target.id === 'keyModal') closeKeyModal();
+});
+document.getElementById('keyInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveKey();
+});
+
+refreshKeyBtn();
+if (!getKey()) openKeyModal();
+renderChat();
+</script>
+</body>
+</html>
