@@ -280,15 +280,71 @@ function App(){
   };
 
   const reportHtml=()=>{
-    const body=rows.map((r)=>`<tr><td>${esc(r.a)}</td><td>${esc(r.b)}</td><td>${esc(r.c)}</td><td class="r">${fmt(r.val)}</td><td>원</td></tr>`).join("");
-    const note=meta.비고?`<div style="margin-top:10px;color:#444">비고: ${esc(meta.비고)}</div>`:"";
-    const recv=receivOpen.length?`<div style="margin-top:12px"><b>특이사항 — 미수(받을 돈) ${receivOpen.length}건 · 합계 ${won(receivSum)}</b><table style="margin-top:4px">${receivOpen.map((r)=>`<tr><td>${esc(r.발생일||"-")}</td><td>${esc(r.환자||"-")}${r.carried?" (이월)":""}</td><td>${esc(r.메모||"")}</td><td class="r">${won(num(r.금액))}</td></tr>`).join("")}</table></div>`:"";
-    return `<h2 style="margin:0 0 2px">아크로한의원 일일결산 보고서</h2><div style="color:#555;margin-bottom:10px">날짜 ${esc(dateLabel(parsed.date)||"-")} &nbsp;&nbsp; 담당자 : ${esc(meta.담당자||"-")}</div><table>${body}</table>${note}${recv}`;
+    const secRows=rows.map((r)=>{
+      const isCum=r.key==="cum";
+      const isSafe=r.key==="safe";
+      const cls=isCum?"cum":(isSafe?"safe":"");
+      return `<tr class="${cls}"><td class="sec">${esc(r.a)}</td><td>${esc(r.b)}</td><td class="sub">${esc(r.c)}</td><td class="amt">${fmt(r.val)}</td><td class="won">원</td></tr>`;
+    }).join("");
+    const recv=receivOpen.length?`<div class="box"><div class="box-h">특이사항 · 미수(받을 돈) — ${receivOpen.length}건 / 합계 ${won(receivSum)}</div><table class="mini">${receivOpen.map((r)=>`<tr><td style="width:90px">${esc(r.발생일||"-")}</td><td style="width:90px">${esc(r.환자||"-")}${r.carried?' <span class="tag">이월</span>':""}</td><td>${esc(r.메모||"")}</td><td class="amt">${won(num(r.금액))}</td></tr>`).join("")}</table></div>`:"";
+    const note=meta.비고?`<div class="box"><div class="box-h">비고</div><div class="box-b">${esc(meta.비고)}</div></div>`:"";
+    const approve=`<table class="approve"><tr><td class="ah">대표원장</td></tr><tr><td class="asign"></td></tr></table>`;
+    return `
+<div class="rpt">
+  <div class="top">
+    <div class="title">
+      <div class="clinic">아크로한의원</div>
+      <h1>일일결산 보고서</h1>
+      <div class="meta">날짜 <b>${esc(dateLabel(parsed.date)||"-")}</b> &nbsp;·&nbsp; 담당자 <b>${esc(meta.담당자||"-")}</b></div>
+    </div>
+    ${approve}
+  </div>
+  <table class="main">
+    <colgroup><col style="width:22%"><col style="width:24%"><col style="width:16%"><col><col style="width:34px"></colgroup>
+    <tbody>${secRows}</tbody>
+  </table>
+</div>`;
   };
   const printReport=()=>{
-    const w=window.open("","_blank","width=720,height=900");
+    const w=window.open("","_blank","width=820,height=1000");
     if(!w){ alert("팝업이 차단되었습니다. 팝업을 허용해 주세요."); return; }
-    w.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>${esc(dateLabel(parsed.date)||"일일결산")}</title><style>body{font-family:-apple-system,'Malgun Gothic',sans-serif;font-size:13px;padding:20px;color:#111}table{border-collapse:collapse;width:100%;max-width:560px}td{border-bottom:1px solid #eee;padding:4px 8px}td.r{text-align:right;font-weight:600}h2{font-size:18px}</style></head><body>${reportHtml()}<` + `script>window.onload=function(){window.print()}<` + `/script></body></html>`);
+    const css=`
+@page { size: A4; margin: 14mm 14mm; }
+* { box-sizing: border-box; }
+body { font-family: 'Pretendard','Malgun Gothic','Apple SD Gothic Neo',-apple-system,sans-serif; color:#111; margin:0; }
+.bar { position:sticky; top:0; background:#f3f4f6; border-bottom:1px solid #ddd; padding:8px 14px; text-align:right; }
+.bar button { font-size:13px; padding:6px 14px; border:0; border-radius:6px; background:#111; color:#fff; cursor:pointer; }
+.rpt { max-width:182mm; margin:0 auto; padding:16px 4px; }
+.top { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #111; padding-bottom:10px; margin-bottom:14px; }
+.clinic { font-size:12px; color:#000; letter-spacing:1px; }
+.title h1 { font-size:22px; margin:2px 0 6px; letter-spacing:1px; }
+.meta { font-size:12px; color:#000; }
+.approve { border-collapse:collapse; }
+.approve td { border:1px solid #000; text-align:center; }
+.approve .ah { font-size:11px; color:#000; padding:3px 14px; border-bottom:1px solid #000; }
+.approve .asign { height:52px; width:120px; }
+.main { width:100%; border-collapse:collapse; font-size:12.5px; }
+.main td { border-bottom:1px solid #ececec; padding:5px 8px; }
+.main .sec { font-weight:700; color:#000; }
+.main .sub { color:#000; }
+.main .amt { text-align:right; font-weight:600; font-variant-numeric:tabular-nums; }
+.main .won { color:#000; padding-left:0; }
+.main tr.cum { background:#fff; }
+.main tr.cum td { font-weight:700; border-top:1.2px solid #000; border-bottom:1px solid #000; }
+.main tr.safe .amt { color:#000; }
+.box { margin-top:14px; border:1px solid #d8b24a; border-radius:6px; overflow:hidden; }
+.box-h { background:#fdf6e3; color:#7a5c00; font-weight:700; font-size:12px; padding:6px 10px; border-bottom:1px solid #ecd9a0; }
+.box-b { padding:8px 10px; font-size:12.5px; color:#333; }
+.mini { width:100%; border-collapse:collapse; font-size:12px; }
+.mini td { padding:5px 10px; border-bottom:1px solid #f0e6c8; }
+.mini .amt { text-align:right; font-weight:600; }
+.tag { font-size:10px; background:#fbe3e3; color:#c0392b; padding:0 4px; border-radius:3px; }
+.sign { margin-top:34px; text-align:right; }
+.sign-txt { font-size:12px; color:#555; margin-bottom:18px; }
+.sign-line { font-size:14px; font-weight:600; border-top:1px solid #111; display:inline-block; padding-top:8px; min-width:330px; text-align:left; }
+@media print { .bar { display:none; } body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } .rpt { padding:0; } }
+`;
+    w.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>${esc(dateLabel(parsed.date)||"일일결산")} 일일결산</title><style>${css}</style></head><body><div class="bar"><button onclick="window.print()">🖨 인쇄 / PDF 저장</button></div>${reportHtml()}<` + `script>window.onload=function(){setTimeout(function(){window.print();},250);};<` + `/script></body></html>`);
     w.document.close();
   };
 
@@ -419,10 +475,10 @@ function App(){
                 <span className="text-xs text-gray-500 ml-2">{won(expenseSum)}</span>
                 <div className="text-xs font-medium text-gray-600 mb-1 mt-3">환불</div>
                 {refunds.map((r,i)=>(
-                  <div key={i} className="flex gap-1.5 mb-1.5">
-                    <input value={r.memo} onChange={(ev)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,memo:ev.target.value}:x)))} placeholder="환자/사유" className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />
+                  <div key={i} className="flex flex-wrap gap-1.5 mb-1.5">
+                    <input value={r.memo} onChange={(ev)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,memo:ev.target.value}:x)))} placeholder="환자/사유" className="flex-1 min-w-[120px] px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />
                     <select value={r.way} onChange={(ev)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,way:ev.target.value}:x)))} className="px-1 py-1.5 border border-gray-300 rounded text-xs bg-white"><option>카드취소</option><option>계좌입금</option></select>
-                    <div className="w-20"><NumInput value={r.amt} onChange={(v)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,amt:v}:x)))} /></div>
+                    <div className="w-28"><NumInput value={r.amt} onChange={(v)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,amt:v}:x)))} /></div>
                     <button onClick={()=>setRefunds((p)=>p.filter((_,j)=>j!==i))} className="px-1 text-gray-400 hover:text-rose-500">✕</button>
                   </div>
                 ))}
@@ -570,7 +626,7 @@ function App(){
             </Card>
           </Step>
         </div>
-        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v13 (시트 자동탐지 · 권종 전일값)</div>
+        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v15 (인쇄 흑백 · 원장 결재 1칸)</div>
       </div>
     </div>
   );
