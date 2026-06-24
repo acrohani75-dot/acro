@@ -2809,7 +2809,99 @@ Could you please re-confirm your shipping address?</div>
                 <td style="padding:6px 12px 6px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">입력</td>
                 <td style="padding:6px 0;font-size:14px;">
                   <span style="display:inline-block;background:#e3f2fd;border-radius:4px;padding:2px 8px;margin:2px 4px 2px 0;font-weight:700;color:#1565c0;">비서류</span> 체크<br>
-                  환자 국가 입력 &nbsp;/&nbsp; 통수 &nbsp;/&nbsp; <strong>실중량 / 부피중량</strong>
+                  환자 국가 입력 &nbsp;/&nbsp; 통수(박스 갯수) &nbsp;/&nbsp; <strong>실중량(하단 참고) / 부피중량(하단 참고)</strong><br>
+                  <div style="margin-top:10px;padding:8px 12px;background:#fff3cd;border-left:3px solid #ffc107;border-radius:2px;color:#856404;font-weight:700;font-size:13px;">⚠️ 계산된 무게보다 넉넉히 받을 것!</div>
+                  <div style="margin-top:10px;font-size:12px;">
+                    <div style="margin-bottom:6px;"><strong>※실중량</strong></div>
+                    <div style="display:flex;gap:0;margin-bottom:8px;">
+                      <!-- 좌측: 패키지 무게 -->
+                      <div style="flex:1;padding-right:0;">
+                        <div style="font-size:11px;color:#666;margin-bottom:2px;"><strong>▪ 패키지 무게</strong></div>
+                        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                          <tr style="background:#f5f5f5;border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;font-weight:600;">패키지</td>
+                            <td style="padding:2px 3px;font-weight:600;">무게</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">1개월</td>
+                            <td style="padding:2px 3px;">707g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;background:#fafafa;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">2개월</td>
+                            <td style="padding:2px 3px;">1,182g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">3개월</td>
+                            <td style="padding:2px 3px;">1,552g</td>
+                          </tr>
+                        </table>
+                      </div>
+                      <!-- 우측: 개별 무게 -->
+                      <div style="flex:1;padding-left:0;">
+                        <div style="font-size:11px;color:#666;margin-bottom:2px;"><strong>▪ 개별 무게(g)</strong></div>
+                        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                          <tr style="background:#f5f5f5;border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;font-weight:600;">제품명</td>
+                            <td style="padding:2px 3px;font-weight:600;">무게</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">비움환</td>
+                            <td style="padding:2px 3px;">12g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;background:#fafafa;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">D캡슐</td>
+                            <td style="padding:2px 3px;">25g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">편안환</td>
+                            <td style="padding:2px 3px;">105g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;background:#fafafa;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">수면환</td>
+                            <td style="padding:2px 3px;">110g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">S캡슐</td>
+                            <td style="padding:2px 3px;">120g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;background:#fafafa;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">S캡슐박스</td>
+                            <td style="padding:2px 3px;">25g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">책자</td>
+                            <td style="padding:2px 3px;">70g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;background:#fafafa;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">종이2장</td>
+                            <td style="padding:2px 3px;">15g</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:2px 3px;border-right:1px solid #ddd;">비닐봉투</td>
+                            <td style="padding:2px 3px;">15g</td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="margin-top:10px;font-size:12px;">
+
+                    <div style="margin-top:8px;"><strong>※부피중량</strong></div>
+                    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                      <tr style="background:#f5f5f5;border:1px solid #ddd;">
+                        <td style="padding:6px 8px;border-right:1px solid #ddd;font-weight:600;">분류</td>
+                        <td style="padding:6px 8px;font-weight:600;">크기 (cm)</td>
+                      </tr>
+                      <tr style="border:1px solid #ddd;">
+                        <td style="padding:6px 8px;border-right:1px solid #ddd;">재접수</td>
+                        <td style="padding:6px 8px;">27×18×15 (우체국 2호)</td>
+                      </tr>
+                      <tr style="border:1px solid #ddd;background:#fafafa;">
+                        <td style="padding:6px 8px;border-right:1px solid #ddd;">초진</td>
+                        <td style="padding:6px 8px;">34×25×2 (우체국 3호)</td>
+                      </tr>
+                    </table>
+                  </div>
                 </td>
               </tr>
               <tr style="background:#fff;">
@@ -2935,7 +3027,79 @@ Could you please re-confirm your shipping address?</div>
                   <table style="border-collapse:collapse;font-size:14px;width:100%;margin-top:4px;">
                     <tr style="background:#e3f2fd;"><th style="padding:6px 10px;text-align:left;">항목</th><th style="padding:6px 10px;text-align:left;">입력 방법</th></tr>
                     <tr style="border-bottom:1px solid #e3f2fd;"><td style="padding:7px 10px;font-weight:700;">물품 구분</td><td style="padding:7px 10px;">"상품" 선택</td></tr>
-                    <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;"><td style="padding:7px 10px;font-weight:700;">개수 & 무게</td><td style="padding:7px 10px;">환자의 <strong>약 개월수</strong>에 맞춰 정확히 입력</td></tr>
+                    <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;"><td style="padding:7px 10px;font-weight:700;vertical-align:top;">개수 & 무게</td><td style="padding:7px 10px;">
+                      환자의 <strong>약 개월수</strong>에 맞춰 정확히 입력<br><br>
+                      <div style="display:flex;gap:0;font-size:11px;">
+                        <!-- 좌측: 패키지 무게 -->
+                        <div style="flex:1;padding-right:0;">
+                          <div style="color:#666;margin-bottom:2px;"><strong>▪ 패키지 무게</strong></div>
+                          <table style="width:100%;border-collapse:collapse;font-size:10px;">
+                            <tr style="background:#f5f5f5;border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-weight:600;font-size:10px;">패키지</td>
+                              <td style="padding:2px 3px;font-weight:600;font-size:10px;">무게</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">1개월</td>
+                              <td style="padding:2px 3px;font-size:10px;">707g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;background:#fafafa;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">2개월</td>
+                              <td style="padding:2px 3px;font-size:10px;">1,182g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">3개월</td>
+                              <td style="padding:2px 3px;font-size:10px;">1,552g</td>
+                            </tr>
+                          </table>
+                        </div>
+                        <!-- 우측: 개별 무게 -->
+                        <div style="flex:1;padding-left:0;">
+                          <div style="color:#666;margin-bottom:2px;"><strong>▪ 개별 무게(g)</strong></div>
+                          <table style="width:100%;border-collapse:collapse;font-size:10px;">
+                            <tr style="background:#f5f5f5;border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-weight:600;font-size:10px;">제품명</td>
+                              <td style="padding:2px 3px;font-weight:600;font-size:10px;">무게</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">비움환</td>
+                              <td style="padding:2px 3px;font-size:10px;">12g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;background:#fafafa;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">D캡슐</td>
+                              <td style="padding:2px 3px;font-size:10px;">25g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">편안환</td>
+                              <td style="padding:2px 3px;font-size:10px;">105g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;background:#fafafa;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">수면환</td>
+                              <td style="padding:2px 3px;font-size:10px;">110g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">S캡슐</td>
+                              <td style="padding:2px 3px;font-size:10px;">120g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;background:#fafafa;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">S캡슐박스</td>
+                              <td style="padding:2px 3px;font-size:10px;">25g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">책자</td>
+                              <td style="padding:2px 3px;font-size:10px;">70g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;background:#fafafa;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">종이2장</td>
+                              <td style="padding:2px 3px;font-size:10px;">15g</td>
+                            </tr>
+                            <tr style="border:1px solid #ddd;">
+                              <td style="padding:2px 3px;border-right:1px solid #ddd;font-size:10px;">비닐봉투</td>
+                              <td style="padding:2px 3px;font-size:10px;">15g</td>
+                            </tr>
+                          </table>
+                        </div>
+                      </div>
+                    </td>
                     <tr><td style="padding:7px 10px;font-weight:700;">총 금액(Value)</td><td style="padding:7px 10px;">차트 <strong>[패키지메모]</strong> 또는 [간호사 메모]의 <strong>한약 총액만</strong> (EMS 비용 제외)</td></tr>
                   </table>
                   <div style="margin-top:8px;color:#1565c0;">➡️ 모든 항목 입력 후 <strong>[내역추가]</strong> 버튼 클릭</div>
@@ -3020,8 +3184,60 @@ Could you please re-confirm your shipping address?</div>
 
           <!-- (2) 배송비 계산 -->
           <div style="background:#f5eeff;border-left:4px solid var(--rb);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;">
-            <div style="font-size:16px;font-weight:800;color:var(--rb);margin-bottom:8px;">(2) 우리가 대략 배송비 계산</div>
-            <div style="font-size:15px;">환자 국가 + 예상 무게 기준 → <strong>예상 배송비 계산</strong><br>프로그램비 + 예상 배송비 = <strong>예상 총액</strong></div>
+            <div style="font-size:16px;font-weight:800;color:var(--rb);margin-bottom:10px;">(2) 우리가 대략 배송비 계산</div>
+            <table style="border-collapse:collapse;width:100%;font-size:15px;">
+              <tr style="border-bottom:1px solid #e3dcf0;">
+                <td style="padding:6px 12px 6px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">사이트</td>
+                <td style="padding:6px 0;"><a href="https://www.epost.go.kr/main.retrieveMainPage.comm" target="_blank" style="color:#8e24aa;text-decoration:underline;font-weight:600;">https://www.epost.go.kr</a></td>
+              </tr>
+              <tr style="border-bottom:1px solid #e3dcf0;background:#faf8fc;">
+                <td style="padding:6px 12px 6px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">메뉴</td>
+                <td style="padding:6px 0;font-size:14px;">우측 중앙 <strong>국내/국제 우편요금 조회</strong> → <strong>국제우편</strong> → <strong>EMS</strong> 선택</td>
+              </tr>
+              <tr style="border-bottom:1px solid #e3dcf0;background:#fff;">
+                <td style="padding:6px 12px 6px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">입력</td>
+                <td style="padding:6px 0;font-size:14px;">
+                  <span style="display:inline-block;background:#f3e5f5;border-radius:4px;padding:2px 8px;margin:2px 4px 2px 0;font-weight:700;color:#8e24aa;">비서류</span> 체크<br>
+                  환자 국가 입력 &nbsp;/&nbsp; 통수(박스 갯수) &nbsp;/&nbsp; <strong>실중량(하단 참고) / 부피중량(하단 참고)</strong><br>
+                  <div style="margin-top:10px;font-size:12px;">
+                    <div style="display:flex;gap:0;">
+                      <!-- 좌측: 실중량 -->
+                      <div style="flex:1;padding-right:0;">
+                        <div style="margin-bottom:6px;"><strong>※실중량</strong></div>
+                        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                          <tr style="background:#f5f5f5;border:1px solid #ddd;">
+                            <td style="padding:4px 6px;border-right:1px solid #ddd;font-weight:600;">분류</td>
+                            <td style="padding:4px 6px;font-weight:600;">무게</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:4px 6px;border-right:1px solid #ddd;">1개월 분량(90포)</td>
+                            <td style="padding:4px 6px;">약 12kg</td>
+                          </tr>
+                        </table>
+                      </div>
+                      <!-- 우측: 부피중량 -->
+                      <div style="flex:1;padding-left:0;">
+                        <div style="margin-bottom:6px;"><strong>※부피중량</strong></div>
+                        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                          <tr style="background:#f5f5f5;border:1px solid #ddd;">
+                            <td style="padding:4px 6px;border-right:1px solid #ddd;font-weight:600;">박스 크기</td>
+                            <td style="padding:4px 6px;font-weight:600;">cm</td>
+                          </tr>
+                          <tr style="border:1px solid #ddd;">
+                            <td style="padding:4px 6px;border-right:1px solid #ddd;">가로×세로×높이</td>
+                            <td style="padding:4px 6px;">50 × 40 × 35</td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr style="background:#fff;">
+                <td style="padding:6px 12px 6px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">확인</td>
+                <td style="padding:6px 0;font-size:14px;">EMS 배송료 확인 (예: ₩50,000)</td>
+              </tr>
+            </table>
           </div>
 
           <!-- (3) 스마트로 -->
