@@ -98,6 +98,7 @@ function App(){
   const [auditing,setAuditing]=useState(false);
   const [flags,setFlags]=useState(null);
   const [auditErr,setAuditErr]=useState("");
+  const PROXY_URL="https://script.google.com/macros/s/AKfycby4b8Y1P30dJeVLP9L5zd1-HI6c1iLEHVT_d_sVKu0zPfRrRsrDFVvnfgA5d4rXTRG4Gg/exec";
   const [log,setLog]=useState({done:"",mistakes:"",issues:""});
   const [logLedger,setLogLedger]=useState([]);
 
@@ -260,16 +261,16 @@ function App(){
   };
 
   const runAudit=async()=>{
-    if(!apiKey.trim()){ setAuditErr("API 키를 입력하세요."); return; }
     setAuditing(true); setAuditErr(""); setFlags(null);
     try{
       const pl=parsed.patients.filter((p)=>num(p["총진료비"])||num(p["수납총액"])||num(p["환불총액"])).map((p)=>`${p["환자이름"]}/${p["진료의"]}: 진료비 ${num(p["총진료비"])}, 수납 ${num(p["수납총액"])} [카드 ${num(p["카드수납"])}, 통장 ${num(p["통장회수"])}, 현금 ${num(p["현금수납"])}, 환불 ${num(p["환불총액"])}]`).join("\n");
       const failed=checks.filter((c)=>c.entered&&c.ext-c.ok!==0).map((c)=>`${c.label} 차이 ${c.ext-c.ok}`).join("; ")||"없음";
       const chatBlock=chats.filter((c)=>(c.body||"").trim()).map((c,i)=>`=== 채팅창 [${c.name||"이름없음 "+(i+1)}] ===\n${c.body}`).join("\n\n")||"(없음)";
       const prompt=`당신은 한의원 일일결산 검수 보조입니다. 여러 업무 채팅창과 결산 데이터를 대조해 "검수에서 사람이 다시 봐야 할 의심 항목"만 찾습니다.\n\n[규칙]\n- 합계·산수는 이미 검증됨. 다시 계산하지 말 것.\n- 확실한 근거가 있는 것만. 추측 금지. 없으면 빈 배열 [].\n- 어느 채팅창에서 나온 근거인지 채팅창이름을 반드시 명시.\n- 근거가 된 원문 라인을 그대로 인용.\n- 유형: 누락 / 금액이상 / 결제수단불일치 / 채팅간상충 / 정정착오언급 / 기타\n\n[참고 표준가] 다이어트 한약 초진 580,000 · 재접수 480,000 (그 외 시술·가격 다양, 단순참고)\n[결정적검증 불일치 단서] ${failed}\n\n[OK차트 환자별 수납]\n${pl||"(없음)"}\n\n[업무 채팅창들]\n${chatBlock}\n\nJSON 배열만 출력(설명·마크다운·코드펜스 금지): [{"채팅창":"","환자":"","유형":"","무엇이":"","근거":"","대조":"","조치":""}]`;
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey.trim(),"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})});
-      if(!res.ok){ const t=await res.text(); throw new Error(`API ${res.status} — ${t.slice(0,160)}`); }
+      const res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({prompt:prompt})});
+      if(!res.ok){ const t=await res.text(); throw new Error(`서버 ${res.status} — ${t.slice(0,160)}`); }
       const data=await res.json();
+      if(data.error){ throw new Error(data.error); }
       const text=(data.content||[]).filter((i)=>i.type==="text").map((i)=>i.text).join("\n");
       const clean=text.replace(/```json|```/g,"").trim();
       let arr; try{ arr=JSON.parse(clean); }catch{ arr=JSON.parse(clean.slice(clean.indexOf("["),clean.lastIndexOf("]")+1)); }
@@ -456,11 +457,7 @@ function App(){
             </Card>
 
             <Card title="AI 검수" sub="여러 채팅창 ↔ 결산 대조 (안 맞을 때)" accent={decision==="bad"?"border-2 border-sky-400":"border-gray-200"}>
-              <div className="mb-2">
-                <div className="flex items-center justify-between mb-1"><span className="text-xs font-medium text-gray-600">Anthropic API 키 <span className="text-gray-400">(검수할 때만)</span></span><button onClick={()=>setShowKey((v)=>!v)} className="text-[11px] text-sky-600">{showKey?"숨기기":"보기"}</button></div>
-                <input type={showKey?"text":"password"} value={apiKey} onChange={(e)=>setApiKey(e.target.value)} placeholder="sk-ant-..." className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm font-mono focus:outline-none focus:border-sky-400" />
-                <div className="text-[11px] text-gray-400 mt-0.5">키는 이 화면 메모리에만 있고 저장되지 않습니다.</div>
-              </div>
+              <div className="mb-2 text-[11px] text-gray-500 bg-gray-50 rounded p-2">키 입력 없이 바로 사용할 수 있습니다. (원장님 계정으로 안전하게 처리됩니다)</div>
               <div className="text-xs font-medium text-gray-600 mb-1">검수 채팅창 ({chatCount}개)</div>
               {chats.map((c,i)=>(
                 <div key={i} className="mb-2 border border-gray-200 rounded p-2">
@@ -469,7 +466,7 @@ function App(){
                 </div>
               ))}
               <button onClick={()=>setChats((p)=>[...p,{name:"",body:""}])} className="text-xs px-2 py-1 rounded bg-sky-100 text-sky-700 hover:bg-sky-200 font-medium">+ 채팅창 추가</button>
-              <button onClick={runAudit} disabled={!parsed.ok||auditing||!apiKey.trim()} className={"mt-3 w-full py-2.5 rounded font-bold text-sm "+(parsed.ok&&!auditing&&apiKey.trim()?"bg-sky-600 text-white hover:bg-sky-700":"bg-gray-200 text-gray-400 cursor-not-allowed")}>{auditing?"검수 중…":"AI 검수 실행"}</button>
+              <button onClick={runAudit} disabled={!parsed.ok||auditing} className={"mt-3 w-full py-2.5 rounded font-bold text-sm "+(parsed.ok&&!auditing?"bg-sky-600 text-white hover:bg-sky-700":"bg-gray-200 text-gray-400 cursor-not-allowed")}>{auditing?"검수 중…":"AI 검수 실행"}</button>
               {auditErr && <div className="text-xs text-rose-500 mt-2">{auditErr}</div>}
             </Card>
 
