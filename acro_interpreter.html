@@ -185,13 +185,13 @@ function App(){
     setReceivables([{발생일:"2026-06-20",환자:"김미수",금액:"150000",메모:"카드 한도 초과, 다음주 결제 예정",해결:false,carried:true},{발생일:"2026-06-23",환자:"양지영",금액:"729000",메모:"잔액 미수 - 통장 입금 예정",해결:false,carried:false}]);
   };
 
-  const copyPrevDenom=()=>{
-    if(!ledger.length) return;
-    const last=ledger[ledger.length-1];
-    const nd={}; let residual=num(last.etc);
-    DENOMS.forEach((d)=>{ const amt=num(last["d"+d]); const cnt=Math.floor(amt/d); nd[d]=cnt?String(cnt):""; residual+=amt-cnt*d; });
-    setDenom(nd); setEtc(residual?String(residual):"");
+  const denomFromRow=(row)=>{
+    const nd={}; let residual=num(row.etc);
+    DENOMS.forEach((d)=>{ const amt=num(row["d"+d]); const cnt=Math.floor(amt/d); nd[d]=cnt?String(cnt):""; residual+=amt-cnt*d; });
+    return {nd, etc: residual?String(residual):""};
   };
+  const applyPrevDenom=(row)=>{ const {nd,etc}=denomFromRow(row); setDenom(nd); setEtc(etc); };
+  const copyPrevDenom=()=>{ if(!ledger.length) return; applyPrevDenom(ledger[ledger.length-1]); };
 
   const handleFile=(e)=>{
     const f=e.target.files&&e.target.files[0]; if(!f) return;
@@ -207,7 +207,8 @@ function App(){
         if(cs){ const ca=XLSX.utils.sheet_to_json(cs,{header:1}); const led=[];
           for(const r of ca){ const d0=String(r[0]||"").trim(); if(!/\d/.test(d0)||d0==="날짜"||d0==="시재관리") continue;
             led.push({date:d0,open:num(r[1]),cashIn:num(r[2]),out:num(r[3]),close:num(r[4]),note:r[5]||"",d50000:num(r[6]),d10000:num(r[7]),d5000:num(r[8]),d1000:num(r[9]),d500:num(r[10]),d100:num(r[11]),d50:num(r[12]),etc:num(r[13]),total:num(r[14])}); }
-          setLedger(led); ledLast=led.length?led[led.length-1]:null; }
+          setLedger(led); ledLast=led.length?led[led.length-1]:null;
+          if(ledLast) applyPrevDenom(ledLast); }
         const ls=wb.Sheets["업무로그"];
         if(ls){ const la=XLSX.utils.sheet_to_json(ls,{header:1}); const blocks=[]; let cur=null;
           for(const r of la){ const line=(r[0]==null?"":String(r[0])); const m=line.match(/^\[일자 (\d{4}-\d{2}-\d{2})\]/); if(m){ cur={date:m[1],lines:[line]}; blocks.push(cur); } else if(cur){ cur.lines.push(line); } }
@@ -228,7 +229,7 @@ function App(){
           전일카드수입:monthStart?"0":card!=null?String(card):"",
           전일매출:monthStart?"0":sales!=null?String(sales):"",
         });
-        setLoadMsg(`✓ 불러옴 — 전일금고 ${fmt(prevSafe)}${cs?" · 시재원장 적재됨":""}${rs?" · 미수 이월됨":""}${monthStart?" (월초: 누계 리셋)":""}`);
+        setLoadMsg(`✓ 불러옴 — 전일금고 ${fmt(prevSafe)}${cs?" · 시재원장 적재됨":""}${ledLast?" · 권종 전일값 세팅(수정 가능)":""}${rs?" · 미수 이월됨":""}${monthStart?" (월초: 누계 리셋)":""}`);
       }catch(err){ setLoadMsg("⚠️ 읽기 실패: "+err.message); }
       e.target.value="";
     };
@@ -375,7 +376,7 @@ function App(){
                   <Field label="실제 통장 입금액" hint="잔디 입금문자 합계"><NumInput value={cmp.통장입금} onChange={(v)=>setCmp((p)=>({...p,통장입금:v}))} /></Field>
                 </div>
               </Card>
-              <Card title="금고 권종 (마감 실측)" right={<button onClick={copyPrevDenom} disabled={!ledger.length} className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-40">전일과 동일</button>}>
+              <Card title="금고 권종 (마감 실측)" sub="전일값이 기본 세팅 — 바뀐 권종만 수정" right={<button onClick={copyPrevDenom} disabled={!ledger.length} className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-40">전일과 동일</button>}>
                 <div className="grid grid-cols-4 gap-2">
                   {DENOMS.map((d)=>(
                     <div key={d}>
@@ -558,7 +559,7 @@ function App(){
             </Card>
           </Step>
         </div>
-        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v11 (미수 추적 · Opus 검수)</div>
+        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v12 (권종 전일값 자동세팅)</div>
       </div>
     </div>
   );
