@@ -27,7 +27,7 @@ input.tab{display:none;}
 #t2:checked~.wrap .tab-nav label[for=t2],
 #t3:checked~.wrap .tab-nav label[for=t3],
 #t4:checked~.wrap .tab-nav label[for=t4],
-#t5:checked~.wrap .tab-nav label[for=t5]{color:var(--green);border-bottom-color:var(--green-l);background:#f0faf4;}
+#t5:checked~.wrap .tab-nav label[for=t5],
 .page{display:none;}
 #t0:checked~.wrap .p0{display:block;}
 #t1:checked~.wrap .p1{display:block;}
@@ -57,6 +57,19 @@ input.lng{display:none;}
 
 /* ── CASE RADIO (내원 케이스) ── */
 input.case{display:none;}
+input.ecase{display:none;}
+.ecase-nav{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.ecase-nav label{padding:9px 18px;border-radius:24px;font-size:12.5px;font-weight:800;cursor:pointer;border:2px solid transparent;opacity:.5;transition:all .2s;letter-spacing:.2px;}
+.ecase-nav label.e1{background:#1976d2;color:#fff;border-color:#1976d2;}
+.ecase-nav label.e2{background:#7b1fa2;color:#fff;border-color:#7b1fa2;}
+.ecase-nav label.e3{background:#b5451b;color:#fff;border-color:#b5451b;}
+#ea:checked~.wrap .p5 .ecase-nav label[for=ea],
+#eb:checked~.wrap .p5 .ecase-nav label[for=eb],
+#ec:checked~.wrap .p5 .ecase-nav label[for=ec]{opacity:1;box-shadow:0 3px 12px rgba(0,0,0,.25);transform:translateY(-1px);}
+.epage{display:none;}
+#ea:checked~.wrap .p5 .ea{display:block;}
+#eb:checked~.wrap .p5 .eb{display:block;}
+#ec:checked~.wrap .p5 .ec{display:block;}
 .case-nav{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
 .case-nav label{padding:9px 18px;border-radius:24px;font-size:12.5px;font-weight:800;cursor:pointer;border:2px solid transparent;opacity:.5;transition:all .2s;letter-spacing:.2px;}
 .case-nav label.c1{background:var(--case1);color:#fff;border-color:var(--case1);}
@@ -221,6 +234,9 @@ input.rcase{display:none;}
 </head>
 <body>
 
+<input class="ecase" type="radio" name="ecase" id="ea" checked>
+<input class="ecase" type="radio" name="ecase" id="eb">
+<input class="ecase" type="radio" name="ecase" id="ec">
 <!-- RADIOS (모두 body 최상단) -->
 <input class="tab" type="radio" name="tab" id="t0" checked>
 <input class="tab" type="radio" name="tab" id="t1">
@@ -265,7 +281,7 @@ input.rcase{display:none;}
   <label for="t2">루트B 비대면</label>
   <label for="t3">루트C 재진</label>
   <label for="t4">복용 관리</label>
-  <label for="t5">빠른 참조</label>
+  <label for="t5">해외배송 (EMS)</label>
 </nav>
 
 <div class="main">
@@ -2745,8 +2761,669 @@ Could you please re-confirm your shipping address?</div>
   </div>
 </div><!-- /p4 -->
 
-<!-- ══════ P5: 빠른 참조 ══════ -->
+<!-- ══════ P5: 해외배송 (EMS) ══════ -->
 <div class="page p5">
+  <div class="section">
+    <div class="sec-label">🌍 해외배송 (EMS) 완벽 가이드</div>
+
+    <!-- 필수 확인 배너 -->
+    <div class="banner a" style="background:#fffaf0;border-left:4px solid #e6a817;margin-bottom:20px;">
+      <div>
+        <div class="btitle" style="color:#b57400;font-size:18px;">⚠️ 택배 접수 전 필수 확인</div>
+        <table style="margin-top:10px;border-collapse:collapse;width:100%;">
+          <tr><td style="padding:6px 10px;font-size:15px;color:#7a5000;">✅</td><td style="padding:6px 0;font-size:15px;color:#7a5000;font-weight:700;">원내 S캡슐 재고 확인 (충분한가?)</td></tr>
+          <tr><td style="padding:6px 10px;font-size:15px;color:#7a5000;">✅</td><td style="padding:6px 0;font-size:15px;color:#7a5000;font-weight:700;">택배 도착 확인 (이미 받았는가?)</td></tr>
+          <tr><td style="padding:6px 10px;font-size:15px;color:#7a5000;">✅</td><td style="padding:6px 0;font-size:15px;color:#7a5000;font-weight:700;">환자 차트에서 EMS 신청서 작성 여부 확인 (잔디 환자 설문지 하단 참고)</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 서브탭 버튼 -->
+    <div class="ecase-nav">
+      <label for="ea" class="e1">💊 캡슐 EMS</label>
+      <label for="eb" class="e2">🫖 탕약 EMS (채움생)</label>
+      <label for="ec" class="e3">🇺🇸 미국 (배송대행)</label>
+    </div>
+
+    <!-- ─── 캡슐 ─── -->
+    <div class="epage ea">
+
+      <!-- STEP 0 -->
+      <div class="card">
+        <div class="shead a"><div class="snum a">0</div><div class="shead-txt" style="font-size:17px;"><strong>우체국 EMS 비용 조회 & 스마트로 결제</strong></div></div>
+        <div class="sbody"><div style="padding:18px 22px;font-size:15px;line-height:1.9;color:#333;">
+
+          <!-- (1) 우체국 -->
+          <div style="background:#f0f5ff;border-left:4px solid var(--ra);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:800;color:var(--ra);margin-bottom:10px;">(1) 우체국에서 EMS 비용 조회</div>
+            <table style="border-collapse:collapse;width:100%;font-size:15px;">
+              <tr>
+                <td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">사이트</td>
+                <td style="padding:5px 0;"><a href="https://www.epost.go.kr/main.retrieveMainPage.comm" target="_blank" style="color:#1565c0;text-decoration:underline;font-weight:600;">https://www.epost.go.kr</a></td>
+              </tr>
+              <tr>
+                <td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">입력</td>
+                <td style="padding:5px 0;">환자 국가 + 예상 무게</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;vertical-align:top;color:#555;">확인</td>
+                <td style="padding:5px 0;"><strong>EMS 배송료</strong> (예: ₩50,000)</td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- (2) 스마트로 -->
+          <div style="background:#f0f5ff;border-left:4px solid var(--ra);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:800;color:var(--ra);margin-bottom:10px;">(2) 스마트로에서 결제 링크 생성</div>
+            <table style="border-collapse:collapse;width:100%;font-size:15px;margin-bottom:12px;">
+              <thead><tr style="background:#dce8ff;">
+                <th style="padding:8px 12px;text-align:left;border-radius:6px 0 0 0;">구분</th>
+                <th style="padding:8px 12px;text-align:left;border-radius:0 6px 0 0;">내용</th>
+              </tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #e0e8ff;">
+                  <td style="padding:8px 12px;font-weight:700;color:#555;white-space:nowrap;">사이트</td>
+                  <td style="padding:8px 12px;"><a href="https://www.smilepay.co.kr" target="_blank" style="color:#1565c0;text-decoration:underline;font-weight:600;">www.smilepay.co.kr</a></td>
+                </tr>
+                <tr style="border-bottom:1px solid #e0e8ff;">
+                  <td style="padding:8px 12px;font-weight:700;color:#555;">ID / PW</td>
+                  <td style="padding:8px 12px;"><code style="background:#eef2ff;padding:2px 8px;border-radius:4px;">acrohani1</code> / <code style="background:#eef2ff;padding:2px 8px;border-radius:4px;">친절75!@!@</code></td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;font-weight:700;color:#555;">결제액</td>
+                  <td style="padding:8px 12px;">프로그램비 + EMS 배송료 = <strong>총 결제액</strong><br><span style="font-size:13px;color:#666;">예) ₩900,000 + ₩50,000 = ₩950,000</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="background:#fff;border:1px solid #c5d5f0;border-radius:6px;padding:12px 14px;">
+              <div style="font-weight:800;color:var(--ra);margin-bottom:8px;font-size:15px;">📋 직원 처리 순서 (카드결제)</div>
+              <table style="border-collapse:collapse;width:100%;font-size:14px;">
+                <tr><td style="padding:4px 10px 4px 0;color:#1565c0;font-weight:800;white-space:nowrap;vertical-align:top;">①</td><td style="padding:4px 0;">스마트로 접속 → 결제 링크 생성</td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#1565c0;font-weight:800;white-space:nowrap;vertical-align:top;">②</td><td style="padding:4px 0;">스마트로가 <strong>업무폰으로 결제 링크 문자 발송</strong></td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#1565c0;font-weight:800;white-space:nowrap;vertical-align:top;">③</td><td style="padding:4px 0;"><strong>업무폰에 받은 문자에서 링크만 복사</strong></td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#1565c0;font-weight:800;white-space:nowrap;vertical-align:top;">④</td><td style="padding:4px 0;"><strong>LINE으로 환자에게 전송</strong></td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#1565c0;font-weight:800;white-space:nowrap;vertical-align:top;">⑤</td><td style="padding:4px 0;">결제 완료 확인 후 <strong>매출전표 캡처 → LINE으로 전송</strong></td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- (3) 결제 완료 -->
+          <div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;padding:12px 16px;">
+            <div style="font-size:16px;font-weight:800;color:#2e7d32;">(3) 환자 결제 완료 확인 → 우체국 EMS 접수 진행 ✅</div>
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- STEP 1~5 -->
+      <div class="card">
+        <div class="shead a"><div class="snum a">1</div><div class="shead-txt" style="font-size:17px;"><strong>우체국 온라인 접수 (5단계)</strong></div></div>
+        <div class="sbody"><div style="padding:18px 22px;font-size:15px;color:#333;">
+          <table style="border-collapse:collapse;width:100%;">
+            <thead>
+              <tr style="background:var(--ra);">
+                <th style="padding:10px 14px;color:#fff;text-align:center;width:100px;border-radius:6px 0 0 0;">단계</th>
+                <th style="padding:10px 14px;color:#fff;text-align:left;border-radius:0 6px 0 0;">내용</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #e3f2fd;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--ra);font-size:16px;vertical-align:top;">STEP 1</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>우편 메뉴 접속</strong><br>
+                  우체국 로그인 → <strong>[EMS·국제우편]</strong> → <strong>[국제특급(EMS)]</strong>
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--ra);font-size:16px;vertical-align:top;">STEP 2</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>발송인(병원) 정보 확인</strong><br>
+                  기존 정보 저장되어 있음 → 이상 없는지 확인 후 <strong>[다음]</strong><br>
+                  <span style="display:inline-block;margin-top:6px;background:#ffebee;border:1px solid #ef9a9a;border-radius:6px;padding:6px 12px;color:#c62828;font-weight:800;">⚠️ [방문 접수] 절대 체크 금지 — 온라인 접수 후 운송장 출력해서 방문할 것!</span>
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid #e3f2fd;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--ra);font-size:16px;vertical-align:top;">STEP 3</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>수령인(환자) 정보 입력</strong><br>
+                  차트 → 환자 차트번호 검색 → <strong>[주치의 메모]</strong>의 EMS 신청서로 주소 확인<br>
+                  <table style="margin-top:8px;border-collapse:collapse;font-size:14px;width:100%;">
+                    <tr style="background:#e3f2fd;"><th style="padding:6px 10px;text-align:left;">항목</th><th style="padding:6px 10px;text-align:left;">입력 규칙</th></tr>
+                    <tr style="border-bottom:1px solid #e3f2fd;"><td style="padding:7px 10px;font-weight:700;">성함</td><td style="padding:7px 10px;">반드시 <strong>영문</strong>으로 기입</td></tr>
+                    <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;"><td style="padding:7px 10px;font-weight:700;">국가</td><td style="padding:7px 10px;">Country 항목 <strong>[검색]</strong> 클릭 → 국가 선택</td></tr>
+                    <tr><td style="padding:7px 10px;font-weight:700;">주소</td><td style="padding:7px 10px;">국가 양식에 맞춰 <strong>영문 주소</strong> 기입</td></tr>
+                  </table>
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--ra);font-size:16px;vertical-align:top;">STEP 4</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>세관신고서(Customs Declaration) 기입</strong><br>
+                  <span style="display:inline-block;margin:6px 0;color:#c62828;font-weight:800;">⭐ 통관을 위해 정확한 수량 & 금액 입력 필수 ⭐</span><br>
+                  <table style="border-collapse:collapse;font-size:14px;width:100%;margin-top:4px;">
+                    <tr style="background:#e3f2fd;"><th style="padding:6px 10px;text-align:left;">항목</th><th style="padding:6px 10px;text-align:left;">입력 방법</th></tr>
+                    <tr style="border-bottom:1px solid #e3f2fd;"><td style="padding:7px 10px;font-weight:700;">물품 구분</td><td style="padding:7px 10px;">"상품" 선택</td></tr>
+                    <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;"><td style="padding:7px 10px;font-weight:700;">개수 & 무게</td><td style="padding:7px 10px;">환자의 <strong>약 개월수</strong>에 맞춰 정확히 입력</td></tr>
+                    <tr><td style="padding:7px 10px;font-weight:700;">총 금액(Value)</td><td style="padding:7px 10px;">차트 <strong>[패키지메모]</strong> 또는 [간호사 메모]의 <strong>한약 총액만</strong> (EMS 비용 제외)</td></tr>
+                  </table>
+                  <div style="margin-top:8px;color:#1565c0;">➡️ 모든 항목 입력 후 <strong>[내역추가]</strong> 버튼 클릭</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--ra);font-size:16px;vertical-align:top;">STEP 5</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>접수 완료 및 운송장 출력</strong><br>
+                  [다음] 클릭 → 접수 완료 → 팝업창에서 운송장 번호 확인<br>
+                  <span style="display:inline-block;margin-top:6px;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:6px 12px;color:#2e7d32;font-weight:800;">🖨️ [인쇄하기] → 운송장 출력 → 우체국 방문 시 택배와 함께 지참!</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div></div>
+      </div>
+
+      <!-- STEP 우체국 방문 -->
+      <div class="card">
+        <div class="shead a"><div class="snum a">2</div><div class="shead-txt" style="font-size:17px;"><strong>우체국 방문 & 택배 발송</strong></div></div>
+        <div class="sbody"><div style="padding:18px 22px;font-size:15px;color:#333;">
+          <table style="border-collapse:collapse;width:100%;">
+            <tr style="background:var(--ra);">
+              <th style="padding:10px 14px;color:#fff;text-align:left;border-radius:6px 6px 0 0;" colspan="2">📦 원내 포장 (우체국 방문 전)</th>
+            </tr>
+            <tr style="border-bottom:1px solid #e3f2fd;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;width:30px;vertical-align:top;">①</td><td style="padding:8px 12px;line-height:1.8;">공용폴더에서 영문 인증서 다운로드</td></tr>
+            <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">②</td><td style="padding:8px 12px;"><strong>인쇄</strong> (A4)</td></tr>
+            <tr style="border-bottom:1px solid #e3f2fd;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">③</td><td style="padding:8px 12px;">환자 성함, 날짜, 한약 총액 기입</td></tr>
+            <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">④</td><td style="padding:8px 12px;"><strong>원장님 서명</strong> 받기</td></tr>
+            <tr style="border-bottom:1px solid #e3f2fd;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">⑤</td><td style="padding:8px 12px;"><strong>택배 박스 내에 영문 인증서 동봉</strong></td></tr>
+            <tr style="border-bottom:2px solid #1565c0;background:#f7faff;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">⑥</td><td style="padding:8px 12px;">택배 최종 포장</td></tr>
+
+            <tr style="background:var(--ra);">
+              <th style="padding:10px 14px;color:#fff;text-align:left;" colspan="2">🏢 우체국 방문</th>
+            </tr>
+            <tr style="border-bottom:1px solid #e3f2fd;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">①</td><td style="padding:8px 12px;line-height:1.8;">운송장 + 택배(S캡슐) 지참<br><span style="color:#e65100;font-size:13px;">⚠️ 택배 안에는 이미 영문 인증서가 동봉되어 있음</span></td></tr>
+            <tr style="border-bottom:1px solid #e3f2fd;background:#f7faff;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">②</td><td style="padding:8px 12px;">우체국 EMS 창구로 이동</td></tr>
+            <tr style="border-bottom:2px solid #1565c0;"><td style="padding:8px 12px;color:#1565c0;font-weight:800;vertical-align:top;">③</td><td style="padding:8px 12px;">직원에게: <strong>"온라인 접수한 EMS 발송하고 싶습니다"</strong><br>운송장 번호 제시 / 택배 제출</td></tr>
+
+            <tr style="background:#e8f5e9;">
+              <th style="padding:10px 14px;color:#2e7d32;text-align:left;border-radius:0 0 6px 6px;" colspan="2">✅ 발송 완료 → 최종 운송장 번호 확인 → 라인/카톡으로 환자에게 전송</th>
+            </tr>
+          </table>
+        </div></div>
+      </div>
+
+    </div><!-- /ea -->
+
+    <!-- ─── 탕약 ─── -->
+    <div class="epage eb">
+
+      <div class="banner b" style="margin-bottom:16px;">
+        <div>
+          <div class="btitle b" style="font-size:17px;">📍 채움생 개요</div>
+          <div class="bsub" style="margin-top:6px;font-size:15px;">항공캔으로 안전 포장 & 전문 관리 / 배송은 채움생이 담당</div>
+        </div>
+      </div>
+
+      <!-- STEP 0 탕약 -->
+      <div class="card">
+        <div class="shead b"><div class="snum b">0</div><div class="shead-txt" style="font-size:17px;"><strong>환자 주소 수집 & 배송비 계산 & 스마트로 결제</strong></div></div>
+        <div class="sbody"><div style="padding:18px 22px;font-size:15px;line-height:1.9;color:#333;">
+
+          <!-- (1) 주소 수집 -->
+          <div style="background:#f5eeff;border-left:4px solid var(--rb);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:800;color:var(--rb);margin-bottom:10px;">(1) 환자 주소지 수집 — 결제 전 먼저!</div>
+            <div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 18px;font-size:14px;line-height:2.4;">
+              <div style="font-weight:800;color:var(--rb);margin-bottom:8px;">【탕약 EMS 신청서】 — 환자에게 아래 양식 전송</div>
+              <table style="border-collapse:collapse;width:100%;">
+                <tr style="border-bottom:1px solid #eedeff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;width:160px;">영문이름</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+                <tr style="border-bottom:1px solid #eedeff;background:#faf5ff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;">해외연락처</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+                <tr style="border-bottom:1px solid #eedeff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;">상세주소 (Detail)</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+                <tr style="border-bottom:1px solid #eedeff;background:#faf5ff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;">거리 (Street)</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+                <tr style="border-bottom:1px solid #eedeff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;">도시 (City)</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+                <tr style="border-bottom:1px solid #eedeff;background:#faf5ff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;">주 (State)</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+                <tr style="border-bottom:1px solid #eedeff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;">우편번호 (Zip)</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+                <tr style="background:#faf5ff;"><td style="padding:5px 12px 5px 0;font-weight:700;white-space:nowrap;color:#555;">이메일 (E-Mail)</td><td style="padding:5px 0;color:#888;">_______________</td></tr>
+              </table>
+              <div style="margin-top:10px;color:#c62828;font-weight:700;font-size:13px;">※ 주소는 약자 없이 풀주소 작성 필수 / 관세 부과될 수 있음을 안내</div>
+            </div>
+          </div>
+
+          <!-- (2) 배송비 계산 -->
+          <div style="background:#f5eeff;border-left:4px solid var(--rb);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:800;color:var(--rb);margin-bottom:8px;">(2) 우리가 대략 배송비 계산</div>
+            <div style="font-size:15px;">환자 국가 + 예상 무게 기준 → <strong>예상 배송비 계산</strong><br>프로그램비 + 예상 배송비 = <strong>예상 총액</strong></div>
+          </div>
+
+          <!-- (3) 스마트로 -->
+          <div style="background:#f5eeff;border-left:4px solid var(--rb);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:800;color:var(--rb);margin-bottom:10px;">(3) 스마트로에서 결제 링크 생성</div>
+            <table style="border-collapse:collapse;width:100%;font-size:15px;margin-bottom:12px;">
+              <thead><tr style="background:#dbc8f5;">
+                <th style="padding:8px 12px;text-align:left;border-radius:6px 0 0 0;">구분</th>
+                <th style="padding:8px 12px;text-align:left;border-radius:0 6px 0 0;">내용</th>
+              </tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #eedeff;">
+                  <td style="padding:8px 12px;font-weight:700;color:#555;">사이트</td>
+                  <td style="padding:8px 12px;"><a href="https://www.smilepay.co.kr" target="_blank" style="color:#6a1b9a;text-decoration:underline;font-weight:600;">www.smilepay.co.kr</a></td>
+                </tr>
+                <tr style="border-bottom:1px solid #eedeff;background:#faf5ff;">
+                  <td style="padding:8px 12px;font-weight:700;color:#555;">ID / PW</td>
+                  <td style="padding:8px 12px;"><code style="background:#eedeff;padding:2px 8px;border-radius:4px;">acrohani1</code> / <code style="background:#eedeff;padding:2px 8px;border-radius:4px;">친절75!@!@</code></td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 12px;font-weight:700;color:#555;">결제액</td>
+                  <td style="padding:8px 12px;">프로그램비 + 예상 배송비 = <strong>총액</strong><br><span style="font-size:13px;color:#666;">예) ₩900,000 + ₩80,000 = ₩980,000</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="background:#fff;border:1px solid #c8a8f0;border-radius:6px;padding:12px 14px;">
+              <div style="font-weight:800;color:var(--rb);margin-bottom:8px;">📋 직원 처리 순서 (카드결제)</div>
+              <table style="border-collapse:collapse;width:100%;font-size:14px;">
+                <tr><td style="padding:4px 10px 4px 0;color:#6a1b9a;font-weight:800;white-space:nowrap;vertical-align:top;">①</td><td style="padding:4px 0;">스마트로 접속 → 결제 링크 생성</td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#6a1b9a;font-weight:800;white-space:nowrap;vertical-align:top;">②</td><td style="padding:4px 0;">스마트로가 <strong>업무폰으로 결제 링크 문자 발송</strong></td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#6a1b9a;font-weight:800;white-space:nowrap;vertical-align:top;">③</td><td style="padding:4px 0;"><strong>업무폰에 받은 문자에서 링크만 복사</strong></td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#6a1b9a;font-weight:800;white-space:nowrap;vertical-align:top;">④</td><td style="padding:4px 0;"><strong>LINE으로 환자에게 전송</strong></td></tr>
+                <tr><td style="padding:4px 10px 4px 0;color:#6a1b9a;font-weight:800;white-space:nowrap;vertical-align:top;">⑤</td><td style="padding:4px 0;">결제 완료 확인 후 <strong>매출전표 캡처 → LINE으로 전송</strong></td></tr>
+              </table>
+            </div>
+          </div>
+
+          <!-- (4) 결제 완료 -->
+          <div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 8px 8px 0;padding:12px 16px;">
+            <div style="font-size:16px;font-weight:800;color:#2e7d32;">(4) 환자 결제 완료 ✅</div>
+          </div>
+
+        </div></div>
+      </div>
+
+      <!-- STEP 1 탕약 채움생 -->
+      <div class="card">
+        <div class="shead b"><div class="snum b">1</div><div class="shead-txt" style="font-size:17px;"><strong>채움생 등록 & 배송비 확정 & 영문 인증서</strong></div></div>
+        <div class="sbody"><div style="padding:18px 22px;font-size:15px;color:#333;">
+          <table style="border-collapse:collapse;width:100%;">
+            <thead>
+              <tr style="background:var(--rb);">
+                <th style="padding:10px 14px;color:#fff;text-align:center;width:100px;border-radius:6px 0 0 0;">단계</th>
+                <th style="padding:10px 14px;color:#fff;text-align:left;border-radius:0 6px 0 0;">내용</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #eedeff;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rb);font-size:16px;vertical-align:top;">STEP 1</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>환자 안내 (결제 전)</strong><br>
+                  ✅ 탕약은 <strong>항공캔으로 안전 포장</strong>되어 발송됨<br>
+                  ✅ <strong>EMS 배송 비용 별도 부담</strong> (환자 결제)<br>
+                  ✅ <strong>캡슐 → 탕약 변경 시 월 +5만원 추가비용</strong> 발생<br>
+                  <span style="font-size:13px;color:#666;">예) 3개월 프로그램 변경 → +₩150,000</span>
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid #eedeff;background:#faf5ff;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rb);font-size:16px;vertical-align:top;">STEP 2</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>채움생 시스템에 환자 등록</strong><br>
+                  ① 환자 결제 확인 (스마트로)<br>
+                  ② 채움생 시스템에 <strong>환자 등록</strong><br>
+                  ③ 채움생에서 <strong>실제 배송비 계산</strong><br>
+                  ④ <strong>채움생 → 업무폰 카톡으로 메시지 발송</strong><br>
+                  <span style="display:inline-block;margin:4px 0 4px 20px;background:#eedeff;padding:4px 10px;border-radius:4px;font-size:13px;">[배송비 장바구니 ○○,○○○원]</span><br>
+                  ⑤ <strong>원장님께 배송비 결제 승인 요청</strong> → 원장님 승인 후 결제
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rb);font-size:16px;vertical-align:top;">STEP 3</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>영문 인증서 준비 & 발송</strong><br>
+                  ① 공용폴더에서 영문 인증서 <strong>인쇄</strong><br>
+                  ② 환자 성함, 날짜, 한약 총액 기입<br>
+                  ③ 원장님 <strong>서명 받기</strong><br>
+                  ④ <strong>채움생 카톡으로 발송</strong> → 채움생이 <strong>박스 내에 동봉하여 발송</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div></div>
+      </div>
+
+    </div><!-- /eb -->
+
+    <!-- ─── 미국 ─── -->
+    <div class="epage ec">
+
+      <div class="banner c" style="background:#fdf0eb;border-left:4px solid #b5451b;margin-bottom:16px;">
+        <div>
+          <div class="btitle" style="color:#b5451b;font-size:17px;">⚠️ 일반적으로 진행 안 함 (반송·폐기 위험)</div>
+          <div class="bsub" style="margin-top:6px;font-size:15px;">→ 원장님 확인 후 필요시에만 진행</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="shead c"><div class="snum c">1</div><div class="shead-txt" style="font-size:17px;"><strong>배송대행 업체 정보 & 프로세스</strong></div></div>
+        <div class="sbody"><div style="padding:18px 22px;font-size:15px;color:#333;">
+
+          <!-- 업체 정보 표 -->
+          <div style="background:#fdf0eb;border-left:4px solid var(--rc);border-radius:0 8px 8px 0;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:16px;font-weight:800;color:var(--rc);margin-bottom:10px;">📍 배송대행 업체 정보</div>
+            <table style="border-collapse:collapse;width:100%;font-size:15px;">
+              <tr style="border-bottom:1px solid #f5c8b8;">
+                <td style="padding:7px 12px 7px 0;font-weight:700;color:#555;white-space:nowrap;width:80px;">사이트</td>
+                <td style="padding:7px 0;"><a href="https://www.spdepot.kr/" target="_blank" style="color:#b5451b;text-decoration:underline;font-weight:600;">https://www.spdepot.kr/</a></td>
+              </tr>
+              <tr>
+                <td style="padding:7px 12px 7px 0;font-weight:700;color:#555;">절차</td>
+                <td style="padding:7px 0;">한의원 → 배송대행 → <strong>미국 (FedEx)</strong></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- 프로세스 표 -->
+          <table style="border-collapse:collapse;width:100%;">
+            <thead>
+              <tr style="background:var(--rc);">
+                <th style="padding:10px 14px;color:#fff;text-align:center;width:100px;border-radius:6px 0 0 0;">단계</th>
+                <th style="padding:10px 14px;color:#fff;text-align:left;border-radius:0 6px 0 0;">내용</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid #fde0d0;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rc);font-size:16px;vertical-align:top;">STEP 1</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>환자 안내 (결제 전) — 반드시 고지</strong><br>
+                  <table style="border-collapse:collapse;margin-top:6px;font-size:14px;width:100%;">
+                    <tr style="background:#ffebee;"><td style="padding:6px 10px;font-weight:700;white-space:nowrap;">위험</td><td style="padding:6px 10px;">⚠️ 일반적으로 진행하지 않는 방식</td></tr>
+                    <tr style="border-bottom:1px solid #fde0d0;"><td style="padding:6px 10px;font-weight:700;">관세</td><td style="padding:6px 10px;">💰 물품가격의 <strong>15~20%</strong> (예: $200 → $30~$40 추가)</td></tr>
+                    <tr style="border-bottom:1px solid #fde0d0;background:#fff5f2;"><td style="padding:6px 10px;font-weight:700;">배송</td><td style="padding:6px 10px;">⏱️ <strong>배송기간 지연</strong> 가능</td></tr>
+                    <tr><td style="padding:6px 10px;font-weight:700;">리스크</td><td style="padding:6px 10px;">❌ <strong>반송·폐기 위험</strong> 존재</td></tr>
+                  </table>
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid #fde0d0;background:#fff5f2;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rc);font-size:16px;vertical-align:top;">STEP 2</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>한의원 → 배송대행 업체 발송</strong><br>
+                  한약(택배) + <strong>영문 인증서 동봉</strong> → 배송대행 업체 수령
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid #fde0d0;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rc);font-size:16px;vertical-align:top;">STEP 3</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>FDA 서류 작성</strong><br>
+                  ① 배송대행에서 이메일로 <strong>FDA 입력 링크</strong> 전송<br>
+                  ② 환자가 온라인으로 FDA 서류 작성<br>
+                  ③ PDF로 변환 → <strong>배송대행 업체로 재발송</strong>
+                </td>
+              </tr>
+              <tr style="border-bottom:1px solid #fde0d0;background:#fff5f2;">
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rc);font-size:16px;vertical-align:top;">STEP 4</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>미국 도착 & 관세</strong><br>
+                  배송대행 → <strong>FedEx로 미국 발송</strong> → 환자가 <strong>관세 + 부가세 납부</strong>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:12px 14px;text-align:center;font-weight:800;color:var(--rc);font-size:16px;vertical-align:top;">STEP 5</td>
+                <td style="padding:12px 14px;line-height:1.8;vertical-align:top;">
+                  <strong>환자 최종 안내 메시지</strong>
+                  <div style="margin-top:10px;background:#fdf8f5;border:1px dashed #b5451b;border-radius:8px;padding:14px 16px;font-size:14px;line-height:1.9;color:#444;">
+                    "확인해보니 관세금액의 경우 물품가격에 15%~20% 정도로 예상되며 약 ○○달러 정도로 예상됩니다.<br><br>
+                    예상금액이기 때문에 실제와 상이할 수 있는 점 참고 부탁드리며, 해외배송 대행업체를 이용하여 접수를 진행하고 있기 때문에 시간이 조금 소요될 수 있는 점 양해 부탁드립니다.<br><br>
+                    최대한 빠르게 받아보실 수 있도록 도와드리겠으며, 배송이 출발하면 한 번 더 연락 드리겠습니다. 감사합니다!"
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div></div>
+      </div>
+
+    </div><!-- /ec -->
+
+  </div>
+</div><!-- /p5 -->
+
+    <!-- 서브탭 버튼 -->
+    <div class="ecase-nav">
+      <label for="ea" class="e1">💊 캡슐 EMS</label>
+      <label for="eb" class="e2">🫖 탕약 EMS (채움생)</label>
+      <label for="ec" class="e3">🇺🇸 미국 (배송대행)</label>
+    </div>
+
+    <!-- ─── 캡슐 ─── -->
+    <div class="epage ea">
+
+      <div class="card">
+        <div class="shead a"><div class="snum a">0</div><div class="shead-txt" style="font-size:16px;"><strong>우체국 EMS 비용 조회 & 스마트로 결제</strong></div></div>
+        <div class="sbody"><div style="padding:16px 20px;font-size:15px;line-height:2;color:#333;">
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 8px 0;">(1) 우체국에서 EMS 비용 조회</p>
+• <strong>사이트:</strong> <a href="https://www.epost.go.kr/main.retrieveMainPage.comm" target="_blank" style="color:#1565c0;text-decoration:underline;">https://www.epost.go.kr</a><br>
+• 환자 국가 + 예상 무게 입력<br>
+• <strong>EMS 배송료 확인</strong> (예: ₩50,000)<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 8px 0;">(2) 스마트로에서 결제 링크 생성</p>
+🔗 <strong>스마트로 상점관리자</strong><br>
+• URL: <a href="https://www.smilepay.co.kr" target="_blank" style="color:#1565c0;text-decoration:underline;">www.smilepay.co.kr</a><br>
+• ID: acrohani1 / PW: 친절75!@!@<br><br>
+<strong>결제 링크 생성:</strong><br>
+• 프로그램비 + EMS 배송료 = 총 결제액<br>
+• 예) 3개월 ₩900,000 + EMS ₩50,000 = <strong>₩950,000</strong><br><br>
+<strong>직원 처리 (카드결제 시):</strong><br>
+① 스마트로 접속 → 결제 링크 생성<br>
+② 스마트로가 <strong>업무폰으로 결제 링크 문자 발송</strong><br>
+③ <strong>업무폰에 받은 문자에서 링크만 복사</strong><br>
+④ <strong>LINE으로 환자에게 전송</strong><br>
+⑤ 결제 완료 확인 후 <strong>매출전표 캡처</strong><br>
+⑥ <strong>LINE으로 전송</strong><br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 8px 0;">(3) 환자 결제 완료 확인</p>
+• 결제 완료 확인<br>
+• ✅ 그 다음 "우체국 EMS 접수" 진행
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="shead a"><div class="snum a">1</div><div class="shead-txt" style="font-size:16px;"><strong>우체국 온라인 접수 (5단계)</strong></div></div>
+        <div class="sbody"><div style="padding:16px 20px;font-size:15px;line-height:2;color:#333;">
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">STEP 1️⃣ 우편 메뉴 접속</p>
+① 우체국 로그인<br>
+② 상단 메뉴 → <strong>[EMS·국제우편]</strong> 클릭<br>
+③ <strong>[국제특급(EMS)]</strong> 클릭<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">STEP 2️⃣ 발송인(병원) 정보 확인</p>
+기존 정보가 저장되어 있음<br>
+<span style="color:#c62828;font-weight:800;font-size:15px;">⚠️ [방문 접수] 절대 체크 금지 (❌)</span><br>
+• 이것을 체크하면 우체국 방문해서 직접 접수해야 함<br>
+• 온라인 접수 후 운송장 출력해서 방문하는 게 맞음<br>
+• ➡️ <strong>필수 항목에만 체크하여 진행</strong><br>
+<strong>발송인(병원) 정보:</strong> 기존 정보 확인만 → <strong>[다음]</strong> 클릭<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">STEP 3️⃣ 수령인(환자) 정보 입력</p>
+<strong>정보 확인 방법:</strong> 차트에서 <strong>환자 차트번호 검색</strong> → <strong>[주치의 메모]</strong>의 EMS 신청서로 주소 확인<br>
+• <strong>성함:</strong> 반드시 <strong>영문</strong>으로 기입<br>
+• <strong>국가:</strong> Country 항목의 <strong>[검색]</strong> 클릭 → 국가 검색 후 선택<br>
+• <strong>나머지 주소:</strong> 국가 양식에 맞춰 <strong>영문 주소</strong> 기입<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">STEP 4️⃣ 세관신고서(Customs Declaration) 기입</p>
+<span style="color:#c62828;font-weight:800;">⭐ 해외 배송 통관을 위해 정확한 수량 & 금액 입력 필수 ⭐</span><br>
+• <strong>물품 구분:</strong> "상품" 선택<br>
+• <strong>개수 & 물품 무게:</strong> 환자의 <strong>약 개월수</strong>에 맞춰 정확하게 입력<br>
+• <strong>총 금액(Value):</strong> 차트의 <strong>[패키지메모]</strong> 또는 [간호사 메모]의 <strong>한약 총액만</strong> 입력 (EMS 비용 제외)<br>
+• ➡️ 모든 항목 입력 후 <strong>[내역추가]</strong> 버튼 클릭<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">STEP 5️⃣ 접수 완료 및 운송장 출력</p>
+• 내역 추가 확인 후 <strong>[다음]</strong> 클릭 → EMS 접수 최종 완료<br>
+• 팝업창에서 운송장 번호 확인<br>
+• [인쇄하기] → 운송장 출력 ➡️ <strong>우체국 방문 시 택배와 함께 반드시 지참!</strong>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="shead a"><div class="snum a">2</div><div class="shead-txt" style="font-size:16px;"><strong>우체국 방문 & 택배 발송</strong></div></div>
+        <div class="sbody"><div style="padding:16px 20px;font-size:15px;line-height:2;color:#333;">
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">📦 원내 포장 (우체국 방문 전)</p>
+① 공용폴더에서 영문 인증서 다운로드<br>
+② <strong>인쇄</strong> (A4)<br>
+③ 환자 성함, 날짜, 한약 총액 기입<br>
+④ <strong>원장님 서명</strong> 받기<br>
+⑤ <strong>택배 박스 내에 영문 인증서 동봉</strong><br>
+⑥ 택배 최종 포장<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">🏢 우체국 방문</p>
+① 운송장 + 택배(S캡슐) 지참<br>
+&nbsp;&nbsp;⚠️ 택배 안에는 <strong>이미 영문 인증서가 동봉되어 있음</strong><br>
+② 우체국 EMS 창구로 이동<br>
+③ 직원에게: <strong>"온라인 접수한 EMS 발송하고 싶습니다"</strong><br>
+&nbsp;&nbsp;• 운송장 번호 제시 / 택배 제출<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--ra);margin:0 0 6px 0;">✅ 발송 완료 후 환자 안내</p>
+• 우체국에서 <strong>최종 운송장 번호 확인</strong> (바뀔 수 있음)<br>
+• <strong>라인/카톡으로 운송장 번호 전송</strong><br>
+• 예: "EMS 발송 완료되었습니다! 추적번호: 1234567890"
+        </div></div>
+      </div>
+
+    </div><!-- /ea -->
+
+    <!-- ─── 탕약 ─── -->
+    <div class="epage eb">
+
+      <div class="banner b" style="margin-bottom:16px;">
+        <div>
+          <div class="btitle b" style="font-size:17px;">📍 채움생 개요</div>
+          <div class="bsub" style="margin-top:6px;font-size:15px;">항공캔으로 안전 포장 & 전문 관리 / 배송은 채움생이 담당</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="shead b"><div class="snum b">0</div><div class="shead-txt" style="font-size:16px;"><strong>환자 주소 수집 & 배송비 계산 & 스마트로 결제</strong></div></div>
+        <div class="sbody"><div style="padding:16px 20px;font-size:15px;line-height:2;color:#333;">
+
+<p style="font-size:16px;font-weight:800;color:var(--rb);margin:0 0 8px 0;">(1) 환자 주소지 수집</p>
+스마트로 결제 전, 환자에게 아래 양식 전송:<br><br>
+<div style="background:#f8f4fb;border:1px solid #ddd;border-radius:6px;padding:14px;font-size:14px;line-height:2.2;margin-bottom:14px;">
+【탕약 EMS 신청서】<br>
+영문이름: _______________<br>
+해외연락처: _______________<br>
+상세주소(Detail): _______________<br>
+거리(Street): _______________<br>
+도시(City): _______________<br>
+주(State): _______________<br>
+우편번호(Zip code): _______________<br>
+이메일(E-Mail): _______________<br>
+<span style="color:#c62828;">※ 주소는 약자 없이 풀주소 작성 필수 / 관세 부과될 수 있음을 안내</span>
+</div>
+
+<p style="font-size:16px;font-weight:800;color:var(--rb);margin:0 0 8px 0;">(2) 우리가 대략 배송비 계산</p>
+• 환자 국가 + 예상 무게 기준으로 <strong>예상 배송비 계산</strong><br>
+• 프로그램비 + 예상 배송비 = <strong>예상 총액</strong><br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rb);margin:0 0 8px 0;">(3) 스마트로에서 결제 링크 생성</p>
+🔗 <strong>스마트로 상점관리자</strong><br>
+• URL: <a href="https://www.smilepay.co.kr" target="_blank" style="color:#6a1b9a;text-decoration:underline;">www.smilepay.co.kr</a><br>
+• ID: acrohani1 / PW: 친절75!@!@<br><br>
+<strong>결제 링크 생성:</strong><br>
+• 프로그램비 + 예상 배송비(대략) = 총 결제액<br>
+• 예) 3개월 ₩900,000 + 예상 배송비 ₩80,000 = <strong>₩980,000</strong><br><br>
+<strong>직원 처리 (카드결제 시):</strong><br>
+① 스마트로 접속 → 결제 링크 생성<br>
+② 스마트로가 <strong>업무폰으로 결제 링크 문자 발송</strong><br>
+③ <strong>업무폰에 받은 문자에서 링크만 복사</strong><br>
+④ <strong>LINE으로 환자에게 전송</strong><br>
+⑤ 결제 완료 확인 후 <strong>매출전표 캡처</strong><br>
+⑥ <strong>LINE으로 전송</strong><br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rb);margin:0 0 8px 0;">(4) 환자 결제 완료</p>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="shead b"><div class="snum b">1</div><div class="shead-txt" style="font-size:16px;"><strong>채움생 등록 & 배송비 확정 & 영문 인증서</strong></div></div>
+        <div class="sbody"><div style="padding:16px 20px;font-size:15px;line-height:2;color:#333;">
+
+<p style="font-size:16px;font-weight:800;color:var(--rb);margin:0 0 6px 0;">STEP 1️⃣ 환자 안내 (결제 전)</p>
+환자에게 반드시 안내:<br>
+• ✅ 탕약은 <strong>항공캔으로 안전 포장</strong>되어 발송됨<br>
+• ✅ <strong>EMS 배송 비용 별도 부담</strong> (환자 결제)<br>
+• ✅ <strong>캡슐 → 탕약으로 변경 시 월 +5만원 추가비용</strong> 발생<br>
+&nbsp;&nbsp;예) 3개월 프로그램 변경 → +₩150,000<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rb);margin:0 0 6px 0;">STEP 2️⃣ 채움생 시스템에 환자 등록</p>
+① 환자 결제 확인 (스마트로)<br>
+② 채움생 시스템에 <strong>환자 등록</strong><br>
+③ 채움생에서 <strong>실제 배송비 계산</strong><br>
+④ <strong>채움생 → 업무폰 카톡으로 메시지 발송</strong><br>
+&nbsp;&nbsp;형태: [배송비 장바구니 ○○,○○○원]<br>
+⑤ <strong>원장님께 배송비 결제 승인 요청</strong><br>
+⑥ 원장님 승인 후 결제<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rb);margin:0 0 6px 0;">STEP 3️⃣ 영문 인증서 준비 & 발송</p>
+① 공용폴더에서 영문 인증서 <strong>인쇄</strong><br>
+② 환자 성함, 날짜, 한약 총액 기입<br>
+③ 원장님 <strong>서명 받기</strong><br>
+④ <strong>채움생 카톡으로 발송</strong><br>
+&nbsp;&nbsp;→ 채움생이 <strong>박스 내에 동봉하여 발송</strong>
+        </div></div>
+      </div>
+
+    </div><!-- /eb -->
+
+    <!-- ─── 미국 ─── -->
+    <div class="epage ec">
+
+      <div class="banner c" style="background:#fdf0eb;border-left:4px solid #b5451b;margin-bottom:16px;">
+        <div>
+          <div class="btitle" style="color:#b5451b;font-size:17px;">⚠️ 일반적으로 진행 안 함 (반송·폐기 위험)</div>
+          <div class="bsub" style="margin-top:6px;font-size:15px;">→ 원장님 확인 후 필요시에만 진행</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="shead c"><div class="snum c">1</div><div class="shead-txt" style="font-size:16px;"><strong>배송대행 업체 정보 & 프로세스</strong></div></div>
+        <div class="sbody"><div style="padding:16px 20px;font-size:15px;line-height:2;color:#333;">
+
+<p style="font-size:16px;font-weight:800;color:var(--rc);margin:0 0 6px 0;">📍 배송대행 업체 정보</p>
+• <strong>사이트:</strong> <a href="https://www.spdepot.kr/" target="_blank" style="color:#b5451b;text-decoration:underline;">https://www.spdepot.kr/</a><br>
+• <strong>절차:</strong> 한의원 → 배송대행 → 미국 (FedEx)<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rc);margin:0 0 6px 0;">STEP 1️⃣ 환자 안내 (결제 전)</p>
+반드시 고지할 사항:<br>
+• ⚠️ 일반적으로 진행하지 않는 방식<br>
+• 💰 <strong>관세 추가 예상:</strong> 물품가격의 <strong>15~20%</strong><br>
+&nbsp;&nbsp;예) 물품 $200 → 관세 $30~$40 추가<br>
+• ⏱️ <strong>배송기간 지연</strong> 가능<br>
+• ❌ <strong>반송·폐기 위험</strong> 존재<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rc);margin:0 0 6px 0;">STEP 2️⃣ 한의원 → 배송대행 업체 발송</p>
+• 한약(택배) + <strong>영문 인증서 동봉</strong><br>
+• 배송대행 업체 수령<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rc);margin:0 0 6px 0;">STEP 3️⃣ FDA 서류 작성</p>
+① 배송대행 업체에서 이메일로 <strong>FDA 입력 링크</strong> 전송<br>
+② 환자가 온라인으로 FDA 서류 작성<br>
+③ 완성된 서류를 <strong>PDF로 변환</strong><br>
+④ <strong>배송대행 업체로 재발송</strong><br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rc);margin:0 0 6px 0;">STEP 4️⃣ 미국 도착 & 관세</p>
+• 배송대행 업체 → <strong>FedEx로 미국 발송</strong><br>
+• 환자가 <strong>관세 + 부가세 납부</strong> (도착지)<br><br>
+
+<p style="font-size:16px;font-weight:800;color:var(--rc);margin:0 0 6px 0;">STEP 5️⃣ 환자 최종 안내 메시지</p>
+<div style="background:#fdf8f5;border:1px dashed #b5451b;border-radius:6px;padding:14px;font-size:14px;line-height:1.9;margin-top:8px;">
+"확인해보니 관세금액의 경우 물품가격에 15%~20% 정도로 예상되며 약 ○○달러 정도로 예상됩니다.<br><br>
+예상금액이기 때문에 실제와 상이할 수 있는 점 참고 부탁드리며, 해외배송 대행업체를 이용하여 접수를 진행하고 있기 때문에 시간이 조금 소요될 수 있는 점 양해 부탁드립니다.<br><br>
+최대한 빠르게 받아보실 수 있도록 도와드리겠으며, 배송이 출발하면 한 번 더 연락 드리겠습니다. 감사합니다!"
+</div>
+        </div></div>
+      </div>
+
+    </div><!-- /ec -->
+
+  </div>
+</div><!-- /p5 -->
+
+<div class="page p6">
   <div class="section">
     <div class="sec-label">빠른 참조</div>
     <div class="qref">
@@ -2778,7 +3455,7 @@ Could you please re-confirm your shipping address?</div>
       <div class="lnk">https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</div>
     </div></div></div>
   </div>
-</div><!-- /p5 -->
+</div><!-- /p6 -->
 
 </div><!-- /main -->
 </div><!-- /wrap -->
