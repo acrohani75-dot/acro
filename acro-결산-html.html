@@ -83,7 +83,7 @@ function App(){
   const [meta,setMeta]=useState({담당자:"",비고:""});
   const [cmp,setCmp]=useState({올댓페이:"",택배비:"",통장입금:"",마감금고:""});
   const [carry,setCarry]=useState({전일금고:"",전일통장수입:"",전일지출:"",전일환불:"",전일카드수입:"",전일매출:""});
-  const [safeIn,setSafeIn]=useState("");
+  const [withdraws,setWithdraws]=useState([{memo:"",amt:""}]);
   const [monthStart,setMonthStart]=useState(false);
   const [expenses,setExpenses]=useState([{item:"",amt:""}]);
   const [refunds,setRefunds]=useState([{memo:"",way:"카드취소",amt:""}]);
@@ -119,7 +119,10 @@ function App(){
   const refBank=refunds.filter((r)=>r.way==="계좌입금").reduce((a,b)=>a+num(b.amt),0);
   const adjSum=(cat)=>adjs.filter((a)=>a.cat===cat).reduce((sm,a)=>sm+(a.sign==="-"?-1:1)*num(a.amt),0);
 
-  const safeToday=num(carry.전일금고)+okCash+num(safeIn)-expenseSum;
+  // 금고 = 폐쇄 회계: 들어온 현금(현금수납) − 나간 현금(지출 + 원장회수)이 권종 실측과 맞아야 함.
+  // 나가는 현금은 반드시 기록(지출/원장회수)으로 남는다. 기록 없이 비면 = 증발(횡령/분실) 신호.
+  const withdrawSum=withdraws.reduce((a,b)=>a+num(b.amt),0);
+  const safeToday=num(carry.전일금고)+okCash-expenseSum-withdrawSum;
   const denomTotal=DENOMS.reduce((a,d)=>a+d*num(denom[d]),0)+num(etc);
   const denomEntered=DENOMS.some((d)=>(denom[d]||"")!=="")||etc!=="";
   const effClose=denomEntered?denomTotal:num(cmp.마감금고);
@@ -134,7 +137,7 @@ function App(){
   const checks=[
     {label:"카드 (올댓페이−택배비 = 카드수납)",ok:okCard,ext:termCard,entered:cmp.올댓페이!==""},
     {label:"통장 (실측입금 = 통장회수)",ok:okBank,ext:bankIn,entered:cmp.통장입금!==""},
-    {label:"금고 (권종합계 = 계산값)",ok:safeToday,ext:effClose,entered:closeEntered},
+    {label:"금고 (권종 실측 = 기대잔액·−면 현금증발)",ok:safeToday,ext:effClose,entered:closeEntered},
     {label:"환불 (수기입력 = OK환불총액)",ok:okRefund,ext:refundSum,entered:refunds.some((r)=>r.amt!=="")},
   ];
   const payOK=okCard+okBank+okCash===okTotal;
@@ -151,7 +154,7 @@ function App(){
     R("","건보청구","",okIns),R("","자보청구","",okAuto),
     R("단말기내역","카드","",termCard,"","tcard"),R("","현금영수증","",okReceipt),
     R("지원 / 건생비","","",okJiwon),R("현금수입","","",okCash),R("통장수입","","",okBank),
-    R("금고내역","전일금고","",num(carry.전일금고)),R("","지출","",expenseSum),R("","입금","",num(safeIn)),R("","금일금고","",safeToday,"","safe"),
+    R("금고내역","전일금고","",num(carry.전일금고)),R("","현금수납","",okCash),R("","지출","",expenseSum),R("","원장회수","",withdrawSum),R("","금일금고","",safeToday,"","safe"),
     R("일 결산","수입","",okRevenue),R("","지출","",expenseSum),
     R("환불","손비처리","",0),R("","통장","",refBank),R("","카드","",refCard),
     ...adjRows,
@@ -167,7 +170,7 @@ function App(){
     setCmp({올댓페이:"4027700",택배비:"",통장입금:"1570000",마감금고:""});
     setCarry({전일금고:"191360",전일통장수입:"21655100",전일지출:"30600",전일환불:"3190000",전일카드수입:"79084030",전일매출:"108751330"});
     setMeta({담당자:"이주영",비고:"직원 박*영 6/20 첩건 +45,900원 카드수납완료"});
-    setSafeIn(""); setExpenses([{item:"",amt:""}]); setRefunds([{memo:"",way:"카드취소",amt:""}]); setAdjs([]);
+    setWithdraws([{memo:"",amt:""}]); setExpenses([{item:"",amt:""}]); setRefunds([{memo:"",way:"카드취소",amt:""}]); setAdjs([]);
     setDenom({10000:"11",5000:"5",1000:"30",500:"42",100:"50",50:"7"}); setEtc("10");
     setChats([
       {name:"데스크 상담방",body:"양지영님 200,000 통장 입금 확인 완료\n마유라님 변심으로 환불 요청 → 통장 310,000 처리 예정\n첩건) 박*영 6/20 +45,900 카드수납완료"},
@@ -223,7 +226,7 @@ function App(){
   const buildLog=()=>{
     const lines=checks.map((c)=>{ const st=!c.entered?"대기":(c.ext-c.ok===0?"일치":"불일치"); return `- ${c.label}: ${st}${st==="불일치"?` (차이 ${wonS(c.ext-c.ok)})`:""}`; }).join("\n");
     const flagLines=!flags?"- (검수 미실행)":(flags.length===0?"- 의심 없음":flags.map((f)=>`- [${f.채팅창||"-"}] ${f.환자||"-"} · ${f.유형||""} — ${f.무엇이||f.근거||""}`).join("\n"));
-    return ["# 아크로한의원 일일결산 업무로그",`- 날짜: ${dateLabel(parsed.date)||"-"}`,`- 담당자: ${meta.담당자||"-"}`,"","## 결산 요약",`- 총진료비: ${won(okRevenue)}`,`- 수납: 카드 ${fmt(okCard)} / 통장 ${fmt(okBank)} / 현금 ${fmt(okCash)}`,`- 금고: 전일 ${fmt(num(carry.전일금고))} → 금일 ${fmt(safeToday)} (지출 ${fmt(expenseSum)}, 입금 ${fmt(num(safeIn))})`,`- 총매출(누계): ${won(cumSales)}`,"","## 대조 결과",lines,"","## AI 검수",flagLines,"","## 오늘 한 일",(log.done||"-"),"","## 발견한 실수",(log.mistakes||"-"),"","## 이슈 / 메모",(log.issues||"-"),""].join("\n");
+    return ["# 아크로한의원 일일결산 업무로그",`- 날짜: ${dateLabel(parsed.date)||"-"}`,`- 담당자: ${meta.담당자||"-"}`,"","## 결산 요약",`- 총진료비: ${won(okRevenue)}`,`- 수납: 카드 ${fmt(okCard)} / 통장 ${fmt(okBank)} / 현금 ${fmt(okCash)}`,`- 금고: 전일 ${fmt(num(carry.전일금고))} + 현금수납 ${fmt(okCash)} − 지출 ${fmt(expenseSum)} − 원장회수 ${fmt(withdrawSum)} = 기대 ${fmt(safeToday)} (권종실측 ${fmt(effClose)}${closeEntered?(effClose-safeToday===0?" 일치":" 차이 "+wonS(effClose-safeToday)):""})`,`- 총매출(누계): ${won(cumSales)}`,"","## 대조 결과",lines,"","## AI 검수",flagLines,"","## 오늘 한 일",(log.done||"-"),"","## 발견한 실수",(log.mistakes||"-"),"","## 이슈 / 메모",(log.issues||"-"),""].join("\n");
   };
 
   const dl=(blob,name)=>{ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); };
@@ -234,7 +237,7 @@ function App(){
     const aoa=[["일일결산 보고서","","","","","대표원장"],["날짜",dateLabel(parsed.date),"담당자 : "+(meta.담당자||""),"","","비고"],...rows.map((r)=>[r.a,r.b,r.c,r.val,"원",r.note||""])];
     const ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:14},{wch:16},{wch:12},{wch:14},{wch:5},{wch:40}];
     const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"일일결산");
-    const todayRow={date,open:num(carry.전일금고),cashIn:okCash+num(safeIn),out:expenseSum,close:safeToday,note:"",d50000:50000*num(denom[50000]),d10000:10000*num(denom[10000]),d5000:5000*num(denom[5000]),d1000:1000*num(denom[1000]),d500:500*num(denom[500]),d100:100*num(denom[100]),d50:50*num(denom[50]),etc:num(etc),total:denomTotal};
+    const todayRow={date,open:num(carry.전일금고),cashIn:okCash,out:expenseSum+withdrawSum,close:safeToday,note:withdrawSum?("원장회수 "+fmt(withdrawSum)):"",d50000:50000*num(denom[50000]),d10000:10000*num(denom[10000]),d5000:5000*num(denom[5000]),d1000:1000*num(denom[1000]),d500:500*num(denom[500]),d100:100*num(denom[100]),d50:50*num(denom[50]),etc:num(etc),total:denomTotal};
     const cashRows=[...ledger.filter((r)=>r.date!==date),todayRow].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
     const cashAoa=[["시재관리"],["날짜","오픈","현금수납","출금","마감","비고","5만원","1만원","5천원","1천원","500원","100원","50원","기타","합계"],...cashRows.map((r)=>[r.date,r.open,r.cashIn,r.out,r.close,r.note||"",r.d50000,r.d10000,r.d5000,r.d1000,r.d500,r.d100,r.d50,r.etc,r.total])];
     const cws=XLSX.utils.aoa_to_sheet(cashAoa); cws["!cols"]=[{wch:12},{wch:11},{wch:11},{wch:10},{wch:11},{wch:18},...Array(8).fill({wch:9}),{wch:11}];
@@ -352,7 +355,6 @@ function App(){
                   <Field label="올댓페이 카드 총액" hint="단말기 내보내기 합계"><NumInput value={cmp.올댓페이} onChange={(v)=>setCmp((p)=>({...p,올댓페이:v}))} /></Field>
                   <Field label="택배비 (카드 포함분)"><NumInput value={cmp.택배비} onChange={(v)=>setCmp((p)=>({...p,택배비:v}))} /></Field>
                   <Field label="실제 통장 입금액" hint="잔디 입금문자 합계"><NumInput value={cmp.통장입금} onChange={(v)=>setCmp((p)=>({...p,통장입금:v}))} /></Field>
-                  <Field label="금고 입금"><NumInput value={safeIn} onChange={setSafeIn} /></Field>
                 </div>
               </Card>
               <Card title="금고 권종 (마감 실측)" right={<button onClick={copyPrevDenom} disabled={!ledger.length} className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-40">전일과 동일</button>}>
@@ -374,7 +376,7 @@ function App(){
             </div>
 
             <div className="grid md:grid-cols-2 gap-3">
-              <Card title="지출 / 환불">
+              <Card title="지출 / 환불 / 원장회수">
                 <div className="text-xs font-medium text-gray-600 mb-1">현금 지출</div>
                 {expenses.map((e,i)=>(
                   <div key={i} className="flex gap-1.5 mb-1.5">
@@ -396,6 +398,16 @@ function App(){
                 ))}
                 <button onClick={()=>setRefunds((p)=>[...p,{memo:"",way:"카드취소",amt:""}])} className="text-xs text-amber-600 hover:underline">+ 환불</button>
                 <span className="text-xs text-gray-500 ml-2">{won(refundSum)}</span>
+                <div className="text-xs font-medium text-gray-600 mb-1 mt-3">원장 회수 <span className="text-[10px] text-gray-400 font-normal">금고에서 원장님께 나간 현금 (기록 필수)</span></div>
+                {withdraws.map((r,i)=>(
+                  <div key={i} className="flex gap-1.5 mb-1.5">
+                    <input value={r.memo} onChange={(ev)=>setWithdraws((p)=>p.map((x,j)=>(j===i?{...x,memo:ev.target.value}:x)))} placeholder="사유/메모 (예: 원장 회수)" className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />
+                    <div className="w-24"><NumInput value={r.amt} onChange={(v)=>setWithdraws((p)=>p.map((x,j)=>(j===i?{...x,amt:v}:x)))} /></div>
+                    <button onClick={()=>setWithdraws((p)=>p.filter((_,j)=>j!==i))} className="px-1 text-gray-400 hover:text-rose-500">✕</button>
+                  </div>
+                ))}
+                <button onClick={()=>setWithdraws((p)=>[...p,{memo:"",amt:""}])} className="text-xs text-amber-600 hover:underline">+ 회수</button>
+                <span className="text-xs text-gray-500 ml-2">{won(withdrawSum)}</span>
               </Card>
               <Card title="소급 조정" sub="과거 청구금 변경 등 — 누계에만 반영">
                 {adjs.map((a,i)=>(
@@ -500,7 +512,7 @@ function App(){
             </Card>
           </Step>
         </div>
-        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v8</div>
+        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v10 (금고 폐쇄회계 · 원장회수 기록)</div>
       </div>
     </div>
   );
