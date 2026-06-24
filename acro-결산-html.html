@@ -99,6 +99,7 @@ function App(){
   const [flags,setFlags]=useState(null);
   const [auditErr,setAuditErr]=useState("");
   const [log,setLog]=useState({done:"",mistakes:"",issues:""});
+  const [logLedger,setLogLedger]=useState([]);
 
   const parsed = useMemo(()=>parseOkchart(raw),[raw]);
   const s = parsed.summary;
@@ -197,6 +198,10 @@ function App(){
           for(const r of ca){ const d0=String(r[0]||"").trim(); if(!/\d/.test(d0)||d0==="날짜"||d0==="시재관리") continue;
             led.push({date:d0,open:num(r[1]),cashIn:num(r[2]),out:num(r[3]),close:num(r[4]),note:r[5]||"",d50000:num(r[6]),d10000:num(r[7]),d5000:num(r[8]),d1000:num(r[9]),d500:num(r[10]),d100:num(r[11]),d50:num(r[12]),etc:num(r[13]),total:num(r[14])}); }
           setLedger(led); ledLast=led.length?led[led.length-1]:null; }
+        const ls=wb.Sheets["업무로그"];
+        if(ls){ const la=XLSX.utils.sheet_to_json(ls,{header:1}); const blocks=[]; let cur=null;
+          for(const r of la){ const line=(r[0]==null?"":String(r[0])); const m=line.match(/^\[일자 (\d{4}-\d{2}-\d{2})\]/); if(m){ cur={date:m[1],lines:[line]}; blocks.push(cur); } else if(cur){ cur.lines.push(line); } }
+          setLogLedger(blocks.map((b)=>({date:b.date,text:b.lines.join("\n")}))); }
         const prevSafe=safe!=null?safe:ledLast?ledLast.close:null;
         if(prevSafe==null&&sales==null){ setLoadMsg("⚠️ 결산 양식을 인식하지 못했습니다."); e.target.value=""; return; }
         setCarry({
@@ -233,7 +238,10 @@ function App(){
     const cashAoa=[["시재관리"],["날짜","오픈","현금수납","출금","마감","비고","5만원","1만원","5천원","1천원","500원","100원","50원","기타","합계"],...cashRows.map((r)=>[r.date,r.open,r.cashIn,r.out,r.close,r.note||"",r.d50000,r.d10000,r.d5000,r.d1000,r.d500,r.d100,r.d50,r.etc,r.total])];
     const cws=XLSX.utils.aoa_to_sheet(cashAoa); cws["!cols"]=[{wch:12},{wch:11},{wch:11},{wch:10},{wch:11},{wch:18},...Array(8).fill({wch:9}),{wch:11}];
     XLSX.utils.book_append_sheet(wb,cws,"시재관리");
-    const lws=XLSX.utils.aoa_to_sheet([["업무로그"],...buildLog().split("\n").map((l)=>[l])]); lws["!cols"]=[{wch:70}];
+    const todayLogText="[일자 "+date+"]\n"+buildLog();
+    const allLogs=[...logLedger.filter((b)=>b.date!==date),{date,text:todayLogText}].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
+    const logRows=[]; allLogs.forEach((b)=>{ b.text.split("\n").forEach((l)=>logRows.push([l])); logRows.push([""]); });
+    const lws=XLSX.utils.aoa_to_sheet([["업무로그"],...logRows]); lws["!cols"]=[{wch:70}];
     XLSX.utils.book_append_sheet(wb,lws,"업무로그");
     if(parsed.patients.length){ const pc=Object.keys(parsed.patients[0]); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([pc,...parsed.patients.map((p)=>pc.map((k)=>p[k]))]),"환자내역"); }
     dl(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})],{type:"application/octet-stream"}), `${date}_결산.xlsx`);
