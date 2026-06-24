@@ -1,390 +1,570 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>아크로한의원 진료 동시통역</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f8faff; height:100vh; height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
-header { background:#fff; padding:10px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; gap:10px; border-bottom:2px solid #e2e8f0; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
-.logo { font-size:14px; font-weight:800; color:#1e293b; white-space:nowrap; }
-.lang-tabs { display:flex; gap:5px; overflow-x:auto; }
-.tab-btn { padding:6px 11px; border:2px solid #e2e8f0; background:#f8faff; color:#64748b; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
-.tab-btn.active { background:#6366f1; color:#fff; border-color:#6366f1; }
-.header-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
-.opt-label { font-size:12px; color:#64748b; display:flex; align-items:center; gap:3px; cursor:pointer; white-space:nowrap; }
-.opt-label.opus input:checked + span { color:#7c3aed; font-weight:700; }
-.btn-clear { padding:6px 10px; background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0; border-radius:6px; font-size:12px; cursor:pointer; font-weight:600; }
-
-.chat { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px; background:#f8faff; }
-.chat::-webkit-scrollbar { width:4px; }
-.chat::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:2px; }
-.msg-group { display:flex; flex-direction:column; gap:6px; animation:fadeUp 0.2s ease-out; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
-.msg-row { display:flex; align-items:flex-end; gap:8px; }
-.msg-row.left { justify-content:flex-start; }
-.msg-row.right { justify-content:flex-end; }
-.bubble { max-width:75%; padding:14px 18px; border-radius:16px; font-size:20px; font-weight:600; line-height:1.5; word-break:break-word; }
-.bko { background:#1d4ed8; color:#fff; border-bottom-left-radius:4px; }
-.btgt { background:#7c3aed; color:#fff; border-bottom-right-radius:4px; }
-.bpend { background:#e2e8f0; color:#94a3b8; font-style:italic; font-size:16px; font-weight:400; }
-.berr { background:#fee2e2; color:#dc2626; font-size:14px; font-weight:400; }
-.flag { font-size:22px; flex-shrink:0; }
-.spk { background:transparent; border:none; font-size:18px; cursor:pointer; opacity:0.3; padding:4px; border-radius:4px; transition:opacity 0.15s; flex-shrink:0; }
-.spk:hover { opacity:1; }
-.spk.on { opacity:1; animation:spkp 0.8s infinite; }
-@keyframes spkp { 0%,100%{opacity:1} 50%{opacity:0.2} }
-.empty { flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; text-align:center; padding:20px; }
-.empty .ico { font-size:56px; }
-.empty .txt { font-size:17px; line-height:1.9; color:#64748b; }
-
-.bottom { flex-shrink:0; background:#fff; border-top:2px solid #e2e8f0; padding:14px 16px; padding-bottom:calc(14px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:10px; box-shadow:0 -2px 8px rgba(0,0,0,0.04); }
-.mic-btns { display:flex; gap:10px; }
-.mic-btn { flex:1; padding:18px 10px; border-radius:16px; border:3px solid; background:transparent; font-weight:800; cursor:pointer; transition:all 0.2s;
-  display:flex; flex-direction:column; align-items:center; gap:8px;
-  touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
-.mic-btn .bico { font-size:32px; transition:all 0.2s; }
-.mic-btn .blabel { font-size:16px; font-weight:800; }
-.mic-btn .bsub { font-size:13px; font-weight:600; line-height:1.3; }
-.mic-btn.ko-btn { border-color:#bfdbfe; color:#1d4ed8; background:#eff6ff; }
-.mic-btn.ko-btn.active { border-color:#1d4ed8; background:#1d4ed8; color:#fff; box-shadow:0 0 0 4px rgba(29,78,216,0.2); transform:scale(1.03); }
-.mic-btn.tgt-btn { border-color:#ddd6fe; color:#7c3aed; background:#f5f3ff; }
-.mic-btn.tgt-btn.active { border-color:#7c3aed; background:#7c3aed; color:#fff; box-shadow:0 0 0 4px rgba(124,58,237,0.2); transform:scale(1.03); }
-.text-row { display:flex; gap:8px; }
-.text-row textarea { flex:1; background:#f8faff; border:2px solid #e2e8f0; border-radius:8px; padding:8px 12px; font-size:14px; color:#1e293b; font-family:inherit; resize:none; max-height:60px; }
-.text-row textarea:focus { outline:none; border-color:#6366f1; }
-.text-row textarea::placeholder { color:#94a3b8; }
-.btn-send { padding:8px 14px; background:#1d4ed8; color:#fff; border:none; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; white-space:nowrap; }
-.btn-send:hover { background:#1e40af; }
-.wave { display:flex; gap:3px; align-items:center; height:22px; justify-content:center; }
-.wbar { width:4px; border-radius:2px; background:currentColor; animation:wv 0.7s ease-in-out infinite; }
-.wbar:nth-child(1){height:4px;animation-delay:0s}.wbar:nth-child(2){height:10px;animation-delay:0.1s}.wbar:nth-child(3){height:16px;animation-delay:0.2s}.wbar:nth-child(4){height:22px;animation-delay:0.3s}.wbar:nth-child(5){height:16px;animation-delay:0.2s}.wbar:nth-child(6){height:10px;animation-delay:0.1s}.wbar:nth-child(7){height:4px;animation-delay:0s}
-@keyframes wv { 0%,100%{transform:scaleY(0.3)} 50%{transform:scaleY(1)} }
-.wave.hidden { display:none; }
-</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>아크로한의원 일일결산·검수</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body>
+<body class="bg-gray-100">
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useMemo } = React;
 
-<header>
-  <div class="logo">🏥 아크로 동시통역</div>
-  <div class="lang-tabs">
-    <button class="tab-btn active" onclick="switchLang('japanese',this)">🇯🇵 日本語</button>
-    <button class="tab-btn" onclick="switchLang('english',this)">🇺🇸 EN</button>
-    <button class="tab-btn" onclick="switchLang('chinese',this)">🇨🇳 中文</button>
-    <button class="tab-btn" onclick="switchLang('taiwanese',this)">🇹🇼 繁中</button>
-    <button class="tab-btn" onclick="switchLang('thai',this)">🇹🇭 ไทย</button>
-  </div>
-  <div class="header-right">
-    <label class="opt-label opus" title="정확하지만 느립니다"><input type="checkbox" id="chkOpus" onchange="useOpus=this.checked"> <span>🎯OPUS</span></label>
-    <label class="opt-label"><input type="checkbox" id="chk" checked onchange="autoSpeak=this.checked"> 🔊자동음성</label>
-    <button class="btn-clear" onclick="clearAll()">초기화</button>
-  </div>
-</header>
+const num = (s) => { if (s===null||s===undefined) return 0; const n=Number(String(s).replace(/[^0-9.\-]/g,"")); return isNaN(n)?0:n; };
+const fmt = (n) => (n||0).toLocaleString("ko-KR");
+const won = (n) => fmt(n)+"원";
+const wonS = (n) => (n>0?"+":"")+fmt(n)+"원";
+const esc = (t)=>String(t==null?"":t).replace(/[&<>"]/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const WD = ["일","월","화","수","목","금","토"];
+const dateLabel = (d) => { if(!d) return ""; const dt=new Date(d+"T00:00:00"); return isNaN(dt)?d:`${d}(${WD[dt.getDay()]})`; };
+const DENOMS = [50000,10000,5000,1000,500,100,50];
+const denomLabel = (d) => (d>=10000? d/10000+"만":d)+"원";
 
-<div class="chat" id="chat"></div>
+const SAMPLE_OK = [
+  "일 일  결 산 표:2026-06-23",
+  "내원환자수\t신규환자수\t자보환자수\t총진료비\t본인부담\t보험(청구)\t자보(청구)\t산재(청구)\t비급여\t환자부담계\t미수금\t할인총액\t할인미구분\t할인본인\t할인비급여\t절사총액\t절사미구분\t절사본인\t절사비급여\t수납총액\t수납미구분\t수납본인\t수납비급여\t환불총액\t환불미구분\t환불본인\t환불비급여\t현금수납\t현금수납미구분\t현금수납본인\t현금수납비급여\t카드수납\t카드수납미구분\t카드수납본인\t카드수납비급여\t건생/지원\t건생/지원(미구분)\t건생/지원(본인)\t건생/지원(비급여)\t현금회수\t현금회수미구분\t현금회수본인\t현금회수비급여\t카드회수\t카드회수미구분\t카드회수본인\t카드회수비급여\t통장회수\t통장회수미구분\t통장회수본인\t통장회수비급여\t현금환불\t현금환불미구분\t현금환불본인\t현금환불비급여\t카드환불\t카드환불미구분\t카드환불본인\t카드환불비급여\t통장환불\t통장환불미구분\t통장환불본인\t통장환불비급여\t현금영수증\t현금영수증미구분\t현금영수증본인\t현금영수증비급여",
+  "47\t6\t0\t5805940\t120300\t208240\t0\t0\t5477400\t5597700\t0\t0\t0\t0\t0\t0\t0\t0\t0\t5597700\t0\t120300\t5477400\t0\t0\t0\t0\t0\t0\t0\t0\t4027700\t0\t120300\t3907400\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1570000\t0\t0\t1570000\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1570000\t0\t0\t1570000",
+  "환자이름\t차트번호\t진료일\t진료의\t총진료비\t본인부담\t보험(청구)\t자보(청구)\t산재(청구)\t비급여\t환자부담계\t구분\t미수금\t할인총액\t할인미구분\t할인본인\t할인비급여\t절사총액\t절사미구분\t절사본인\t절사비급여\t수납총액\t수납미구분\t수납본인\t수납비급여\t환불총액\t환불미구분\t환불본인\t환불비급여\t현금수납\t현금수납미구분\t현금수납본인\t현금수납비급여\t카드수납\t카드수납미구분\t카드수납본인\t카드수납비급여\t건생/지원\t건생/지원(미구분)\t건생/지원(본인)\t건생/지원(비급여)\t현금회수\t현금회수미구분\t현금회수본인\t현금회수비급여\t카드회수\t카드회수미구분\t카드회수본인\t카드회수비급여\t통장회수\t통장회수미구분\t통장회수본인\t통장회수비급여",
+  "정설희\t008771\t2026-06-23\t임주혁\t580000\t0\t0\t0\t0\t580000\t580000\t일반\t0\t0\t0\t0\t0\t0\t0\t0\t0\t580000\t0\t0\t580000\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t580000\t0\t0\t580000",
+  "조원영\t008530\t2026-06-23\t박지선\t480000\t0\t0\t0\t0\t480000\t480000\t일반\t0\t0\t0\t0\t0\t0\t0\t0\t0\t480000\t0\t0\t480000\t0\t0\t0\t0\t0\t0\t0\t0\t480000\t0\t0\t480000\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0",
+  "양지영\t015683\t2026-06-23\t임주혁\t200000\t0\t0\t0\t0\t200000\t200000\t일반\t0\t0\t0\t0\t0\t0\t0\t0\t0\t200000\t0\t0\t200000\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t200000\t0\t0\t200000",
+].join("\n");
 
-<div class="bottom">
-  <div class="mic-btns">
-    <button class="mic-btn ko-btn" id="btn-ko">
-      <div class="wave hidden" id="wave-ko"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div>
-      <div class="bico" id="icon-ko">🎤</div>
-      <div class="blabel">🇰🇷 한국어</div>
-      <div class="bsub" id="sub-ko">꾹 눌러 말하기</div>
-    </button>
-    <button class="mic-btn tgt-btn" id="btn-tgt">
-      <div class="wave hidden" id="wave-tgt"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div>
-      <div class="bico" id="icon-tgt">🎤</div>
-      <div class="blabel" id="label-tgt">🇯🇵 日本語</div>
-      <div class="bsub" id="sub-tgt">押しながら話す</div>
-    </button>
-  </div>
-  <div class="text-row">
-    <textarea id="ta" placeholder="한국어 또는 외국어로 입력하면 자동 감지..." onkeydown="taKey(event)" rows="1"></textarea>
-    <button class="btn-send" onclick="sendFromTa()">전송</button>
-  </div>
-</div>
-
-<script>
-const PROXY_URL = "https://script.google.com/macros/s/AKfycby4b8Y1P30dJeVLP9L5zd1-HI6c1iLEHVT_d_sVKu0zPfRrRsrDFVvnfgA5d4rXTRG4Gg/exec";
-
-const LANGS = {
-  japanese:  { name:'日本語',   flag:'🇯🇵', code:'ja-JP', eng:'Japanese' },
-  english:   { name:'English',  flag:'🇺🇸', code:'en-US', eng:'English' },
-  chinese:   { name:'中文',     flag:'🇨🇳', code:'zh-CN', eng:'Simplified Chinese' },
-  taiwanese: { name:'繁體中文', flag:'🇹🇼', code:'zh-TW', eng:'Traditional Chinese' },
-  thai:      { name:'ภาษาไทย', flag:'🇹🇭', code:'th-TH', eng:'Thai' },
-};
-
-/* 무전기식 버튼 안내 — 각 언어로 표시 */
-const PTT = {
-  ko:        { idle:'꾹 눌러 말하기',     rec:'🔴 듣는 중… 떼면 통역' },
-  japanese:  { idle:'押しながら話す',      rec:'🔴 指を離すと通訳します' },
-  english:   { idle:'Hold to speak',      rec:'🔴 Release to translate' },
-  chinese:   { idle:'按住说话',           rec:'🔴 松开后翻译' },
-  taiwanese: { idle:'按住說話',           rec:'🔴 放開後翻譯' },
-  thai:      { idle:'กดค้างเพื่อพูด',      rec:'🔴 ปล่อยเพื่อแปล' },
-};
-
-let curLang = 'japanese';
-let history = [];
-let busy = false;
-let autoSpeak = true;
-let useOpus = false;
-let ttsId = null;
-
-/* ---------- 음성인식: 무전기식 (누르는 동안만 듣고, 떼면 전송) ---------- */
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null;
-let activeSTT = null;   // 'ko' | 'tgt' | null
-let sttBuffer = '';
-let sendSide = null;    // 떼는 순간 set → onend에서 전송
-
-function appendFinal(t) {
-  t = (t || '').trim();
-  if (!t) return;
-  const buf = sttBuffer.trim();
-  if (buf && buf.endsWith(t)) return;   // 안전망: 직전 조각 그대로 반복되면 무시
-  sttBuffer = (buf ? buf + ' ' : '') + t + ' ';
-}
-
-function pttStart(side, ev) {
-  if (ev) ev.preventDefault();
-  if (!SR) { alert('음성인식은 Chrome/Edge에서만 지원됩니다'); return; }
-  if (activeSTT) return;                 // 이미 한쪽이 듣는 중이면 무시
-  if (window.speechSynthesis) speechSynthesis.cancel();  // 이전 통역 음성 끊어 되먹임 방지
-
-  activeSTT = side;
-  sendSide = null;
-  sttBuffer = '';
-  setRecUI(side, true);
-
-  const isKo = side === 'ko';
-  rec = new SR();
-  rec.lang = isKo ? 'ko-KR' : LANGS[curLang].code;
-  rec.continuous = true;       // 누르는 동안 여러 문장 허용
-  rec.interimResults = true;
-  rec.maxAlternatives = 1;
-
-  rec.onresult = e => {
-    let interim = '';
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) appendFinal(t);
-      else interim += t;
-    }
-    const sub = document.getElementById('sub-' + side);
-    if (sub) sub.textContent = '💬 ' + (sttBuffer + interim).trim();
-  };
-  rec.onerror = ev2 => {
-    if (ev2.error === 'not-allowed' || ev2.error === 'service-not-allowed') {
-      alert('마이크 권한을 허용해주세요');
-    }
-    // no-speech / aborted 등은 무시 (자동 재시작 없음 → 중복 원천 차단)
-  };
-  rec.onend = () => {
-    // 떼는 순간 stop() 이후 들어온 마지막 final 까지 포함해 전송
-    if (sendSide) {
-      const text = sttBuffer.trim();
-      const s = sendSide;
-      sendSide = null; sttBuffer = '';
-      if (text) sendText(text, s);
-    }
-  };
-  try { rec.start(); } catch (e) {}
-}
-
-function pttEnd(side, ev) {
-  if (ev) ev.preventDefault();
-  if (activeSTT !== side) return;
-  setRecUI(side, false);
-  activeSTT = null;
-  sendSide = side;                       // onend에서 전송하도록 표시
-  if (rec) { try { rec.stop(); } catch (e) {} }
-}
-
-function stopActive() {
-  if (!activeSTT) return;
-  sendSide = null;                       // 전송하지 않고 폐기
-  const side = activeSTT;
-  if (rec) { try { rec.stop(); } catch (e) {} }
-  setRecUI(side, false);
-  activeSTT = null;
-  sttBuffer = '';
-}
-
-function setRecUI(side, on) {
-  const btn=document.getElementById('btn-'+side), wave=document.getElementById('wave-'+side),
-        icon=document.getElementById('icon-'+side), sub=document.getElementById('sub-'+side);
-  const key = (side === 'ko') ? 'ko' : curLang;
-  if (on) {
-    btn.classList.add('active'); wave.classList.remove('hidden'); icon.style.display='none';
-    sub.textContent = PTT[key].rec;
-  } else {
-    btn.classList.remove('active'); wave.classList.add('hidden'); icon.style.display='';
-    sub.textContent = PTT[key].idle;
-  }
-}
-
-/* pointer 이벤트 바인딩 — 누름 시작 / 뗌 종료. setPointerCapture로 손가락이 살짝 벗어나도 유지 */
-['ko','tgt'].forEach(side => {
-  const btn = document.getElementById('btn-' + side);
-  btn.addEventListener('pointerdown', e => { try{ btn.setPointerCapture(e.pointerId); }catch(_){} pttStart(side, e); });
-  btn.addEventListener('pointerup',     e => pttEnd(side, e));
-  btn.addEventListener('pointercancel', e => pttEnd(side, e));
-  btn.addEventListener('contextmenu',   e => e.preventDefault());  // 길게 누를 때 메뉴 방지
-});
-
-/* ---------- 번역 (프록시 경유, 직역 전용) ---------- */
-async function sendText(text, side) {
-  if (!text || busy) return;
-  busy = true;
-  const isKo = side === 'ko';
-  const cfg = LANGS[curLang];
-  const srcLang = isKo ? 'Korean' : cfg.eng;
-  const tgtLang = isKo ? cfg.eng : 'Korean';
-  const tgtCode = isKo ? cfg.code : 'ko-KR';
-
-  const entry = { id: Date.now() };
-  if (isKo) entry.ko = text; else entry[curLang] = text;
-  history.push(entry);
-  renderChat();
-
-  const prompt =
-`You are a medical interpreter at a Korean medicine clinic. Translate the user text from ${srcLang} to ${tgtLang}.
-STRICT RULES:
-- Literal, faithful translation only. Do NOT paraphrase, summarize, localize, or improve.
-- Do NOT add, omit, explain, or answer anything. If the text is a question, translate the question (do not answer it).
-- Preserve numbers, units, dosage, body parts, and medical terms exactly.
-- Keep the same sentence structure and tone as closely as the target language allows.
-- Output ONLY the translation. No quotes, no notes, no labels.
-
-TEXT:
-${text}`;
-
-  try {
-    const res = await fetch(PROXY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        model: useOpus ? 'claude-opus-4-8' : 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        prompt: prompt
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || 'error'));
-    const translated = (data.content && data.content[0] && data.content[0].text || '').trim();
-    const idx = history.findIndex(h => h.id === entry.id);
-    if (idx !== -1) { if (isKo) history[idx][curLang] = translated; else history[idx].ko = translated; }
-    if (autoSpeak && translated) speakAuto(translated, tgtCode);
-  } catch (err) {
-    const idx = history.findIndex(h => h.id === entry.id);
-    if (idx !== -1) { if (isKo) history[idx][curLang] = '❌ ' + err.message; else history[idx].ko = '❌ ' + err.message; }
-  }
-  busy = false;
-  renderChat();
-}
-
-function sendFromTa() {
-  const ta = document.getElementById('ta');
-  const text = ta.value.trim();
-  if (!text) return;
-  ta.value = '';
-  const isKorean = /[\uAC00-\uD7A3]/.test(text);
-  sendText(text, isKorean ? 'ko' : 'tgt');
-}
-function taKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFromTa(); } }
-
-/* ---------- 음성 출력 (여성·중성 톤 우선) ---------- */
-let voicesReady = false;
-function loadVoices(){ voicesReady = true; }
-if (window.speechSynthesis) { speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
-
-const FEMALE_HINTS = ['female','woman','girl','kyoko','o-ren','siri female','google 日本語','google us english','google 中文','samantha','victoria','zira','nuan','mei','ting','tessa','amira','kanya','google ภาษาไทย','premwadee','ava','jenny','sora','yuna','heami','sun-hi'];
-const MALE_HINTS = ['male','man','google uk english male','daniel','alex','fred','otoya','kenji','ichiro'];
-
-function pickVoice(code) {
-  const vs = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-  if (!vs.length) return null;
-  const base = code.split('-')[0].toLowerCase();
-  const sameLang = vs.filter(v => (v.lang||'').toLowerCase().startsWith(base));
-  const pool = sameLang.length ? sameLang : vs;
-  const isFemale = v => { const n=(v.name||'').toLowerCase(); return FEMALE_HINTS.some(h=>n.includes(h)); };
-  const isMale = v => { const n=(v.name||'').toLowerCase(); return MALE_HINTS.some(h=>n.includes(h)); };
-  return pool.find(isFemale) || pool.find(v => !isMale(v)) || pool[0];
-}
-function applyVoice(u, code) {
-  const v = pickVoice(code);
-  if (v) u.voice = v;
-  u.lang = code; u.rate = 0.95; u.pitch = 1.15;
-}
-function speakAuto(text, code) {
-  if (!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  applyVoice(u, code);
-  speechSynthesis.speak(u);
-}
-function speakBtn(text, code, id) {
-  if (!window.speechSynthesis) return;
-  if (ttsId === id) { speechSynthesis.cancel(); ttsId=null; document.querySelectorAll('.spk').forEach(b=>b.classList.remove('on')); return; }
-  speechSynthesis.cancel();
-  document.querySelectorAll('.spk').forEach(b=>b.classList.remove('on'));
-  const btn = document.getElementById(id);
-  if (btn) btn.classList.add('on');
-  ttsId = id;
-  const u = new SpeechSynthesisUtterance(text);
-  applyVoice(u, code);
-  u.onend = u.onerror = () => { ttsId=null; if (btn) btn.classList.remove('on'); };
-  speechSynthesis.speak(u);
-}
-
-/* ---------- 렌더 ---------- */
-function renderChat() {
-  const chat = document.getElementById('chat');
-  const cfg = LANGS[curLang];
-  if (history.length === 0) {
-    chat.innerHTML = `<div class="empty"><div class="ico">🎙️</div><div class="txt">버튼을 <b>꾹 누른 채</b> 말하고<br><b>손을 떼면</b> 통역됩니다<br><br>
-      <span style="color:#1d4ed8;font-weight:700">🇰🇷 한국어</span> — 원장님<br>
-      <span style="color:#7c3aed;font-weight:700">${cfg.flag} ${cfg.name}</span> — 환자</div></div>`;
-    return;
-  }
-  chat.innerHTML = '';
-  history.forEach((entry, i) => {
-    const koText = entry.ko, tgtText = entry[curLang];
-    const g = document.createElement('div'); g.className='msg-group';
-    if (koText) {
-      const err = koText.startsWith('❌'); const id = `sk${i}`;
-      g.innerHTML += `<div class="msg-row left"><div class="flag">🇰🇷</div><div class="bubble ${err?'berr':'bko'}">${esc(koText)}</div>${!err?`<button class="spk" id="${id}" onclick="speakBtn('${ea(koText)}','ko-KR','${id}')">🔊</button>`:''}</div>`;
-    } else { g.innerHTML += `<div class="msg-row left"><div class="flag">🇰🇷</div><div class="bubble bpend">통역 중...</div></div>`; }
-    if (tgtText) {
-      const err = tgtText.startsWith('❌'); const id = `st${i}`;
-      g.innerHTML += `<div class="msg-row right">${!err?`<button class="spk" id="${id}" onclick="speakBtn('${ea(tgtText)}','${cfg.code}','${id}')">🔊</button>`:''}<div class="bubble ${err?'berr':'btgt'}">${esc(tgtText)}</div><div class="flag">${cfg.flag}</div></div>`;
-    } else { g.innerHTML += `<div class="msg-row right"><div class="bubble bpend">통역 중...</div><div class="flag">${cfg.flag}</div></div>`; }
-    chat.appendChild(g);
+function parseOkchart(raw){
+  const lines = raw.split(/\r?\n/).filter((l)=>l.trim()!=="");
+  let date="", sIdx=-1, pIdx=-1;
+  lines.forEach((ln,i)=>{
+    if(ln.replace(/\s/g,"").includes("일일결산표")){ const m=ln.match(/(\d{4}-\d{2}-\d{2})/); if(m) date=m[1]; }
+    const first=(ln.split("\t")[0]||"").trim();
+    if(first==="내원환자수") sIdx=i;
+    if(first==="환자이름") pIdx=i;
   });
-  chat.scrollTop = chat.scrollHeight;
+  const summary={};
+  if(sIdx>=0 && lines[sIdx+1]){ const h=lines[sIdx].split("\t"); const v=lines[sIdx+1].split("\t"); h.forEach((k,i)=>summary[k.trim()]=num(v[i])); }
+  const patients=[];
+  if(pIdx>=0){ const h=lines[pIdx].split("\t").map((x)=>x.trim()); for(let i=pIdx+1;i<lines.length;i++){ const c=lines[i].split("\t"); if(c.length<5) continue; const row={}; h.forEach((k,j)=>row[k]=c[j]); patients.push(row);} }
+  return { date, summary, patients, ok: sIdx>=0 };
 }
 
-function switchLang(lang, el) {
-  curLang = lang;
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  stopActive();
-  document.getElementById('label-tgt').textContent = LANGS[lang].flag + ' ' + LANGS[lang].name;
-  document.getElementById('sub-tgt').textContent = PTT[lang].idle;   // 외국어 안내문 갱신
-  renderChat();
+function NumInput({value,onChange,placeholder}){
+  const disp = value===""?"":Number(value).toLocaleString("ko-KR");
+  return <input value={disp} onChange={(e)=>onChange(e.target.value.replace(/[^0-9]/g,""))} inputMode="numeric" placeholder={placeholder||"0"} className="w-full px-2 py-1.5 text-right border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />;
 }
-function clearAll() {
-  if (!confirm('대화 내용을 모두 삭제할까요?')) return;
-  window.speechSynthesis && speechSynthesis.cancel();
-  history = []; stopActive(); renderChat();
+function Field({label,hint,children}){
+  return (<div><div className="text-xs font-medium text-gray-600 mb-1">{label}</div>{children}{hint && <div className="text-[11px] text-gray-400 mt-0.5">{hint}</div>}</div>);
 }
-function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
-function ea(t){ return t.replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
+function Card({title,sub,right,children,accent}){
+  return (
+    <div className={"bg-white rounded-lg border p-3 "+(accent||"border-gray-200")}>
+      {(title||right) && <div className="flex items-center justify-between mb-2"><div><h3 className="font-bold text-sm">{title}</h3>{sub && <div className="text-[11px] text-gray-400">{sub}</div>}</div>{right}</div>}
+      {children}
+    </div>
+  );
+}
+function Step({n,title,sub,children}){
+  return (
+    <section className="relative">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="flex items-center justify-center w-7 h-7 rounded-full bg-gray-800 text-white text-sm font-bold shrink-0">{n}</span>
+        <div><h2 className="font-bold text-base">{title}</h2>{sub && <div className="text-xs text-gray-400">{sub}</div>}</div>
+      </div>
+      <div className="ml-3 pl-5 border-l-2 border-gray-200 space-y-3 pb-2">{children}</div>
+    </section>
+  );
+}
 
-renderChat();
+function App(){
+  const [raw,setRaw]=useState("");
+  const [meta,setMeta]=useState({담당자:"",비고:""});
+  const [cmp,setCmp]=useState({올댓페이:"",택배비:"",통장입금:"",마감금고:""});
+  const [carry,setCarry]=useState({전일금고:"",전일통장수입:"",전일지출:"",전일환불:"",전일카드수입:"",전일매출:""});
+  const [withdraws,setWithdraws]=useState([{memo:"",amt:""}]);
+  const [monthStart,setMonthStart]=useState(false);
+  const [expenses,setExpenses]=useState([{item:"",amt:""}]);
+  const [refunds,setRefunds]=useState([{memo:"",way:"카드취소",amt:""}]);
+  const [adjs,setAdjs]=useState([]);
+  const [denom,setDenom]=useState({});
+  const [etc,setEtc]=useState("");
+  const [ledger,setLedger]=useState([]);
+  const [loadMsg,setLoadMsg]=useState("");
+  const [apiKey,setApiKey]=useState("");
+  const [showKey,setShowKey]=useState(false);
+  const [chats,setChats]=useState([{name:"",body:""}]);
+  const [auditing,setAuditing]=useState(false);
+  const [flags,setFlags]=useState(null);
+  const [auditErr,setAuditErr]=useState("");
+  const PROXY_URL="https://script.google.com/macros/s/AKfycby4b8Y1P30dJeVLP9L5zd1-HI6c1iLEHVT_d_sVKu0zPfRrRsrDFVvnfgA5d4rXTRG4Gg/exec";
+  const [log,setLog]=useState({done:"",mistakes:"",issues:""});
+  const [logLedger,setLogLedger]=useState([]);
+  const [receivables,setReceivables]=useState([]);
+
+  const parsed = useMemo(()=>parseOkchart(raw),[raw]);
+  const s = parsed.summary;
+
+  const okCard=num(s["카드수납"]), okBank=num(s["통장회수"]), okCash=num(s["현금수납"]);
+  const okTotal=num(s["수납총액"]), okRevenue=num(s["총진료비"]);
+  const okIns=num(s["보험(청구)"]), okAuto=num(s["자보(청구)"]);
+  const okReceipt=num(s["현금영수증"]), okRefund=num(s["환불총액"]);
+  const okMisu=num(s["미수금"]), okCardRec=num(s["카드회수"]), okCashRec=num(s["현금회수"]), okJiwon=num(s["건생/지원"]);
+
+  const allthat=num(cmp.올댓페이), delivery=num(cmp.택배비);
+  const termCard=allthat-delivery, bankIn=num(cmp.통장입금);
+  const expenseSum=expenses.reduce((a,b)=>a+num(b.amt),0);
+  const refundSum=refunds.reduce((a,b)=>a+num(b.amt),0);
+  const refCard=refunds.filter((r)=>r.way==="카드취소").reduce((a,b)=>a+num(b.amt),0);
+  const refBank=refunds.filter((r)=>r.way==="계좌입금").reduce((a,b)=>a+num(b.amt),0);
+  const adjSum=(cat)=>adjs.filter((a)=>a.cat===cat).reduce((sm,a)=>sm+(a.sign==="-"?-1:1)*num(a.amt),0);
+
+  // 금고 = 폐쇄 회계: 들어온 현금(현금수납) − 나간 현금(지출 + 원장회수)이 권종 실측과 맞아야 함.
+  // 나가는 현금은 반드시 기록(지출/원장회수)으로 남는다. 기록 없이 비면 = 증발(횡령/분실) 신호.
+  const withdrawSum=withdraws.reduce((a,b)=>a+num(b.amt),0);
+  const safeToday=num(carry.전일금고)+okCash-expenseSum-withdrawSum;
+  const receivOpen=receivables.filter((r)=>!r.해결);
+  const receivSum=receivOpen.reduce((a,b)=>a+num(b.금액),0);
+  const carriedOpen=receivOpen.filter((r)=>r.carried);
+  const carriedSum=carriedOpen.reduce((a,b)=>a+num(b.금액),0);
+  const denomTotal=DENOMS.reduce((a,d)=>a+d*num(denom[d]),0)+num(etc);
+  const denomEntered=DENOMS.some((d)=>(denom[d]||"")!=="")||etc!=="";
+  const effClose=denomEntered?denomTotal:num(cmp.마감금고);
+  const closeEntered=denomEntered||cmp.마감금고!=="";
+
+  const cumBank=num(carry.전일통장수입)+okBank+adjSum("통장");
+  const cumExpense=num(carry.전일지출)+expenseSum+adjSum("지출");
+  const cumRefund=num(carry.전일환불)+refundSum+adjSum("환불");
+  const cumCard=num(carry.전일카드수입)+okCard+adjSum("카드");
+  const cumSales=num(carry.전일매출)+okRevenue+adjSum("매출");
+
+  const checks=[
+    {label:"카드 (올댓페이−택배비 = 카드수납)",ok:okCard,ext:termCard,entered:cmp.올댓페이!==""},
+    {label:"통장 (실측입금 = 통장회수)",ok:okBank,ext:bankIn,entered:cmp.통장입금!==""},
+    {label:"금고 (권종 실측 = 기대잔액·−면 현금증발)",ok:safeToday,ext:effClose,entered:closeEntered},
+    {label:"환불 (수기입력 = OK환불총액)",ok:okRefund,ext:refundSum,entered:refunds.some((r)=>r.amt!=="")},
+  ];
+  const payOK=okCard+okBank+okCash===okTotal;
+  let cM=0,cB=0,cW=0;
+  checks.forEach((c)=>(!c.entered?cW++:c.ext-c.ok===0?cM++:cB++));
+  const keyEntered=cmp.올댓페이!==""&&cmp.통장입금!==""&&closeEntered;
+  const decision=!parsed.ok?"data":cB>0?"bad":keyEntered?"pass":"wait";
+
+  const R=(a,b,c,val,note,key)=>({a,b,c,val,note,key});
+  const adjRows=adjs.filter((a)=>a.amt!=="").map((a)=>R("소급조정",`${a.date||""} ${a.memo||""}`.trim(),a.cat,(a.sign==="-"?-1:1)*num(a.amt),"","adj"));
+  const rows=[
+    R("의료수입","당일매출","카드",okCard),R("","","현금",okCash),R("","","통장",okBank),R("","","미수매출",okMisu),
+    R("","미수수납","카드",okCardRec),R("","","현금",okCashRec),R("","","통장",0),
+    R("","건보청구","",okIns),R("","자보청구","",okAuto),
+    R("단말기내역","카드","",termCard,"","tcard"),R("","현금영수증","",okReceipt),
+    R("지원 / 건생비","","",okJiwon),R("현금수입","","",okCash),R("통장수입","","",okBank),
+    R("금고내역","전일금고","",num(carry.전일금고)),R("","현금수납","",okCash),R("","지출","",expenseSum),R("","원장회수","",withdrawSum),R("","금일금고","",safeToday,"","safe"),
+    R("일 결산","수입","",okRevenue),R("","지출","",expenseSum),
+    R("환불","손비처리","",0),R("","통장","",refBank),R("","카드","",refCard),
+    ...adjRows,
+    R("전일 통장수입","","",num(carry.전일통장수입)),R("총 통장수입","","",cumBank,"","cum"),
+    R("전일 지출","","",num(carry.전일지출)),R("총 지출","","",cumExpense,"","cum"),
+    R("전일 환불","","",num(carry.전일환불)),R("총 환불","","",cumRefund,"","cum"),
+    R("전일 카드 수입","","",num(carry.전일카드수입)),R("총 카드 수입","","",cumCard,"","cum"),
+    R("전일 매출","","",num(carry.전일매출),meta.비고),R("총 매출","","",cumSales,"","cum"),
+  ];
+
+  const loadSample=()=>{
+    setRaw(SAMPLE_OK);
+    setCmp({올댓페이:"4027700",택배비:"",통장입금:"1570000",마감금고:""});
+    setCarry({전일금고:"191360",전일통장수입:"21655100",전일지출:"30600",전일환불:"3190000",전일카드수입:"79084030",전일매출:"108751330"});
+    setMeta({담당자:"이주영",비고:"직원 박*영 6/20 첩건 +45,900원 카드수납완료"});
+    setWithdraws([{memo:"",amt:""}]); setExpenses([{item:"",amt:""}]); setRefunds([{memo:"",way:"카드취소",amt:""}]); setAdjs([]);
+    setDenom({10000:"11",5000:"5",1000:"30",500:"42",100:"50",50:"7"}); setEtc("10");
+    setChats([
+      {name:"데스크 상담방",body:"양지영님 200,000 통장 입금 확인 완료\n마유라님 변심으로 환불 요청 → 통장 310,000 처리 예정\n첩건) 박*영 6/20 +45,900 카드수납완료"},
+      {name:"원무 체크방",body:"정설희님 초진 580,000 카드 결제 정상\nRIO SHIMOYAMA 249,000 결제 확인\n조원영님 재접수 480,000 카드 완료"},
+    ]);
+    setLog({done:"- 일일결산 작성\n- 외국인 환자 3명 응대",mistakes:"",issues:""});
+    setReceivables([{발생일:"2026-06-20",환자:"김미수",금액:"150000",메모:"카드 한도 초과, 다음주 결제 예정",해결:false,carried:true},{발생일:"2026-06-23",환자:"양지영",금액:"729000",메모:"잔액 미수 - 통장 입금 예정",해결:false,carried:false}]);
+  };
+
+  const copyPrevDenom=()=>{
+    if(!ledger.length) return;
+    const last=ledger[ledger.length-1];
+    const nd={}; let residual=num(last.etc);
+    DENOMS.forEach((d)=>{ const amt=num(last["d"+d]); const cnt=Math.floor(amt/d); nd[d]=cnt?String(cnt):""; residual+=amt-cnt*d; });
+    setDenom(nd); setEtc(residual?String(residual):"");
+  };
+
+  const handleFile=(e)=>{
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    const reader=new FileReader();
+    reader.onload=(ev)=>{
+      try{
+        const wb=XLSX.read(new Uint8Array(ev.target.result),{type:"array"});
+        const a=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1});
+        const byA=(l)=>{for(const r of a) if(String(r[0]||"").trim()===l) return num(r[3]); return null;};
+        const byB=(l)=>{for(const r of a) if(String(r[1]||"").trim()===l) return num(r[3]); return null;};
+        const safe=byB("금일금고"),bank=byA("총 통장수입"),exp=byA("총 지출"),ref=byA("총 환불"),card=byA("총 카드 수입"),sales=byA("총 매출");
+        let ledLast=null; const cs=wb.Sheets["시재관리"];
+        if(cs){ const ca=XLSX.utils.sheet_to_json(cs,{header:1}); const led=[];
+          for(const r of ca){ const d0=String(r[0]||"").trim(); if(!/\d/.test(d0)||d0==="날짜"||d0==="시재관리") continue;
+            led.push({date:d0,open:num(r[1]),cashIn:num(r[2]),out:num(r[3]),close:num(r[4]),note:r[5]||"",d50000:num(r[6]),d10000:num(r[7]),d5000:num(r[8]),d1000:num(r[9]),d500:num(r[10]),d100:num(r[11]),d50:num(r[12]),etc:num(r[13]),total:num(r[14])}); }
+          setLedger(led); ledLast=led.length?led[led.length-1]:null; }
+        const ls=wb.Sheets["업무로그"];
+        if(ls){ const la=XLSX.utils.sheet_to_json(ls,{header:1}); const blocks=[]; let cur=null;
+          for(const r of la){ const line=(r[0]==null?"":String(r[0])); const m=line.match(/^\[일자 (\d{4}-\d{2}-\d{2})\]/); if(m){ cur={date:m[1],lines:[line]}; blocks.push(cur); } else if(cur){ cur.lines.push(line); } }
+          setLogLedger(blocks.map((b)=>({date:b.date,text:b.lines.join("\n")}))); }
+        const rs=wb.Sheets["미수관리"];
+        if(rs){ const ra=XLSX.utils.sheet_to_json(rs,{header:1}); const recv=[];
+          for(const r of ra){ const c0=String(r[0]||"").trim(); if(c0==="발생일"||c0.startsWith("미수관리")||c0==="") continue;
+            if(!num(r[2])&&!String(r[1]||"").trim()) continue;
+            recv.push({발생일:c0,환자:String(r[1]||""),금액:String(num(r[2])||""),메모:String(r[3]||""),해결:false,carried:true}); }
+          if(recv.length) setReceivables(recv); }
+        const prevSafe=safe!=null?safe:ledLast?ledLast.close:null;
+        if(prevSafe==null&&sales==null){ setLoadMsg("⚠️ 결산 양식을 인식하지 못했습니다."); e.target.value=""; return; }
+        setCarry({
+          전일금고:prevSafe!=null?String(prevSafe):"",
+          전일통장수입:monthStart?"0":bank!=null?String(bank):"",
+          전일지출:monthStart?"0":exp!=null?String(exp):"",
+          전일환불:monthStart?"0":ref!=null?String(ref):"",
+          전일카드수입:monthStart?"0":card!=null?String(card):"",
+          전일매출:monthStart?"0":sales!=null?String(sales):"",
+        });
+        setLoadMsg(`✓ 불러옴 — 전일금고 ${fmt(prevSafe)}${cs?" · 시재원장 적재됨":""}${rs?" · 미수 이월됨":""}${monthStart?" (월초: 누계 리셋)":""}`);
+      }catch(err){ setLoadMsg("⚠️ 읽기 실패: "+err.message); }
+      e.target.value="";
+    };
+    reader.readAsArrayBuffer(f);
+  };
+
+  const buildLog=()=>{
+    const lines=checks.map((c)=>{ const st=!c.entered?"대기":(c.ext-c.ok===0?"일치":"불일치"); return `- ${c.label}: ${st}${st==="불일치"?` (차이 ${wonS(c.ext-c.ok)})`:""}`; }).join("\n");
+    const flagLines=!flags?"- (검수 미실행)":(flags.length===0?"- 의심 없음":flags.map((f)=>`- [${f.채팅창||"-"}] ${f.환자||"-"} · ${f.유형||""} — ${f.무엇이||f.근거||""}`).join("\n"));
+    const recvLines=receivOpen.length===0?"- 없음":receivOpen.map((r)=>`- ${r.발생일||"-"} · ${r.환자||"-"} · ${won(num(r.금액))}${r.carried?" (이월)":""}${r.메모?" — "+r.메모:""}`).join("\n");
+    return ["# 아크로한의원 일일결산 업무로그",`- 날짜: ${dateLabel(parsed.date)||"-"}`,`- 담당자: ${meta.담당자||"-"}`,"","## 결산 요약",`- 총진료비: ${won(okRevenue)}`,`- 수납: 카드 ${fmt(okCard)} / 통장 ${fmt(okBank)} / 현금 ${fmt(okCash)}`,`- 금고: 전일 ${fmt(num(carry.전일금고))} + 현금수납 ${fmt(okCash)} − 지출 ${fmt(expenseSum)} − 원장회수 ${fmt(withdrawSum)} = 기대 ${fmt(safeToday)} (권종실측 ${fmt(effClose)}${closeEntered?(effClose-safeToday===0?" 일치":" 차이 "+wonS(effClose-safeToday)):""})`,`- 총매출(누계): ${won(cumSales)}`,"","## 미수 (받을 돈)",recvLines,"","## 대조 결과",lines,"","## AI 검수",flagLines,"","## 오늘 한 일",(log.done||"-"),"","## 발견한 실수",(log.mistakes||"-"),"","## 이슈 / 메모",(log.issues||"-"),""].join("\n");
+  };
+
+  const dl=(blob,name)=>{ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url); };
+  const downloadMd=()=>{ dl(new Blob([buildLog()],{type:"text/markdown;charset=utf-8"}), `${parsed.date||"결산"}_업무로그.md`); };
+
+  const downloadXlsx=()=>{
+    const date=parsed.date||"결산";
+    const aoa=[["일일결산 보고서","","","","","대표원장"],["날짜",dateLabel(parsed.date),"담당자 : "+(meta.담당자||""),"","","비고"],...rows.map((r)=>[r.a,r.b,r.c,r.val,"원",r.note||""])];
+    const ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:14},{wch:16},{wch:12},{wch:14},{wch:5},{wch:40}];
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"일일결산");
+    const todayRow={date,open:num(carry.전일금고),cashIn:okCash,out:expenseSum+withdrawSum,close:safeToday,note:withdrawSum?("원장회수 "+fmt(withdrawSum)):"",d50000:50000*num(denom[50000]),d10000:10000*num(denom[10000]),d5000:5000*num(denom[5000]),d1000:1000*num(denom[1000]),d500:500*num(denom[500]),d100:100*num(denom[100]),d50:50*num(denom[50]),etc:num(etc),total:denomTotal};
+    const cashRows=[...ledger.filter((r)=>r.date!==date),todayRow].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
+    const cashAoa=[["시재관리"],["날짜","오픈","현금수납","출금","마감","비고","5만원","1만원","5천원","1천원","500원","100원","50원","기타","합계"],...cashRows.map((r)=>[r.date,r.open,r.cashIn,r.out,r.close,r.note||"",r.d50000,r.d10000,r.d5000,r.d1000,r.d500,r.d100,r.d50,r.etc,r.total])];
+    const cws=XLSX.utils.aoa_to_sheet(cashAoa); cws["!cols"]=[{wch:12},{wch:11},{wch:11},{wch:10},{wch:11},{wch:18},...Array(8).fill({wch:9}),{wch:11}];
+    XLSX.utils.book_append_sheet(wb,cws,"시재관리");
+    const todayLogText="[일자 "+date+"]\n"+buildLog();
+    const allLogs=[...logLedger.filter((b)=>b.date!==date),{date,text:todayLogText}].sort((x,y)=>String(x.date).localeCompare(String(y.date)));
+    const logRows=[]; allLogs.forEach((b)=>{ b.text.split("\n").forEach((l)=>logRows.push([l])); logRows.push([""]); });
+    const lws=XLSX.utils.aoa_to_sheet([["업무로그"],...logRows]); lws["!cols"]=[{wch:70}];
+    XLSX.utils.book_append_sheet(wb,lws,"업무로그");
+    const recvAoa=[["미수관리 (미해결만 이월)"],["발생일","환자","금액","메모"],...receivOpen.map((r)=>[r.발생일||"",r.환자||"",num(r.금액),r.메모||""])];
+    const rws=XLSX.utils.aoa_to_sheet(recvAoa); rws["!cols"]=[{wch:12},{wch:14},{wch:12},{wch:40}];
+    XLSX.utils.book_append_sheet(wb,rws,"미수관리");
+    if(parsed.patients.length){ const pc=Object.keys(parsed.patients[0]); XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([pc,...parsed.patients.map((p)=>pc.map((k)=>p[k]))]),"환자내역"); }
+    dl(new Blob([XLSX.write(wb,{bookType:"xlsx",type:"array"})],{type:"application/octet-stream"}), `${date}_결산.xlsx`);
+  };
+
+  const reportHtml=()=>{
+    const body=rows.map((r)=>`<tr><td>${esc(r.a)}</td><td>${esc(r.b)}</td><td>${esc(r.c)}</td><td class="r">${fmt(r.val)}</td><td>원</td></tr>`).join("");
+    const note=meta.비고?`<div style="margin-top:10px;color:#444">비고: ${esc(meta.비고)}</div>`:"";
+    const recv=receivOpen.length?`<div style="margin-top:12px"><b>특이사항 — 미수(받을 돈) ${receivOpen.length}건 · 합계 ${won(receivSum)}</b><table style="margin-top:4px">${receivOpen.map((r)=>`<tr><td>${esc(r.발생일||"-")}</td><td>${esc(r.환자||"-")}${r.carried?" (이월)":""}</td><td>${esc(r.메모||"")}</td><td class="r">${won(num(r.금액))}</td></tr>`).join("")}</table></div>`:"";
+    return `<h2 style="margin:0 0 2px">아크로한의원 일일결산 보고서</h2><div style="color:#555;margin-bottom:10px">날짜 ${esc(dateLabel(parsed.date)||"-")} &nbsp;&nbsp; 담당자 : ${esc(meta.담당자||"-")}</div><table>${body}</table>${note}${recv}`;
+  };
+  const printReport=()=>{
+    const w=window.open("","_blank","width=720,height=900");
+    if(!w){ alert("팝업이 차단되었습니다. 팝업을 허용해 주세요."); return; }
+    w.document.write(`<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>${esc(dateLabel(parsed.date)||"일일결산")}</title><style>body{font-family:-apple-system,'Malgun Gothic',sans-serif;font-size:13px;padding:20px;color:#111}table{border-collapse:collapse;width:100%;max-width:560px}td{border-bottom:1px solid #eee;padding:4px 8px}td.r{text-align:right;font-weight:600}h2{font-size:18px}</style></head><body>${reportHtml()}<` + `script>window.onload=function(){window.print()}<` + `/script></body></html>`);
+    w.document.close();
+  };
+
+  const runAudit=async()=>{
+    setAuditing(true); setAuditErr(""); setFlags(null);
+    try{
+      const pl=parsed.patients.filter((p)=>num(p["총진료비"])||num(p["수납총액"])||num(p["환불총액"])).map((p)=>`${p["환자이름"]}/${p["진료의"]}: 진료비 ${num(p["총진료비"])}, 수납 ${num(p["수납총액"])} [카드 ${num(p["카드수납"])}, 통장 ${num(p["통장회수"])}, 현금 ${num(p["현금수납"])}, 환불 ${num(p["환불총액"])}]`).join("\n");
+      const failed=checks.filter((c)=>c.entered&&c.ext-c.ok!==0).map((c)=>`${c.label} 차이 ${c.ext-c.ok}`).join("; ")||"없음";
+      const chatBlock=chats.filter((c)=>(c.body||"").trim()).map((c,i)=>`=== 채팅창 [${c.name||"이름없음 "+(i+1)}] ===\n${c.body}`).join("\n\n")||"(없음)";
+      const recvBlock=receivOpen.length?receivOpen.map((r)=>`${r.발생일||"-"} ${r.환자||"-"} ${num(r.금액)}${r.carried?" (이월)":""}${r.메모?" / "+r.메모:""}`).join("\n"):"(없음)";
+      const prompt=`당신은 한의원 일일결산 검수 보조입니다. 여러 업무 채팅창과 결산 데이터를 대조해 "검수에서 사람이 다시 봐야 할 의심 항목"만 찾습니다.\n\n[규칙]\n- 합계·산수는 이미 검증됨. 다시 계산하지 말 것.\n- 확실한 근거가 있는 것만. 추측 금지. 없으면 빈 배열 [].\n- 어느 채팅창에서 나온 근거인지 채팅창이름을 반드시 명시.\n- 근거가 된 원문 라인을 그대로 인용.\n- 유형: 누락 / 금액이상 / 결제수단불일치 / 채팅간상충 / 정정착오언급 / 미수상충 / 기타\n\n[추가 점검]\n- 채팅에 '입금/결제/완료'로 보이는데 아래 미수 목록에 그대로 남아있으면 → 미수상충(받았는데 미수에 방치).\n- 채팅에 미수/외상/나중결제 언급이 있는데 미수 목록에 없으면 → 누락.\n\n[참고 표준가] 다이어트 한약 초진 580,000 · 재접수 480,000 (그 외 시술·가격 다양, 단순참고)\n[결정적검증 불일치 단서] ${failed}\n\n[현재 미수(받을 돈) 목록]\n${recvBlock}\n\n[OK차트 환자별 수납]\n${pl||"(없음)"}\n\n[업무 채팅창들]\n${chatBlock}\n\nJSON 배열만 출력(설명·마크다운·코드펜스 금지): [{"채팅창":"","환자":"","유형":"","무엇이":"","근거":"","대조":"","조치":""}]`;
+      const res=await fetch(PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({prompt:prompt,model:"claude-opus-4-8",max_tokens:4096})});
+      if(!res.ok){ const t=await res.text(); throw new Error(`서버 ${res.status} — ${t.slice(0,160)}`); }
+      const data=await res.json();
+      if(data.error){ throw new Error(data.error); }
+      const text=(data.content||[]).filter((i)=>i.type==="text").map((i)=>i.text).join("\n");
+      const clean=text.replace(/```json|```/g,"").trim();
+      let arr; try{ arr=JSON.parse(clean); }catch{ arr=JSON.parse(clean.slice(clean.indexOf("["),clean.lastIndexOf("]")+1)); }
+      setFlags(Array.isArray(arr)?arr:[]);
+    }catch(err){ setAuditErr("분석 실패: "+(err.message||err)); }
+    setAuditing(false);
+  };
+
+  const rowStatus=(r)=>{
+    if(r.key==="tcard") return cmp.올댓페이===""?"":termCard===okCard?"ok":"bad";
+    if(r.key==="safe") return !closeEntered?"":effClose===safeToday?"ok":"bad";
+    return "";
+  };
+  const chatCount=chats.filter((c)=>(c.body||"").trim()).length;
+  const banner={
+    data:{cls:"bg-gray-100 border-gray-300 text-gray-600",txt:"먼저 OK차트를 붙여넣고 어제 결산을 불러오세요."},
+    wait:{cls:"bg-gray-100 border-gray-300 text-gray-600",txt:"외부 입력값(올댓페이·통장·금고)을 채우면 검수가 완료됩니다."},
+    pass:{cls:"bg-emerald-50 border-emerald-300 text-emerald-800",txt:"모든 대조가 일치합니다. 인쇄하고 저장하세요."},
+    bad:{cls:"bg-rose-50 border-rose-300 text-rose-800",txt:`불일치 ${cB}건 — 아래 AI 검수로 원인을 찾으세요.`},
+  }[decision];
+
+  return (
+    <div className="min-h-screen p-4 text-gray-800">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <div>
+            <h1 className="text-xl font-bold">아크로한의원 일일결산 · 검수</h1>
+            <div className="text-xs text-gray-500">{dateLabel(parsed.date)||"날짜 미입력"} · 담당자 {meta.담당자||"—"} · 내원 {num(s["내원환자수"])||0}명</div>
+          </div>
+          <div className="flex gap-1.5 text-xs font-semibold">
+            <span className="px-2 py-1 rounded bg-emerald-100 text-emerald-700">일치 {cM}</span>
+            <span className="px-2 py-1 rounded bg-rose-100 text-rose-700">불일치 {cB}</span>
+            <span className="px-2 py-1 rounded bg-gray-200 text-gray-600">대기 {cW}</span>
+          </div>
+        </div>
+
+        <div className="space-y-5">
+          <Step n="1" title="전날 결산 불러오기" sub="어제 파일을 올리면 전일 누계·시재가 자동으로 채워집니다">
+            <Card>
+              <div className="flex items-center gap-2 flex-wrap">
+                <label className="px-3 py-2 rounded-lg bg-amber-500 text-white text-sm font-bold hover:bg-amber-600 cursor-pointer">📂 어제 결산 파일 불러오기 (.xlsx)<input type="file" accept=".xlsx,.xls" onChange={handleFile} className="hidden" /></label>
+                <label className="text-xs flex items-center gap-1 cursor-pointer"><input type="checkbox" checked={monthStart} onChange={(e)=>setMonthStart(e.target.checked)} /> 월초(누계 리셋)</label>
+                <button onClick={loadSample} className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 ml-auto">샘플 불러오기</button>
+              </div>
+              {loadMsg && <div className="text-[11px] text-gray-500 mt-2">{loadMsg}</div>}
+              <div className="grid grid-cols-3 gap-2 mt-3">
+                <Field label="전일 금고"><NumInput value={carry.전일금고} onChange={(v)=>setCarry((p)=>({...p,전일금고:v}))} /></Field>
+                <Field label="전일 통장수입"><NumInput value={carry.전일통장수입} onChange={(v)=>setCarry((p)=>({...p,전일통장수입:v}))} /></Field>
+                <Field label="전일 지출"><NumInput value={carry.전일지출} onChange={(v)=>setCarry((p)=>({...p,전일지출:v}))} /></Field>
+                <Field label="전일 환불"><NumInput value={carry.전일환불} onChange={(v)=>setCarry((p)=>({...p,전일환불:v}))} /></Field>
+                <Field label="전일 카드 수입"><NumInput value={carry.전일카드수입} onChange={(v)=>setCarry((p)=>({...p,전일카드수입:v}))} /></Field>
+                <Field label="전일 매출"><NumInput value={carry.전일매출} onChange={(v)=>setCarry((p)=>({...p,전일매출:v}))} /></Field>
+              </div>
+            </Card>
+          </Step>
+
+          <Step n="2" title="직원 입력" sub="OK차트 통계 + 외부 실측값을 입력합니다">
+            <Card title="담당자 / 비고">
+              <div className="grid grid-cols-3 gap-2">
+                <Field label="담당자"><input value={meta.담당자} onChange={(e)=>setMeta((p)=>({...p,담당자:e.target.value}))} className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" /></Field>
+                <div className="col-span-2"><Field label="비고"><input value={meta.비고} onChange={(e)=>setMeta((p)=>({...p,비고:e.target.value}))} className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" /></Field></div>
+              </div>
+            </Card>
+
+            <Card title="OK차트 통계 붙여넣기">
+              <textarea value={raw} onChange={(e)=>setRaw(e.target.value)} placeholder="OK차트 일일결산 통계 전체선택 → 복사 → 붙여넣기 (환자내역 포함)" className="w-full h-20 p-2 border border-gray-300 rounded text-xs font-mono focus:outline-none focus:border-amber-500" />
+              {parsed.ok && (
+                <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+                  {[["카드",okCard],["통장",okBank],["현금",okCash],["총진료비",okRevenue],["수납총액",okTotal],["현영",okReceipt]].map(([k,v])=>(<span key={k} className="bg-gray-50 rounded px-2 py-1"><span className="text-gray-400">{k} </span><b>{fmt(v)}</b></span>))}
+                  <span className={"rounded px-2 py-1 "+(payOK?"bg-emerald-50 text-emerald-700":"bg-rose-50 text-rose-700")}>{payOK?"수납검증 일치":"수납검증 불일치"}</span>
+                  <span className="bg-gray-50 rounded px-2 py-1 text-gray-400">환자 {parsed.patients.length}건</span>
+                </div>
+              )}
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-3">
+              <Card title="대조 입력">
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Field label="올댓페이 카드 총액" hint="단말기 내보내기 합계"><NumInput value={cmp.올댓페이} onChange={(v)=>setCmp((p)=>({...p,올댓페이:v}))} /></Field>
+                  <Field label="택배비 (카드 포함분)"><NumInput value={cmp.택배비} onChange={(v)=>setCmp((p)=>({...p,택배비:v}))} /></Field>
+                  <Field label="실제 통장 입금액" hint="잔디 입금문자 합계"><NumInput value={cmp.통장입금} onChange={(v)=>setCmp((p)=>({...p,통장입금:v}))} /></Field>
+                </div>
+              </Card>
+              <Card title="금고 권종 (마감 실측)" right={<button onClick={copyPrevDenom} disabled={!ledger.length} className="text-xs px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-40">전일과 동일</button>}>
+                <div className="grid grid-cols-4 gap-2">
+                  {DENOMS.map((d)=>(
+                    <div key={d}>
+                      <div className="text-[11px] text-gray-500 mb-0.5">{denomLabel(d)}</div>
+                      <input value={denom[d]||""} onChange={(e)=>setDenom((p)=>({...p,[d]:e.target.value.replace(/[^0-9]/g,"")}))} inputMode="numeric" placeholder="장" className="w-full px-1.5 py-1 text-right border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />
+                      <div className="text-[10px] text-gray-400 text-right">{fmt(d*num(denom[d]))}</div>
+                    </div>
+                  ))}
+                  <div><div className="text-[11px] text-gray-500 mb-0.5">기타(원)</div><input value={etc} onChange={(e)=>setEtc(e.target.value.replace(/[^0-9]/g,""))} inputMode="numeric" className="w-full px-1.5 py-1 text-right border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" /></div>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs">
+                  <span className="text-gray-500">권종 합계</span>
+                  <span className={"font-bold "+(denomEntered?(denomTotal===safeToday?"text-emerald-600":"text-rose-600"):"text-gray-400")}>{won(denomTotal)} {denomEntered&&(denomTotal===safeToday?"✓":wonS(denomTotal-safeToday))}</span>
+                </div>
+              </Card>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-3">
+              <Card title="지출 / 환불 / 원장회수">
+                <div className="text-xs font-medium text-gray-600 mb-1">현금 지출</div>
+                {expenses.map((e,i)=>(
+                  <div key={i} className="flex gap-1.5 mb-1.5">
+                    <input value={e.item} onChange={(ev)=>setExpenses((p)=>p.map((x,j)=>(j===i?{...x,item:ev.target.value}:x)))} placeholder="항목" className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />
+                    <div className="w-24"><NumInput value={e.amt} onChange={(v)=>setExpenses((p)=>p.map((x,j)=>(j===i?{...x,amt:v}:x)))} /></div>
+                    <button onClick={()=>setExpenses((p)=>p.filter((_,j)=>j!==i))} className="px-1 text-gray-400 hover:text-rose-500">✕</button>
+                  </div>
+                ))}
+                <button onClick={()=>setExpenses((p)=>[...p,{item:"",amt:""}])} className="text-xs text-amber-600 hover:underline">+ 지출</button>
+                <span className="text-xs text-gray-500 ml-2">{won(expenseSum)}</span>
+                <div className="text-xs font-medium text-gray-600 mb-1 mt-3">환불</div>
+                {refunds.map((r,i)=>(
+                  <div key={i} className="flex gap-1.5 mb-1.5">
+                    <input value={r.memo} onChange={(ev)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,memo:ev.target.value}:x)))} placeholder="환자/사유" className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />
+                    <select value={r.way} onChange={(ev)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,way:ev.target.value}:x)))} className="px-1 py-1.5 border border-gray-300 rounded text-xs bg-white"><option>카드취소</option><option>계좌입금</option></select>
+                    <div className="w-20"><NumInput value={r.amt} onChange={(v)=>setRefunds((p)=>p.map((x,j)=>(j===i?{...x,amt:v}:x)))} /></div>
+                    <button onClick={()=>setRefunds((p)=>p.filter((_,j)=>j!==i))} className="px-1 text-gray-400 hover:text-rose-500">✕</button>
+                  </div>
+                ))}
+                <button onClick={()=>setRefunds((p)=>[...p,{memo:"",way:"카드취소",amt:""}])} className="text-xs text-amber-600 hover:underline">+ 환불</button>
+                <span className="text-xs text-gray-500 ml-2">{won(refundSum)}</span>
+                <div className="text-xs font-medium text-gray-600 mb-1 mt-3">원장 회수 <span className="text-[10px] text-gray-400 font-normal">금고에서 원장님께 나간 현금 (기록 필수)</span></div>
+                {withdraws.map((r,i)=>(
+                  <div key={i} className="flex gap-1.5 mb-1.5">
+                    <input value={r.memo} onChange={(ev)=>setWithdraws((p)=>p.map((x,j)=>(j===i?{...x,memo:ev.target.value}:x)))} placeholder="사유/메모 (예: 원장 회수)" className="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-amber-500" />
+                    <div className="w-24"><NumInput value={r.amt} onChange={(v)=>setWithdraws((p)=>p.map((x,j)=>(j===i?{...x,amt:v}:x)))} /></div>
+                    <button onClick={()=>setWithdraws((p)=>p.filter((_,j)=>j!==i))} className="px-1 text-gray-400 hover:text-rose-500">✕</button>
+                  </div>
+                ))}
+                <button onClick={()=>setWithdraws((p)=>[...p,{memo:"",amt:""}])} className="text-xs text-amber-600 hover:underline">+ 회수</button>
+                <span className="text-xs text-gray-500 ml-2">{won(withdrawSum)}</span>
+              </Card>
+              <Card title="소급 조정" sub="과거 청구금 변경 등 — 누계에만 반영">
+                {adjs.map((a,i)=>(
+                  <div key={i} className="flex gap-1.5 mb-1.5 flex-wrap">
+                    <input value={a.date} onChange={(ev)=>setAdjs((p)=>p.map((x,j)=>(j===i?{...x,date:ev.target.value}:x)))} placeholder="원결산일" className="w-20 px-1.5 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-amber-500" />
+                    <input value={a.memo} onChange={(ev)=>setAdjs((p)=>p.map((x,j)=>(j===i?{...x,memo:ev.target.value}:x)))} placeholder="사유" className="flex-1 px-1.5 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-amber-500" />
+                    <select value={a.cat} onChange={(ev)=>setAdjs((p)=>p.map((x,j)=>(j===i?{...x,cat:ev.target.value}:x)))} className="px-1 py-1.5 border border-gray-300 rounded text-xs bg-white"><option>매출</option><option>카드</option><option>통장</option><option>환불</option><option>지출</option></select>
+                    <select value={a.sign} onChange={(ev)=>setAdjs((p)=>p.map((x,j)=>(j===i?{...x,sign:ev.target.value}:x)))} className="px-1 py-1.5 border border-gray-300 rounded text-xs bg-white"><option>+</option><option>-</option></select>
+                    <div className="w-20"><NumInput value={a.amt} onChange={(v)=>setAdjs((p)=>p.map((x,j)=>(j===i?{...x,amt:v}:x)))} /></div>
+                    <button onClick={()=>setAdjs((p)=>p.filter((_,j)=>j!==i))} className="px-1 text-gray-400 hover:text-rose-500">✕</button>
+                  </div>
+                ))}
+                <button onClick={()=>setAdjs((p)=>[...p,{date:"",memo:"",cat:"매출",sign:"+",amt:""}])} className="text-xs text-amber-600 hover:underline">+ 조정</button>
+              </Card>
+            </div>
+
+            <Card title="미수 (받을 돈)" sub="아직 못 받은 돈 — 결산 검증엔 영향 없음, 다음날 확인용" right={receivOpen.length?<span className="text-xs font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700">미해결 {receivOpen.length}건 · {won(receivSum)}</span>:null}>
+              {carriedOpen.length>0 && <div className="mb-2 text-xs bg-rose-50 border border-rose-200 rounded p-2 text-rose-700">⚠ 전일 이월 미수 {carriedOpen.length}건 ({won(carriedSum)}) — 받았으면 ☑로 해결 처리하세요.</div>}
+              {receivables.map((r,i)=>(
+                <div key={i} className={"flex gap-1.5 mb-1.5 items-center "+(r.해결?"opacity-50":"")}>
+                  <input type="checkbox" checked={!!r.해결} onChange={(ev)=>setReceivables((p)=>p.map((x,j)=>(j===i?{...x,해결:ev.target.checked}:x)))} title="받음(해결)" className="w-4 h-4" />
+                  <input value={r.발생일||""} onChange={(ev)=>setReceivables((p)=>p.map((x,j)=>(j===i?{...x,발생일:ev.target.value}:x)))} placeholder="발생일" className="w-24 px-1.5 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-amber-500" />
+                  <input value={r.환자||""} onChange={(ev)=>setReceivables((p)=>p.map((x,j)=>(j===i?{...x,환자:ev.target.value}:x)))} placeholder="환자" className="w-24 px-1.5 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-amber-500" />
+                  <div className="w-24"><NumInput value={r.금액||""} onChange={(v)=>setReceivables((p)=>p.map((x,j)=>(j===i?{...x,금액:v}:x)))} /></div>
+                  <input value={r.메모||""} onChange={(ev)=>setReceivables((p)=>p.map((x,j)=>(j===i?{...x,메모:ev.target.value}:x)))} placeholder="사유/메모 (예: 다음주 결제 예정)" className="flex-1 px-1.5 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-amber-500" />
+                  {r.carried && <span className="text-[10px] px-1 py-0.5 rounded bg-gray-100 text-gray-500 shrink-0">이월</span>}
+                  <button onClick={()=>setReceivables((p)=>p.filter((_,j)=>j!==i))} className="px-1 text-gray-400 hover:text-rose-500">✕</button>
+                </div>
+              ))}
+              <button onClick={()=>setReceivables((p)=>[...p,{발생일:parsed.date||"",환자:"",금액:"",메모:"",해결:false,carried:false}])} className="text-xs text-amber-600 hover:underline">+ 미수</button>
+              <span className="text-xs text-gray-400 ml-2">참고 — OK차트 미수매출 합계 {won(okMisu)}</span>
+            </Card>
+          </Step>
+
+          <Step n="3" title="결과 도출 & 검수" sub="외부 입력과 OK차트가 맞는지 확인합니다">
+            <Card title="대조 결과 (결정적 검증)">
+              <div className="space-y-1.5">
+                {checks.map((c,i)=>{
+                  const d=c.ext-c.ok; const st=!c.entered?"wait":d===0?"ok":"bad";
+                  return (
+                    <div key={i} className={"rounded border p-2 flex items-center justify-between "+(st==="ok"?"bg-emerald-50 border-emerald-200":st==="bad"?"bg-rose-50 border-rose-200":"bg-gray-50 border-gray-200")}>
+                      <div><div className="text-sm font-semibold">{c.label}</div><div className="text-xs text-gray-500">OK {fmt(c.ok)} · 외부 {fmt(c.ext)}{st==="bad"&&<b className="text-rose-600"> · 차이 {wonS(d)}</b>}</div></div>
+                      <span className={"text-xs font-bold px-2 py-0.5 rounded "+(st==="ok"?"bg-emerald-500 text-white":st==="bad"?"bg-rose-500 text-white":"bg-gray-300 text-gray-600")}>{st==="ok"?"일치":st==="bad"?"불일치":"대기"}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+            <Card title="일일결산 보고서 (미리보기)">
+              <div className="border border-gray-300 rounded overflow-hidden text-xs">
+                <div className="flex bg-gray-100 px-2 py-1.5 font-bold border-b border-gray-300"><span className="flex-1">날짜 {dateLabel(parsed.date)||"—"}</span><span className="text-gray-500">담당자 : {meta.담당자||"—"}</span></div>
+                <table className="w-full"><tbody>
+                  {rows.map((r,i)=>{ const st=rowStatus(r); return (
+                    <tr key={i} className={"border-b border-gray-100 "+(st==="ok"?"bg-emerald-50":st==="bad"?"bg-rose-50":r.key==="adj"?"bg-sky-50":r.key==="cum"?"bg-amber-50":"")}>
+                      <td className="px-2 py-1 text-gray-700 w-24 font-medium">{r.a}</td><td className="px-2 py-1 text-gray-600 w-24">{r.b}</td><td className="px-2 py-1 text-gray-600 w-12">{r.c}</td><td className="px-2 py-1 text-right font-semibold">{fmt(r.val)}</td><td className="px-1 py-1 text-gray-400">원</td>
+                    </tr>); })}
+                </tbody></table>
+                {meta.비고 && <div className="px-2 py-1.5 text-[11px] text-gray-500 border-t border-gray-200">비고: {meta.비고}</div>}
+              </div>
+              {receivOpen.length>0 && (
+                <div className="mt-2 border border-amber-300 rounded overflow-hidden text-xs">
+                  <div className="bg-amber-50 px-2 py-1.5 font-bold text-amber-800 border-b border-amber-200">특이사항 — 미수(받을 돈) {receivOpen.length}건 · 합계 {won(receivSum)}</div>
+                  {receivOpen.map((r,i)=>(
+                    <div key={i} className="px-2 py-1 border-b border-amber-100 flex justify-between gap-2">
+                      <span className="text-gray-700">{r.발생일||"—"} · {r.환자||"—"} {r.carried&&<span className="text-[10px] text-rose-500">(이월)</span>}{r.메모?` · ${r.메모}`:""}</span>
+                      <span className="font-semibold shrink-0">{won(num(r.금액))}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </Step>
+
+          <Step n="4" title="마무리" sub="맞으면 인쇄·저장, 안 맞으면 AI 검수">
+            <div className={"rounded-lg border-2 p-3 "+banner.cls}>
+              <div className="font-bold text-sm">{decision==="pass"?"✓ 검수 통과":decision==="bad"?"⚠ 불일치 발견":"· 진행 중"}</div>
+              <div className="text-xs mt-0.5">{banner.txt}</div>
+            </div>
+
+            <Card title="저장 / 인쇄">
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={printReport} disabled={!parsed.ok} className={"px-3 py-2 rounded-lg text-sm font-bold "+(decision==="pass"?"bg-emerald-600 text-white hover:bg-emerald-700":parsed.ok?"bg-gray-800 text-white hover:bg-black":"bg-gray-200 text-gray-400 cursor-not-allowed")}>🖨 보고서 인쇄</button>
+                <button onClick={downloadXlsx} disabled={!parsed.ok} className={"px-3 py-2 rounded-lg text-sm font-bold "+(parsed.ok?"bg-amber-500 text-white hover:bg-amber-600":"bg-gray-200 text-gray-400 cursor-not-allowed")}>엑셀 저장</button>
+                <button onClick={downloadMd} disabled={!parsed.ok} className={"px-3 py-2 rounded-lg text-sm font-bold "+(parsed.ok?"bg-gray-700 text-white hover:bg-gray-900":"bg-gray-200 text-gray-400 cursor-not-allowed")}>업무로그 MD</button>
+              </div>
+              <div className="text-[11px] text-gray-400 mt-2">엑셀: 일일결산 · 시재관리 · 업무로그 · 미수관리 · 환자내역 (5시트). 미해결 미수는 다음날 자동 이월됩니다. 다음날 이 엑셀을 1단계에 다시 넣으면 자동 이월됩니다.</div>
+            </Card>
+
+            <Card title="AI 검수 (Opus)" sub="여러 채팅창 ↔ 결산·미수 대조 · Opus 4.8" accent={decision==="bad"?"border-2 border-sky-400":"border-gray-200"}>
+              <div className="mb-2 text-[11px] text-gray-500 bg-gray-50 rounded p-2">키 입력 없이 바로 사용. Opus 4.8로 요청합니다(프록시에 model 전달 설정 필요).</div>
+              <div className="text-xs font-medium text-gray-600 mb-1">검수 채팅창 ({chatCount}개)</div>
+              {chats.map((c,i)=>(
+                <div key={i} className="mb-2 border border-gray-200 rounded p-2">
+                  <div className="flex gap-1.5 mb-1"><input value={c.name} onChange={(ev)=>setChats((p)=>p.map((x,j)=>(j===i?{...x,name:ev.target.value}:x)))} placeholder="채팅창 이름 (예: 데스크 상담방)" className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs focus:outline-none focus:border-sky-400" /><button onClick={()=>setChats((p)=>p.filter((_,j)=>j!==i))} className="px-2 text-gray-400 hover:text-rose-500 text-sm">✕</button></div>
+                  <textarea value={c.body} onChange={(ev)=>setChats((p)=>p.map((x,j)=>(j===i?{...x,body:ev.target.value}:x)))} placeholder="채팅창 내용 복붙" className="w-full h-16 p-2 border border-gray-300 rounded text-xs focus:outline-none focus:border-sky-400" />
+                </div>
+              ))}
+              <button onClick={()=>setChats((p)=>[...p,{name:"",body:""}])} className="text-xs px-2 py-1 rounded bg-sky-100 text-sky-700 hover:bg-sky-200 font-medium">+ 채팅창 추가</button>
+              <button onClick={runAudit} disabled={!parsed.ok||auditing} className={"mt-3 w-full py-2.5 rounded font-bold text-sm "+(parsed.ok&&!auditing?"bg-sky-600 text-white hover:bg-sky-700":"bg-gray-200 text-gray-400 cursor-not-allowed")}>{auditing?"검수 중…":"AI 검수 실행"}</button>
+              {auditErr && <div className="text-xs text-rose-500 mt-2">{auditErr}</div>}
+            </Card>
+
+            {flags && (
+              <Card title="검수 결과" right={<span className={"text-xs font-bold px-2 py-0.5 rounded "+(flags.length?"bg-amber-100 text-amber-700":"bg-emerald-100 text-emerald-700")}>{flags.length?`의심 ${flags.length}건`:"이상 없음"}</span>}>
+                {flags.length===0 ? (
+                  <div className="text-sm text-emerald-700 bg-emerald-50 rounded p-2">✓ 의심 항목을 찾지 못했습니다. 최종 확인은 사람이 합니다.</div>
+                ) : (
+                  <div className="space-y-2">
+                    {flags.map((f,i)=>(
+                      <div key={i} className="border border-amber-300 bg-amber-50 rounded-lg p-2.5 text-xs">
+                        <div className="flex items-center justify-between mb-1"><span className="font-bold text-amber-900">⚠ {f.환자||"—"} · {f.유형||"의심"}</span>{f.채팅창 && <span className="text-[11px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700">{f.채팅창}</span>}</div>
+                        {f.무엇이 && <div className="text-gray-700"><b>무엇이:</b> {f.무엇이}</div>}
+                        {f.근거 && <div className="text-gray-600 mt-0.5"><b>근거:</b> {f.근거}</div>}
+                        {f.대조 && <div className="text-gray-600"><b>대조:</b> {f.대조}</div>}
+                        {f.조치 && <div className="text-gray-600"><b>조치:</b> {f.조치}</div>}
+                      </div>
+                    ))}
+                    <div className="text-[11px] text-gray-400">※ 후보 목록입니다. 각 항목을 채팅창·차트에서 직접 재확인하세요.</div>
+                  </div>
+                )}
+              </Card>
+            )}
+
+            <Card title="업무 로그" sub="결산·검수 결과가 자동 포함 · 피드백용 .md">
+              <div className="space-y-2">
+                <Field label="오늘 한 일"><textarea value={log.done} onChange={(e)=>setLog((p)=>({...p,done:e.target.value}))} className="w-full h-12 p-2 border border-gray-300 rounded text-xs focus:outline-none focus:border-gray-500" /></Field>
+                <Field label="발견한 실수"><textarea value={log.mistakes} onChange={(e)=>setLog((p)=>({...p,mistakes:e.target.value}))} className="w-full h-12 p-2 border border-gray-300 rounded text-xs focus:outline-none focus:border-gray-500" /></Field>
+                <Field label="이슈 / 메모"><textarea value={log.issues} onChange={(e)=>setLog((p)=>({...p,issues:e.target.value}))} className="w-full h-12 p-2 border border-gray-300 rounded text-xs focus:outline-none focus:border-gray-500" /></Field>
+              </div>
+            </Card>
+          </Step>
+        </div>
+        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v11 (미수 추적 · Opus 검수)</div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>
