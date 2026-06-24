@@ -41,16 +41,16 @@ header { background:#fff; padding:10px 16px; display:flex; align-items:center; j
 
 .bottom { flex-shrink:0; background:#fff; border-top:2px solid #e2e8f0; padding:14px 16px; display:flex; flex-direction:column; gap:10px; box-shadow:0 -2px 8px rgba(0,0,0,0.04); }
 .mic-btns { display:flex; gap:10px; }
-.mic-btn { flex:1; padding:18px 10px; border-radius:16px; border:3px solid; background:transparent; font-weight:800; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.mic-btn { flex:1; padding:18px 10px; border-radius:16px; border:3px solid; background:transparent; font-weight:800; cursor:pointer; transition:all 0.2s;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
 .mic-btn .bico { font-size:32px; transition:all 0.2s; }
 .mic-btn .blabel { font-size:16px; font-weight:800; }
-.mic-btn .bsub { font-size:12px; font-weight:500; }
+.mic-btn .bsub { font-size:13px; font-weight:600; line-height:1.3; }
 .mic-btn.ko-btn { border-color:#bfdbfe; color:#1d4ed8; background:#eff6ff; }
-.mic-btn.ko-btn:hover { background:#dbeafe; border-color:#93c5fd; }
-.mic-btn.ko-btn.active { border-color:#1d4ed8; background:#1d4ed8; color:#fff; box-shadow:0 0 0 4px rgba(29,78,216,0.2); }
+.mic-btn.ko-btn.active { border-color:#1d4ed8; background:#1d4ed8; color:#fff; box-shadow:0 0 0 4px rgba(29,78,216,0.2); transform:scale(1.03); }
 .mic-btn.tgt-btn { border-color:#ddd6fe; color:#7c3aed; background:#f5f3ff; }
-.mic-btn.tgt-btn:hover { background:#ede9fe; border-color:#c4b5fd; }
-.mic-btn.tgt-btn.active { border-color:#7c3aed; background:#7c3aed; color:#fff; box-shadow:0 0 0 4px rgba(124,58,237,0.2); }
+.mic-btn.tgt-btn.active { border-color:#7c3aed; background:#7c3aed; color:#fff; box-shadow:0 0 0 4px rgba(124,58,237,0.2); transform:scale(1.03); }
 .text-row { display:flex; gap:8px; }
 .text-row textarea { flex:1; background:#f8faff; border:2px solid #e2e8f0; border-radius:8px; padding:8px 12px; font-size:14px; color:#1e293b; font-family:inherit; resize:none; max-height:60px; }
 .text-row textarea:focus { outline:none; border-color:#6366f1; }
@@ -86,17 +86,17 @@ header { background:#fff; padding:10px 16px; display:flex; align-items:center; j
 
 <div class="bottom">
   <div class="mic-btns">
-    <button class="mic-btn ko-btn" id="btn-ko" onclick="toggle('ko')">
+    <button class="mic-btn ko-btn" id="btn-ko">
       <div class="wave hidden" id="wave-ko"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div>
       <div class="bico" id="icon-ko">🎤</div>
       <div class="blabel">🇰🇷 한국어</div>
-      <div class="bsub" id="sub-ko">눌러서 말하기</div>
+      <div class="bsub" id="sub-ko">꾹 눌러 말하기</div>
     </button>
-    <button class="mic-btn tgt-btn" id="btn-tgt" onclick="toggle('tgt')">
+    <button class="mic-btn tgt-btn" id="btn-tgt">
       <div class="wave hidden" id="wave-tgt"><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div><div class="wbar"></div></div>
       <div class="bico" id="icon-tgt">🎤</div>
       <div class="blabel" id="label-tgt">🇯🇵 日本語</div>
-      <div class="bsub" id="sub-tgt">눌러서 말하기</div>
+      <div class="bsub" id="sub-tgt">押しながら話す</div>
     </button>
   </div>
   <div class="text-row">
@@ -116,37 +116,53 @@ const LANGS = {
   thai:      { name:'ภาษาไทย', flag:'🇹🇭', code:'th-TH', eng:'Thai' },
 };
 
+/* 무전기식 버튼 안내 — 각 언어로 표시 */
+const PTT = {
+  ko:        { idle:'꾹 눌러 말하기',     rec:'🔴 듣는 중… 떼면 통역' },
+  japanese:  { idle:'押しながら話す',      rec:'🔴 指を離すと通訳します' },
+  english:   { idle:'Hold to speak',      rec:'🔴 Release to translate' },
+  chinese:   { idle:'按住说话',           rec:'🔴 松开后翻译' },
+  taiwanese: { idle:'按住說話',           rec:'🔴 放開後翻譯' },
+  thai:      { idle:'กดค้างเพื่อพูด',      rec:'🔴 ปล่อยเพื่อแปล' },
+};
+
 let curLang = 'japanese';
 let history = [];
 let busy = false;
 let autoSpeak = true;
 let useOpus = false;
 let ttsId = null;
-let activeSTT = null;
-let wantListening = false;
-let rec = null;
-let sttBuffer = '';
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-/* ---------- 음성인식 (연속·일시정지 견딤) ---------- */
-function toggle(side) {
-  if (activeSTT === side) { stopAndSend(); return; }
-  stopSTT();
-  startSTT(side);
+/* ---------- 음성인식: 무전기식 (누르는 동안만 듣고, 떼면 전송) ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+let activeSTT = null;   // 'ko' | 'tgt' | null
+let sttBuffer = '';
+let sendSide = null;    // 떼는 순간 set → onend에서 전송
+
+function appendFinal(t) {
+  t = (t || '').trim();
+  if (!t) return;
+  const buf = sttBuffer.trim();
+  if (buf && buf.endsWith(t)) return;   // 안전망: 직전 조각 그대로 반복되면 무시
+  sttBuffer = (buf ? buf + ' ' : '') + t + ' ';
 }
-function startSTT(side) {
+
+function pttStart(side, ev) {
+  if (ev) ev.preventDefault();
   if (!SR) { alert('음성인식은 Chrome/Edge에서만 지원됩니다'); return; }
+  if (activeSTT) return;                 // 이미 한쪽이 듣는 중이면 무시
+  if (window.speechSynthesis) speechSynthesis.cancel();  // 이전 통역 음성 끊어 되먹임 방지
+
   activeSTT = side;
-  wantListening = true;
+  sendSide = null;
   sttBuffer = '';
-  setActive(side, true);
-  spawnRec(side);
-}
-function spawnRec(side) {
+  setRecUI(side, true);
+
   const isKo = side === 'ko';
   rec = new SR();
   rec.lang = isKo ? 'ko-KR' : LANGS[curLang].code;
-  rec.continuous = true;
+  rec.continuous = true;       // 누르는 동안 여러 문장 허용
   rec.interimResults = true;
   rec.maxAlternatives = 1;
 
@@ -154,47 +170,70 @@ function spawnRec(side) {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const t = e.results[i][0].transcript;
-      if (e.results[i].isFinal) sttBuffer += t + ' ';
+      if (e.results[i].isFinal) appendFinal(t);
       else interim += t;
     }
-    document.getElementById('sub-' + side).textContent = '💬 ' + (sttBuffer + interim).trim();
+    const sub = document.getElementById('sub-' + side);
+    if (sub) sub.textContent = '💬 ' + (sttBuffer + interim).trim();
   };
-  rec.onerror = ev => {
-    if (ev.error === 'no-speech' || ev.error === 'aborted') return; // 무시하고 onend에서 재시작
-    if (ev.error === 'not-allowed') {
-      wantListening = false;
-      document.getElementById('sub-' + side).textContent = '❌ 마이크 권한 필요';
+  rec.onerror = ev2 => {
+    if (ev2.error === 'not-allowed' || ev2.error === 'service-not-allowed') {
+      alert('마이크 권한을 허용해주세요');
     }
+    // no-speech / aborted 등은 무시 (자동 재시작 없음 → 중복 원천 차단)
   };
   rec.onend = () => {
-    // 사용자가 멈춘 게 아니면 계속 듣기 (침묵으로 끊겨도 자동 재시작)
-    if (wantListening && activeSTT === side) {
-      try { rec.start(); } catch(e) { setTimeout(()=>{ try{rec.start();}catch(_){} }, 200); }
+    // 떼는 순간 stop() 이후 들어온 마지막 final 까지 포함해 전송
+    if (sendSide) {
+      const text = sttBuffer.trim();
+      const s = sendSide;
+      sendSide = null; sttBuffer = '';
+      if (text) sendText(text, s);
     }
   };
-  try { rec.start(); } catch(e) {}
+  try { rec.start(); } catch (e) {}
 }
-function stopAndSend() {
-  const side = activeSTT;
-  wantListening = false;
-  if (rec) { try { rec.stop(); } catch(e){} rec = null; }
-  if (side) setActive(side, false);
+
+function pttEnd(side, ev) {
+  if (ev) ev.preventDefault();
+  if (activeSTT !== side) return;
+  setRecUI(side, false);
   activeSTT = null;
-  const text = sttBuffer.trim();
+  sendSide = side;                       // onend에서 전송하도록 표시
+  if (rec) { try { rec.stop(); } catch (e) {} }
+}
+
+function stopActive() {
+  if (!activeSTT) return;
+  sendSide = null;                       // 전송하지 않고 폐기
+  const side = activeSTT;
+  if (rec) { try { rec.stop(); } catch (e) {} }
+  setRecUI(side, false);
+  activeSTT = null;
   sttBuffer = '';
-  if (text) sendText(text, side);
 }
-function stopSTT() {
-  wantListening = false;
-  if (rec) { try { rec.stop(); } catch(e){} rec = null; }
-  if (activeSTT) { setActive(activeSTT, false); activeSTT = null; }
-  sttBuffer = '';
+
+function setRecUI(side, on) {
+  const btn=document.getElementById('btn-'+side), wave=document.getElementById('wave-'+side),
+        icon=document.getElementById('icon-'+side), sub=document.getElementById('sub-'+side);
+  const key = (side === 'ko') ? 'ko' : curLang;
+  if (on) {
+    btn.classList.add('active'); wave.classList.remove('hidden'); icon.style.display='none';
+    sub.textContent = PTT[key].rec;
+  } else {
+    btn.classList.remove('active'); wave.classList.add('hidden'); icon.style.display='';
+    sub.textContent = PTT[key].idle;
+  }
 }
-function setActive(side, on) {
-  const btn=document.getElementById('btn-'+side), wave=document.getElementById('wave-'+side), icon=document.getElementById('icon-'+side), sub=document.getElementById('sub-'+side);
-  if (on) { btn.classList.add('active'); wave.classList.remove('hidden'); icon.style.display='none'; sub.textContent='🔴 듣는 중… (다시 누르면 통역)'; }
-  else { btn.classList.remove('active'); wave.classList.add('hidden'); icon.style.display=''; sub.textContent='눌러서 말하기'; }
-}
+
+/* pointer 이벤트 바인딩 — 누름 시작 / 뗌 종료. setPointerCapture로 손가락이 살짝 벗어나도 유지 */
+['ko','tgt'].forEach(side => {
+  const btn = document.getElementById('btn-' + side);
+  btn.addEventListener('pointerdown', e => { try{ btn.setPointerCapture(e.pointerId); }catch(_){} pttStart(side, e); });
+  btn.addEventListener('pointerup',     e => pttEnd(side, e));
+  btn.addEventListener('pointercancel', e => pttEnd(side, e));
+  btn.addEventListener('contextmenu',   e => e.preventDefault());  // 길게 누를 때 메뉴 방지
+});
 
 /* ---------- 번역 (프록시 경유, 직역 전용) ---------- */
 async function sendText(text, side) {
@@ -262,7 +301,7 @@ let voicesReady = false;
 function loadVoices(){ voicesReady = true; }
 if (window.speechSynthesis) { speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); }
 
-const FEMALE_HINTS = ['female','woman','girl','female','kyoko','o-ren','siri female','google 日本語','google us english','google 中文','samantha','victoria','zira','nuan','mei','ting','tessa','amira','kanya','google ภาษาไทย','premwadee','ava','jenny','sora','yuna','heami','sun-hi'];
+const FEMALE_HINTS = ['female','woman','girl','kyoko','o-ren','siri female','google 日本語','google us english','google 中文','samantha','victoria','zira','nuan','mei','ting','tessa','amira','kanya','google ภาษาไทย','premwadee','ava','jenny','sora','yuna','heami','sun-hi'];
 const MALE_HINTS = ['male','man','google uk english male','daniel','alex','fred','otoya','kenji','ichiro'];
 
 function pickVoice(code) {
@@ -278,7 +317,7 @@ function pickVoice(code) {
 function applyVoice(u, code) {
   const v = pickVoice(code);
   if (v) u.voice = v;
-  u.lang = code; u.rate = 0.95; u.pitch = 1.15; // pitch 살짝 올려 여성·중성 톤
+  u.lang = code; u.rate = 0.95; u.pitch = 1.15;
 }
 function speakAuto(text, code) {
   if (!window.speechSynthesis) return;
@@ -306,7 +345,7 @@ function renderChat() {
   const chat = document.getElementById('chat');
   const cfg = LANGS[curLang];
   if (history.length === 0) {
-    chat.innerHTML = `<div class="empty"><div class="ico">🎙️</div><div class="txt">아래 버튼을 눌러 말하면<br>자동으로 통역됩니다<br><br>
+    chat.innerHTML = `<div class="empty"><div class="ico">🎙️</div><div class="txt">버튼을 <b>꾹 누른 채</b> 말하고<br><b>손을 떼면</b> 통역됩니다<br><br>
       <span style="color:#1d4ed8;font-weight:700">🇰🇷 한국어</span> — 원장님<br>
       <span style="color:#7c3aed;font-weight:700">${cfg.flag} ${cfg.name}</span> — 환자</div></div>`;
     return;
@@ -332,14 +371,15 @@ function switchLang(lang, el) {
   curLang = lang;
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  stopSTT();
+  stopActive();
   document.getElementById('label-tgt').textContent = LANGS[lang].flag + ' ' + LANGS[lang].name;
+  document.getElementById('sub-tgt').textContent = PTT[lang].idle;   // 외국어 안내문 갱신
   renderChat();
 }
 function clearAll() {
   if (!confirm('대화 내용을 모두 삭제할까요?')) return;
   window.speechSynthesis && speechSynthesis.cancel();
-  history = []; stopSTT(); renderChat();
+  history = []; stopActive(); renderChat();
 }
 function esc(t){ const d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
 function ea(t){ return t.replace(/'/g,"&#39;").replace(/"/g,"&quot;"); }
