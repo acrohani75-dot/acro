@@ -81,7 +81,7 @@ function Step({n,title,sub,children}){
 function App(){
   const [raw,setRaw]=useState("");
   const [meta,setMeta]=useState({담당자:"",비고:""});
-  const [cmp,setCmp]=useState({올댓페이:"",택배비:"",통장입금:"",마감금고:""});
+  const [cmp,setCmp]=useState({올댓페이:"",스마트로:"",택배비:"",통장입금:"",마감금고:""});
   const [carry,setCarry]=useState({전일금고:"",전일통장수입:"",전일지출:"",전일환불:"",전일카드수입:"",전일매출:""});
   const [withdraws,setWithdraws]=useState([{memo:"",amt:""}]);
   const [monthStart,setMonthStart]=useState(false);
@@ -112,8 +112,8 @@ function App(){
   const okReceipt=num(s["현금영수증"]), okRefund=num(s["환불총액"]);
   const okMisu=num(s["미수금"]), okCardRec=num(s["카드회수"]), okCashRec=num(s["현금회수"]), okJiwon=num(s["건생/지원"]);
 
-  const allthat=num(cmp.올댓페이), delivery=num(cmp.택배비);
-  const termCard=allthat-delivery, bankIn=num(cmp.통장입금);
+  const allthat=num(cmp.올댓페이), smartro=num(cmp.스마트로), delivery=num(cmp.택배비);
+  const termCard=allthat+smartro-delivery, bankIn=num(cmp.통장입금);
   const expenseSum=expenses.reduce((a,b)=>a+num(b.amt),0);
   const refundSum=refunds.reduce((a,b)=>a+num(b.amt),0);
   const refCard=refunds.filter((r)=>r.way==="카드취소").reduce((a,b)=>a+num(b.amt),0);
@@ -140,7 +140,7 @@ function App(){
   const cumSales=num(carry.전일매출)+okRevenue+adjSum("매출");
 
   const checks=[
-    {label:"카드 (올댓페이−택배비 = 카드수납)",ok:okCard,ext:termCard,entered:cmp.올댓페이!==""},
+    {label:"카드 (올댓페이+스마트로−택배비 = 카드수납)",ok:okCard,ext:termCard,entered:cmp.올댓페이!==""||cmp.스마트로!==""},
     {label:"통장 (실측입금 = 통장회수)",ok:okBank,ext:bankIn,entered:cmp.통장입금!==""},
     {label:"금고 (권종 실측 = 기대잔액·−면 현금증발)",ok:safeToday,ext:effClose,entered:closeEntered},
     {label:"환불 (수기입력 = OK환불총액)",ok:okRefund,ext:refundSum,entered:refunds.some((r)=>r.amt!=="")},
@@ -157,7 +157,7 @@ function App(){
     R("의료수입","당일매출","카드",okCard),R("","","현금",okCash),R("","","통장",okBank),R("","","미수매출",okMisu),
     R("","미수수납","카드",okCardRec),R("","","현금",okCashRec),R("","","통장",0),
     R("","건보청구","",okIns),R("","자보청구","",okAuto),
-    R("단말기내역","카드","",termCard,"","tcard"),R("","현금영수증","",okReceipt),
+    ...(smartro>0?[R("단말기내역","올댓페이","",allthat),R("","스마트로","",smartro),...(delivery>0?[R("","택배비(−)","",delivery)]:[]),R("","카드 합계","",termCard,"","tcard")]:[R("단말기내역","카드","",termCard,"","tcard")]),R("","현금영수증","",okReceipt),
     R("지원 / 건생비","","",okJiwon),R("현금수입","","",okCash),R("통장수입","","",okBank),
     R("금고내역","전일금고","",num(carry.전일금고)),R("","현금수납","",okCash),R("","지출","",expenseSum),R("","원장회수","",withdrawSum),R("","금일금고","",safeToday,"","safe"),
     R("일 결산","수입","",okRevenue),R("","지출","",expenseSum),
@@ -369,7 +369,7 @@ body { font-family: 'Pretendard','Malgun Gothic','Apple SD Gothic Neo',-apple-sy
   };
 
   const rowStatus=(r)=>{
-    if(r.key==="tcard") return cmp.올댓페이===""?"":termCard===okCard?"ok":"bad";
+    if(r.key==="tcard") return (cmp.올댓페이===""&&cmp.스마트로==="")?"":termCard===okCard?"ok":"bad";
     if(r.key==="safe") return !closeEntered?"":effClose===safeToday?"ok":"bad";
     return "";
   };
@@ -438,7 +438,12 @@ body { font-family: 'Pretendard','Malgun Gothic','Apple SD Gothic Neo',-apple-sy
             <div className="grid md:grid-cols-2 gap-3">
               <Card title="대조 입력">
                 <div className="grid grid-cols-2 gap-2.5">
-                  <Field label="올댓페이 카드 총액" hint="단말기 내보내기 합계"><NumInput value={cmp.올댓페이} onChange={(v)=>setCmp((p)=>({...p,올댓페이:v}))} /></Field>
+                  <div className="col-span-2"><Field label="카드 단말기 (올댓페이 + 스마트로)" hint="스마트로 = 일본환자 등 · 카드수납에 합산">
+                    <div className="flex gap-1.5">
+                      <div className="flex-1"><NumInput value={cmp.올댓페이} onChange={(v)=>setCmp((p)=>({...p,올댓페이:v}))} placeholder="올댓페이" /></div>
+                      <div className="w-28"><NumInput value={cmp.스마트로} onChange={(v)=>setCmp((p)=>({...p,스마트로:v}))} placeholder="스마트로" /></div>
+                    </div>
+                  </Field></div>
                   <Field label="택배비 (카드 포함분)"><NumInput value={cmp.택배비} onChange={(v)=>setCmp((p)=>({...p,택배비:v}))} /></Field>
                   <Field label="실제 통장 입금액" hint="잔디 입금문자 합계"><NumInput value={cmp.통장입금} onChange={(v)=>setCmp((p)=>({...p,통장입금:v}))} /></Field>
                 </div>
@@ -626,7 +631,7 @@ body { font-family: 'Pretendard','Malgun Gothic','Apple SD Gothic Neo',-apple-sy
             </Card>
           </Step>
         </div>
-        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v15 (인쇄 흑백 · 원장 결재 1칸)</div>
+        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v16 (스마트로 카드합산)</div>
       </div>
     </div>
   );
