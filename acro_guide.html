@@ -980,12 +980,13 @@ label.mon[for^="ext-"],label.mon[for^="rext-"]{min-width:62px;padding:0 16px}
   }
   function pval(name){var c=document.querySelector('input[name="'+name+'"]:checked');if(!c)return 0;var p=c.id.split('-');return parseInt(p[p.length-1],10)||0;}
   function waveVal(g){var m=document.getElementById(g+'-man'); if(m&&m.value&&parseInt(m.value,10)>0) return parseInt(m.value,10); return pval(g);}
+  function cutPrice(cc){var t={0:0,2:33000,4:66000,6:99000,8:132000,10:154000,12:187000,14:220000,16:253000,18:286000,20:297000,22:330000,24:363000,26:396000};return t[cc]!==undefined?t[cc]:cc*16500;}
   function calcProc(){
-    var cut=pval('pcc')*16500*pval('pcn'), wave=waveVal('pwl')*26400*pval('pwn');
+    var cut=cutPrice(pval('pcc'))*pval('pcn'), wave=waveVal('pwl')*26400*pval('pwn');
     document.querySelectorAll('.proc-cut').forEach(function(e){e.textContent=cut.toLocaleString();});
     document.querySelectorAll('.proc-wave').forEach(function(e){e.textContent=wave.toLocaleString();});
     document.querySelectorAll('.proc-total').forEach(function(e){e.textContent=(cut+wave).toLocaleString();});
-    var rcut=pval('rcc')*16500*pval('rcn'), rwave=waveVal('rwl')*26400*pval('rwn');
+    var rcut=cutPrice(pval('rcc'))*pval('rcn'), rwave=waveVal('rwl')*26400*pval('rwn');
     document.querySelectorAll('.rproc-cut').forEach(function(e){e.textContent=rcut.toLocaleString();});
     document.querySelectorAll('.rproc-wave').forEach(function(e){e.textContent=rwave.toLocaleString();});
     document.querySelectorAll('.rproc-total').forEach(function(e){e.textContent=(rcut+rwave).toLocaleString();});
