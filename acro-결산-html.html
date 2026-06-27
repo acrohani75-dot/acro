@@ -160,7 +160,7 @@ function App(){
     R("의료수입","당일매출","카드",okCard),R("","","현금",okCash),R("","","통장",okBank),R("","","미수매출",okMisu),
     R("","미수수납","카드",okCardRec),R("","","현금",okCashRec),R("","","통장",0),
     R("","건보청구","",okIns),R("","자보청구","",okAuto),
-    ...((smartro>0||(cardRefIncl&&refCard>0))?[R("단말기내역","올댓페이","",allthat),...(smartro>0?[R("","스마트로","",smartro)]:[]),...(delivery>0?[R("","택배비(−)","",delivery)]:[]),...((cardRefIncl&&refCard>0)?[R("","카드환불(+)","",refCard)]:[]),R("","카드 합계","",termCard,"","tcard")]:[R("단말기내역","카드","",termCard,"","tcard")]),R("","현금영수증","",okReceipt),
+    ...((smartro>0||(cardRefIncl&&refCard>0))?[R("단말기내역","올댓페이","",allthat),...(smartro>0?[R("","스마트로","",smartro)]:[]),...(delivery>0?[R("","택배비(−)","",delivery)]:[]),...((cardRefIncl&&refCard>0)?[R("","카드환불(+)","",refCard)]:[]),R("","카드 합계(대조용)","",termCard,"","tcard")]:[R("단말기내역","카드(대조용)","",termCard,"","tcard")]),R("","현금영수증","",okReceipt),
     R("지원 / 건생비","","",okJiwon),R("현금수입","","",okCash),R("통장수입","","",okBank),
     R("금고내역","전일금고","",num(carry.전일금고)),R("","현금수납","",okCash),R("","지출","",expenseSum),R("","원장회수","",withdrawSum),R("","금일금고","",safeToday,"","safe"),
     R("일 결산","수입","",okRevenue),R("","지출","",expenseSum),
@@ -450,7 +450,7 @@ body { font-family: 'Pretendard','Malgun Gothic','Apple SD Gothic Neo',-apple-sy
                   <div className="col-span-2">
                     <label className="flex items-center gap-2 text-xs bg-sky-50 border border-sky-200 rounded px-2 py-1.5 cursor-pointer">
                       <input type="checkbox" checked={cardRefIncl} onChange={(e)=>setCmp((p)=>({...p,단말기환불포함:e.target.checked}))} className="w-4 h-4" />
-                      <span className="text-gray-700">카드환불이 단말기 합계에 <b>이미 차감되어</b> 나온 날 (카드취소 <b>{won(refCard)}</b> 도로 더해 보정)</span>
+                      <span className="text-gray-700">카드환불이 단말기 합계에 <b>이미 차감되어</b> 나온 날 (카드취소 <b>{won(refCard)}</b> 도로 더해 보정) <span className="text-gray-400">· 카드 대조에만 적용, 총카드·총매출엔 미반영</span></span>
                     </label>
                   </div>
                   <Field label="택배비 (카드 포함분)"><NumInput value={cmp.택배비} onChange={(v)=>setCmp((p)=>({...p,택배비:v}))} /></Field>
@@ -640,7 +640,7 @@ body { font-family: 'Pretendard','Malgun Gothic','Apple SD Gothic Neo',-apple-sy
             </Card>
           </Step>
         </div>
-        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v17 (카드환불 보정 · 실측 색상)</div>
+        <div className="text-center text-[11px] text-gray-400 mt-6">아크로한의원 일일결산·검수 v18 (보정 격리 명시)</div>
       </div>
     </div>
   );
