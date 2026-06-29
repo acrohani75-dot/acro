@@ -42,12 +42,17 @@
   .drop{margin:0 12px 10px;border:2px dashed var(--line2);border-radius:10px;padding:16px 10px;text-align:center;color:var(--faint);font-size:12.5px;cursor:pointer;}
   .drop.hover{border-color:var(--green);background:var(--green-soft);color:var(--green-deep);}
   .thumbs{flex:1;overflow-y:auto;padding:0 12px 14px;display:flex;flex-direction:column;gap:8px;}
+  .thumbsEmpty{color:var(--faint);font-size:12px;text-align:center;padding:14px 6px;line-height:1.5;}
   .thumb{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fafcfb;}
-  .thumb img{width:100%;height:88px;object-fit:cover;display:block;background:#000;}
+  .thumb img{width:100%;height:88px;object-fit:cover;display:block;background:#000;cursor:pointer;}
   .thumb .row{display:flex;gap:4px;padding:5px;}
   .thumb .row button{flex:1;font:inherit;font-size:11.5px;font-weight:700;border:1px solid var(--line2);background:#fff;border-radius:6px;padding:5px 0;cursor:pointer;color:var(--soft);}
   .thumb .row button.b:hover{background:#e7f0ec;border-color:#a9cbbd;color:var(--green-deep);}
   .thumb .row button.a:hover{background:#f6ead9;border-color:#e3c89f;color:#9a560f;}
+  .thumb .row button.b.active{background:var(--green);border-color:var(--green);color:#fff;}
+  .thumb .row button.a.active{background:var(--amber);border-color:var(--amber);color:#fff;}
+  .thumb .row button.x{flex:0 0 40px;color:#9a3b1a;}
+  .thumb .row button.x:hover{background:#f6e4de;border-color:#e3b2a0;color:#7d2c12;}
   .thumb.assignedB{outline:2px solid var(--green);}
   .thumb.assignedA{outline:2px solid var(--amber);}
 
@@ -58,11 +63,11 @@
   .slot .slabel{font-size:11.5px;font-weight:800;color:var(--soft);margin-bottom:5px;text-align:center;}
   .slot.on[data-slot="before"] .slabel{color:var(--green-deep);}
   .slot.on[data-slot="after"] .slabel{color:#9a560f;}
-  .sbox{height:74px;border-radius:7px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .sbox{position:relative;height:74px;border-radius:7px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
   .sbox img{width:100%;height:100%;object-fit:cover;}
   .sbox .sph{color:#6b7a72;font-size:11.5px;}
-  .thumb{cursor:pointer;}
-  .thumb img{cursor:pointer;}
+  .slotDel{position:absolute;top:4px;right:4px;width:21px;height:21px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;font-size:12px;font-weight:700;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+  .slotDel:hover{background:#c0392b;}
 
   .stage{flex:1;display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto;background:repeating-conic-gradient(#e7eae8 0% 25%, #eceeec 0% 50%) 50%/22px 22px;}
   #cv{max-width:100%;max-height:100%;box-shadow:0 10px 40px -16px rgba(0,0,0,.45);background:#000;cursor:crosshair;}
@@ -111,8 +116,9 @@
   <span class="seg igOnly" id="marketSeg">
     <button data-v="jp" class="on">🇯🇵 日本</button>
     <button data-v="tw">🇹🇼 台灣</button>
+    <button data-v="en">🇺🇸 EN</button>
   </span>
-  <span class="hint clinicOnly">원본 올리기 → 전/후 지정 → 정렬점 2개 클릭 → 라벨·화살표 → PNG 저장</span>
+  <span class="hint clinicOnly">원본 올리기 → 사진마다 <b>전</b>/<b>후</b> 버튼으로 배정 → 정렬점 2개 클릭 → 라벨·화살표 → PNG 저장</span>
   <span class="hint igOnly">정렬·날짜·화살표는 동일 / 하단 브랜딩바·QR·다국어 캡션 추가</span>
   <span class="grow"></span>
   <button class="btn primary" id="exportBtn" disabled>PNG 저장 ↓</button>
@@ -179,7 +185,7 @@
       <div class="slot on" data-slot="before"><div class="slabel">전 (Before)</div><div class="sbox" id="slotBefore"><span class="sph">비어 있음</span></div></div>
       <div class="slot" data-slot="after"><div class="slabel">후 (After)</div><div class="sbox" id="slotAfter"><span class="sph">비어 있음</span></div></div>
     </div>
-    <h2>원본 사진 <span class="mut" style="font-weight:600;text-transform:none;letter-spacing:0">— 클릭하면 활성 슬롯에 들어감</span></h2>
+    <h2>원본 사진 <span class="mut" style="font-weight:600;text-transform:none;letter-spacing:0">— 사진마다 전·후·삭제</span></h2>
     <div class="drop" id="drop">클릭 또는 드래그<br>여러 장 한꺼번에 OK</div>
     <input type="file" id="fileIn" accept="image/*" multiple hidden>
     <div class="thumbs" id="thumbs"></div>
@@ -396,68 +402,84 @@ const QR_CAP_KO={
  '口コミ・予約はこちら':'후기·예약 여기','看評價・預約':'후기·예약',
  '公式サイトはこちら':'공식 홈페이지','官網看更多':'공식 홈페이지 더보기',
  'LINEで相談・予約':'LINE 상담·예약','加 LINE 諮詢預約':'LINE 추가·상담·예약',
- 'Instagramで見る':'인스타 보기','看 Instagram':'인스타 보기'};
+ 'Instagramで見る':'인스타 보기','看 Instagram':'인스타 보기',
+ 'Scan the QR for more':'QR로 더 보기','Reviews & booking':'후기·예약',
+ 'Visit our website':'공식 홈페이지','Chat on KakaoTalk':'카톡 상담·예약',
+ 'See on Instagram':'인스타 보기'};
 function setQrKo(){ const el=$('qrCapKo'); if(!el)return; const t=(IGS.qrCap||'').trim();
   el.textContent='🇰🇷 '+(QR_CAP_KO[t]||'직접 입력 문구'); }
 const QR_PRESETS={
-  gangnamunni:{url:{jp:'https://www.gangnamunni.com/hospitals/2067',tw:'https://www.gangnamunni.com/hospitals/2067'},cap:{jp:'口コミ・予約はこちら',tw:'看評價・預約'}},
-  home:{url:{jp:'https://acrohani.com/',tw:'https://acrohani.com/'},cap:{jp:'公式サイトはこちら',tw:'官網看更多'}},
-  line:{url:{jp:'https://lin.ee/2Y1gNYA',tw:'https://line.me/R/ti/p/@814kgltm'},cap:{jp:'LINEで相談・予約',tw:'加 LINE 諮詢預約'}},
-  insta:{url:{jp:'https://instagram.com/acrohani_jp',tw:'https://instagram.com/acrohani.tw'},cap:{jp:'Instagramで見る',tw:'看 Instagram'}}
+  gangnamunni:{url:{jp:'https://www.gangnamunni.com/hospitals/2067',tw:'https://www.gangnamunni.com/hospitals/2067',en:'https://www.gangnamunni.com/hospitals/2067'},cap:{jp:'口コミ・予約はこちら',tw:'看評價・預約',en:'Reviews & booking'}},
+  home:{url:{jp:'https://acrohani.com/',tw:'https://acrohani.com/',en:'https://acrohani.com/'},cap:{jp:'公式サイトはこちら',tw:'官網看更多',en:'Visit our website'}},
+  line:{url:{jp:'https://lin.ee/2Y1gNYA',tw:'https://line.me/R/ti/p/@814kgltm',en:'https://pf.kakao.com/_VcUxmC'},cap:{jp:'LINEで相談・予約',tw:'加 LINE 諮詢預約',en:'Chat on KakaoTalk'}},
+  insta:{url:{jp:'https://instagram.com/acrohani_jp',tw:'https://instagram.com/acrohani.tw',en:'https://instagram.com/acrohani'},cap:{jp:'Instagramで見る',tw:'看 Instagram',en:'See on Instagram'}}
 };
 const IG_MARKET={
   jp:{lang:'日本語',wm:'アクロ',title:'アクロウェーブ',desc:'あなたにぴったりの、安心して受けられるケアをご提案します。',
       qrCap:'QRコードでもっと見る',qrUrl:'https://lin.ee/2Y1gNYA',parts:['下腹部','顔','二の腕','その他'],custom:'例）太もも'},
   tw:{lang:'繁體中文',wm:'ACRO',title:'ACRO Wave',desc:'為您量身打造、能安心接受的療程建議。',
-      qrCap:'掃描 QR 看更多',qrUrl:'https://www.instagram.com/acrohani.tw',parts:['下腹部','臉','手臂','其他'],custom:'例）大腿'}};
+      qrCap:'掃描 QR 看更多',qrUrl:'https://www.instagram.com/acrohani.tw',parts:['下腹部','臉','手臂','其他'],custom:'例）大腿'},
+  en:{lang:'English',wm:'ACRO',title:'ACRO Wave',desc:'Tailored care you can receive with peace of mind.',
+      qrCap:'Scan the QR for more',qrUrl:'https://www.instagram.com/acrohani',parts:['Lower belly','Face','Arms','Other'],custom:'e.g. Thighs'}};
 
 const CAP_FOOT={
  jp:`─── ＊・＊・＊ ───\n\nアクロ韓方クリニック（아크로한의원）\n\n【診療時間】\n平日　10:30～20:30\n土・日・祝日　10:00～15:30\n※ 平日 13:00～14:00 は昼休み\n※ 土・日・祝日は昼休みなし\n\n【アクセス】\nソウル特別市 江南区 江南大路 480\nボラティアルビル 2階\n\nLINE：https://lin.ee/2Y1gNYA\nTwitter：@acrohani01\nInstagram：@acrohani_jp\nWeb site：https://acrohani.com/`,
- tw:`─── ＊・＊・＊ ───\n\n아크로한의원（ACRO Korean Medicine）\n\n【看診時間】\n平日　10:30～20:30\n週六・週日・國定假日　10:00～15:30\n※ 平日 13:00～14:00 為午休\n※ 週末・假日無午休\n\n【地址】\n首爾特別市 江南區 江南大路 480, 2樓\n\nLINE ID：@814kgltm\nInstagram：@acrohani.tw\n官網：https://acrohani.com/`};
+ tw:`─── ＊・＊・＊ ───\n\n아크로한의원（ACRO Korean Medicine）\n\n【看診時間】\n平日　10:30～20:30\n週六・週日・國定假日　10:00～15:30\n※ 平日 13:00～14:00 為午休\n※ 週末・假日無午休\n\n【地址】\n首爾特別市 江南區 江南大路 480, 2樓\n\nLINE ID：@814kgltm\nInstagram：@acrohani.tw\n官網：https://acrohani.com/`,
+ en:`─── ＊・＊・＊ ───\n\nAcro Korean Medicine Clinic（아크로한의원）\n\n【Hours】\nWeekdays　10:30–20:30\nSat・Sun・Holidays　10:00–15:30\n※ Weekday lunch break 13:00–14:00\n※ No lunch break on weekends/holidays\n\n【Location】\n480 Gangnam-daero, Gangnam-gu, Seoul (2F)\n\nKakaoTalk：https://pf.kakao.com/_VcUxmC\nInstagram：@acrohani\nWeb：https://acrohani.com/`};
 const CAP_EXPLAIN={
  jp:`🌟 アクロウェーブとは？\n一般的な高周波よりもさらに深く届く「極超短波（2.45GHz／Microwave）」を採用した施術です。\n▸ 脂肪細胞をやさしく分解し、体外への排出を促進\n▸ 血液・リンパの循環を活性化させ、むくみや老廃物の排出をサポート\n▸ コラーゲンの再生を促し、肌のハリ・弾力を回復\n非侵襲（メスを使わない）施術なので、痛みやダウンタイムの負担が最小限です💫`,
  tw:`🌟 什麼是 ACRO Wave？\n採用比一般高頻更深層的「極超短波（2.45GHz／Microwave）」的療程。\n▸ 溫和分解脂肪細胞，促進排出體外\n▸ 活化血液與淋巴循環，幫助改善水腫與代謝\n▸ 促進膠原蛋白再生，恢復肌膚的緊緻與彈性\n非侵入式（不動刀）療程，疼痛與恢復期的負擔極小💫`,
- ko:`🌟 아크로웨이브란?\n일반 고주파보다 더 깊이 도달하는 '극초단파(2.45GHz/Microwave)'를 적용한 시술입니다.\n▸ 지방세포를 부드럽게 분해해 체외 배출 촉진\n▸ 혈액·림프 순환을 활성화해 부종·노폐물 배출 보조\n▸ 콜라겐 재생을 촉진해 피부 탄력 회복\n비침습(메스 없이) 시술이라 통증·다운타임 부담이 최소입니다💫`};
+ ko:`🌟 아크로웨이브란?\n일반 고주파보다 더 깊이 도달하는 '극초단파(2.45GHz/Microwave)'를 적용한 시술입니다.\n▸ 지방세포를 부드럽게 분해해 체외 배출 촉진\n▸ 혈액·림프 순환을 활성화해 부종·노폐물 배출 보조\n▸ 콜라겐 재생을 촉진해 피부 탄력 회복\n비침습(메스 없이) 시술이라 통증·다운타임 부담이 최소입니다💫`,
+ en:`🌟 What is ACRO Wave?\nA treatment using "microwave (2.45GHz)" that reaches deeper than ordinary radiofrequency.\n▸ Gently breaks down fat cells and helps clear them from the body\n▸ Activates blood and lymph circulation to support drainage of swelling and waste\n▸ Promotes collagen regeneration to restore firmness and elasticity\nIt's non-invasive (no scalpel), so pain and downtime are kept to a minimum💫`};
 const CAP_MAINT={
  jp:`🔹 効果のタイムライン\n→ 施術直後：コラーゲン収縮で即時タイトニング\n→ 2〜6週：脂肪細胞の除去でボリュームが減少しはじめる\n→ 2〜12週：コラーゲン再生で弾力・輪郭が徐々に改善\n→ 3ヶ月：もっとも変化がはっきり出る時期\n時間が経つほど変化がはっきり出るのがアクロウェーブの特徴です。`,
  tw:`🔹 效果時間軸\n→ 療程後即刻：膠原收縮帶來即時緊緻\n→ 2〜6週：脂肪細胞被清除，份量開始減少\n→ 2〜12週：膠原再生，彈性與輪廓逐漸改善\n→ 3個月：變化最明顯的時期\n時間越久變化越明顯，是 ACRO Wave 的特色。`,
- ko:`🔹 효과 타임라인\n→ 시술 직후: 콜라겐 수축으로 즉각 타이트닝\n→ 2~6주: 지방세포 제거로 볼륨 감소 시작\n→ 2~12주: 콜라겐 재생으로 탄력·윤곽 점차 개선\n→ 3개월: 변화가 가장 뚜렷한 시기\n시간이 지날수록 변화가 뚜렷해지는 것이 아크로웨이브의 특징입니다.`};
+ ko:`🔹 효과 타임라인\n→ 시술 직후: 콜라겐 수축으로 즉각 타이트닝\n→ 2~6주: 지방세포 제거로 볼륨 감소 시작\n→ 2~12주: 콜라겐 재생으로 탄력·윤곽 점차 개선\n→ 3개월: 변화가 가장 뚜렷한 시기\n시간이 지날수록 변화가 뚜렷해지는 것이 아크로웨이브의 특징입니다.`,
+ en:`🔹 Results timeline\n→ Right after: immediate tightening from collagen contraction\n→ 2–6 weeks: fat-cell clearance begins to reduce volume\n→ 2–12 weeks: collagen regeneration gradually improves elasticity & contour\n→ 3 months: when the change shows most clearly\nThe more time passes, the more clearly the change shows — that's the hallmark of ACRO Wave.`};
 const CAP_PARTS={
- belly:{tags:{jp:'#アクロウェーブ #韓方ダイエット #極超短波 #韓国美容 #ボディケア',tw:'#ACROWave #韓方減重 #極超短波 #韓國醫美 #身體保養'},
+ belly:{tags:{jp:'#アクロウェーブ #韓方ダイエット #極超短波 #韓国美容 #ボディケア',tw:'#ACROWave #韓方減重 #極超短波 #韓國醫美 #身體保養',en:'#ACROWave #KoreanMedicine #Microwave #KBeauty #BodyCare'},
   jp:{hook:'💎【下腹のぽっこり脂肪、アクロウェーブで変化を実感した症例】',body:w=>`アクロ韓方クリニックに実際にご来院された${w?w+'の':''}リアルなBefore→Afterの記録です✨\n\nお悩みは「下腹部だけ脂肪が多く、ボコボコと出っ張ってしまう」というもの。\n洋服で隠しても気になる、座ったときにお腹が乗る…そんな経験、ありませんか？\n\nアクロウェーブの施術後、前に出ていた下腹部がすっきりと変化。\n見た目のラインが整ったことをご本人も実感されていました。`,close:'ダイエットや運動では落としにくい下腹部の脂肪。\n極超短波という選択肢を知っておくと、ボディケアの視野がぐっと広がります💎'},
   tw:{hook:'💎【凸出的下腹脂肪，用 ACRO Wave 感受到變化的案例】',body:w=>`這是實際到院的${w?w+'的':''}真實 Before→After 紀錄✨\n\n煩惱是「只有下腹脂肪偏多、凸出不平」。\n用衣服遮住還是很在意、坐下時肚子會擠出來…你也有過這種經驗嗎？\n\nACRO Wave 療程後，原本往前凸的下腹變得平順，\n本人也明顯感受到線條變俐落了。`,close:'靠飲食或運動很難瘦下來的下腹脂肪。\n先了解「極超短波」這個選項，身體保養的視野會更開闊💎'},
-  ko:{hook:'💎【볼록 나온 아랫배 지방, 아크로웨이브로 변화를 체감한 증례】',body:w=>`아크로한의원에 실제 내원하신 ${w?w+' ':''}분의 리얼 Before→After 기록입니다✨\n\n고민은 "아랫배만 지방이 많아 볼록 튀어나온다"는 것.\n옷으로 가려도 신경 쓰이고, 앉으면 배가 접히고… 이런 경험 있으신가요?\n\n아크로웨이브 시술 후 앞으로 나와 있던 아랫배가 매끈하게 변화.\n라인이 정돈된 걸 본인도 체감하셨습니다.`,close:'식이·운동으로는 빼기 어려운 아랫배 지방.\n극초단파라는 선택지를 알아두면 바디케어 시야가 넓어집니다💎'}},
- face:{tags:{jp:'#韓国美容クリニック #韓方クリニック #小顔 #アクロウェーブ #韓国美容',tw:'#韓國醫美 #韓方診所 #小臉 #ACROWave #韓國美容'},
+  ko:{hook:'💎【볼록 나온 아랫배 지방, 아크로웨이브로 변화를 체감한 증례】',body:w=>`아크로한의원에 실제 내원하신 ${w?w+' ':''}분의 리얼 Before→After 기록입니다✨\n\n고민은 "아랫배만 지방이 많아 볼록 튀어나온다"는 것.\n옷으로 가려도 신경 쓰이고, 앉으면 배가 접히고… 이런 경험 있으신가요?\n\n아크로웨이브 시술 후 앞으로 나와 있던 아랫배가 매끈하게 변화.\n라인이 정돈된 걸 본인도 체감하셨습니다.`,close:'식이·운동으로는 빼기 어려운 아랫배 지방.\n극초단파라는 선택지를 알아두면 바디케어 시야가 넓어집니다💎'},
+  en:{hook:'💎【Lower belly fat — a real Before→After with ACRO Wave】',body:w=>`A real Before→After from ${w?w+', ':''}an actual patient at Acro Korean Medicine Clinic✨\n\nThe concern: "only the lower belly holds stubborn fat that sticks out."\nIt shows even under clothes, and folds over when you sit down… sound familiar?\n\nAfter the ACRO Wave session, the lower belly that used to push forward looks noticeably smoother.\nThe line looked more defined — and the patient felt it too.`,close:'Lower-belly fat is hard to shift with diet or exercise alone.\nKnowing microwave (extreme ultra-high frequency) is an option widens your body-care horizons💎'}},
+ face:{tags:{jp:'#韓国美容クリニック #韓方クリニック #小顔 #アクロウェーブ #韓国美容',tw:'#韓國醫美 #韓方診所 #小臉 #ACROWave #韓國美容',en:'#KoreanClinic #KoreanMedicine #Vline #ACROWave #KBeauty'},
   jp:{hook:'✨【顔の脂肪が気になる方へ｜アクロウェーブで顎下スッキリ】',body:w=>`実際にアクロ韓医院を訪れた${w?w+'の':''}体験をご紹介します💎\n「顔にばかりお肉がつくのが長年の悩みでした」\nそんなお客様がアクロウェーブを受けた結果、顎下に溜まっていたもたつきがスッキリし、フェイスラインがくっきり復活したそうです。\n\nお顔の脂肪は、ダイエットしてもなかなか落ちにくい部分。\nそこにアプローチできるのがアクロウェーブの大きな特徴なんです。`,close:'顔太りの原因が「脂肪」なのか「むくみ」なのかは、自分では判断しにくいもの。\nアクロウェーブはその両方にアプローチできるから、多くの方が施術後の変化に驚かれます🫧'},
   tw:{hook:'✨【在意臉部脂肪的你｜ACRO Wave 讓下巴更俐落】',body:w=>`介紹實際到院的${w?w+'的':''}體驗💎\n「長年的煩惱，就是肉都長在臉上」\n這位客人接受 ACRO Wave 後，下巴囤積的鬆垮感變俐落，臉部線條重新變得清晰。\n\n臉部脂肪是減重也不容易瘦的部位，\n能對它做處理，正是 ACRO Wave 的一大特色。`,close:'臉看起來胖，是「脂肪」還是「水腫」造成的，自己其實很難判斷。\nACRO Wave 能同時對兩者作用，所以很多人都對療程後的變化感到驚訝🫧'},
-  ko:{hook:'✨【얼굴 지방이 고민이라면｜아크로웨이브로 턱밑 깔끔하게】',body:w=>`실제 내원하신 ${w?w+' ':''}분의 체험을 소개합니다💎\n"살이 얼굴에만 붙는 게 오랜 고민이었어요"\n이 고객이 아크로웨이브를 받은 뒤 턱밑에 쌓인 처짐이 정리되고 페이스라인이 또렷해졌습니다.\n\n얼굴 지방은 다이어트해도 잘 안 빠지는 부위.\n거기에 접근할 수 있는 게 아크로웨이브의 큰 특징입니다.`,close:'얼굴이 부어 보이는 원인이 \'지방\'인지 \'부종\'인지는 스스로 판단하기 어렵습니다.\n아크로웨이브는 둘 다에 작용할 수 있어 많은 분이 시술 후 변화에 놀라십니다🫧'}},
- arm:{tags:{jp:'#韓方ダイエット #ダイエット漢方薬 #整形後ケア漢方 #アクロウェーブ #渡韓',tw:'#韓方減重 #減重漢方 #韓國醫美 #ACROWave #渡韓'},
+  ko:{hook:'✨【얼굴 지방이 고민이라면｜아크로웨이브로 턱밑 깔끔하게】',body:w=>`실제 내원하신 ${w?w+' ':''}분의 체험을 소개합니다💎\n"살이 얼굴에만 붙는 게 오랜 고민이었어요"\n이 고객이 아크로웨이브를 받은 뒤 턱밑에 쌓인 처짐이 정리되고 페이스라인이 또렷해졌습니다.\n\n얼굴 지방은 다이어트해도 잘 안 빠지는 부위.\n거기에 접근할 수 있는 게 아크로웨이브의 큰 특징입니다.`,close:'얼굴이 부어 보이는 원인이 \'지방\'인지 \'부종\'인지는 스스로 판단하기 어렵습니다.\n아크로웨이브는 둘 다에 작용할 수 있어 많은 분이 시술 후 변화에 놀라십니다🫧'},
+  en:{hook:'✨【For facial fat | a sharper jawline with ACRO Wave】',body:w=>`An experience from ${w?w+', ':''}an actual visitor to Acro Korean Medicine💎\n"Fat always settled on my face — it bothered me for years."\nAfter ACRO Wave, the heaviness under the chin eased and the facial line came back into focus.\n\nFacial fat is one of the hardest areas to slim with diet alone.\nBeing able to target it is one of ACRO Wave's biggest strengths.`,close:'Whether facial fullness comes from "fat" or "swelling" is hard to judge on your own.\nBecause ACRO Wave can work on both, many are surprised by the change after a session🫧'}},
+ arm:{tags:{jp:'#韓方ダイエット #ダイエット漢方薬 #整形後ケア漢方 #アクロウェーブ #渡韓',tw:'#韓方減重 #減重漢方 #韓國醫美 #ACROWave #渡韓',en:'#KoreanMedicine #DietHerbs #ACROWave #KBeauty #KoreaTrip'},
   jp:{hook:'＼二の腕の脂肪、運動じゃ落ちなかった人へ／\n極超短波リフティング「アクロウェーブ」👏',body:w=>`二の腕は、ダイエットしても運動してもなかなか細くならない代表的な部位。\n特に上腕の外側についた脂肪は、食事制限や筋トレだけでは落としにくい…\nだからこそアクロウェーブの施術部位でも、二の腕が一番多いんです😊\n\n今回は${w?w:'実際の方'}のケースをご紹介します。\n上腕外側のラインが気になっていた方で、施術後は丸みのあるボリュームが減り、肩から腕にかけてのラインがすっきりしました。`,close:'一度破壊・除去された脂肪細胞は簡単には再生しないため、長期的な維持が見込めるのがポイントです。\nノースリーブの季節、二の腕のライン気になったことありませんか？'},
   tw:{hook:'＼運動也瘦不下來的蝴蝶袖／\n極超短波拉提「ACRO Wave」👏',body:w=>`手臂是減重、運動都不容易變細的代表部位。\n尤其上臂外側的脂肪，光靠飲食控制或重訓很難消除…\n所以在 ACRO Wave 的療程部位中，手臂也是最多人選擇的😊\n\n這次介紹${w?w:'實際個案'}的案例。\n原本在意上臂外側線條，療程後圓潤的份量減少，肩到手臂的線條變俐落了。`,close:'一旦被破壞、清除的脂肪細胞不易再生，因此可期待長期維持，這是重點。\n無袖的季節，你也曾在意過手臂線條嗎？'},
-  ko:{hook:'＼운동으로도 안 빠지던 팔뚝 지방／\n극초단파 리프팅 \'아크로웨이브\'👏',body:w=>`팔뚝은 다이어트·운동으로도 좀처럼 가늘어지지 않는 대표 부위.\n특히 위팔 바깥쪽 지방은 식이·근력운동만으로는 빼기 어렵습니다…\n그래서 아크로웨이브 시술 부위 중에서도 팔뚝이 가장 많습니다😊\n\n이번엔 ${w?w:'실제'} 케이스를 소개합니다.\n위팔 바깥 라인이 고민이던 분으로, 시술 후 둥근 볼륨이 줄고 어깨에서 팔로 이어지는 라인이 깔끔해졌습니다.`,close:'한 번 파괴·제거된 지방세포는 쉽게 재생되지 않아 장기 유지가 기대되는 점이 포인트입니다.\n민소매 계절, 팔 라인 신경 쓰인 적 있으신가요?'}},
- chin:{tags:{jp:'#小顔 #顎下 #二重あご #アクロウェーブ #韓国美容',tw:'#小臉 #雙下巴 #下巴 #ACROWave #韓國醫美'},
+  ko:{hook:'＼운동으로도 안 빠지던 팔뚝 지방／\n극초단파 리프팅 \'아크로웨이브\'👏',body:w=>`팔뚝은 다이어트·운동으로도 좀처럼 가늘어지지 않는 대표 부위.\n특히 위팔 바깥쪽 지방은 식이·근력운동만으로는 빼기 어렵습니다…\n그래서 아크로웨이브 시술 부위 중에서도 팔뚝이 가장 많습니다😊\n\n이번엔 ${w?w:'실제'} 케이스를 소개합니다.\n위팔 바깥 라인이 고민이던 분으로, 시술 후 둥근 볼륨이 줄고 어깨에서 팔로 이어지는 라인이 깔끔해졌습니다.`,close:'한 번 파괴·제거된 지방세포는 쉽게 재생되지 않아 장기 유지가 기대되는 점이 포인트입니다.\n민소매 계절, 팔 라인 신경 쓰인 적 있으신가요?'},
+  en:{hook:'＼For arms that exercise couldn\'t slim down／\nMicrowave lifting, "ACRO Wave"👏',body:w=>`Arms stay stubborn no matter how much you diet or work out.\nThe fat on the outer upper arm is especially hard to lose with food control or strength training alone…\nThat's exactly why arms are one of the most-requested ACRO Wave areas😊\n\nThis time we're sharing ${w?w+"'s":'a real'} case.\nThis person was bothered by the outer upper-arm line; after the session the rounded volume reduced, and the line from shoulder to arm looked cleaner.`,close:'Once fat cells are broken down and cleared, they don\'t easily return — so longer-term maintenance can be expected.\nEver felt self-conscious about your arms in sleeveless season?'}},
+ chin:{tags:{jp:'#小顔 #顎下 #二重あご #アクロウェーブ #韓国美容',tw:'#小臉 #雙下巴 #下巴 #ACROWave #韓國醫美',en:'#Vline #DoubleChin #Jawline #ACROWave #KBeauty'},
   jp:{hook:'✨【二重あご・顎下のもたつきに｜アクロウェーブ症例】',body:w=>`実際にご来院された${w?w+'の':''}Before→Afterです💎\n「正面はそこまでなのに、横顔やうつむいた時の顎下が気になる」\nそんなお悩みにアクロウェーブで施術。\n顎下に溜まっていたもたつきがすっきりし、フェイスラインから首にかけてのラインが整いました。`,close:'顎下は脂肪とむくみが混在しやすい部位。\n両方にアプローチできるアクロウェーブなら、すっきりした横顔を目指せます🫧'},
   tw:{hook:'✨【雙下巴・下巴鬆垮｜ACRO Wave 案例】',body:w=>`這是實際到院的${w?w+'的':''}Before→After💎\n「正面還好，但側臉或低頭時的雙下巴很在意」\n以 ACRO Wave 進行療程後，下巴囤積的鬆垮感變俐落，臉到頸部的線條更清晰。`,close:'下巴是脂肪與水腫容易混合的部位。\n能同時處理兩者的 ACRO Wave，幫你找回俐落的側臉🫧'},
-  ko:{hook:'✨【이중턱·턱밑 처짐｜아크로웨이브 증례】',body:w=>`실제 내원하신 ${w?w+' ':''}분의 Before→After입니다💎\n"정면은 괜찮은데 옆모습이나 고개 숙일 때 턱밑이 신경 쓰인다"\n이런 고민에 아크로웨이브로 시술. 턱밑 처짐이 정리되고 얼굴에서 목으로 이어지는 라인이 정돈됐습니다.`,close:'턱밑은 지방과 부종이 섞이기 쉬운 부위.\n둘 다에 접근하는 아크로웨이브로 깔끔한 옆모습을 기대할 수 있습니다🫧'}},
- calf:{tags:{jp:'#ふくらはぎ #脚やせ #美脚 #アクロウェーブ #韓国美容',tw:'#小腿 #瘦腿 #美腿 #ACROWave #韓國醫美'},
+  ko:{hook:'✨【이중턱·턱밑 처짐｜아크로웨이브 증례】',body:w=>`실제 내원하신 ${w?w+' ':''}분의 Before→After입니다💎\n"정면은 괜찮은데 옆모습이나 고개 숙일 때 턱밑이 신경 쓰인다"\n이런 고민에 아크로웨이브로 시술. 턱밑 처짐이 정리되고 얼굴에서 목으로 이어지는 라인이 정돈됐습니다.`,close:'턱밑은 지방과 부종이 섞이기 쉬운 부위.\n둘 다에 접근하는 아크로웨이브로 깔끔한 옆모습을 기대할 수 있습니다🫧'},
+  en:{hook:'✨【For a double chin & under-jaw heaviness | ACRO Wave case】',body:w=>`A Before→After from ${w?w+', ':''}an actual patient💎\n"From the front it's not so bad, but my profile — and my under-chin when I look down — bothers me."\nWe treated exactly that concern with ACRO Wave.\nThe heaviness under the jaw eased, and the line from face to neck looked tidier.`,close:'The under-chin is an area where fat and swelling easily mix.\nACRO Wave can work on both, helping you aim for a cleaner profile🫧'}},
+ calf:{tags:{jp:'#ふくらはぎ #脚やせ #美脚 #アクロウェーブ #韓国美容',tw:'#小腿 #瘦腿 #美腿 #ACROWave #韓國醫美',en:'#Calves #SlimLegs #LegLine #ACROWave #KBeauty'},
   jp:{hook:'＼ししゃも脚・ふくらはぎの張りに／\n極超短波「アクロウェーブ」👏',body:w=>`ふくらはぎは、運動しても逆に張って太く見えやすい難しい部位。\n脂肪と筋肉・むくみが混ざって、自己流ではなかなか細くしにくいんです。\n\n今回は${w?w:'実際の方'}のケース。\n施術後はふくらはぎの張りがやわらぎ、足首にかけてのラインがすっきりしました。`,close:'ふくらはぎは「脂肪なのか・むくみなのか」の見極めが大切。\nアクロウェーブはその両方にアプローチできます💎'},
   tw:{hook:'＼蘿蔔腿・小腿緊繃／\n極超短波「ACRO Wave」👏',body:w=>`小腿是連運動都可能越練越粗的難處理部位。\n脂肪、肌肉與水腫混在一起，自己很難瘦下來。\n\n這次是${w?w:'實際個案'}的案例。\n療程後小腿的緊繃感緩和，到腳踝的線條變俐落了。`,close:'小腿要先分清是「脂肪」還是「水腫」。\nACRO Wave 能同時對兩者作用💎'},
-  ko:{hook:'＼무 다리·종아리 알 뭉침에／\n극초단파 \'아크로웨이브\'👏',body:w=>`종아리는 운동해도 오히려 알이 배겨 굵어 보이기 쉬운 까다로운 부위.\n지방·근육·부종이 섞여 혼자서는 가늘게 만들기 어렵습니다.\n\n이번엔 ${w?w:'실제'} 케이스. 시술 후 종아리 뭉침이 풀리고 발목으로 이어지는 라인이 깔끔해졌습니다.`,close:'종아리는 \'지방인지 부종인지\' 구분이 중요합니다.\n아크로웨이브는 둘 다에 접근할 수 있어요💎'}},
- thigh:{tags:{jp:'#太もも #脚やせ #ボディメイク #アクロウェーブ #韓国美容',tw:'#大腿 #瘦腿 #身體雕塑 #ACROWave #韓國醫美'},
+  ko:{hook:'＼무 다리·종아리 알 뭉침에／\n극초단파 \'아크로웨이브\'👏',body:w=>`종아리는 운동해도 오히려 알이 배겨 굵어 보이기 쉬운 까다로운 부위.\n지방·근육·부종이 섞여 혼자서는 가늘게 만들기 어렵습니다.\n\n이번엔 ${w?w:'실제'} 케이스. 시술 후 종아리 뭉침이 풀리고 발목으로 이어지는 라인이 깔끔해졌습니다.`,close:'종아리는 \'지방인지 부종인지\' 구분이 중요합니다.\n아크로웨이브는 둘 다에 접근할 수 있어요💎'},
+  en:{hook:'＼For "radish" calves & tight, bulky lower legs／\nMicrowave, "ACRO Wave"👏',body:w=>`Calves are tricky — even exercise can leave them looking tighter and bulkier.\nFat, muscle and swelling all mix together, so they're hard to slim on your own.\n\nThis time, ${w?w+"'s":'a real'} case.\nAfter the session the tightness in the calf eased, and the line down to the ankle looked cleaner.`,close:'For calves, telling "fat" from "swelling" matters most.\nACRO Wave can work on both💎'}},
+ thigh:{tags:{jp:'#太もも #脚やせ #ボディメイク #アクロウェーブ #韓国美容',tw:'#大腿 #瘦腿 #身體雕塑 #ACROWave #韓國醫美',en:'#Thighs #SlimLegs #BodyContour #ACROWave #KBeauty'},
   jp:{hook:'✨【太ももの内側・前張りに｜アクロウェーブ症例】',body:w=>`太ももは面積が広く、ダイエットしても部分的に残りやすい部位。\n特に内ももや前ももの張りは、運動だけでは落としにくい…\n\n${w?w+'の':''}施術後は、もたつきが軽くなり脚全体のラインがすっきり見えるように変化しました。`,close:'面積の広い太ももは、ライン全体を見ながらの施術が大切。\n極超短波という選択肢で、無理のないボディメイクを💎'},
   tw:{hook:'✨【大腿內側・前側緊繃｜ACRO Wave 案例】',body:w=>`大腿面積大，減重後也容易局部殘留。\n尤其大腿內側、前側的緊繃，光靠運動很難消除…\n\n${w?w+'的':''}療程後，鬆垮感減輕，整條腿的線條看起來更俐落。`,close:'面積大的大腿，要看整體線條來施作。\n用極超短波，做不勉強的身體雕塑💎'},
-  ko:{hook:'✨【허벅지 안쪽·앞벅지 뭉침｜아크로웨이브 증례】',body:w=>`허벅지는 면적이 넓어 다이어트해도 부분적으로 남기 쉬운 부위.\n특히 안쪽·앞쪽 뭉침은 운동만으로는 빼기 어렵습니다…\n\n${w?w+' ':''}시술 후 묵직함이 줄고 다리 전체 라인이 한결 깔끔해 보이게 변했습니다.`,close:'면적이 넓은 허벅지는 전체 라인을 보며 시술하는 게 중요합니다.\n극초단파로 무리 없는 바디메이크를💎'}},
- back:{tags:{jp:'#背中痩せ #背中 #ボディケア #アクロウェーブ #韓国美容',tw:'#瘦背 #背部 #身體保養 #ACROWave #韓國醫美'},
+  ko:{hook:'✨【허벅지 안쪽·앞벅지 뭉침｜아크로웨이브 증례】',body:w=>`허벅지는 면적이 넓어 다이어트해도 부분적으로 남기 쉬운 부위.\n특히 안쪽·앞쪽 뭉침은 운동만으로는 빼기 어렵습니다…\n\n${w?w+' ':''}시술 후 묵직함이 줄고 다리 전체 라인이 한결 깔끔해 보이게 변했습니다.`,close:'면적이 넓은 허벅지는 전체 라인을 보며 시술하는 게 중요합니다.\n극초단파로 무리 없는 바디메이크를💎'},
+  en:{hook:'✨【For inner-thigh & front-thigh tightness | ACRO Wave case】',body:w=>`Thighs cover a large area, so fat often lingers in spots even after dieting.\nInner and front thighs especially are hard to slim with exercise alone…\n\nAfter ${w?w+"'s ":'the '}session, the heaviness eased and the whole leg line looked cleaner.`,close:'For the large thigh area, treating while watching the whole line matters.\nMicrowave makes for a no-strain approach to body contouring💎'}},
+ back:{tags:{jp:'#背中痩せ #背中 #ボディケア #アクロウェーブ #韓国美容',tw:'#瘦背 #背部 #身體保養 #ACROWave #韓國醫美',en:'#SlimBack #BackFat #BodyCare #ACROWave #KBeauty'},
   jp:{hook:'✨【背中のハミ肉・ブラ周りに｜アクロウェーブ症例】',body:w=>`背中は自分では見えにくく、気づきにくい部位。\nブラの上下に乗るハミ肉や、肩甲骨まわりのもたつきは、後ろ姿の印象を大きく左右します。\n\n${w?w+'の':''}施術後は背中のラインがすっきりし、後ろ姿が引き締まって見えるように変化しました。`,close:'後ろ姿は自分では確認しづらいぶん、差が出やすいポイント。\n背中もアクロウェーブの対象部位です💎'},
   tw:{hook:'✨【背部贅肉・內衣周圍｜ACRO Wave 案例】',body:w=>`背部是自己不易看見、容易忽略的部位。\n內衣上下擠出的贅肉、肩胛骨周圍的鬆垮，大大影響背影印象。\n\n${w?w+'的':''}療程後背部線條變俐落，背影看起來更緊緻。`,close:'背影自己很難確認，反而是容易看出差別的地方。\n背部也是 ACRO Wave 的療程部位💎'},
-  ko:{hook:'✨【등살·브라 라인 군살｜아크로웨이브 증례】',body:w=>`등은 스스로 보기 어려워 놓치기 쉬운 부위.\n브라 위아래로 잡히는 군살, 견갑골 주변 묵직함은 뒷모습 인상을 크게 좌우합니다.\n\n${w?w+' ':''}시술 후 등 라인이 정리되고 뒷모습이 한결 탄탄해 보이게 변했습니다.`,close:'뒷모습은 스스로 확인하기 어려운 만큼 차이가 잘 드러나는 포인트.\n등도 아크로웨이브 시술 부위입니다💎'}},
- custom:{tags:{jp:'#アクロウェーブ #韓方ダイエット #極超短波 #韓国美容 #ボディケア',tw:'#ACROWave #韓方減重 #極超短波 #韓國醫美 #身體保養'},
+  ko:{hook:'✨【등살·브라 라인 군살｜아크로웨이브 증례】',body:w=>`등은 스스로 보기 어려워 놓치기 쉬운 부위.\n브라 위아래로 잡히는 군살, 견갑골 주변 묵직함은 뒷모습 인상을 크게 좌우합니다.\n\n${w?w+' ':''}시술 후 등 라인이 정리되고 뒷모습이 한결 탄탄해 보이게 변했습니다.`,close:'뒷모습은 스스로 확인하기 어려운 만큼 차이가 잘 드러나는 포인트.\n등도 아크로웨이브 시술 부위입니다💎'},
+  en:{hook:'✨【For back rolls & the bra-line area | ACRO Wave case】',body:w=>`The back is hard to see yourself, so it's easy to overlook.\nRolls above and below the bra, and heaviness around the shoulder blades, strongly shape how your back reads.\n\nAfter ${w?w+"'s ":'the '}session, the back line looked tidier and the rear view looked more toned.`,close:'Because the back view is hard to check yourself, the difference tends to show.\nThe back is an ACRO Wave treatment area too💎'}},
+ custom:{tags:{jp:'#アクロウェーブ #韓方ダイエット #極超短波 #韓国美容 #ボディケア',tw:'#ACROWave #韓方減重 #極超短波 #韓國醫美 #身體保養',en:'#ACROWave #KoreanMedicine #Microwave #KBeauty #BodyCare'},
   jp:{hook:p=>`✨【${p||'気になる部位'}の脂肪に｜アクロウェーブ症例】`,body:(w,p)=>`アクロ韓方クリニックに実際にご来院された${w?w+'の':''}Before→Afterの記録です✨\n「${p||'この部位'}の脂肪が気になる」というお悩みに対して、アクロウェーブで施術を実施。\n施術後、すっきりと整ったラインの変化を確認できました。`,close:p=>`${p||'気になる部位'}の部分痩せのアプローチとして、極超短波という選択肢があります💎\nまた詳しくお話ししていきますね🌟`},
   tw:{hook:p=>`✨【${p||'在意的部位'}脂肪｜ACRO Wave 案例】`,body:(w,p)=>`這是實際到院的${w?w+'的':''}Before→After 紀錄✨\n針對「${p||'這個部位'}脂肪在意」的煩惱，以 ACRO Wave 進行療程。\n療程後，確認到線條變得俐落平順。`,close:p=>`作為${p||'在意部位'}局部雕塑的選擇，有「極超短波」這個方法💎\n之後也會再詳細分享🌟`},
-  ko:{hook:p=>`✨【${p||'고민 부위'} 지방에｜아크로웨이브 증례】`,body:(w,p)=>`아크로한의원에 실제 내원하신 ${w?w+' ':''}분의 Before→After 기록입니다✨\n"${p||'이 부위'} 지방이 고민"이라는 고민에 아크로웨이브로 시술.\n시술 후 매끈하게 정돈된 라인 변화를 확인했습니다.`,close:p=>`${p||'고민 부위'} 부분 관리 접근으로 극초단파라는 선택지가 있습니다💎\n또 자세히 이야기해 드릴게요🌟`}}};
+  ko:{hook:p=>`✨【${p||'고민 부위'} 지방에｜아크로웨이브 증례】`,body:(w,p)=>`아크로한의원에 실제 내원하신 ${w?w+' ':''}분의 Before→After 기록입니다✨\n"${p||'이 부위'} 지방이 고민"이라는 고민에 아크로웨이브로 시술.\n시술 후 매끈하게 정돈된 라인 변화를 확인했습니다.`,close:p=>`${p||'고민 부위'} 부분 관리 접근으로 극초단파라는 선택지가 있습니다💎\n또 자세히 이야기해 드릴게요🌟`},
+  en:{hook:p=>`✨【For fat on the ${p||'area you mind'} | ACRO Wave case】`,body:(w,p)=>`A Before→After from ${w?w+', ':''}an actual patient at Acro Korean Medicine Clinic✨\nFor the concern "fat on ${p||'this area'} bothers me," we treated with ACRO Wave.\nAfter the session, a cleaner, smoother line could be confirmed.`,close:p=>`As a spot-care approach for the ${p||'area you mind'}, microwave (extreme ultra-high frequency) is one option💎\nWe'll share more in detail soon🌟`}}};
 let capPart='belly';
 const CAP_ORDER=['belly','face','chin','arm','calf','thigh','back','custom'];
-const CAP_LABEL={belly:{jp:'下腹部',tw:'下腹部',ko:'복부'},face:{jp:'顔',tw:'臉',ko:'얼굴'},chin:{jp:'顎下',tw:'下巴',ko:'이중턱'},arm:{jp:'二の腕',tw:'手臂',ko:'위팔'},calf:{jp:'ふくらはぎ',tw:'小腿',ko:'종아리'},thigh:{jp:'太もも',tw:'大腿',ko:'허벅지'},back:{jp:'背中',tw:'背部',ko:'등'},custom:{jp:'その他',tw:'其他',ko:'직접입력'}};
+const CAP_LABEL={belly:{jp:'下腹部',tw:'下腹部',ko:'복부',en:'Belly'},face:{jp:'顔',tw:'臉',ko:'얼굴',en:'Face'},chin:{jp:'顎下',tw:'下巴',ko:'이중턱',en:'Jawline'},arm:{jp:'二の腕',tw:'手臂',ko:'위팔',en:'Arms'},calf:{jp:'ふくらはぎ',tw:'小腿',ko:'종아리',en:'Calves'},thigh:{jp:'太もも',tw:'大腿',ko:'허벅지',en:'Thighs'},back:{jp:'背中',tw:'背部',ko:'등',en:'Back'},custom:{jp:'その他',tw:'其他',ko:'직접입력',en:'Other'}};
 
 // ---------- geometry ----------
 function barH(){ return isIG()&&IGS.showBar ? Math.round(IG_RATIOS[IGS.ratio][1]*0.235) : 0; }
@@ -887,12 +909,28 @@ function addFiles(list){
 }
 function renderThumbs(){
   const box=$('thumbs'); box.innerHTML='';
+  if(images.length===0){
+    const e=document.createElement('div'); e.className='thumbsEmpty';
+    e.textContent='아직 올린 사진이 없습니다. 위에서 사진을 올려주세요.';
+    box.appendChild(e); return;
+  }
   images.forEach((it,idx)=>{
+    const isB=S.panes.before.srcIdx===idx, isA=S.panes.after.srcIdx===idx;
     const d=document.createElement('div'); d.className='thumb'; d.dataset.idx=idx;
-    d.innerHTML='<img src="'+it.url+'">';
-    d.onclick=()=>assign(S.activeSlot,idx);
-    if(S.panes.before.srcIdx===idx) d.classList.add('assignedB');
-    if(S.panes.after.srcIdx===idx) d.classList.add('assignedA');
+    d.innerHTML=
+      '<img src="'+it.url+'" title="클릭하면 활성 슬롯에 들어감">'+
+      '<div class="row">'+
+        '<button class="b'+(isB?' active':'')+'" title="이 사진을 전(Before)으로">전</button>'+
+        '<button class="a'+(isA?' active':'')+'" title="이 사진을 후(After)로">후</button>'+
+        '<button class="x" title="원본에서 삭제">✕</button>'+
+      '</div>';
+    const btns=d.querySelectorAll('button');
+    btns[0].onclick=ev=>{ev.stopPropagation();assign('before',idx);};
+    btns[1].onclick=ev=>{ev.stopPropagation();assign('after',idx);};
+    btns[2].onclick=ev=>{ev.stopPropagation();removeImage(idx);};
+    d.querySelector('img').onclick=()=>assign(S.activeSlot,idx);
+    if(isB) d.classList.add('assignedB');
+    if(isA) d.classList.add('assignedA');
     box.appendChild(d);
   });
 }
@@ -902,8 +940,27 @@ function setActiveSlot(which){
 }
 function refreshSlotBox(which){
   const box=$(which==='before'?'slotBefore':'slotAfter'); const p=S.panes[which];
-  if(p.img && p.srcIdx!=null) box.innerHTML='<img src="'+images[p.srcIdx].url+'">';
-  else box.innerHTML='<span class="sph">비어 있음</span>';
+  if(p.img && p.srcIdx!=null){
+    box.innerHTML='<img src="'+images[p.srcIdx].url+'"><button class="slotDel" title="이 사진 빼기">✕</button>';
+    box.querySelector('.slotDel').onclick=ev=>{ev.stopPropagation();clearSlot(which);};
+  } else box.innerHTML='<span class="sph">비어 있음</span>';
+}
+function clearSlot(which){
+  const p=S.panes[which];
+  p.img=null; p.srcIdx=null; p.scale=1; p.ox=0; p.oy=0; p.flip=false; p.p1=null; p.p2=null;
+  refreshSlotBox(which); renderThumbs(); updateLmStatus(); updateExport(); render();
+}
+function removeImage(idx){
+  // 슬롯에서 쓰던 사진이면 해제, 그 외엔 인덱스 보정
+  ['before','after'].forEach(w=>{
+    const p=S.panes[w];
+    if(p.srcIdx===idx){ p.img=null; p.srcIdx=null; p.scale=1; p.ox=0; p.oy=0; p.flip=false; p.p1=null; p.p2=null; }
+    else if(p.srcIdx!=null && p.srcIdx>idx){ p.srcIdx--; }
+  });
+  try{ URL.revokeObjectURL(images[idx].url); }catch(_){}
+  images.splice(idx,1);
+  refreshSlotBox('before'); refreshSlotBox('after');
+  renderThumbs(); updateLmStatus(); updateExport(); render();
 }
 function assign(which,idx){
   const it=images[idx]; const p=S.panes[which];
@@ -968,7 +1025,7 @@ function flash(btn,txt){ const o=btn.textContent; btn.textContent=txt; setTimeou
   $('dateB').value=iso; $('dateA').value=iso; S.dateB=iso; S.dateA=iso;
   document.body.classList.add('mode-clinic');
   setCanvasSize(); _lastDim=dimKey();
-  syncSwatch(); syncPanePick(); updateLmStatus(); setQrKo(); buildCaption(); render();
+  syncSwatch(); syncPanePick(); updateLmStatus(); setQrKo(); buildCaption(); renderThumbs(); render();
 })();
 </script>
 </body>
