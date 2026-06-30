@@ -26,6 +26,11 @@
   h2{font-size:13px; letter-spacing:.12em; color:var(--muted); text-transform:uppercase;
     font-weight:800; margin:30px 0 12px; display:flex; align-items:center; gap:10px;}
   h2::after{content:""; flex:1; height:1px; background:var(--line);}
+  h3.sub2{font-size:14px; font-weight:800; color:var(--ink); margin:18px 0 8px;}
+
+  .sectionnum{display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; border-radius:50%; background:var(--ink); color:#fff;
+    font-size:12px; font-weight:800; flex:0 0 auto;}
 
   /* thesis + matrix */
   .thesis{font-size:17px; font-weight:800; margin:0 0 12px; letter-spacing:-.01em;}
@@ -47,7 +52,7 @@
   .hook .line b.onda{color:var(--onda);} .hook .line b.wave{color:var(--wave);} .hook .line b.cut{color:var(--cut);}
   .hook .sep{color:#bba23a; margin:0 6px; font-weight:400;}
 
-  /* program flow */
+  /* program flow / route flow (재사용) */
   .flow{display:flex; align-items:stretch; gap:10px;}
   .step{flex:1; background:#fff; border:1px solid var(--line); border-radius:10px; padding:13px 14px; border-top:4px solid var(--muted);}
   .step.s1{border-top-color:#9aa0a6;} .step.s2{border-top-color:var(--cut);} .step.s3{border-top-color:var(--wave);}
@@ -58,6 +63,24 @@
   .arrow{display:flex; align-items:center; color:#bbb; font-weight:800; font-size:18px;}
   .flownote{font-size:13px; color:#444; margin-top:9px;}
   .flownote b{color:var(--cut);}
+
+  /* route (동선) - 가로 스크롤 가능한 단계 흐름 */
+  .route{display:flex; align-items:stretch; gap:8px; overflow-x:auto; padding-bottom:4px;}
+  .rstep{flex:0 0 128px; background:#fff; border:1px solid var(--line); border-radius:10px;
+    padding:11px 10px; border-top:4px solid var(--onda); text-align:center;}
+  .rstep .rn{font-size:10.5px; font-weight:800; color:var(--muted); letter-spacing:.08em;}
+  .rstep .rt{font-weight:800; font-size:13.5px; margin:4px 0 3px; color:var(--ink);}
+  .rstep .rd{font-size:11.5px; color:#555;}
+  .rarrow{display:flex; align-items:center; color:#bbb; font-weight:800; font-size:15px; flex:0 0 auto;}
+
+  /* space badge */
+  .spacewrap{display:flex; gap:10px; margin-bottom:6px;}
+  .spacecard{flex:1; background:#fff; border:1px solid var(--line); border-radius:10px; padding:13px 14px;}
+  .spacecard .nm{font-weight:800; font-size:14.5px;}
+  .spacecard.onda .nm{color:var(--onda);} .spacecard.wave .nm{color:var(--wave);}
+  .spacecard .room{display:inline-block; margin-top:5px; font-size:12px; font-weight:800;
+    padding:3px 9px; border-radius:999px; background:var(--soft); color:#444;}
+  .spacecard .ds{font-size:12.5px; color:#444; margin-top:7px;}
 
   /* treatment cards */
   .cards{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;}
@@ -75,6 +98,14 @@
   .scr .q{font-weight:800; font-size:14.5px; margin-bottom:5px;}
   .scr .a{font-size:14px; color:#2a2a2a;}
   .scr .a::before{content:"→ "; color:var(--wave); font-weight:800;}
+
+  /* grouped flow script (한 묶음으로 이어지는 응대) */
+  .scrgroup{background:#fff; border:1px solid var(--line); border-radius:10px; padding:6px 16px; margin-bottom:14px;}
+  .scrgroup .gstep{padding:11px 0; border-top:1px dashed var(--line);}
+  .scrgroup .gstep:first-child{border-top:none;}
+  .scrgroup .gstep .q{font-weight:800; font-size:13.5px; margin-bottom:5px; color:var(--muted);}
+  .scrgroup .gstep .a{font-size:14px; color:#2a2a2a;}
+  .scrgroup .gstep .a::before{content:"→ "; color:var(--wave); font-weight:800;}
 
   /* interval */
   .iv{background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden;}
@@ -119,6 +150,21 @@
   .skinsvg{width:100%; height:auto; display:block; max-width:560px; margin:0 auto;}
   .skinsvg text{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;}
 
+  /* photo guide */
+  .photog{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .pshot{background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 13px; display:flex; gap:11px; align-items:flex-start;}
+  .pnum{flex:0 0 30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:14px; color:#fff;}
+  .pn1{background:#e0473e;} .pn2{background:#2563a6;} .pn3{background:#1f8a7a;} .pn4{background:#e6b800; color:#3a2e00;}
+  .ptxt .pt{font-weight:800; font-size:14px;}
+  .ptxt .pd{font-size:12.5px; color:#555; margin-top:2px;}
+  .ptxt .ps{font-size:12px; color:var(--muted); margin-top:4px; font-style:italic;}
+
+  /* waiting box */
+  .waitbox{background:var(--soft); border:1px solid var(--line); border-radius:10px; padding:13px 16px; margin-bottom:10px;}
+  .waitbox .wt{font-weight:800; font-size:14px; margin-bottom:4px;}
+  .waitbox .wd{font-size:13.5px; color:#333;}
+
   @media (max-width:640px){
     .cards{grid-template-columns:1fr;}
     .rules{grid-template-columns:1fr;}
@@ -127,6 +173,8 @@
     .hook .line{font-size:17px;}
     .iv .row{flex-direction:column; gap:2px;} .iv .row .k{flex:none;}
     .dose{grid-template-columns:1fr;}
+    .spacewrap{flex-direction:column;}
+    .photog{grid-template-columns:1fr;}
   }
   @media print{
     body{background:#fff;} .wrap{padding:0;}
@@ -145,7 +193,8 @@
     <div class="endchip">모든 안내 마무리 — “예약 잡아드릴까요? ^^”</div>
   </header>
 
-  <h2>한눈에 — 시술은 셋, 하는 일은 둘</h2>
+  <!-- ===================== 1. 셋의 정체 한눈에 ===================== -->
+  <h2><span class="sectionnum">1</span>셋의 정체 한눈에</h2>
   <p class="thesis"><b class="cut">컷</b>은 지방을 분해해 줄이고, <b class="mw">온다·웨이브</b>는 줄이는 동시에 탄력·리프팅까지 합니다.</p>
   <table class="matrix">
     <thead><tr><th style="text-align:left;padding-left:16px;">시술</th><th>지방 분해 (사이즈↓)</th><th>탄력 · 리프팅</th></tr></thead>
@@ -155,53 +204,68 @@
       <tr><th class="nm-onda">온다리프팅</th><td><span class="dot">●</span></td><td><span class="dot">●</span></td></tr>
     </tbody>
   </table>
-  <p class="mcap">온다와 웨이브는 <b>하는 일이 같습니다.</b> 차이는 정밀도와 가격 — 얼굴엔 정밀한 온다, 넓은 바디엔 합리적인 웨이브.</p>
+  <p class="mcap">온다와 웨이브는 <b>하는 일이 같습니다.</b> 마이크로웨이브 기전도 동일 — 차이는 <b>정품 여부 · 팁 정밀도 · 가격</b>이에요.</p>
 
-  <h2>외울 것 — 두 줄</h2>
   <div class="hook">
     <div class="tag">시술의 역할</div>
     <div class="line"><b class="cut">컷 = 사이즈</b><span class="sep">·</span><b class="wave">온다·웨이브 = 사이즈 + 리프팅</b></div>
   </div>
   <div class="hook">
-    <div class="tag">마이크로웨이브 선택</div>
-    <div class="line"><b class="onda">얼굴 온다</b><span class="sep">·</span><b class="wave">바디 웨이브</b><span class="sep">·</span>확실하면 온다</div>
+    <div class="tag">기본 권유 순서</div>
+    <div class="line"><b class="onda">1순위 온다</b><span class="sep">→</span>가격 망설이면 <b class="wave">웨이브 대안</b></div>
   </div>
 
-  <h2>프로그램 흐름 (3단계 솔루션)</h2>
+  <h3 class="sub2">3단계 솔루션 흐름</h3>
   <div class="flow">
     <div class="step s1"><div class="st">STEP 1</div><div class="nm">감량</div><div class="ds">한약·캡슐로 전체 체지방을 먼저 줄임</div></div>
     <div class="arrow">→</div>
-    <div class="step s2"><div class="st">STEP 2</div><div class="nm">컷</div><div class="ds">고민 부위 지방을 약침으로 직접 분해 (사이즈)</div></div>
+    <div class="step s2"><div class="st">STEP 2</div><div class="nm">컷 · 온다 · 웨이브</div><div class="ds">고민 부위 지방을 직접 분해 (사이즈) — 셋 다 가능</div></div>
     <div class="arrow">→</div>
-    <div class="step s3"><div class="st">STEP 3</div><div class="nm">온다 · 웨이브</div><div class="ds">마이크로웨이브로 리프팅·탄력 마무리</div></div>
+    <div class="step s3"><div class="st">STEP 3</div><div class="nm">온다 · 웨이브</div><div class="ds">마이크로웨이브로 리프팅·탄력까지 (컷에는 없는 기능)</div></div>
   </div>
-  <p class="flownote"><b>컷 + 마이크로웨이브를 함께</b> 받으면 사이즈 감소와 탄력 개선이 동시에 — 라인이 매끄럽게 정리됩니다.</p>
+  <p class="flownote">사이즈 감소는 <b>컷·온다·웨이브 모두</b> 가능하지만, 탄력·리프팅은 <b>온다·웨이브만</b> 가능합니다. <b>컷 + 마이크로웨이브를 함께</b> 받으면 사이즈와 탄력이 동시에 — 라인이 매끄럽게 정리됩니다.</p>
 
-  <h2>세 시술 한 줄</h2>
+  <h3 class="sub2">세 시술 한 줄 요약</h3>
   <div class="cards">
     <div class="card cut">
       <div class="nm">아크로컷</div><div class="role">지방분해 약침</div>
       <div class="desc">고민 부위 지방을 분해해 사이즈를 줄임. 100% 생약(스테로이드·히알라제 無).</div>
       <div class="price">2cc 3.3만원 <span>VAT 포함</span></div>
     </div>
-    <div class="card wave">
-      <div class="nm">아크로웨이브</div><div class="role">마이크로웨이브 · 국산</div>
-      <div class="desc">지방분해 + 탄력·리프팅. 온다와 같은 원리의 합리적 장비. 바디에 적합.</div>
-      <div class="price">부위별 상담</div>
-    </div>
     <div class="card onda">
       <div class="nm">온다리프팅</div><div class="role">마이크로웨이브 · 정품</div>
-      <div class="desc">지방분해 + 탄력·리프팅. 깊이를 나눠 정밀하게 보는 프리미엄. 얼굴에 적합.</div>
+      <div class="desc">지방분해 + 탄력·리프팅. 가장 널리 알려진 정품 장비로 기본 권유. 줄수(KJ) 기준 가격.</div>
+      <div class="price">부위별 상담</div>
+    </div>
+    <div class="card wave">
+      <div class="nm">아크로웨이브</div><div class="role">마이크로웨이브 · 국산</div>
+      <div class="desc">지방분해 + 탄력·리프팅. 온다와 같은 원리·같은 줄수 기준의 합리적 대안.</div>
       <div class="price">부위별 상담</div>
     </div>
   </div>
 
-  <h2>온다 vs 웨이브 — 자세히 (환자가 물으면)</h2>
-  <p class="mcap" style="margin-bottom:10px;">둘 다 마이크로웨이브라 원리는 같습니다. 차이는 <b>팁 깊이(정밀도)</b>와 <b>가격</b>이에요. 요즘은 깊이(mm)를 직접 묻는 환자도 많습니다.</p>
+  <!-- ===================== 2. 팁 / 장비는 누가 정하나 ===================== -->
+  <h2><span class="sectionnum">2</span>팁 · 장비, 누가 정하나</h2>
+  <div class="hook">
+    <div class="tag">필수 숙지</div>
+    <div class="line">결제는 <b class="onda">에너지(kJ)</b> 기준 — 팁 구성은 시술 시 원장님이 결정</div>
+  </div>
+  <ul class="rules">
+    <li class="no">팁(3mm·5mm·7mm)에 따라 가격이 달라지지 않음 — 에너지(kJ) 기준으로 결제</li>
+    <li class="yes">같은 부위라도 시술 시 어떤 팁을 위주로 쓸지는 그때그때 달라짐</li>
+    <li class="no">환자에게 "어떤 팁으로 해드릴까요" 먼저 묻지 않아도 됨</li>
+    <li class="yes">환자가 먼저 문의하면 아래 멘트로 응대</li>
+  </ul>
+  <div class="scr">
+    <div class="q">(환자가 팁에 대해 먼저 물어볼 때)</div>
+    <div class="a">시술하실 때 원장님께서 부위별로 진단 후 시술해주세요. 혹시 원하시는 팁이 있으세요?</div>
+  </div>
+  <!-- ===================== 3. 온다 vs 웨이브 자세히 ===================== -->
+  <h2><span class="sectionnum">3</span>온다 vs 웨이브 — 자세히 (환자가 물으면)</h2>
+  <p class="mcap" style="margin-bottom:10px;">둘 다 마이크로웨이브라 원리는 같습니다. 차이는 <b>정품 여부 · 팁 깊이(정밀도)</b>와 <b>가격</b>이에요. 요즘은 깊이(mm)를 직접 묻는 환자도 많습니다.</p>
 
   <div class="skinfig">
     <svg class="skinsvg" viewBox="0 0 620 348" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="피부 깊이별 시술 팁 도달 그림">
-      <!-- mm scale -->
       <text x="58" y="30" font-size="11" fill="#999" text-anchor="end">(mm)</text>
       <line x1="72" y1="40" x2="72" y2="320" stroke="#cfcfcf" stroke-width="1"/>
       <g font-size="11" fill="#999" text-anchor="end">
@@ -212,7 +276,6 @@
         <line x1="66" y1="264" x2="72" y2="264" stroke="#cfcfcf"/><text x="60" y="268">8</text>
         <line x1="66" y1="320" x2="72" y2="320" stroke="#cfcfcf"/><text x="60" y="324">10</text>
       </g>
-      <!-- skin column -->
       <text x="95" y="33" font-size="11" fill="#8a7a6a">피부 표면</text>
       <rect x="95" y="40" width="250" height="14" fill="#f4dcc8"/>
       <rect x="95" y="54" width="250" height="56" fill="#efc3a6"/>
@@ -225,24 +288,20 @@
         <text x="105" y="199">피하지방층</text>
         <text x="105" y="303" fill="#7a4a44">근육층</text>
       </g>
-      <!-- tip depth lines -->
-      <!-- 온다 3mm @ y124 -->
       <line x1="72" y1="124" x2="345" y2="124" stroke="#2563a6" stroke-width="2" stroke-dasharray="4 3"/>
       <circle cx="345" cy="124" r="4.5" fill="#2563a6"/>
       <text x="357" y="121" font-size="13.5" font-weight="800" fill="#2563a6">온다 3mm</text>
       <text x="357" y="136" font-size="11.5" fill="#777">탄력 · 타이트닝</text>
-      <!-- 웨이브 5mm @ y180 -->
       <line x1="72" y1="180" x2="345" y2="180" stroke="#1f8a7a" stroke-width="2" stroke-dasharray="4 3"/>
       <circle cx="345" cy="180" r="4.5" fill="#1f8a7a"/>
       <text x="357" y="177" font-size="13.5" font-weight="800" fill="#1f8a7a">웨이브 5mm</text>
       <text x="357" y="192" font-size="11.5" fill="#777">지방 감소</text>
-      <!-- 온다 7mm @ y236 -->
       <line x1="72" y1="236" x2="345" y2="236" stroke="#16407a" stroke-width="2" stroke-dasharray="4 3"/>
       <circle cx="345" cy="236" r="4.5" fill="#16407a"/>
       <text x="357" y="233" font-size="13.5" font-weight="800" fill="#16407a">온다 7mm</text>
       <text x="357" y="248" font-size="11.5" fill="#777">깊은 지방 감소</text>
     </svg>
-    <p class="note" style="text-align:center; margin:4px 0 2px;">팁 깊이 = 에너지가 가장 집중되는 깊이. 실제 효과는 에너지 밀도·총 샷 수에도 좌우돼요.</p>
+    <p class="note" style="text-align:center; margin:4px 0 2px;">팁 깊이 = 에너지가 가장 집중되는 깊이. 실제 효과는 깊이뿐 아니라 <b>에너지 용량과 출력</b>에도 좌우돼요. 팁은 의료진이 부위에 맞게 나눠 시술합니다.</p>
   </div>
 
   <table class="cmp">
@@ -259,32 +318,182 @@
       <tr><th>장비</th><td>정품 DEKA (이탈리아 수입)</td><td>국산</td></tr>
       <tr><th>원리</th><td>마이크로웨이브 2.45GHz</td><td>극초단파(마이크로웨이브) — 동일</td></tr>
       <tr><th>깊이(팁)</th><td>3mm + 7mm — 표면·심부를 나눠 선택</td><td>5mm — 그 사이 지방층</td></tr>
+      <tr><th>가격 기준</th><td>줄수(KJ) 기준</td><td>줄수(KJ) 기준 — 동일</td></tr>
       <tr><th>강점</th><td>깊이를 나눠 정밀하게 시술</td><td>합리적 가격에 충분한 용량·출력</td></tr>
-      <tr><th>적합</th><td>얼굴 정밀 리프팅</td><td>넓은 바디</td></tr>
       <tr><th>가격</th><td>프리미엄</td><td>합리적</td></tr>
     </tbody>
   </table>
-  <p class="note">깊이(mm) 응대 — “온다는 3mm로 표면 탄력, 7mm로 깊은 지방을 나눠 보고, 웨이브는 5mm로 그 사이 지방층을 합리적으로 봅니다. 효과는 깊이만이 아니라 에너지 밀도·총 샷 수에도 좌우돼요.”</p>
+  <div class="scr">
+    <div class="q">“팁 깊이(mm)가 효과를 결정하나요?”</div>
+    <div class="a">온다는 3mm로 표면 탄력, 7mm로 깊은 지방을 나눠 보고, 웨이브는 5mm로 그 사이 지방층을 합리적으로 봅니다. 다만 효과는 깊이만이 아니라 <b>에너지 용량과 출력</b>에도 좌우돼요.</div>
+  </div>
 
-  <h2>핵심 응대</h2>
+  <!-- ===================== 4. 권유 순서 & 상담 응대 ===================== -->
+  <h2><span class="sectionnum">4</span>권유 순서 & 핵심 응대</h2>
+  <div class="hook">
+    <div class="tag">권유 원칙</div>
+    <div class="line">기본은 <b class="onda">온다</b> 먼저 → 가격 부담 시 <b class="wave">웨이브</b> 대안 제시</div>
+  </div>
+  <p class="note">온다가 가장 널리 알려진 장비라 유입 환자 대부분이 온다를 찾고 들어옵니다. 그래서 1순위는 항상 온다 — 설명 후 가격대 때문에 망설이는 분께 동일 원리의 웨이브를 합리적 대안으로 안내하세요.</p>
+
+  <h3 class="sub2">기본 응대 플로우 — 시술 원하는 환자 첫 응대</h3>
+  <div class="scrgroup">
+    <div class="gstep">
+      <div class="q">1단계 — 첫 안내 (온다부터)</div>
+      <div class="a">사이즈랑 탄력 둘 다 보시려면 마이크로웨이브 시술을 추천드려요. 저희는 정품 장비인 온다리프팅으로 진행하는데, 깊이를 나눠서 표면 탄력이랑 깊은 지방까지 정밀하게 봐드려요.</div>
+    </div>
+    <div class="gstep">
+      <div class="q">2단계 — 가격 안내 후 망설이는 반응이면</div>
+      <div class="a">부담스러우시면 같은 원리로 작동하는 국산 웨이브도 있으세요. 깊이를 한 단계로 보시는 대신 가격은 더 합리적이라, 충분히 좋은 효과 보실 수 있어요.</div>
+    </div>
+    <div class="gstep">
+      <div class="q">3단계 — 마무리</div>
+      <div class="a">두 분 다 사이즈·탄력 효과는 같은 방향이니까, 예산 보시고 편하신 쪽으로 정해드릴게요.</div>
+    </div>
+  </div>
+
   <div class="scr">
     <div class="q">“컷·온다·웨이브 셋이 어떻게 달라요?”</div>
-    <div class="a">컷은 지방을 분해해 사이즈를 줄이는 약침이고, 온다·웨이브는 지방분해에 탄력·리프팅까지 하는 마이크로웨이브예요. 온다는 정밀한 프리미엄, 웨이브는 합리적인 국산이고요. 사이즈는 컷, 탄력은 온다·웨이브, 함께 받으시면 가장 좋으세요.</div>
+    <div class="a">컷은 지방을 분해해 사이즈를 줄이는 약침이고, 온다·웨이브는 지방분해에 탄력·리프팅까지 하는 마이크로웨이브예요. 사이즈는 컷, 탄력은 온다·웨이브, 함께 받으시면 가장 좋으세요.</div>
   </div>
   <div class="scr">
     <div class="q">“온다랑 웨이브 뭐가 달라요?”</div>
-    <div class="a">기전은 같은 마이크로웨이브예요. 온다는 정품 장비로 깊이를 나눠 정밀하게 보고, 웨이브는 같은 원리를 더 합리적인 가격에 보시는 거예요. 얼굴은 정밀한 온다, 넓은 바디는 합리적인 웨이브로도 충분하세요.</div>
+    <div class="a">기전은 같은 마이크로웨이브예요. 온다는 정품 장비로 깊이를 나눠 정밀하게 보고, 웨이브는 같은 원리를 더 합리적인 가격에 보시는 거예요.</div>
+  </div>
+  <div class="scr">
+    <div class="q">“온다랑 웨이브, 효과 차이가 있나요?”</div>
+    <div class="a">기본 원리와 효과의 방향은 같아요. 다만 온다는 정품 장비로 3mm·7mm를 나눠 더 정밀하게 보고, 웨이브는 5mm 한 가지로 그 사이 지방층을 합리적인 가격에 봐요. 정밀하게 단계를 나누고 싶으시면 온다, 합리적으로 충분히 받고 싶으시면 웨이브를 추천드려요.</div>
   </div>
   <div class="scr">
     <div class="q">“온다가 좀 비싸네요”</div>
-    <div class="a">같은 원리의 국산 웨이브가 합리적이세요. 바디는 충분한 에너지 용량이 중요한데, 합리적인 비용으로 충분히 받아보실 수 있어요 😊</div>
+    <div class="a">같은 원리의 국산 웨이브가 합리적이세요. 줄수 기준은 동일하게 적용되고, 합리적인 비용으로 충분히 받아보실 수 있어요 😊</div>
   </div>
   <div class="scr">
     <div class="q">“복부·허벅지 하고 싶어요”</div>
     <div class="a">바디는 온다로도 가능하고, 같은 기전에 가격이 더 합리적인 웨이브도 있으세요. 바디는 충분히 덮는 용량이랑 출력이 둘 다 중요한데, 웨이브가 그걸 합리적으로 채워서 가성비가 좋으세요. 예산이랑 목표 보고 같이 정해드릴게요.</div>
   </div>
 
-  <h2>시술 간격 (꼭 지키기)</h2>
+  <!-- ===================== 5. 동선 ===================== -->
+  <h2><span class="sectionnum">5</span>동선 — 온다 도입 후 달라지는 것</h2>
+
+  <h3 class="sub2">초진 플로우는 동일</h3>
+  <div class="route">
+    <div class="rstep"><div class="rn">STEP 1</div><div class="rt">설문지 작성</div><div class="rd">대기실</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">STEP 2</div><div class="rt">인바디</div><div class="rd">측정 진행</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">STEP 3</div><div class="rt">원장님 진료</div><div class="rd">문진 · 판단</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">STEP 4</div><div class="rt">상담·결제·사진촬영</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">STEP 5</div><div class="rt">시술</div><div class="rd">온다/웨이브 동일</div></div>
+  </div>
+  <p class="note">온다도 기존 아크로웨이브 초진 분들과 동일한 순서(설문지→인바디→진료→상담·결제·사진촬영→시술)로 진행합니다. 달라지는 건 시술이 진행되는 <b>공간</b>입니다.</p>
+
+  <h3 class="sub2">시술 공간이 분리됩니다</h3>
+  <div class="spacewrap">
+    <div class="spacecard onda">
+      <div class="nm">온다 — 안면부</div>
+      <div class="room">치료실 + 추나실</div>
+      <div class="ds">환복·사진촬영·정리는 치료실, 시술 자체는 추나실에서.</div>
+    </div>
+    <div class="spacecard onda">
+      <div class="nm">온다 — 바디</div>
+      <div class="room">치료실 + 추나실</div>
+      <div class="ds">환복은 치료실, 사진촬영·시술·정리는 추나실에서.</div>
+    </div>
+    <div class="spacecard wave">
+      <div class="nm">웨이브 — 안면부/바디</div>
+      <div class="room">시술실</div>
+      <div class="ds">환복·세안·사진촬영·시술·정리까지 전부 시술실에서.</div>
+    </div>
+  </div>
+  <p class="note">예약·동선 안내 시 환자에게 안내할 공간이 시술 종류·부위마다 다르다는 점을 직원 간에 먼저 숙지하세요 (환자분께 "○○실로 안내해드릴게요"로 자연스럽게 연결).</p>
+
+  <h3 class="sub2">온다 안면부 시술 — 단계별 동선</h3>
+  <div class="route">
+    <div class="rstep"><div class="rn">1</div><div class="rt">대기실 대기</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">2</div><div class="rt">치료실 세안</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">3</div><div class="rt">치료실 사진촬영</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">4</div><div class="rt">추나실 시술</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">5</div><div class="rt">치료실 사진촬영</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">6</div><div class="rt">치료실 베드 정리 후 귀가</div></div>
+  </div>
+  <p class="note">세안 → 사진 → (이동) 시술 → (이동) 사진 → 정리, 총 2회의 공간 이동이 발생합니다. 세안 직후 바로 다음 단계로 자연스럽게 안내해 환자가 대기 중 얼굴이 당기는 느낌을 받지 않도록 합니다.</p>
+
+  <h3 class="sub2">온다 바디 시술 — 단계별 동선</h3>
+  <div class="route">
+    <div class="rstep"><div class="rn">1</div><div class="rt">대기실 대기</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">2</div><div class="rt">치료실 환복</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">3</div><div class="rt">추나실 사진촬영</div><div class="rd">대기 길면 시술실</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">4</div><div class="rt">추나실 시술</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">5</div><div class="rt">추나실 사진촬영</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">6</div><div class="rt">추나실 베드 정리 후 귀가</div></div>
+  </div>
+  <p class="note">바디는 환복만 치료실에서 하고, 사진촬영부터 정리까지는 추나실에서 이어집니다. 추나실 대기가 길어지면 사진촬영만 시술실로 옮겨 진행하세요.</p>
+
+  <h3 class="sub2">웨이브 안면부/바디 시술 — 단계별 동선</h3>
+  <div class="route">
+    <div class="rstep"><div class="rn">1</div><div class="rt">대기실 대기</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">2</div><div class="rt">시술실 환복·세안</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">3</div><div class="rt">시술실 사진촬영</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">4</div><div class="rt">시술실 시술</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">5</div><div class="rt">시술실 사진촬영</div></div>
+    <div class="rarrow">→</div>
+    <div class="rstep"><div class="rn">6</div><div class="rt">시술실 베드 정리 후 귀가</div></div>
+  </div>
+  <p class="note">웨이브는 안면부·바디 모두 공간 이동 없이 시술실 한 곳에서 전 과정이 진행됩니다.</p>
+
+  <h3 class="sub2">대기 밀림 관리</h3>
+  <div class="waitbox">
+    <div class="wt">예약 30분 단위, 실제로는 밀릴 수 있음을 전제로</div>
+    <div class="wd">한 분이 시간을 정확히 맞춰 오지 않으면 동선이 겹치기 쉽습니다. 예약을 잡을 때부터 여유 시간을 감안하고, 부득이하게 대기가 길어지면 아래 사항을 챙기세요.</div>
+  </div>
+  <ul class="rules">
+    <li class="yes">대기 예상 시 미리 "조금 늦어질 수 있어요"라고 안내</li>
+    <li class="yes">대기 중 음료·앉을 자리 등 편의 제공</li>
+    <li class="no">세안은 직전 단계에서만 — 미리 해두지 않기 (당김 불편 방지)</li>
+    <li class="yes">세안 타이밍은 시술 직전 동선에 맞춰 조절</li>
+  </ul>
+
+  <h3 class="sub2">사진촬영 가이드 — 번호 · 색상 스티커</h3>
+  <p class="mcap" style="margin-bottom:10px;">"앞에 봐주세요" 같은 구두 안내는 환자마다 해석이 달라 사진 편집 시 통일이 어렵습니다. 스티커로 위치를 고정해 매번 동일한 앵글을 확보하세요.</p>
+  <div class="photog">
+    <div class="pshot">
+      <div class="pnum pn1">1</div>
+      <div class="ptxt"><div class="pt">빨강 — 정면</div><div class="pd">렌즈 정중앙 응시</div><div class="ps">"1번 빨간 스티커 봐주세요"</div></div>
+    </div>
+    <div class="pshot">
+      <div class="pnum pn2">2</div>
+      <div class="ptxt"><div class="pt">파랑 — 좌측 45도</div><div class="pd">고개 살짝 좌측으로</div><div class="ps">"2번 파란 스티커 봐주세요"</div></div>
+    </div>
+    <div class="pshot">
+      <div class="pnum pn3">3</div>
+      <div class="ptxt"><div class="pt">초록 — 우측 45도</div><div class="pd">고개 살짝 우측으로</div><div class="ps">"3번 초록 스티커 봐주세요"</div></div>
+    </div>
+    <div class="pshot">
+      <div class="pnum pn4">4</div>
+      <div class="ptxt"><div class="pt">노랑 — 아래에서 위 (턱선)</div><div class="pd">카메라보다 낮은 위치</div><div class="ps">"4번 노란 스티커 봐주세요"</div></div>
+    </div>
+  </div>
+  <p class="note">벽 또는 거치대에 1~4번 색상 스티커를 고정 부착해두면, 직원이 매번 같은 위치를 지정할 수 있고 before/after 비교 시 앵글 오차도 줄어듭니다.</p>
+
+  <!-- ===================== 6. 시술 간격 ===================== -->
+  <h2><span class="sectionnum">6</span>시술 간격 (꼭 지키기)</h2>
   <div class="iv">
     <div class="row cut"><div class="k">보톡스·필러 → 컷</div><div class="v"><span class="big">2~3일</span> 뒤 가능</div></div>
     <div class="row mw"><div class="k">보톡스·필러 → 웨이브·온다</div><div class="v"><span class="big">2주</span> 뒤 가능</div></div>
@@ -294,15 +503,18 @@
   </div>
   <p class="note">외우기 — 보톡스·필러 후 컷은 ‘2~3일’, 웨이브·온다는 ‘2주’.</p>
 
-  <h2>절대 규칙</h2>
+  <!-- ===================== 7. 절대 규칙 ===================== -->
+  <h2><span class="sectionnum">7</span>절대 규칙</h2>
   <ul class="rules">
     <li class="no">“카피” 금지 → “합리적 국산 장비”</li>
     <li class="no">“효과 보장·최고·100%” 금지</li>
     <li class="yes">“정품”은 온다에만</li>
+    <li class="no">팁을 환자가 직접 고르게 안내하지 않기</li>
     <li class="yes">세부 안전성·금기·고령 → 원장 확인</li>
   </ul>
 
-  <h2>필요할 때만 — 펼쳐보기</h2>
+  <!-- ===================== 8. 펼쳐보기 ===================== -->
+  <h2><span class="sectionnum">8</span>필요할 때만 — 펼쳐보기</h2>
 
   <details>
     <summary>부위별 시술 용량</summary>
@@ -323,7 +535,7 @@
         <div class="d"><span>복부</span><b>15만줄</b></div>
         <div class="d"><span>허벅지</span><b>18~20만줄</b></div>
       </div>
-      <p class="note">용량은 지방량에 따라 달라질 수 있어요. 정확한 용량은 원장 상담으로 안내.</p>
+      <p class="note">용량은 지방량에 따라 달라질 수 있어요. 정확한 용량은 원장 상담으로 안내. 온다 용량(줄수)은 원장 확인 후 추가 예정.</p>
     </div>
   </details>
 
@@ -331,13 +543,14 @@
     <summary>자주 묻는 답</summary>
     <div class="body">
       <div class="miniq"><span class="q">한약 없이 시술만?</span> <span class="a">효과 좋아요. 감량 병행 시 변화가 더 빨라요.</span></div>
-      <div class="miniq"><span class="q">몇 회?</span> <span class="a">컷 주 1~2회 최소 5회 / 웨이브 한달 간격 3회.</span></div>
-      <div class="miniq"><span class="q">유지 기간?</span> <span class="a">지방분해는 살 안 찌면 오래 유지 / 웨이브 탄력은 최대 1년.</span></div>
+      <div class="miniq"><span class="q">몇 회?</span> <span class="a">컷 주 1~2회 최소 5회 / 웨이브·온다 한달 간격 3회.</span></div>
+      <div class="miniq"><span class="q">유지 기간?</span> <span class="a">지방분해는 살 안 찌면 오래 유지 / 웨이브·온다 탄력은 최대 1년.</span></div>
       <div class="miniq"><span class="q">아픈가요?</span> <span class="a">컷은 살 꼬집는 정도 / 웨이브·온다는 통증 거의 없음.</span></div>
       <div class="miniq"><span class="q">일상생활 바로?</span> <span class="a">네. 컷은 작은 멍 가능, 웨이브·온다는 멍·통증 없음.</span></div>
       <div class="miniq"><span class="q">미성년자?</span> <span class="a">부모님 동의 하에 가능.</span></div>
       <div class="miniq"><span class="q">컷 성분?</span> <span class="a">100% 생약, 스테로이드·히알라제 없음. (세부 질문은 원장)</span></div>
-      <div class="miniq"><span class="q">셀룰라이트?</span> <span class="a">웨이브가 적합, 컷·웨이브 함께가 가장 좋음.</span></div>
+      <div class="miniq"><span class="q">셀룰라이트?</span> <span class="a">웨이브·온다가 적합, 컷과 함께가 가장 좋음.</span></div>
+      <div class="miniq"><span class="q">팁은 제가 골라야 하나요?</span> <span class="a">아니요, 부위에 맞춰 의료진이 정해드려요. 원하시는 팁이 있으면 말씀만 전달해주시면 돼요.</span></div>
     </div>
   </details>
 
@@ -346,7 +559,7 @@
     <div class="body">
       <div class="miniq"><span class="q">운동</span> <span class="a">당일·다음날 격렬한 운동 금지, 3일차부터 가볍게.</span></div>
       <div class="miniq"><span class="q">음주</span> <span class="a">당일·다음날 쉬고 3일차부터(열감·붓기 후). 디톡스 중 금주.</span></div>
-      <div class="miniq"><span class="q">사우나·찜질방</span> <span class="a">컷 당일 / 웨이브 1주일 피하기.</span></div>
+      <div class="miniq"><span class="q">사우나·찜질방</span> <span class="a">컷 당일 / 웨이브·온다 1주일 피하기.</span></div>
       <div class="miniq"><span class="q">경락</span> <span class="a">시술 부위만 1주일 피하기.</span></div>
       <div class="miniq"><span class="q">헌혈</span> <span class="a">컷 후 1주일 뒤.</span></div>
     </div>
