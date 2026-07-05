@@ -66,7 +66,7 @@ mark{background:#f6d0c5; border-radius:3px; padding:0 2px;}
 <body>
 <header>
   <h1>아크로 응대 콘솔</h1>
-  <span class="sub">QA374 근거(v1.6·QA외부화(json)·영상추천·QA후보루프) · AI 초안 · 사람 발송</span>
+  <span class="sub">QA374 근거(v1.7·슬랙 블록리포트·응급강조) · AI 초안 · 사람 발송</span>
   <span class="base" id="dataVer">QA데이터 내장본 v1.2</span>
   <span class="base">데이터 기준일 260520 (인벤토리 v1.38) — 가격·근무 답변은 최신 확인</span>
 </header>
@@ -202,43 +202,59 @@ function copyBox(id){
   if(!t){ alert('내용이 없습니다'); return; }
   navigator.clipboard.writeText(t).then(()=>alert('복사됨'));
 }
+function slackPayload(kind){
+  const msg = document.getElementById('pmsg').value.trim();
+  const r = window.lastReport || {};
+  // ★전송 시점 응급 재검사 — 저장 플래그 의존 제거
+  const emerg = checkEmergency(msg + ' ' + (r.koMsg || ''));
+  const d = document.getElementById('draft').innerText.trim();
+  const df = document.getElementById('draftF').innerText.trim();
+  const cut = (s,n)=> s.length>n ? s.slice(0,n)+'…(생략)' : s;
+  const q = s => '>' + s.replace(/\n/g, '\n>');
+  const now = new Date().toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  let header, color;
+  if(kind==='qa'){ header='📝 QA 개선 후보 — 반영 검토'; color='#C9A227'; }
+  else if(emerg){ header='🚨 응급 의심 문의 — 즉시 확인'; color='#D0021B'; }
+  else { header='📋 환자 문의 보고'; color='#116149'; }
+
+  const fields = [{type:'mrkdwn', text:'*시각*\n'+now}];
+  if(r.category) fields.push({type:'mrkdwn', text:'*분류*\n'+r.category});
+  if((r.used||[]).length) fields.push({type:'mrkdwn', text:'*근거 QA*\n'+r.used.join(', ')});
+  if(r.koMsg && r.koMsg!==msg) fields.push({type:'mrkdwn', text:'*언어*\n외국어 (번역 첨부)'});
+  if(r.escalate) fields.push({type:'mrkdwn', text:'*인계*\n↗ 의료진·직원 확인 권장'});
+
+  const ab = [{type:'section', fields: fields.slice(0,10)}, {type:'divider'}];
+  ab.push({type:'section', text:{type:'mrkdwn', text:'*환자 메시지*\n'+q(cut(msg,1200))}});
+  if(r.koMsg && r.koMsg!==msg) ab.push({type:'section', text:{type:'mrkdwn', text:'*한국어 번역*\n'+q(cut(r.koMsg,1200))}});
+  if(d && !d.startsWith('환자 메시지를 입력')) ab.push({type:'section', text:{type:'mrkdwn', text:(kind==='qa'?'*직원 최종 답변*':'*추천 전달내용*')+'\n'+cut(d,2500)}});
+  if(df) ab.push({type:'section', text:{type:'mrkdwn', text:'*원어 발송문*\n'+cut(df,1500)}});
+  if(emerg && kind!=='qa') ab.push({type:'context', elements:[{type:'mrkdwn', text:'⚠ 응급 키워드 감지 — 챗 응대보다 전화·의료진 호출 우선'}]});
+
+  return {
+    text: header+' · '+cut(msg,80),  // 폰 푸시 미리보기 — 헤더에 이모지 포함
+    blocks: [{type:'header', text:{type:'plain_text', text:header, emoji:true}}],
+    attachments: [{color:color, blocks:ab}]
+  };
+}
+function postSlack(payload, okMsg){
+  fetch(SLACK_WEBHOOK_URL, {method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body:'payload='+encodeURIComponent(JSON.stringify(payload))})
+    .then(()=>alert(okMsg))
+    .catch(err=>alert('전송 실패: '+err.message));
+}
 function sendQaCandidate(){
   if(!SLACK_WEBHOOK_URL){ alert('슬랙 웹훅 URL을 상단 입력칸에 저장하세요'); return; }
   const msg = document.getElementById('pmsg').value.trim();
   const d = document.getElementById('draft').innerText.trim();
   if(!msg || !d || d.startsWith('환자 메시지를 입력')){ alert('환자 메시지와 최종 초안이 모두 필요합니다'); return; }
-  const r = window.lastReport || {};
-  const lines = ['📝 *[QA 후보 제출]* — 시트10·qa374.json 반영 검토 요청'];
-  lines.push('*환자 질문:*\n' + (r.koMsg && r.koMsg!==msg ? r.koMsg + '\n(원문: ' + msg + ')' : msg));
-  lines.push('*직원 최종 답변(초안 수정본):*\n' + d);
-  if(r.category) lines.push('*분류:* ' + r.category + ' · *기존 근거QA:* ' + ((r.used||[]).join(', ')||'없음'));
-  const payload = JSON.stringify({text: lines.join('\n\n')});
-  fetch(SLACK_WEBHOOK_URL, {method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:'payload='+encodeURIComponent(payload)})
-    .then(()=>alert('QA 후보 전송 완료 — 승인되면 qa374.json에 반영됩니다'))
-    .catch(err=>alert('전송 실패: '+err.message));
+  postSlack(slackPayload('qa'), 'QA 후보 전송 완료 — 승인되면 qa374.json에 반영됩니다');
 }
 function sendSlack(){
   if(!SLACK_WEBHOOK_URL){ alert('슬랙 웹훅 URL을 상단 입력칸에 저장하세요'); return; }
   const msg = document.getElementById('pmsg').value.trim();
   if(!msg){ alert('환자 메시지가 없습니다'); return; }
-  const r = window.lastReport || {};
-  const lines = [];
-  lines.push((window.emergFlag ? '🚨 *[응급 신호 감지 — 의료진 즉시 확인]*\n' : '') + '*[응대 콘솔 보고]* ' + new Date().toLocaleString('ko-KR'));
-  lines.push('*환자 메시지:*\n' + msg);
-  if(r.koMsg && r.koMsg !== msg) lines.push('*한국어 번역:*\n' + r.koMsg);
-  if(r.category || (r.used||[]).length) lines.push('*분류:* ' + (r.category||'-') + ' · *근거QA:* ' + ((r.used||[]).join(', ')||'없음') + (r.escalate ? ' · ↗인계 권장' : ''));
-  const d = document.getElementById('draft').innerText.trim();
-  if(d && !d.startsWith('환자 메시지를 입력')) lines.push('*추천 전달내용(한국어):*\n' + d);
-  const df = document.getElementById('draftF').innerText.trim();
-  if(df) lines.push('*원어 발송문:*\n' + df);
-  const payload = JSON.stringify({text: lines.join('\n\n')});
-  fetch(SLACK_WEBHOOK_URL, {method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:'payload='+encodeURIComponent(payload)})
-    .then(()=>alert('슬랙 전송 시도 완료 — 채널에서 확인하세요'))
-    .catch(err=>alert('전송 실패: '+err.message));
+  postSlack(slackPayload('report'), '슬랙 전송 시도 완료 — 채널에서 확인하세요');
 }
 function detectLang(s){
   if(/[\u3040-\u30ff]/.test(s)) return 'ja';
