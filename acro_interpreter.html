@@ -141,6 +141,16 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
   background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600;
   opacity:0;pointer-events:none;transition:all .25s;z-index:50;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%)}
+
+/* ---------- 발신자 이름 설정 ---------- */
+.veil{position:fixed;inset:0;background:rgba(35,39,31,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:24px;}
+.veil.open{display:flex}
+.namecard{width:100%;max-width:340px;background:var(--card);border-radius:20px;padding:26px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.18);}
+.namecard .nt{font-family:'Noto Serif KR',serif;font-weight:900;font-size:18px;}
+.namecard .nd{font-size:13px;color:var(--sub);line-height:1.7;}
+.namecard input{border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;font-size:16px;font-family:inherit;background:var(--paper);}
+.namecard input:focus{outline:none;border-color:var(--doc)}
+.namecard .nbtn{padding:13px;background:var(--ink);color:var(--paper);border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Serif KR',serif;}
 </style>
 </head>
 <body>
@@ -159,6 +169,7 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
     <label class="opt"><input type="checkbox" id="chkSpeak" checked onchange="autoSpeak=this.checked"> 자동 음성</label>
     <label class="opt"><input type="checkbox" id="chkOpus" onchange="useOpus=this.checked"> 정밀 번역</label>
     <label class="opt"><input type="checkbox" id="chkSlack" onchange="slackLog=this.checked"> Slack 기록</label>
+    <button class="btn-clear" onclick="openNameModal()" style="margin-left:0">발신자 변경</button>
     <button class="btn-clear" onclick="clearAll()">초기화</button>
   </div>
   <div class="langs" id="langs"></div>
@@ -192,12 +203,23 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
 
 <div class="toast" id="toast"></div>
 
+<div class="veil" id="nameVeil">
+  <div class="namecard">
+    <div class="nt serif">무전 발신자 설정</div>
+    <div class="nd">Slack 무전에 표시될 이름입니다.<br>이 기기에 저장되며, 한 번만 입력하면 됩니다.</div>
+    <input id="nameInput" type="text" maxlength="12" placeholder="예: 임원장" onkeydown="if(event.key==='Enter')saveName()">
+    <button class="nbtn" onclick="saveName()">저장</button>
+  </div>
+</div>
+
 <script>
 /* ================= 설정 ================= */
 const PROXY_URL = "https://script.google.com/macros/s/AKfycbyzJ1FiqTOYvfkdFGTLq5iHpgxiuZvzIH0qo8Q_MoCH9ZeOtKhXcuvXkp16DvWZ-JNuGQ/exec";
 
 /* 무전 → GAS 프록시 경유 Slack 전송 (웹훅 URL은 스크립트 속성 SLACK_WEBHOOK_URL에 보관) */
-const RADIO_TAG = "시술실";   // 기기별 표기 — 아이패드마다 바꿔서 배포 (예: 시술실1, 데스크)
+/* 발신자 이름: 각자 폰에서 최초 1회 입력, 기기에 저장 (설정 ⚙에서 변경 가능) */
+let radioName = '';
+try { radioName = localStorage.getItem('acro_radio_name') || ''; } catch(e){}
 
 const LANGS = {
   japanese:  { name:'日本語',   flag:'🇯🇵', code:'ja-JP', eng:'Japanese',            idle:'押しながら話す' },
@@ -235,6 +257,7 @@ const MIC_HELP = '🎙 마이크 권한이 필요합니다.\n\n· 주소창 자�
 async function pttStart(side, ev){
   if (ev) ev.preventDefault();
   if (recSide) return;
+  if (side === 'radio' && !radioName){ openNameModal(); return; }   // 이름 미설정 시 먼저 입력
   if (window.speechSynthesis) speechSynthesis.cancel();
   pressed[side] = true;
   if (!(await ensureMic())) { pressed[side]=false; alert(MIC_HELP); return; }
@@ -274,7 +297,7 @@ async function onRecStop(){
       const b64 = await blobToB64(blob);
       const res = await fetch(PROXY_URL, {
         method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action:'radio', audio:b64, mimeType: blob.type.split(';')[0], lang:'Korean', tag: RADIO_TAG })
+        body: JSON.stringify({ action:'radio', audio:b64, mimeType: blob.type.split(';')[0], lang:'Korean', tag: radioName || '무전' })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -340,7 +363,7 @@ function setPadUI(side, on){
   const pad = document.getElementById('pad-'+side);
   const sub = document.getElementById('sub-'+side);
   pad.classList.toggle('rec', on);
-  if (side === 'radio') sub.textContent = on ? '송신 중 — 떼면 전송' : '꾹 누르면 음성이 Slack으로';
+  if (side === 'radio') sub.textContent = on ? '송신 중 — 떼면 전송' : (radioName ? radioName + ' — 꾹 누르면 Slack으로' : '꾹 누르면 음성이 Slack으로');
   else if (side === 'ko') sub.textContent = on ? '듣는 중 — 떼면 통역' : '꾹 누른 채 말하기';
   else sub.textContent = on ? '● REC' : LANGS[curLang].idle;
 }
@@ -522,6 +545,27 @@ function switchLang(key){
   renderChat();
 }
 function toggleSettings(){ document.getElementById('settings').classList.toggle('open'); }
+
+/* ---------- 발신자 이름 ---------- */
+function openNameModal(){
+  const inp = document.getElementById('nameInput');
+  inp.value = radioName;
+  document.getElementById('nameVeil').classList.add('open');
+  setTimeout(()=>inp.focus(), 50);
+}
+function saveName(){
+  const v = document.getElementById('nameInput').value.trim();
+  if (!v){ toast('이름을 입력해주세요'); return; }
+  radioName = v;
+  try { localStorage.setItem('acro_radio_name', v); } catch(e){}
+  document.getElementById('nameVeil').classList.remove('open');
+  updateRadioLabel();
+  toast(v + ' — 설정 완료');
+}
+function updateRadioLabel(){
+  document.getElementById('sub-radio').textContent =
+    radioName ? radioName + ' — 꾹 누르면 Slack으로' : '꾹 누르면 음성이 Slack으로';
+}
 function clearAll(){
   if (!confirm('대화 내용을 모두 삭제할까요?')) return;
   window.speechSynthesis && speechSynthesis.cancel();
@@ -541,6 +585,7 @@ function toast(msg){
 
 buildLangs();
 renderChat();
+updateRadioLabel();
 </script>
 </body>
 </html>
