@@ -298,6 +298,8 @@ function slackPayload(kind){
   if(r.koMsg && r.koMsg!==msg) blocks.push({type:'section', text:{type:'mrkdwn', text:'*한국어 번역*\n'+q(cut(r.koMsg,1200))}});
   if(d && !d.startsWith('환자 메시지를 입력')) blocks.push({type:'section', text:{type:'mrkdwn', text:(kind==='qa'?'*직원 최종 답변*':'*추천 전달내용*')+'\n'+cut(d,2500)}});
   if(df) blocks.push({type:'section', text:{type:'mrkdwn', text:'*원어 발송문*\n'+cut(df,1500)}});
+  const vids = window.lastVids || [];
+  if(vids.length && kind!=='qa') blocks.push({type:'section', text:{type:'mrkdwn', text:'*추천 영상 (직원 첨부 후보)*\n'+vids.map(v=>'· '+v.t+' — '+v.u).join('\n')}});
 
   return {
     text: header+' · '+cut(msg,80),
