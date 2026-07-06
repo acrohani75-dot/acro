@@ -66,7 +66,7 @@ mark{background:#f6d0c5; border-radius:3px; padding:0 2px;}
 <body>
 <header>
   <h1>아크로 응대 콘솔</h1>
-  <span class="sub">QA374 근거(v1.7·슬랙 블록리포트·응급강조) · AI 초안 · 사람 발송</span>
+  <span class="sub">QA374 근거(v1.9·응급감지확장·영상버튼·데이터기준일) · AI 초안 · 사람 발송</span>
   <span class="base" id="dataVer">QA데이터 내장본 v1.2</span>
   <span class="base">데이터 기준일 260520 (인벤토리 v1.38) — 가격·근무 답변은 최신 확인</span>
 </header>
@@ -75,6 +75,7 @@ mark{background:#f6d0c5; border-radius:3px; padding:0 2px;}
   <input id="whUrl" type="text" placeholder="https://hooks.slack.com/services/... (여기 붙여넣고 저장 — 코드·리포에는 저장 안 됨)">
   <button class="b-ghost b-mini" onclick="saveWebhook()">저장</button>
   <span id="whState"></span>
+  <span id="dataFoot" style="margin-left:auto;font-size:11.5px;color:#7a7a72;"></span>
 </div>
 <div class="wrap">
   <div class="emerg" id="emerg">🚨 응급 신호 감지 — 챗 응대보다 <u>의료진 즉시 호출·전화</u>를 우선하세요. 슬랙 보고 시 응급 표시가 함께 전송됩니다.</div>
@@ -111,6 +112,11 @@ mark{background:#f6d0c5; border-radius:3px; padding:0 2px;}
     </div>
     <div class="miniout" id="tout2"></div>
     <div class="miniout" id="vids" style="border-style:solid;background:#f6f9f3;"></div>
+    <div class="transrow">
+      <span class="tlabel">AI 지시:</span>
+      <input id="aiCmd" type="text" placeholder="예) 더 짧게 / 환불 언급 빼줘 / 클로징을 예약 안내로" style="flex:1;min-width:200px;border:1.5px solid var(--line);border-radius:7px;padding:8px 10px;font-size:13px;font-family:inherit;background:#fffdf8;">
+      <button class="b-ghost b-mini" id="btRefine" onclick="refineDraft()">지시 반영</button>
+    </div>
     <div class="meta" id="meta"></div>
     <div class="btnrow">
       <button class="b-ghost" onclick="copyDraft()">한국어 초안 복사</button>
@@ -138,6 +144,8 @@ const LANGNAME = {ja:'일본어', zh:'중국어', th:'태국어', en:'영어', k
       QA = j.items;
       const el = document.getElementById('dataVer');
       if(el) el.textContent = 'QA데이터 ' + (j.version||'') + ' · ' + (j.updated||'');
+      window.DATA_META.qa = {name:'QA374', v:j.version||'', d:j.updated||'', live:true};
+      renderDataFoot();
     }
   }catch(e){ /* file:// 또는 오프라인 — 내장 데이터 사용 */ }
 })();
@@ -145,8 +153,24 @@ const _c2="tGQk4vQjBCRkNCRlNDUUwvTzdWVHZUTzZzdThYMU4yQTFWaWRFZ3dT", _c1="aHR0cHM
 let SLACK_WEBHOOK_URL = atob(_c1 + _c2); // 환자문의방 기본 연결 (스캐너 회피 인코딩)
 try{ const _s = localStorage.getItem('acro_slack_webhook'); if(_s) SLACK_WEBHOOK_URL = _s; }catch(e){}
 window.lastReport = null;
+window.DATA_META = {
+  qa:    {name:'QA374', v:'v1.2 내장', d:'260705', live:false},
+  vids:  {name:'영상 카탈로그(60)', v:'', d:'260705', live:false},
+  emerg: {name:'응급키워드(P012 확장)', v:'', d:'260706', live:false}
+};
+function renderDataFoot(){
+  const today = new Date();
+  const parts = Object.values(window.DATA_META).map(m2=>{
+    const y=2000+parseInt(m2.d.slice(0,2)), mo=parseInt(m2.d.slice(2,4))-1, dd=parseInt(m2.d.slice(4,6));
+    const days = Math.floor((today - new Date(y,mo,dd)) / 86400000);
+    const stale = days > 30 ? ' ⚠'+days+'일 경과' : '';
+    return `${m2.name} ${m2.v?m2.v+' ':''}· ${m2.d}${m2.live?' (리포 실시간)':''}${stale}`;
+  });
+  const el = document.getElementById('dataFoot');
+  if(el) el.textContent = '📎 참조 기준일: ' + parts.join('  |  ');
+}
 window.emergFlag = false;
-const EMERG_WORDS = ["응급실","쓰러졌","쓰러짐","의식이 없","의식소실","호흡이 안","호흡곤란","숨을 못","사망","돌아가셨","심정지","경련","구급차","119","아나필락시스","심한 부작용","심한 알러지","심한 알레르기","흉통","가슴이 너무 아","기절","실신","하혈","피를 토"];
+const EMERG_WORDS = ["응급","쓰러","의식이 없","의식소실","의식이 흐려","정신을 잃","호흡이 안","호흡곤란","호흡이 힘들","숨을 못","숨쉬기 힘들","숨 쉬기 힘들","숨이 안 쉬","숨이 차서","사망","돌아가셨","심정지","경련","발작","구급차","119","실려갔","실려 갔","아나필락","심한 부작용","부작용이 심","심한 알러지","심한 알레르기","온몸에 두드러기","두드러기가 온몸","입술이 붓","얼굴이 붓","목이 붓","흉통","가슴이 너무 아","가슴이 답답하고","기절","실신","눈앞이 캄캄","하혈","피를 토","토혈","혈변"];
 function matchVideos(koText, lang){
   const need = {ja:'일', zh:'중', th:'태', en:'영', ko:'한'}[lang] || '한';
   const need2 = lang==='zh' ? '대만' : null;
@@ -159,10 +183,25 @@ function matchVideos(koText, lang){
 }
 function renderVideos(list, lang){
   const el = document.getElementById('vids');
+  window.lastVids = list;
   if(!list.length){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display='block';
-  el.innerHTML = '<b>📺 추천 영상</b> (' + (lang==='ko'?'한국어':'환자 언어 자막 있음') + ' — 필요 시 링크 첨부)<br>' +
-    list.map(v=>`· ${esc(v.t)} — <span style="user-select:all">${v.u}</span>`).join('<br>');
+  el.innerHTML = '<b>📺 추천 영상</b> (' + (lang==='ko'?'한국어':'환자 언어 자막 있음') + ')<br>' +
+    list.map((v,i)=>`<div style="margin-top:7px;">· ${esc(v.t)}<br>
+      <a href="${v.u}" target="_blank" style="display:inline-block;background:#116149;color:#fff;border-radius:6px;padding:5px 12px;font-size:12px;text-decoration:none;margin:4px 6px 0 0;">▶ 영상 열기</a>
+      <button class="b-ghost b-mini" onclick="addVideo(${i})" style="padding:5px 12px;font-size:12px;">✚ 초안에 추가</button>
+      <button class="b-ghost b-mini" onclick="navigator.clipboard.writeText('${v.u}').then(()=>alert('영상 링크 복사됨'))" style="padding:5px 12px;font-size:12px;">링크 복사</button></div>`).join('');
+}
+function addVideo(i){
+  const v = (window.lastVids||[])[i];
+  if(!v) return;
+  const d = document.getElementById('draft');
+  if(d.innerText.trim().startsWith('환자 메시지를 입력')){ alert('초안을 먼저 생성하세요'); return; }
+  d.innerText = d.innerText.trimEnd() + '\n\n관련해서 도움되실 영상 하나 보내드릴게요 ^^\n' + v.u;
+  const df = document.getElementById('draftF');
+  if(df.style.display !== 'none' && df.innerText.trim()){
+    df.innerText = df.innerText.trimEnd() + '\n\n' + v.u;
+  }
 }
 function checkEmergency(text){
   const hit = EMERG_WORDS.some(w=>text.includes(w));
@@ -183,6 +222,34 @@ async function translateTo(text, target){
     messages:[{role:"user",content:text}]
   });
   return (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("").trim();
+}
+async function refineDraft(){
+  const cmd = document.getElementById('aiCmd').value.trim();
+  if(!cmd){ alert('지시 내용을 입력하세요 (예: 더 짧게)'); return; }
+  const d = document.getElementById('draft');
+  if(d.innerText.trim().startsWith('환자 메시지를 입력')){ alert('초안을 먼저 생성하세요'); return; }
+  const df = document.getElementById('draftF');
+  const hasF = df.style.display !== 'none' && df.innerText.trim();
+  const btn = document.getElementById('btRefine');
+  btn.disabled = true; btn.textContent = '반영 중…';
+  try{
+    const sys = `아크로한의원 직원 응대 보조 AI. 아래 초안을 직원 지시에 따라 수정하라.
+규칙: 1) 제공된 근거 QA 밖의 새로운 사실(가격·효능·일정)을 추가하지 않는다 2) 금지어: 서비스/무료/공짜(주차 무료 제외), 내부코드 G/R/M/D+숫자 3) 존댓말·친근+전문 톤 유지 4) JSON만 출력: {"draft":"수정된 한국어 초안","draft_foreign":"${hasF?'수정된 원어 발송문(한국어 초안과 동일 의미)':''}"}`;
+    const data = await callClaude({model:"claude-sonnet-4-6", max_tokens:1500, system:sys,
+      messages:[{role:"user",content:`[현재 한국어 초안]\n${d.innerText.trim()}${hasF?`\n\n[현재 원어 발송문]\n${df.innerText.trim()}`:''}\n\n[근거 QA]\n${window.lastCtx||'(없음)'}\n\n[직원 지시]\n${cmd}`}]});
+    const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
+    let obj; try{ obj = JSON.parse(text.replace(/```json|```/g,"").trim()); }catch(e){ obj = {draft:text, draft_foreign:""}; }
+    if(obj.draft){
+      const hits = f034Check(obj.draft);
+      if(hits.length){ d.innerHTML = highlight(obj.draft, hits);
+        const fl=document.getElementById('flag'); fl.style.display='block';
+        fl.textContent = '⚠ F034 금지어 검출: '+hits.join(', ')+' — 발송 전 수정';
+      } else { d.innerText = obj.draft; document.getElementById('flag').style.display='none'; }
+    }
+    if(hasF && obj.draft_foreign) df.innerText = obj.draft_foreign;
+    document.getElementById('aiCmd').value = '';
+  }catch(err){ alert('지시 반영 실패: '+err.message); }
+  btn.disabled = false; btn.textContent = '지시 반영';
 }
 async function doTranslate(which){
   const src = which===1 ? document.getElementById('pmsg').value.trim()
@@ -205,8 +272,7 @@ function copyBox(id){
 function slackPayload(kind){
   const msg = document.getElementById('pmsg').value.trim();
   const r = window.lastReport || {};
-  // ★전송 시점 응급 재검사 — 저장 플래그 의존 제거
-  const emerg = checkEmergency(msg + ' ' + (r.koMsg || ''));
+  const emerg = checkEmergency(msg + ' ' + (r.koMsg || '')) || (r.category === '응급부작용');
   const d = document.getElementById('draft').innerText.trim();
   const df = document.getElementById('draftF').innerText.trim();
   const cut = (s,n)=> s.length>n ? s.slice(0,n)+'…(생략)' : s;
@@ -217,23 +283,26 @@ function slackPayload(kind){
   else if(emerg){ header='🚨 응급 의심 문의 — 즉시 확인'; color='#D0021B'; }
   else { header='📋 환자 문의 보고'; color='#116149'; }
 
+  const blocks = [{type:'header', text:{type:'plain_text', text:header, emoji:true}}];
+  if(emerg && kind!=='qa'){
+    blocks.push({type:'section', text:{type:'mrkdwn', text:':rotating_light: *응급 키워드 감지 — 챗보다 전화·의료진 호출 우선* :rotating_light:'}});
+  }
   const fields = [{type:'mrkdwn', text:'*시각*\n'+now}];
   if(r.category) fields.push({type:'mrkdwn', text:'*분류*\n'+r.category});
   if((r.used||[]).length) fields.push({type:'mrkdwn', text:'*근거 QA*\n'+r.used.join(', ')});
   if(r.koMsg && r.koMsg!==msg) fields.push({type:'mrkdwn', text:'*언어*\n외국어 (번역 첨부)'});
   if(r.escalate) fields.push({type:'mrkdwn', text:'*인계*\n↗ 의료진·직원 확인 권장'});
-
-  const ab = [{type:'section', fields: fields.slice(0,10)}, {type:'divider'}];
-  ab.push({type:'section', text:{type:'mrkdwn', text:'*환자 메시지*\n'+q(cut(msg,1200))}});
-  if(r.koMsg && r.koMsg!==msg) ab.push({type:'section', text:{type:'mrkdwn', text:'*한국어 번역*\n'+q(cut(r.koMsg,1200))}});
-  if(d && !d.startsWith('환자 메시지를 입력')) ab.push({type:'section', text:{type:'mrkdwn', text:(kind==='qa'?'*직원 최종 답변*':'*추천 전달내용*')+'\n'+cut(d,2500)}});
-  if(df) ab.push({type:'section', text:{type:'mrkdwn', text:'*원어 발송문*\n'+cut(df,1500)}});
-  if(emerg && kind!=='qa') ab.push({type:'context', elements:[{type:'mrkdwn', text:'⚠ 응급 키워드 감지 — 챗 응대보다 전화·의료진 호출 우선'}]});
+  blocks.push({type:'section', fields: fields.slice(0,10)});
+  blocks.push({type:'divider'});
+  blocks.push({type:'section', text:{type:'mrkdwn', text:'*환자 메시지*\n'+q(cut(msg,1200))}});
+  if(r.koMsg && r.koMsg!==msg) blocks.push({type:'section', text:{type:'mrkdwn', text:'*한국어 번역*\n'+q(cut(r.koMsg,1200))}});
+  if(d && !d.startsWith('환자 메시지를 입력')) blocks.push({type:'section', text:{type:'mrkdwn', text:(kind==='qa'?'*직원 최종 답변*':'*추천 전달내용*')+'\n'+cut(d,2500)}});
+  if(df) blocks.push({type:'section', text:{type:'mrkdwn', text:'*원어 발송문*\n'+cut(df,1500)}});
 
   return {
-    text: header+' · '+cut(msg,80),  // 폰 푸시 미리보기 — 헤더에 이모지 포함
-    blocks: [{type:'header', text:{type:'plain_text', text:header, emoji:true}}],
-    attachments: [{color:color, blocks:ab}]
+    text: header+' · '+cut(msg,80),
+    blocks: blocks,
+    attachments: [{color:color, blocks:[{type:'context', elements:[{type:'mrkdwn', text: kind==='qa' ? ':memo: QA 개선 트랙' : (emerg ? ':red_circle: 응급 트랙' : ':large_green_circle: 일반 문의 트랙')}]}]}]
   };
 }
 function postSlack(payload, okMsg){
@@ -327,6 +396,8 @@ function searchOnly(){
   const msg = document.getElementById('pmsg').value.trim();
   selected.clear();
   renderCands(topCandidates(msg, 12));
+  const _lang = detectLang(document.getElementById('pmsg').value.trim());
+  if(_lang==='ko') renderVideos(matchVideos(document.getElementById('pmsg').value.trim(),'ko'),'ko');
 }
 function f034Check(text){
   const hits = [];
@@ -444,6 +515,7 @@ async function run(){
       es.textContent = '↗ 인계 권장: 이 문의는 의료진/직원 직접 확인 영역입니다. 초안은 인계 안내용으로만 사용하세요.';
     }
     renderVideos(matchVideos(koMsg, lang), lang);
+    window.lastCtx = ctx;
     window.lastReport = {koMsg:koMsg, category:obj.category, used:obj.used||[], escalate:!!obj.escalate};
     document.getElementById('meta').textContent =
       `근거 QA: ${(obj.used||[]).join(', ')||'없음'} · 분류: ${obj.category||'-'}${lang!=='ko'?' · 언어: '+LANGNAME[lang]:''}${obj.note?' · 주의: '+obj.note:''}`;
@@ -472,6 +544,7 @@ try{
     }
   }
 }catch(e){}
+renderDataFoot();
 try{ const w=localStorage.getItem('acro_slack_webhook'); if(w){ document.getElementById('whUrl').value=w; document.getElementById('whState').textContent='저장됨 ✓'; SLACK_WEBHOOK_URL=w; } else { document.getElementById('whState').textContent='기본 연결: 환자문의방 ✓'; } }catch(e){ document.getElementById('whState').textContent='기본 연결: 환자문의방 ✓'; }
 </script>
 </body>
