@@ -105,6 +105,17 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
 .pad.rec .rdot{display:block;animation:blink .9s infinite}
 .pad:disabled{opacity:.45;cursor:default}
 
+/* ---------- 연속 통역 모드 ---------- */
+.pad.cont{color:#fff;border-width:2px;border-color:var(--gold);}
+.pad.ko.cont{background:var(--doc-deep);}
+.pad.tg.cont{background:var(--pat-deep);}
+.pad.cont .rdot{display:block;background:var(--gold);animation:blink 1.4s infinite;}
+.pad.cont::after{content:'';position:absolute;inset:-7px;border-radius:26px;border:2.5px solid var(--gold);
+  animation:seal 1.6s ease-out infinite;pointer-events:none;}
+@media (prefers-reduced-motion:reduce){.pad.cont::after{animation:none;opacity:.9}}
+.pad.cont.talk{border-color:var(--seal);}
+.pad.cont.talk .rdot{background:var(--seal);animation:blink .6s infinite;}
+
 /* ---------- 무전 (Slack 직통) ---------- */
 .radio{width:100%;height:54px;border-radius:16px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);
   cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;
@@ -182,7 +193,7 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
     <button class="pad ko" id="pad-ko">
       <span class="rdot"></span>
       <span class="pname">한국어</span>
-      <span class="psub" id="sub-ko">꾹 누른 채 말하기</span>
+      <span class="psub" id="sub-ko">꾹: 한 마디 · 탭: 연속</span>
     </button>
     <button class="pad tg" id="pad-tg">
       <span class="rdot"></span>
@@ -234,10 +245,27 @@ let history = [];           // {id, lang, ko, tgt, stage:'stt'|'tr'|'done'|'err'
 let autoSpeak = true, useOpus = false, slackLog = false;
 let ttsId = null;
 
+/* ================= 연속 통역 설정 (필요시 여기서 조절) ================= */
+const CONT = {
+  SILENCE_MS: 1200,    // 이만큼 조용하면 문장 끝으로 판단
+  THRESHOLD: 0.015,    // 음성 감지 민감도 (소음 많은 방이면 0.02~0.03으로 올릴 것)
+  MIN_SPEECH_MS: 400,  // 이보다 짧은 소리는 무시 (기침, 노크 등)
+  MAX_SEG_MS: 30000,   // 한 문장 최대 길이 (초과 시 강제로 잘라 통역)
+  TAP_MS: 350,         // 이 시간보다 짧게 누르면 '탭'(연속 모드 토글)으로 간주
+};
+
 /* ================= 녹음 (MediaRecorder — 브라우저 음성인식 미사용) ================= */
 let mediaStream = null;
 let recorder = null, chunks = [], recSide = null, recStart = 0;
 let pressed = { ko:false, tg:false, radio:false };
+
+/* 연속 모드 상태 */
+let contMode = null;          // null | 'ko' | 'tg'
+let contRec = null, contChunks = [];
+let contAC = null, contAnalyser = null, contTimer = null;
+let contSpeaking = false, contSpeechStart = 0, contSilenceStart = 0, contHadSpeech = false, contSegStart = 0;
+let contPausedByTTS = false;
+let pendingContStop = false;
 
 function pickMime(){
   const c = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
@@ -257,6 +285,10 @@ const MIC_HELP = '🎙 마이크 권한이 필요합니다.\n\n· 주소창 자�
 async function pttStart(side, ev){
   if (ev) ev.preventDefault();
   if (recSide) return;
+  /* 연속 모드가 켜진 패드를 다시 누르면 → 손 뗄 때 끔 */
+  if (contMode && contMode === side){ pendingContStop = true; return; }
+  /* 다른 패드의 연속 모드가 켜져 있으면 먼저 끄고 진행 */
+  if (contMode) contStop(false);
   if (side === 'radio' && !radioName){ openNameModal(); return; }   // 이름 미설정 시 먼저 입력
   if (window.speechSynthesis) speechSynthesis.cancel();
   pressed[side] = true;
@@ -274,12 +306,16 @@ async function pttStart(side, ev){
   setTimeout(()=>{ if (recSide===side && recorder && recorder.state==='recording') pttEnd(side); }, 60000); // 60초 안전장치
 }
 
+let skipNextPTTResult = false;
 function pttEnd(side, ev){
   if (ev) ev.preventDefault();
   pressed[side] = false;
+  if (pendingContStop && contMode === side){ pendingContStop = false; contStop(true); return; }
   if (recSide !== side) return;
   setPadUI(side, false);
+  const isTap = side !== 'radio' && (Date.now() - recStart) < CONT.TAP_MS;
   if (recorder && recorder.state === 'recording') { try{ recorder.stop(); }catch(e){} }
+  if (isTap){ skipNextPTTResult = true; contStart(side); }   // 짧게 탭 → 연속 모드 (제스처 내에서 시작)
 }
 
 async function onRecStop(){
@@ -287,6 +323,7 @@ async function onRecStop(){
   const dur = Date.now() - recStart;
   const blob = new Blob(chunks, { type: (recorder && recorder.mimeType) || 'audio/webm' });
   chunks = [];
+  if (skipNextPTTResult){ skipNextPTTResult = false; return; }   // 탭이었음 — 연속 모드로 전환됨
   if (dur < 350 || blob.size < 1200) { toast('너무 짧아요 — 꾹 누른 채 말해주세요'); return; }
 
   /* ---- 무전: 프록시가 인식+Slack 전송을 한 번에 처리 ---- */
@@ -314,7 +351,12 @@ async function onRecStop(){
     return;
   }
 
-  const entry = { id: Date.now(), lang: curLang, side, stage:'stt' };
+  processSpeech(side, blob, true);
+}
+
+/* PTT·연속 모드 공용: 음성 blob → STT → 번역 */
+async function processSpeech(side, blob, toastOnEmpty){
+  const entry = { id: Date.now() + Math.random(), lang: curLang, side, stage:'stt' };
   history.push(entry); renderChat();
 
   try{
@@ -329,7 +371,8 @@ async function onRecStop(){
     const text = (data.text || '').trim();
     if (!text) {
       history = history.filter(h => h.id !== entry.id); renderChat();
-      toast('음성이 인식되지 않았어요'); return;
+      if (toastOnEmpty) toast('음성이 인식되지 않았어요');
+      return;
     }
     if (side === 'ko') entry.ko = text; else entry.tgt = text;
     entry.stage = 'tr'; renderChat();
@@ -350,6 +393,136 @@ function blobToB64(blob){
   });
 }
 
+/* ================= 연속 통역 모드 ================= */
+async function contStart(side){
+  if (contMode) contStop(false);
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  if (!(await ensureMic())) { alert(MIC_HELP); return; }
+  if (!window.MediaRecorder) { alert('이 브라우저는 녹음을 지원하지 않습니다. Chrome/Safari로 열어주세요.'); return; }
+  try{
+    contAC = new (window.AudioContext || window.webkitAudioContext)();
+    if (contAC.state === 'suspended') await contAC.resume();
+    const src = contAC.createMediaStreamSource(mediaStream);
+    contAnalyser = contAC.createAnalyser();
+    contAnalyser.fftSize = 2048;
+    src.connect(contAnalyser);
+  }catch(e){ alert('오디오 분석을 시작할 수 없습니다: ' + e.message); return; }
+  contMode = side;
+  contPausedByTTS = false;
+  setContUI(true);
+  startContSegment();
+  contTimer = setInterval(contTick, 60);
+  toast('연속 통역 시작 — 다시 탭하면 종료');
+}
+
+function contStop(showToast){
+  if (!contMode) return;
+  const side = contMode;
+  contMode = null;
+  clearInterval(contTimer); contTimer = null;
+  contDiscardNext = true;
+  if (contRec && contRec.state === 'recording'){ try{ contRec.stop(); }catch(e){} }
+  contRec = null; contChunks = [];
+  if (contAC){ try{ contAC.close(); }catch(e){} contAC = null; contAnalyser = null; }
+  setContUI(false, side);
+  if (showToast) toast('연속 통역 종료');
+}
+
+let contDiscardNext = false;
+function startContSegment(){
+  if (!contMode || !mediaStream || !mediaStream.active) return;
+  contChunks = [];
+  contDiscardNext = false;
+  const mime = pickMime();
+  contRec = new MediaRecorder(mediaStream, mime ? { mimeType:mime } : undefined);
+  contRec.ondataavailable = e => { if (e.data && e.data.size) contChunks.push(e.data); };
+  contRec.onstop = () => onContSegStop();
+  contRec.start();
+  contSegStart = Date.now();
+  contHadSpeech = false; contSpeaking = false; contSpeechStart = 0; contSilenceStart = 0;
+}
+
+function cutContSegment(process){
+  if (!contRec || contRec.state !== 'recording') return;
+  contDiscardNext = !process;
+  try{ contRec.stop(); }catch(e){}
+}
+
+function onContSegStop(){
+  const blob = new Blob(contChunks, { type: (contRec && contRec.mimeType) || 'audio/webm' });
+  contChunks = [];
+  const discard = contDiscardNext; contDiscardNext = false;
+  if (!discard && contHadSpeech && blob.size > 1200 && contMode){
+    processSpeech(contMode, blob, false);   // 인식 안 되면 조용히 무시 (토스트 없음)
+  }
+  /* 모드가 켜져 있고 TTS 대기 중이 아니면 다음 문장 녹음 계속 */
+  if (contMode && !contPausedByTTS) startContSegment();
+}
+
+function contTick(){
+  if (!contMode || !contAnalyser || contPausedByTTS) return;
+  const buf = new Uint8Array(contAnalyser.fftSize);
+  contAnalyser.getByteTimeDomainData(buf);
+  let sum = 0;
+  for (let i=0;i<buf.length;i++){ const v = (buf[i]-128)/128; sum += v*v; }
+  const rms = Math.sqrt(sum/buf.length);
+  const now = Date.now();
+
+  if (rms > CONT.THRESHOLD){
+    if (!contSpeaking){ contSpeaking = true; contSpeechStart = now; }
+    contSilenceStart = 0;
+    if (now - contSpeechStart >= CONT.MIN_SPEECH_MS && !contHadSpeech){
+      contHadSpeech = true;
+      const pad = document.getElementById('pad-'+contMode); if (pad) pad.classList.add('talk');
+    }
+  } else {
+    if (contSpeaking){ contSpeaking = false; contSilenceStart = now; }
+    if (contHadSpeech && contSilenceStart && now - contSilenceStart >= CONT.SILENCE_MS){
+      const pad = document.getElementById('pad-'+contMode); if (pad) pad.classList.remove('talk');
+      cutContSegment(true);
+      return;
+    }
+  }
+  /* 말이 너무 길면 강제로 잘라 통역 */
+  if (contHadSpeech && now - contSegStart >= CONT.MAX_SEG_MS){
+    const pad = document.getElementById('pad-'+contMode); if (pad) pad.classList.remove('talk');
+    cutContSegment(true);
+    return;
+  }
+  /* 말 없이 오래 지나면 조용히 새 세그먼트로 교체 (파일 비대 방지) */
+  if (!contHadSpeech && now - contSegStart >= 20000){
+    cutContSegment(false);
+  }
+}
+
+/* TTS 재생 중엔 마이크 입력 무시 — 통역 음성이 다시 인식되는 것 방지 */
+function contPauseForTTS(){
+  if (!contMode) return;
+  contPausedByTTS = true;
+  const pad = document.getElementById('pad-'+contMode); if (pad) pad.classList.remove('talk');
+  cutContSegment(false);
+}
+function contResumeAfterTTS(){
+  if (!contMode || !contPausedByTTS) return;
+  if (window.speechSynthesis && (speechSynthesis.speaking || speechSynthesis.pending)) return;
+  contPausedByTTS = false;
+  if (!contRec || contRec.state !== 'recording') startContSegment();
+}
+
+function setContUI(on, sideOff){
+  const side = on ? contMode : sideOff;
+  const pad = document.getElementById('pad-'+side);
+  const sub = document.getElementById('sub-'+side);
+  if (!pad) return;
+  pad.classList.toggle('cont', !!on);
+  pad.classList.remove('talk');
+  if (on){
+    sub.textContent = '연속 통역 중 — 탭하면 종료';
+  } else {
+    sub.textContent = side === 'ko' ? '꾹: 한 마디 · 탭: 연속' : LANGS[curLang].idle;
+  }
+}
+
 /* pointer 바인딩 — 누르는 동안 녹음, 떼면 인식 */
 [['ko','pad-ko'],['tg','pad-tg'],['radio','pad-radio']].forEach(([side,id])=>{
   const btn = document.getElementById(id);
@@ -364,7 +537,7 @@ function setPadUI(side, on){
   const sub = document.getElementById('sub-'+side);
   pad.classList.toggle('rec', on);
   if (side === 'radio') sub.textContent = on ? '송신 중 — 떼면 전송' : (radioName ? radioName + ' — 꾹 누르면 Slack으로' : '꾹 누르면 음성이 Slack으로');
-  else if (side === 'ko') sub.textContent = on ? '듣는 중 — 떼면 통역' : '꾹 누른 채 말하기';
+  else if (side === 'ko') sub.textContent = on ? '듣는 중 — 떼면 통역' : '꾹: 한 마디 · 탭: 연속';
   else sub.textContent = on ? '● REC' : LANGS[curLang].idle;
 }
 
@@ -451,20 +624,24 @@ function applyVoice(u, code){ const v = pickVoice(code); if (v) u.voice = v; u.l
 function speakAuto(text, code){
   if (!window.speechSynthesis) return;
   speechSynthesis.cancel();
+  contPauseForTTS();
   const u = new SpeechSynthesisUtterance(text);
-  applyVoice(u, code); speechSynthesis.speak(u);
+  applyVoice(u, code);
+  u.onend = u.onerror = ()=>{ setTimeout(contResumeAfterTTS, 350); };
+  speechSynthesis.speak(u);
 }
 function speakBtn(text, code, id){
   if (!window.speechSynthesis) return;
-  if (ttsId === id){ speechSynthesis.cancel(); ttsId=null; document.querySelectorAll('.spk').forEach(b=>b.classList.remove('on')); return; }
+  if (ttsId === id){ speechSynthesis.cancel(); ttsId=null; document.querySelectorAll('.spk').forEach(b=>b.classList.remove('on')); setTimeout(contResumeAfterTTS, 350); return; }
   speechSynthesis.cancel();
+  contPauseForTTS();
   document.querySelectorAll('.spk').forEach(b=>b.classList.remove('on'));
   const btn = document.getElementById(id);
   if (btn) btn.classList.add('on');
   ttsId = id;
   const u = new SpeechSynthesisUtterance(text);
   applyVoice(u, code);
-  u.onend = u.onerror = ()=>{ ttsId=null; if (btn) btn.classList.remove('on'); };
+  u.onend = u.onerror = ()=>{ ttsId=null; if (btn) btn.classList.remove('on'); setTimeout(contResumeAfterTTS, 350); };
   speechSynthesis.speak(u);
 }
 
@@ -475,7 +652,7 @@ function renderChat(){
   if (!history.length){
     chat.innerHTML = `<div class="empty">
       <div class="mark">🎙</div>
-      <div class="t1 serif">버튼을 <b>꾹 누른 채</b> 말하고<br><b>손을 떼면</b> 통역됩니다</div>
+      <div class="t1 serif"><b>꾹 누른 채</b> 말하면 한 마디 통역<br><b>짧게 탭</b>하면 연속 통역이 켜집니다</div>
       <div class="t2"><span style="color:var(--doc);font-weight:800">한국어</span> — 원장&nbsp;&nbsp;·&nbsp;&nbsp;<span style="color:var(--pat);font-weight:800">${cfg.flag} ${cfg.name}</span> — 환자</div>
     </div>`;
     return;
@@ -538,6 +715,7 @@ function buildLangs(){
   });
 }
 function switchLang(key){
+  contStop(false);
   curLang = key;
   buildLangs();
   document.getElementById('name-tg').textContent = LANGS[key].name;
@@ -568,6 +746,7 @@ function updateRadioLabel(){
 }
 function clearAll(){
   if (!confirm('대화 내용을 모두 삭제할까요?')) return;
+  contStop(false);
   window.speechSynthesis && speechSynthesis.cancel();
   history = []; renderChat();
 }
