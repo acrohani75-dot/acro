@@ -84,9 +84,9 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
 
 /* ---------- bottom ---------- */
 .bottom{flex-shrink:0;background:var(--card);border-top:1px solid var(--line);
-  padding:12px 14px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;}
+  padding:12px 14px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;}
 .pads{display:flex;gap:10px;}
-.pad{flex:1;height:96px;border-radius:20px;border:1.5px solid;background:transparent;cursor:pointer;
+.pad{flex:1;height:86px;border-radius:20px;border:1.5px solid;background:transparent;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;position:relative;
   touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .12s;}
 .pad:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
@@ -115,6 +115,21 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
 @media (prefers-reduced-motion:reduce){.pad.cont::after{animation:none;opacity:.9}}
 .pad.cont.talk{border-color:var(--seal);}
 .pad.cont.talk .rdot{background:var(--seal);animation:blink .6s infinite;}
+
+/* ---------- 연속 통역 토글 버튼 ---------- */
+.controw{display:flex;gap:10px;}
+.contbtn{flex:1;height:40px;border-radius:999px;border:1.5px dashed;background:transparent;
+  font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  -webkit-user-select:none;user-select:none;transition:transform .12s;}
+.contbtn.ko{border-color:var(--doc);color:var(--doc);}
+.contbtn.tg{border-color:var(--pat);color:var(--pat);}
+.contbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.contbtn.on{border-style:solid;border-width:2px;border-color:var(--gold);color:#fff;transform:scale(1.01);}
+.contbtn.ko.on{background:var(--doc-deep);}
+.contbtn.tg.on{background:var(--pat-deep);}
+.contbtn .cdot{display:none;width:8px;height:8px;border-radius:50%;background:var(--gold);}
+.contbtn.on .cdot{display:block;animation:blink 1.4s infinite;}
 
 /* ---------- 무전 (Slack 직통) ---------- */
 .radio{width:100%;height:54px;border-radius:16px;border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);
@@ -193,13 +208,17 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
     <button class="pad ko" id="pad-ko">
       <span class="rdot"></span>
       <span class="pname">한국어</span>
-      <span class="psub" id="sub-ko">꾹: 한 마디 · 탭: 연속</span>
+      <span class="psub" id="sub-ko">꾹 누르고 말하기</span>
     </button>
     <button class="pad tg" id="pad-tg">
       <span class="rdot"></span>
       <span class="pname" id="name-tg">日本語</span>
       <span class="psub" id="sub-tg">押しながら話す</span>
     </button>
+  </div>
+  <div class="controw">
+    <button class="contbtn ko" id="cont-ko" onclick="contToggle('ko')"><span class="cdot"></span><span id="contlbl-ko">▶ 한국어 연속</span></button>
+    <button class="contbtn tg" id="cont-tg" onclick="contToggle('tg')"><span class="cdot"></span><span id="contlbl-tg">▶ 日本語 연속</span></button>
   </div>
   <button class="radio" id="pad-radio">
     <span class="rdot2"></span>
@@ -247,11 +266,12 @@ let ttsId = null;
 
 /* ================= 연속 통역 설정 (필요시 여기서 조절) ================= */
 const CONT = {
-  SILENCE_MS: 1200,    // 이만큼 조용하면 문장 끝으로 판단
-  THRESHOLD: 0.015,    // 음성 감지 민감도 (소음 많은 방이면 0.02~0.03으로 올릴 것)
-  MIN_SPEECH_MS: 400,  // 이보다 짧은 소리는 무시 (기침, 노크 등)
-  MAX_SEG_MS: 30000,   // 한 문장 최대 길이 (초과 시 강제로 잘라 통역)
-  TAP_MS: 350,         // 이 시간보다 짧게 누르면 '탭'(연속 모드 토글)으로 간주
+  SILENCE_MS: 1200,     // 이만큼 조용하면 문장 끝으로 판단
+  MIN_SPEECH_MS: 300,   // 이보다 짧은 소리는 무시 (기침, 노크 등)
+  MAX_SEG_MS: 30000,    // 한 문장 최대 길이 (초과 시 강제로 잘라 통역)
+  THRESH_MIN: 0.008,    // 감지 기준 하한 (아주 조용한 방)
+  THRESH_MAX: 0.08,     // 감지 기준 상한 (시끄러운 방)
+  THRESH_RATIO: 2.5,    // 기준 = 주변소음 × 이 배율 + 0.005
 };
 
 /* ================= 녹음 (MediaRecorder — 브라우저 음성인식 미사용) ================= */
@@ -265,7 +285,7 @@ let contRec = null, contChunks = [];
 let contAC = null, contAnalyser = null, contTimer = null;
 let contSpeaking = false, contSpeechStart = 0, contSilenceStart = 0, contHadSpeech = false, contSegStart = 0;
 let contPausedByTTS = false;
-let pendingContStop = false;
+let contThreshold = 0.015, contNoise = 0.005;   // 시작 시 자동 보정됨
 
 function pickMime(){
   const c = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg;codecs=opus'];
@@ -282,13 +302,12 @@ async function ensureMic(){
 }
 const MIC_HELP = '🎙 마이크 권한이 필요합니다.\n\n· 주소창 자물쇠 → 권한 → 마이크 → 허용\n· 카카오톡·인스타 인앱 화면이면 Chrome/Safari로 열어주세요';
 
+/* ================= 한 마디 통역 (꾹 누르기 전용) ================= */
 async function pttStart(side, ev){
   if (ev) ev.preventDefault();
   if (recSide) return;
-  /* 연속 모드가 켜진 패드를 다시 누르면 → 손 뗄 때 끔 */
-  if (contMode && contMode === side){ pendingContStop = true; return; }
-  /* 다른 패드의 연속 모드가 켜져 있으면 먼저 끄고 진행 */
-  if (contMode) contStop(false);
+  /* 연속 모드가 켜져 있으면 먼저 끄고 진행 */
+  if (contMode) contStop(true);
   if (side === 'radio' && !radioName){ openNameModal(); return; }   // 이름 미설정 시 먼저 입력
   if (window.speechSynthesis) speechSynthesis.cancel();
   pressed[side] = true;
@@ -306,16 +325,12 @@ async function pttStart(side, ev){
   setTimeout(()=>{ if (recSide===side && recorder && recorder.state==='recording') pttEnd(side); }, 60000); // 60초 안전장치
 }
 
-let skipNextPTTResult = false;
 function pttEnd(side, ev){
   if (ev) ev.preventDefault();
   pressed[side] = false;
-  if (pendingContStop && contMode === side){ pendingContStop = false; contStop(true); return; }
   if (recSide !== side) return;
   setPadUI(side, false);
-  const isTap = side !== 'radio' && (Date.now() - recStart) < CONT.TAP_MS;
   if (recorder && recorder.state === 'recording') { try{ recorder.stop(); }catch(e){} }
-  if (isTap){ skipNextPTTResult = true; contStart(side); }   // 짧게 탭 → 연속 모드 (제스처 내에서 시작)
 }
 
 async function onRecStop(){
@@ -323,8 +338,7 @@ async function onRecStop(){
   const dur = Date.now() - recStart;
   const blob = new Blob(chunks, { type: (recorder && recorder.mimeType) || 'audio/webm' });
   chunks = [];
-  if (skipNextPTTResult){ skipNextPTTResult = false; return; }   // 탭이었음 — 연속 모드로 전환됨
-  if (dur < 350 || blob.size < 1200) { toast('너무 짧아요 — 꾹 누른 채 말해주세요'); return; }
+  if (dur < 250 || blob.size < 1000) { toast('너무 짧아요 — 꾹 누른 채 말해주세요'); return; }
 
   /* ---- 무전: 프록시가 인식+Slack 전송을 한 번에 처리 ---- */
   if (side === 'radio'){
@@ -393,7 +407,38 @@ function blobToB64(blob){
   });
 }
 
-/* ================= 연속 통역 모드 ================= */
+/* ================= 연속 통역 모드 (전용 버튼으로만 켜고 끔) ================= */
+function contToggle(side){
+  if (contMode === side){ contStop(true); return; }
+  contStart(side);
+}
+
+function measureRMS(){
+  if (!contAnalyser) return 0;
+  const buf = new Uint8Array(contAnalyser.fftSize);
+  contAnalyser.getByteTimeDomainData(buf);
+  let sum = 0;
+  for (let i=0;i<buf.length;i++){ const v = (buf[i]-128)/128; sum += v*v; }
+  return Math.sqrt(sum/buf.length);
+}
+
+function threshFromNoise(n){
+  return Math.min(CONT.THRESH_MAX, Math.max(CONT.THRESH_MIN, n * CONT.THRESH_RATIO + 0.005));
+}
+
+/* 시작 시 0.7초간 주변 소음을 재서 감지 기준을 기기·환경에 맞게 자동 보정 */
+async function calibrateNoise(){
+  const samples = [];
+  const t0 = Date.now();
+  while (Date.now() - t0 < 700){
+    samples.push(measureRMS());
+    await new Promise(r => setTimeout(r, 50));
+  }
+  samples.sort((a,b)=>a-b);
+  contNoise = samples[Math.floor(samples.length/2)] || 0.004;   // 중앙값 (말소리 섞여도 안전)
+  contThreshold = threshFromNoise(contNoise);
+}
+
 async function contStart(side){
   if (contMode) contStop(false);
   if (window.speechSynthesis) speechSynthesis.cancel();
@@ -407,12 +452,14 @@ async function contStart(side){
     contAnalyser.fftSize = 2048;
     src.connect(contAnalyser);
   }catch(e){ alert('오디오 분석을 시작할 수 없습니다: ' + e.message); return; }
+  toast('주변 소음 측정 중…');
+  await calibrateNoise();
   contMode = side;
   contPausedByTTS = false;
   setContUI(true);
   startContSegment();
   contTimer = setInterval(contTick, 60);
-  toast('연속 통역 시작 — 다시 탭하면 종료');
+  toast('연속 통역 시작 — 버튼을 다시 누르면 종료');
 }
 
 function contStop(showToast){
@@ -461,14 +508,10 @@ function onContSegStop(){
 
 function contTick(){
   if (!contMode || !contAnalyser || contPausedByTTS) return;
-  const buf = new Uint8Array(contAnalyser.fftSize);
-  contAnalyser.getByteTimeDomainData(buf);
-  let sum = 0;
-  for (let i=0;i<buf.length;i++){ const v = (buf[i]-128)/128; sum += v*v; }
-  const rms = Math.sqrt(sum/buf.length);
+  const rms = measureRMS();
   const now = Date.now();
 
-  if (rms > CONT.THRESHOLD){
+  if (rms > contThreshold){
     if (!contSpeaking){ contSpeaking = true; contSpeechStart = now; }
     contSilenceStart = 0;
     if (now - contSpeechStart >= CONT.MIN_SPEECH_MS && !contHadSpeech){
@@ -476,6 +519,9 @@ function contTick(){
       const pad = document.getElementById('pad-'+contMode); if (pad) pad.classList.add('talk');
     }
   } else {
+    /* 조용할 때 주변 소음을 천천히 학습해서 감지 기준을 계속 보정 */
+    contNoise = contNoise * 0.98 + rms * 0.02;
+    contThreshold = threshFromNoise(contNoise);
     if (contSpeaking){ contSpeaking = false; contSilenceStart = now; }
     if (contHadSpeech && contSilenceStart && now - contSilenceStart >= CONT.SILENCE_MS){
       const pad = document.getElementById('pad-'+contMode); if (pad) pad.classList.remove('talk');
@@ -513,14 +559,21 @@ function setContUI(on, sideOff){
   const side = on ? contMode : sideOff;
   const pad = document.getElementById('pad-'+side);
   const sub = document.getElementById('sub-'+side);
-  if (!pad) return;
-  pad.classList.toggle('cont', !!on);
-  pad.classList.remove('talk');
-  if (on){
-    sub.textContent = '연속 통역 중 — 탭하면 종료';
-  } else {
-    sub.textContent = side === 'ko' ? '꾹: 한 마디 · 탭: 연속' : LANGS[curLang].idle;
+  const btn = document.getElementById('cont-'+side);
+  if (pad){
+    pad.classList.toggle('cont', !!on);
+    pad.classList.remove('talk');
+    if (sub) sub.textContent = on ? '연속 통역 중' : (side === 'ko' ? '꾹 누르고 말하기' : LANGS[curLang].idle);
   }
+  if (btn) btn.classList.toggle('on', !!on);
+  updateContLabels();
+}
+
+function updateContLabels(){
+  const ko = document.getElementById('contlbl-ko');
+  const tg = document.getElementById('contlbl-tg');
+  if (ko) ko.textContent = contMode === 'ko' ? '■ 연속 통역 종료' : '▶ 한국어 연속';
+  if (tg) tg.textContent = contMode === 'tg' ? '■ 연속 통역 종료' : '▶ ' + LANGS[curLang].name + ' 연속';
 }
 
 /* pointer 바인딩 — 누르는 동안 녹음, 떼면 인식 */
@@ -537,7 +590,7 @@ function setPadUI(side, on){
   const sub = document.getElementById('sub-'+side);
   pad.classList.toggle('rec', on);
   if (side === 'radio') sub.textContent = on ? '송신 중 — 떼면 전송' : (radioName ? radioName + ' — 꾹 누르면 Slack으로' : '꾹 누르면 음성이 Slack으로');
-  else if (side === 'ko') sub.textContent = on ? '듣는 중 — 떼면 통역' : '꾹: 한 마디 · 탭: 연속';
+  else if (side === 'ko') sub.textContent = on ? '듣는 중 — 떼면 통역' : '꾹 누르고 말하기';
   else sub.textContent = on ? '● REC' : LANGS[curLang].idle;
 }
 
@@ -598,7 +651,7 @@ function sendFromTa(){
   const text = ta.value.trim();
   if (!text) return;
   ta.value = '';
-  const isKorean = /[\uAC00-\uD7A3]/.test(text);
+  const isKorean = /[가-힣]/.test(text);
   const entry = { id: Date.now(), lang: curLang, side: isKorean ? 'ko' : 'tg', stage:'tr' };
   if (isKorean) entry.ko = text; else entry.tgt = text;
   history.push(entry); renderChat();
@@ -652,7 +705,7 @@ function renderChat(){
   if (!history.length){
     chat.innerHTML = `<div class="empty">
       <div class="mark">🎙</div>
-      <div class="t1 serif"><b>꾹 누른 채</b> 말하면 한 마디 통역<br><b>짧게 탭</b>하면 연속 통역이 켜집니다</div>
+      <div class="t1 serif"><b>꾹 누른 채</b> 말하면 한 마디 통역<br>아래 <b>▶ 연속</b> 버튼을 누르면 연속 통역</div>
       <div class="t2"><span style="color:var(--doc);font-weight:800">한국어</span> — 원장&nbsp;&nbsp;·&nbsp;&nbsp;<span style="color:var(--pat);font-weight:800">${cfg.flag} ${cfg.name}</span> — 환자</div>
     </div>`;
     return;
@@ -720,6 +773,7 @@ function switchLang(key){
   buildLangs();
   document.getElementById('name-tg').textContent = LANGS[key].name;
   document.getElementById('sub-tg').textContent = LANGS[key].idle;
+  updateContLabels();
   renderChat();
 }
 function toggleSettings(){ document.getElementById('settings').classList.toggle('open'); }
@@ -765,6 +819,7 @@ function toast(msg){
 buildLangs();
 renderChat();
 updateRadioLabel();
+updateContLabels();
 </script>
 </body>
 </html>
