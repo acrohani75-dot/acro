@@ -127,6 +127,18 @@
 .photos figure{margin:0;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fafcfb;box-shadow:0 2px 10px rgba(0,0,0,.06)}
 .photos img{width:100%;display:block;border-radius:10px}
 .photos figcaption{margin-top:9px;font-size:.9rem;color:var(--green-deep);font-weight:800;text-align:center;letter-spacing:.01em}
+
+  /* per-sentence voice buttons */
+  .say{display:inline-flex; align-items:center; justify-content:center; vertical-align:middle;
+    width:1.55em; height:1.55em; margin-left:6px; padding:0; border:1px solid var(--line-strong);
+    border-radius:7px; background:#fff; color:var(--green-deep); font-size:.72em; line-height:1;
+    cursor:pointer; opacity:.5; transition:opacity .15s ease, background .15s ease, color .15s ease;
+    -webkit-user-select:none; user-select:none; flex:0 0 auto;}
+  .say:hover{opacity:1; background:var(--green-soft);}
+  .say:focus-visible{outline:2px solid #94c4b1; outline-offset:2px; opacity:1;}
+  .say.on{opacity:1; background:var(--green); color:#fff; border-color:var(--green);}
+  .chip .say{margin-left:5px; width:1.4em; height:1.4em;}
+  @media print{.say{display:none!important;}}
 </style>
 </head>
 <body data-lang="ko">
@@ -172,7 +184,9 @@ const UI = {
   patientLabel:{ko:"환자분 성함", ja:"患者様のお名前", en:"Patient name", "zh-cn":"患者姓名", "zh-tw":"患者姓名", th:"ชื่อผู้ป่วย"},
   patientPh:{ko:"성함 입력", ja:"お名前", en:"Name", "zh-cn":"姓名", "zh-tw":"姓名", th:"ชื่อ"},
   doctorLabel:{ko:"의료진", ja:"担当医", en:"Doctor", "zh-cn":"主治医师", "zh-tw":"主治醫師", th:"แพทย์"},
-  doctorPh:{ko:"박지선", ja:"パク・ジソン", en:"Park Ji-sun", "zh-cn":"朴智善", "zh-tw":"朴智善", th:"พัก จีซอน"}
+  doctorPh:{ko:"박지선", ja:"パク・ジソン", en:"Park Ji-sun", "zh-cn":"朴智善", "zh-tw":"朴智善", th:"พัก จีซอน"},
+  readAria:{ko:"이 문장 듣기", ja:"この文を読み上げ", en:"Read this", "zh-cn":"朗读此句", "zh-tw":"朗讀此句", th:"อ่านประโยคนี้"},
+  voiceNA:{ko:"이 브라우저는 음성 읽기를 지원하지 않습니다.", ja:"このブラウザは音声読み上げに対応していません。", en:"This browser does not support speech.", "zh-cn":"此浏览器不支持语音朗读。", "zh-tw":"此瀏覽器不支援語音朗讀。", th:"เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง"}
 };
 
 const PAGES = {
@@ -520,10 +534,12 @@ function buildStage(){
     html+='</section>';
   });
   stage.innerHTML=html;
+  injectSay();
 }
 
 const elCur=document.getElementById('cur'), elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
 function render(){
+  sayStopAll();
   const slides=stage.querySelectorAll('.slide');
   slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); });
   elCur.textContent=idx+1;
@@ -543,7 +559,7 @@ function applyUILabels(){
   document.getElementById('tocHint').textContent=L(UI.tocHint);
 }
 
-function changeLang(nl){ lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); }
+function changeLang(nl){ sayStopAll(); lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); }
 
 document.getElementById('next').addEventListener('click', next);
 document.getElementById('prev').addEventListener('click', prev);
@@ -601,6 +617,67 @@ function buildTOC(){
   list.innerHTML=html;
   list.onclick=function(e){ const it=e.target.closest('.toc-item'); if(it){ go(parseInt(it.getAttribute('data-go'),10)); closeToc(); } };
 }
+
+
+// ---------- voice: per-sentence read-aloud (Web Speech / TTS) ----------
+const TTS_LANG = { ko:"ko-KR", ja:"ja-JP", en:"en-US", "zh-cn":"zh-CN", "zh-tw":"zh-TW", th:"th-TH" };
+const ttsSupported = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window);
+let TTS_VOICES = [];
+function ttsLoadVoices(){ try{ TTS_VOICES = window.speechSynthesis.getVoices() || []; }catch(e){ TTS_VOICES=[]; } }
+if(ttsSupported){
+  ttsLoadVoices();
+  if(typeof speechSynthesis.onvoiceschanged !== 'undefined'){ speechSynthesis.onvoiceschanged = ttsLoadVoices; }
+}
+function ttsPickVoice(code){
+  if(!TTS_VOICES.length) ttsLoadVoices();
+  const c=code.toLowerCase(), base=c.split('-')[0];
+  return TTS_VOICES.find(v=>v.lang && v.lang.toLowerCase()===c)
+      || TTS_VOICES.find(v=>v.lang && v.lang.toLowerCase().indexOf(base)===0)
+      || null;
+}
+let sayCur=null;
+function sayReset(){ if(sayCur){ sayCur.classList.remove('on'); sayCur.firstChild.nodeValue='🔊'; sayCur=null; } }
+function sayStopAll(){ if(ttsSupported){ try{ window.speechSynthesis.cancel(); }catch(e){} } sayReset(); }
+function elText(el){
+  const c=el.cloneNode(true);
+  c.querySelectorAll('.say,.gloss').forEach(function(n){ n.remove(); });
+  return (c.innerText || c.textContent || "").replace(/\s+/g,' ').trim();
+}
+function sayThis(btn, el){
+  if(!ttsSupported){ alert(L(UI.voiceNA)); return; }
+  const wasOn = (sayCur===btn);
+  sayStopAll();
+  if(wasOn) return;                    // second click on same button = stop
+  const text=elText(el); if(!text) return;
+  const code=TTS_LANG[lang]||"ko-KR";
+  const v=ttsPickVoice(code);
+  const parts=text.match(/[^.!?。！？\n]+[.!?。！？]?/g) || [text];
+  let spoke=false;
+  parts.forEach(function(p){
+    p=p.trim(); if(!p) return;
+    const u=new SpeechSynthesisUtterance(p);
+    u.lang=code; if(v) u.voice=v; u.rate=0.95; u.pitch=1;
+    u.onend=function(){ if(!window.speechSynthesis.pending && !window.speechSynthesis.speaking) sayReset(); };
+    u.onerror=function(){ sayReset(); };
+    window.speechSynthesis.speak(u); spoke=true;
+  });
+  if(spoke){ sayCur=btn; btn.classList.add('on'); btn.firstChild.nodeValue='⏹'; }
+}
+function injectSay(){
+  if(!ttsSupported) return;
+  const els=stage.querySelectorAll('.slide h1, .slide h2, .slide h4, .slide p, .slide .chip');
+  els.forEach(function(el){
+    if(el.querySelector(':scope > .say')) return;
+    if((el.textContent||"").trim().length < 2) return;
+    const b=document.createElement('button');
+    b.type='button'; b.className='say';
+    b.setAttribute('aria-label', L(UI.readAria));
+    b.appendChild(document.createTextNode('🔊'));
+    b.addEventListener('click', function(ev){ ev.stopPropagation(); sayThis(b, el); });
+    el.appendChild(b);
+  });
+}
+window.addEventListener('beforeunload', function(){ if(ttsSupported){ try{ window.speechSynthesis.cancel(); }catch(e){} } });
 
 buildStage(); render(); applyUILabels(); buildTOC();
 </script>
