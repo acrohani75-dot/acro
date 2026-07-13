@@ -267,7 +267,7 @@ let ttsId = null;
 /* ================= 연속 통역 설정 (필요시 여기서 조절) ================= */
 const CONT = {
   SILENCE_MS: 1200,     // 이만큼 조용하면 문장 끝으로 판단
-  MIN_SPEECH_MS: 300,   // 이보다 짧은 소리는 무시 (기침, 노크 등)
+  MIN_SPEECH_MS: 450,   // 이보다 짧은 소리는 무시 (기침, 노크, 키보드 타건음 등)
   MAX_SEG_MS: 30000,    // 한 문장 최대 길이 (초과 시 강제로 잘라 통역)
   THRESH_MIN: 0.008,    // 감지 기준 하한 (아주 조용한 방)
   THRESH_MAX: 0.08,     // 감지 기준 상한 (시끄러운 방)
@@ -284,6 +284,7 @@ let contMode = null;          // null | 'ko' | 'tg'
 let contRec = null, contChunks = [];
 let contAC = null, contAnalyser = null, contTimer = null;
 let contSpeaking = false, contSpeechStart = 0, contSilenceStart = 0, contHadSpeech = false, contSegStart = 0;
+let contSpeechMs = 0;    // 세그먼트 내 실제 발화 누적 시간
 let contPausedByTTS = false;
 let contThreshold = 0.015, contNoise = 0.005;   // 시작 시 자동 보정됨
 
@@ -382,11 +383,26 @@ async function processSpeech(side, blob, toastOnEmpty){
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error);
-    const text = (data.text || '').trim();
+    let text = (data.text || '').trim();
+    if (side === 'ko') text = fixTerms(text);
     if (!text) {
       history = history.filter(h => h.id !== entry.id); renderChat();
       if (toastOnEmpty) toast('음성이 인식되지 않았어요');
       return;
+    }
+    if (isHallucination(text)) {
+      history = history.filter(h => h.id !== entry.id); renderChat();
+      if (toastOnEmpty) toast('음성이 인식되지 않았어요');
+      return;
+    }
+    /* 연속 모드: 같은 문장이 30초 안에 또 나오면 환각 반복으로 보고 폐기 */
+    if (!toastOnEmpty){
+      const prev = [...history].reverse().find(h => h.side === side && h.id !== entry.id && (h.ko || h.tgt));
+      const prevText = prev ? (side === 'ko' ? prev.ko : prev.tgt) : '';
+      if (prevText && prevText === text && Date.now() - Math.floor(prev.id) < 30000){
+        history = history.filter(h => h.id !== entry.id); renderChat();
+        return;
+      }
     }
     if (side === 'ko') entry.ko = text; else entry.tgt = text;
     entry.stage = 'tr'; renderChat();
@@ -396,6 +412,28 @@ async function processSpeech(side, blob, toastOnEmpty){
     entry.errMsg = '인식 실패: ' + err.message;
     renderChat();
   }
+}
+
+/* 자주 틀리는 용어 자동 교정 (한국어 STT 결과) */
+const TERM_FIX = [
+  [/마운\s?자로|마운자루|마운쟈로|마운지로/g, '마운자로'],
+  [/위고\s?비|이고비|위꼬비/g, '위고비'],
+  [/(지\s?엘\s?피|쥐\s?엘\s?피|GLP)[\s\-]?(원|1|일)(?![가-힣])/g, 'GLP-1'],
+  [/삭샌다|샥센다/g, '삭센다'],
+];
+function fixTerms(t){ for (const [re, w] of TERM_FIX) t = t.replace(re, w); return t; }
+
+/* STT 환각 필터 — 무음·소음 구간에서 STT가 힌트 프롬프트/상투구를 그대로 뱉는 것 차단 */
+const HALLU_PHRASES = ['아크로한의원 진료 대화','アクロ韓医院','시청해 주셔서 감사합니다','시청해주셔서 감사합니다','구독과 좋아요','ご視聴ありがとうございました','Thank you for watching','MBC 뉴스'];
+const HALLU_TERMS = ['아크로컷','아크로웨이브','지방분해약침','다이어트 한약','추나','마운자로','위고비','GLP-1','GLP1','삭센다','アクロカット','アクロウェーブ','脂肪分解薬針','ダイエット漢方薬','チューナ','マンジャロ','ウゴービ'];
+function isHallucination(t){
+  const s = t.replace(/\s+/g,'');
+  if (HALLU_PHRASES.some(p => s.includes(p.replace(/\s+/g,'')))) return true;
+  /* 용어만 3개 이상 나열되고 그 외 내용이 거의 없으면 힌트 프롬프트 복창으로 판단 */
+  let rest = s, n = 0;
+  for (const w of HALLU_TERMS){ const ww = w.replace(/\s+/g,''); if (rest.includes(ww)){ n++; rest = rest.split(ww).join(''); } }
+  rest = rest.replace(/[、。,.·:：\-용어]/g,'');
+  return n >= 3 && rest.length <= 8;
 }
 
 function blobToB64(blob){
@@ -486,7 +524,7 @@ function startContSegment(){
   contRec.onstop = () => onContSegStop();
   contRec.start();
   contSegStart = Date.now();
-  contHadSpeech = false; contSpeaking = false; contSpeechStart = 0; contSilenceStart = 0;
+  contHadSpeech = false; contSpeaking = false; contSpeechStart = 0; contSilenceStart = 0; contSpeechMs = 0;
 }
 
 function cutContSegment(process){
@@ -499,7 +537,7 @@ function onContSegStop(){
   const blob = new Blob(contChunks, { type: (contRec && contRec.mimeType) || 'audio/webm' });
   contChunks = [];
   const discard = contDiscardNext; contDiscardNext = false;
-  if (!discard && contHadSpeech && blob.size > 1200 && contMode){
+  if (!discard && contHadSpeech && contSpeechMs >= 600 && blob.size > 1200 && contMode){
     processSpeech(contMode, blob, false);   // 인식 안 되면 조용히 무시 (토스트 없음)
   }
   /* 모드가 켜져 있고 TTS 대기 중이 아니면 다음 문장 녹음 계속 */
@@ -513,6 +551,7 @@ function contTick(){
 
   if (rms > contThreshold){
     if (!contSpeaking){ contSpeaking = true; contSpeechStart = now; }
+    contSpeechMs += 60;
     contSilenceStart = 0;
     if (now - contSpeechStart >= CONT.MIN_SPEECH_MS && !contHadSpeech){
       contHadSpeech = true;
