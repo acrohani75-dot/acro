@@ -27,9 +27,11 @@ input:focus{outline:none;border-color:var(--amber);}
 .kv b{font-variant-numeric:tabular-nums;}
 .tag{display:inline-block;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;}
 .tag-ok{background:#dcfce7;color:var(--green);} .tag-warn{background:#fee2e2;color:var(--red);} .tag-wait{background:#fef3c7;color:var(--amber);}
-.prog{display:flex;gap:4px;margin-bottom:16px;}
-.prog i{flex:1;height:4px;border-radius:2px;background:#e5e7eb;}
+.prog{display:flex;gap:4px;margin-bottom:6px;}
+.prog i{flex:1;height:10px;border-radius:3px;background:#e5e7eb;cursor:pointer;}
 .prog i.on{background:var(--amber);}
+.prog i.cur{outline:2px solid #92400e;}
+.prog-hint{font-size:11.5px;color:#9ca3af;margin-bottom:12px;}
 .denoms{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .den{display:flex;align-items:center;gap:8px;}
 .den label{width:74px;font-size:14px;font-weight:600;}
@@ -77,6 +79,7 @@ input:focus{outline:none;border-color:var(--amber);}
   <h1>📊 일일결산 위저드</h1>
   <div class="sub">하나씩 답하면 결산이 끝납니다 · 계산은 전부 자동 · <span id="todayLabel"></span></div>
   <div class="prog" id="prog"></div>
+  <div class="prog-hint">△ 막대를 누르면 지나온 단계로 돌아갈 수 있어요 (입력값은 유지됩니다)</div>
   <div id="stage"></div>
   <div id="printSheet"></div>
   <div class="foot">아크로한의원 결산 v2 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
@@ -233,13 +236,23 @@ function computeChecks(){
 /* ================= 화면 ================= */
 var STEPS = 9; // 0붙여넣기 1확인 2환불확인(조건부) 3올댓 4스마트로 5지출 6택배 7금고 8판정/완료
 function hasRefund(){ return S.parsed && num(S.parsed.summary["환불총액"])>0; }
+var STEP_NAMES=["붙여넣기","확인","환불","올댓페이","스마트로","현금지출","택배비","금고","결산"];
 function render(){
   var el=document.getElementById("stage");
-  document.getElementById("prog").innerHTML = Array.from({length:STEPS},function(_,i){return '<i class="'+(i<=S.step?'on':'')+'"></i>';}).join("");
+  document.getElementById("prog").innerHTML = Array.from({length:STEPS},function(_,i){
+    return '<i class="'+(i<=S.step?'on ':'')+(i===S.step?'cur':'')+'" title="'+STEP_NAMES[i]+'" onclick="jumpTo('+i+')"></i>';
+  }).join("");
   el.innerHTML = VIEWS[S.step]();
   var f=el.querySelector("input,textarea"); if(f) f.focus();
 }
-function go(n){ S.step=n; render(); window.scrollTo(0,0); }
+function go(n){ S.step=n; if(n>(S.maxStep||0)) S.maxStep=n; render(); window.scrollTo(0,0); }
+function jumpTo(n){
+  if(n>(S.maxStep||0)) return;                 // 아직 안 간 단계로는 점프 금지
+  if(n>=1 && !S.parsed) return;                // 붙여넣기 전이면 이동 불가
+  if(n===2 && !hasRefund()) n=3;               // 환불 없는 날은 환불 단계 생략
+  if(n===S.step) return;
+  go(n);
+}
 
 var VIEWS = [
 /* 0. 붙여넣기 */
@@ -418,7 +431,7 @@ function renderJudge(){
     '<input type="text" id="staffIn" placeholder="담당자 이름" style="text-align:left" value="'+esc(S.staff)+'">'+
     '<div class="summary-line" id="lineOut">'+esc(line)+'</div>'+
     '<div id="subMsg" style="font-size:13px;margin-top:4px;"></div>'+
-    '<div class="btn-row"><button class="btn btn-s" onclick="printReport()">🖨 A4 인쇄</button><button class="btn btn-s" onclick="copyLine()">요약 복사</button><button class="btn btn-p" onclick="submitAll()">제출 ✓</button></div></div>';
+    '<div class="btn-row"><button class="btn btn-s" onclick="go(7)">← 이전(금고)</button><button class="btn btn-s" onclick="printReport()">🖨 A4 인쇄</button><button class="btn btn-s" onclick="copyLine()">요약 복사</button><button class="btn btn-p" onclick="submitAll()">제출 ✓</button></div></div>';
 }
 function copyLine(){
   var t=document.getElementById("lineOut").textContent;
