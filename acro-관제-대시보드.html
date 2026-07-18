@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로 자동화 관제 대시보드</title>
+<style>
+  :root{
+    --bg:#0f1420; --panel:#161d2e; --panel2:#1c2438; --line:#28324a;
+    --txt:#e7ecf5; --muted:#8b97ad; --accent:#5b8cff;
+    --green:#2fbf71; --yellow:#e7b23a; --red:#e5533c; --gray:#5a6577;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    font-size:14px;line-height:1.55}
+  header{padding:18px 22px;background:linear-gradient(180deg,#182036,#0f1420);
+    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.3px}
+  header .sub{color:var(--muted);font-size:12px}
+  .spacer{flex:1}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:8px;
+    padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer}
+  .btn:active{transform:translateY(1px)}
+  .feedstat{font-size:12px;padding:5px 11px;border-radius:20px;border:1px solid var(--line);
+    background:var(--panel)}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 17px}
+  .card h2{font-size:14px;margin:0 0 3px;display:flex;align-items:center;gap:9px;font-weight:700}
+  .card .role{color:var(--muted);font-size:12px;margin:0 0 12px}
+  .dot{width:11px;height:11px;border-radius:50%;flex:none;box-shadow:0 0 0 3px rgba(255,255,255,.04)}
+  .g{background:var(--green)} .y{background:var(--yellow)} .r{background:var(--red)} .x{background:var(--gray)}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+  .row:first-of-type{border-top:none}
+  .row .k{color:var(--muted)} .row .v{text-align:right;font-variant-numeric:tabular-nums}
+  .v.ok{color:var(--green)} .v.warn{color:var(--yellow)} .v.bad{color:var(--red)} .v.dim{color:var(--muted)}
+  .sec-title{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;
+    margin:26px 0 12px;font-weight:700}
+  .flow{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;overflow-x:auto}
+  .flow pre{margin:0;font-family:"SF Mono",Consolas,monospace;font-size:12.5px;color:#b9c4da;line-height:1.7;white-space:pre}
+  .chk{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 18px}
+  .chk .item{padding:11px 0;border-top:1px solid var(--line);display:flex;gap:11px;align-items:flex-start}
+  .chk .item:first-child{border-top:none}
+  .chk .num{width:22px;height:22px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);flex:none}
+  .chk .txt{font-size:13px}
+  .chk code{background:#0c101a;border:1px solid var(--line);border-radius:5px;padding:1px 6px;
+    font-family:"SF Mono",Consolas,monospace;font-size:12px;color:#8fd3fe}
+  footer{color:var(--muted);font-size:11.5px;text-align:center;padding:22px}
+  a{color:var(--accent);text-decoration:none}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+  .legend span{display:flex;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>아크로 자동화 관제 대시보드</h1>
+    <div class="sub">단일정본 · 자동미러 · 코드백업 · 무인배포 — 한눈에</div>
+  </div>
+  <div class="spacer"></div>
+  <span class="feedstat" id="feedstat">피드 확인 중…</span>
+  <button class="btn" onclick="load()">↻ 새로고침</button>
+</header>
+
+<div class="wrap">
+  <div class="grid" id="cards"></div>
+
+  <div class="sec-title">데이터 흐름 — 쓰는 곳 하나, 읽는 곳 여럿</div>
+  <div class="flow"><pre id="flow"></pre></div>
+
+  <div class="sec-title">리셋(오후 KST) 후 첫 가동 체크리스트</div>
+  <div class="chk" id="checklist"></div>
+
+  <div class="legend">
+    <span><i class="dot g"></i> 정상</span>
+    <span><i class="dot y"></i> 대기/확인필요</span>
+    <span><i class="dot r"></i> 문제</span>
+    <span><i class="dot x"></i> 라이브 피드 없음(정적표시)</span>
+  </div>
+</div>
+
+<footer>
+  아크로한의원 · 라인브릿지 GAS 상태 피드 <code style="color:inherit">?action=status</code> · 토큰·환자데이터·KB본문 미노출(집계전용)<br>
+  v1.0 · 260718 · 정본 갱신은 acro-kb 스킬로만
+</footer>
+
+<script>
+// ── 설정 ── 라인브릿지 웹앱 URL (배포 새 버전마다 URL 불변)
+var WEBAPP = "https://script.google.com/macros/s/AKfycbzjkyHpuJTLDClbR_j-lnvCnCmKEp9ovLnXGdfUeczKbE1nDUQBN6128RPBvmXd1LtOYg/exec";
+
+var EXPECT_TRIGGERS = {
+  "lwWorker_":    "라인 분류워커 (1분)",
+  "lwAiWorker_":  "라인 AI 초안워커",
+  "lwKbScan_":    "KB 등재·미러 워커",
+  "lwCodeBackup_":"코드 자동백업 (매일 3시)"
+};
+
+function esc(s){return String(s==null?"":s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+
+// 정적 카드 정의(라이브 피드로 상단 4개는 갱신, 하단은 구성 표시)
+function staticCards(d){
+  var live = !!d;
+  var tg = (d&&d.triggers)||[];
+  var has=function(h){return tg.indexOf(h)>=0;};
+  var p=(d&&d.props)||{};
+  var mir=(d&&d.driveMirror)||{};
+  var mdT=mir["KB_QA_standard_latest.md"], jsonT=mir["qa374_latest.json"];
+  var kbRows=(d&&d.kb&&typeof d.kb.rows==="number")?d.kb.rows:null;
+
+  function light(state){return '<i class="dot '+state+'"></i>';}
+  function vcls(state){return state==="g"?"ok":state==="y"?"warn":state==="r"?"bad":"dim";}
+
+  // KB 파이프라인
+  var kbState = !live?"x":(p.GH_TOKEN&&mdT&&jsonT)?"g":(p.GH_TOKEN)?"y":"r";
+  var kbMirV = !live?"—":(mdT&&jsonT)?"동기화됨":"미러 대기";
+  // 트리거
+  function trigState(h){return !live?"x":has(h)?"g":"r";}
+  function trigV(h){return !live?"—":has(h)?"설치됨":"없음";}
+  // 무인배포
+  var depState = !live?"x":p.GH_TOKEN?"g":"r";
+
+  var cards=[
+    {
+      h:"KB 단일정본 파이프라인", role:"답변KB 정본 → 라인AI·깃허브·드라이브 자동미러",
+      state:kbState,
+      rows:[
+        ["정본 항목수", kbRows==null?"—":(kbRows+"건"), kbRows==null?"x":"g"],
+        ["깃허브 토큰", !live?"—":(p.GH_TOKEN?"있음":"없음"), !live?"x":(p.GH_TOKEN?"g":"r")],
+        ["드라이브 미러", kbMirV, kbState],
+        ["md 최종반영", mdT||"—", mdT?"g":(live?"y":"x")],
+        ["json 최종반영", jsonT||"—", jsonT?"g":(live?"y":"x")]
+      ]
+    },
+    {
+      h:"라인브릿지 AI 응대", role:"정본 실시간 직독 → 초안 → 학습원장 기록",
+      state: !live?"x":(has("lwWorker_")&&has("lwAiWorker_"))?"g":"r",
+      rows:[
+        ["분류워커 (1분)", trigV("lwWorker_"), trigState("lwWorker_")],
+        ["AI 초안워커", trigV("lwAiWorker_"), trigState("lwAiWorker_")],
+        ["KB 스캔워커", trigV("lwKbScan_"), trigState("lwKbScan_")]
+      ]
+    },
+    {
+      h:"코드 자동백업", role:"linebridge·gyeolsan·inhook 소스 → acro_code",
+      state: trigState("lwCodeBackup_"),
+      rows:[
+        ["일일 트리거 (3시)", trigV("lwCodeBackup_"), trigState("lwCodeBackup_")],
+        ["대상 프로젝트", "3개 (라인·결산·후킹)", live?"g":"x"],
+        ["백업 리포", "acro_code", "x"]
+      ]
+    },
+    {
+      h:"무인 배포 파이프라인", role:"클로드 → doPost(deploy) → acro 리포 직접 커밋",
+      state: depState,
+      rows:[
+        ["deploy 엔드포인트", live?"응답 확인":"미배포시 정적", live?"g":"x"],
+        ["깃허브 토큰", !live?"—":(p.GH_TOKEN?"있음":"없음"), !live?"x":(p.GH_TOKEN?"g":"r")],
+        ["첫 실전 POST", "리셋 후 1회", "y"]
+      ]
+    },
+    {
+      h:"결산 위저드 v3.1", role:"미수수납 분리·누계체인·EMS분리·엑셀 (별도 GAS)",
+      state:"x",
+      rows:[
+        ["공식 일일결산 보고서", "적용", "g"],
+        ["엑셀(.xls) 산출", "지원", "g"],
+        ["누계 SEED", "2026-07-17 기준", "g"]
+      ]
+    },
+    {
+      h:"가격 정본 · 인입후킹", role:"가격정본 27항목 + 서울페이 라우팅 교정",
+      state:"x",
+      rows:[
+        ["가격정본 탭", "27항목 (인입원장)", "g"],
+        ["다이어트 1개월", "27만(이벤트 25만)", "g"],
+        ["서울페이 라우팅", "결산_입금및키인", "g"]
+      ]
+    }
+  ];
+
+  var html="";
+  cards.forEach(function(c){
+    html+='<div class="card"><h2>'+light(c.state)+esc(c.h)+'</h2><p class="role">'+esc(c.role)+'</p>';
+    c.rows.forEach(function(r){
+      html+='<div class="row"><span class="k">'+esc(r[0])+'</span><span class="v '+vcls(r[2])+'">'+esc(r[1])+'</span></div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById("cards").innerHTML=html;
+}
+
+var FLOW=[
+"  ┌─────────────────────────┐",
+"  │  답변KB 탭  (단일 정본)  │  ← 원장 누구나 · 여기만 쓴다",
+"  └────────────┬────────────┘",
+"        ┌───────┼─────────────────┬──────────────┐",
+"        ▼       ▼                 ▼              ▼",
+"   라인 AI   깃허브 acro_archive  드라이브        슬랙 보고",
+"  (실시간)   KB_..._latest.md     04_팀클로드_KB  🔄 미러 동기화",
+"             qa374_latest.json    (같은 2파일)",
+"",
+"  코드 자동백업 ─(매일 3시)→ acro_code   |   무인배포 ─클로드→ doPost(deploy) → acro"
+].join("\n");
+
+var CHECK=[
+  ["1","리셋 후 <code>LW_KB_SYNC</code> 1회 — 드라이브 권한 승인 + 381건 첫 미러(깃허브+드라이브). 슬랙 <code>🔄 KB 미러 동기화 … ✅</code> 확인"],
+  ["2","<code>LW_CODE_BACKUP</code> 1회 — export 권한 승인 + 코드 첫 백업. 슬랙 <code>🗂 코드 자동백업</code> 확인 (이후 매일 3시 자동)"],
+  ["3","라인브릿지 <b>새 배포</b> 1회 — 이 대시보드의 <code>?action=status</code> 라이브 피드 + 무인배포 <code>deploy</code> 엔드포인트 함께 활성화"],
+  ["4","KB수정 <code>Q259</code>·<code>Q077</code> 큐 처리 확인 — #회의_프로그램 스레드 ✅ + 미러 요약"]
+];
+
+function renderStatic(){
+  document.getElementById("flow").textContent=FLOW;
+  var h="";CHECK.forEach(function(c){h+='<div class="item"><div class="num">'+c[0]+'</div><div class="txt">'+c[1]+'</div></div>';});
+  document.getElementById("checklist").innerHTML=h;
+}
+
+var _cbn=0;
+function load(){
+  var fs=document.getElementById("feedstat");
+  fs.textContent="피드 요청 중…";
+  var cb="acroCb"+(++_cbn);
+  var done=false;
+  window[cb]=function(data){
+    done=true;
+    try{document.head.removeChild(s);}catch(e){}
+    fs.innerHTML='🟢 라이브 · '+esc(data.ts);
+    staticCards(data);
+  };
+  var s=document.createElement("script");
+  s.src=WEBAPP+(WEBAPP.indexOf("?")<0?"?":"&")+"action=status&callback="+cb+"&_="+(_cbn);
+  s.onerror=function(){ if(!done){ fs.innerHTML='⚪ 라이브 피드 없음 — 정적 표시'; staticCards(null);} };
+  document.head.appendChild(s);
+  setTimeout(function(){ if(!done){ fs.innerHTML='⚪ 엔드포인트 미배포 — 정적 표시 (리셋 후 재배포 시 활성)'; staticCards(null);} },6000);
+}
+
+renderStatic();
+staticCards(null);
+load();
+</script>
+</body>
+</html>
