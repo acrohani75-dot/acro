@@ -82,7 +82,7 @@ input:focus{outline:none;border-color:var(--amber);}
   <div class="prog-hint">△ 막대를 누르면 지나온 단계로 돌아갈 수 있어요 (입력값은 유지됩니다)</div>
   <div id="stage"></div>
   <div id="printSheet"></div>
-  <div class="foot">아크로한의원 결산 v2.8 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
+  <div class="foot">아크로한의원 결산 v3.1 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
 </div>
 
 <script>
@@ -95,7 +95,9 @@ var CFG = {
   TERMINALS: "올댓페이=국내, 스마트로=해외환자",
   TOLERANCE: 0,                // 허용 오차(원)
   DENOMS: [50000,10000,5000,1000],
-  RULE_VER: "260716"
+  RULE_VER: "260716",
+  // v3.0 일일결산 보고서 누계 시드 — 2026-07-17 마감 기준 (원장 제공 보고서 실측값)
+  SEED_CUM: { date:"2026-07-17", 통장:17428400, 지출:52000, 환불:1050000, 카드:79815250, 매출:103254110 }
 };
 var carry = { prevSafe: null, prevDate: "", pendingSeoulpay: [] }; // 이월값 (GAS→localStorage 폴백)
 var bankAuto = null; // {sum, count} GAS 봇입금 조회 결과
@@ -454,12 +456,132 @@ function renderJudge(){
     '<input type="text" id="staffIn" placeholder="담당자 이름" style="text-align:left" value="'+esc(S.staff)+'">'+
     '<div class="summary-line" id="lineOut">'+esc(line)+'</div>'+
     '<div id="subMsg" style="font-size:13px;margin-top:4px;"></div>'+
-    '<div class="btn-row"><button class="btn btn-s" onclick="go(7)">← 이전(금고)</button><button class="btn btn-s" onclick="printReport()">🖨 A4 인쇄</button><button class="btn btn-s" onclick="copyLine()">요약 복사</button><button class="btn btn-p" onclick="submitAll()">제출 ✓</button></div></div>';
+    '<div class="btn-row"><button class="btn btn-s" onclick="go(7)">← 이전(금고)</button><button class="btn btn-s" onclick="printReport()">🖨 A4 인쇄</button><button class="btn btn-s" onclick="exportReportXls(buildReport(computeChecks()))">📊 엑셀 보고서</button><button class="btn btn-s" onclick="copyLine()">요약 복사</button><button class="btn btn-p" onclick="submitAll()">제출 ✓</button></div></div>';
 }
 function copyLine(){
   var t=document.getElementById("lineOut").textContent;
   navigator.clipboard.writeText(t);
   var e=document.getElementById("subMsg"); if(e){ e.style.color="var(--green)"; e.textContent="✅ 복사됐어요 — Slack #결산_입금및키인에 붙여넣어 주세요."; }
+}
+
+/* ================= v3.0 일일결산 보고서 (공식 양식) ================= */
+/* 미수수납 분리: 환자행 진료일 ≠ 결산일 → 미수수납. 당일 = 총계 − 미수 (총계는 항상 요약행과 일치) */
+function buildReport(c){
+  var s=S.parsed.summary, dt=S.parsed.date||todayStr();
+  var pats=S.parsed.patients||[];
+  var haveCols = pats.length>0 && pats[0]["카드수납"]!==undefined;
+  var mCard=0,mCash=0,mBank=0;
+  if(haveCols){ pats.forEach(function(p){
+    if(String(p["진료일"]||"").trim()!==dt){
+      mCard+=num(p["카드수납"])+num(p["카드회수"]);
+      mCash+=num(p["현금수납"])+num(p["현금회수"]);
+      mBank+=num(p["통장회수"]);
+    }
+  }); }
+  var totCard=num(s["카드수납"])+num(s["카드회수"]);
+  var totCash=num(s["현금수납"])+num(s["현금회수"]);
+  var totBank=num(s["통장회수"]);
+  var prev=prevCum(dt);
+  var 지출=c.expenseSum, 매출=num(s["총진료비"]);
+  return { ver:"R1", 날짜:dt,
+    담당자:(document.getElementById("staffIn")?document.getElementById("staffIn").value:S.staff)||"",
+    당일:{카드:totCard-mCard, 현금:totCash-mCash, 통장:totBank-mBank, 미수매출:num(s["미수금"])},
+    미수수납:{카드:mCard, 현금:mCash, 통장:mBank},
+    건보청구:num(s["보험(청구)"]), 자보청구:num(s["자보(청구)"]),
+    단말기:{카드:num(S.allthat)+num(S.smartro), 현금영수증:num(s["현금영수증"])},
+    건생지원:num(s["건생/지원"]),
+    현금수입:totCash, 통장수입:totBank,
+    금고:{전일:(effPrevSafe()===null?0:num(effPrevSafe())), 지출:지출, 입금:totCash, 금일:c.denomTotal},
+    일결산:{수입:매출, 지출:지출},
+    환불상세:{손비:0, 통장:num(s["통장환불"]), 카드:num(s["카드환불"]), 현금:num(s["현금환불"])},
+    전일누계:prev,
+    누계:{통장:prev.통장+totBank, 지출:prev.지출+지출, 환불:prev.환불+num(s["환불총액"]), 카드:prev.카드+totCard, 매출:prev.매출+매출},
+    미수분리:haveCols };
+}
+/* 전일 누계: 결산원장 마지막 제출의 보고서JSON 체인. 같은 날 재제출은 그 제출의 전일누계로 대체(이중가산 방지). 없으면 시드 */
+function prevCum(dt){
+  var lr=null;
+  try{ lr=(carry.prevReport&&String(carry.prevReport).length>2)?JSON.parse(carry.prevReport):null; }catch(e){}
+  if(lr&&lr.누계){
+    if(lr.날짜===dt&&lr.전일누계) return lr.전일누계;
+    return lr.누계;
+  }
+  var sd=CFG.SEED_CUM;
+  return {통장:sd.통장, 지출:sd.지출, 환불:sd.환불, 카드:sd.카드, 매출:sd.매출};
+}
+/* 공식 양식 렌더 (인쇄·재인쇄 공용) */
+function renderReportHtml(R){
+  function w(n){ return fmt(n); }
+  function tr(cells){ return "<tr>"+cells.join("")+"</tr>"; }
+  function th(t,rs,cs){ return '<th'+(rs>1?' rowspan="'+rs+'"':'')+(cs>1?' colspan="'+cs+'"':'')+' style="text-align:center;vertical-align:middle">'+t+'</th>'; }
+  function tdl(t,cs){ return '<td'+(cs>1?' colspan="'+cs+'"':'')+' style="text-align:left">'+t+'</td>'; }
+  function tdv(n){ return '<td>'+w(n)+'</td><td style="text-align:center;width:36px">원</td>'; }
+  var h='<div class="ph"><h2>일일결산 보고서</h2><div class="pd">대표원장 확인: ______________</div></div>';
+  h+='<table>';
+  h+=tr([th("날짜",1,1), tdl(esc(R.날짜),1), tdl("담당자 : "+esc(R.담당자||""),1), tdl("비고",1)]);
+  h+=tr([th("의료수입",9,1), th("당일매출",4,1), tdl("카드"), tdv(R.당일.카드)]);
+  h+=tr([tdl("현금"), tdv(R.당일.현금)]);
+  h+=tr([tdl("통장"), tdv(R.당일.통장)]);
+  h+=tr([tdl("미수매출"), tdv(R.당일.미수매출)]);
+  h+=tr([th("미수수납",3,1), tdl("카드"), tdv(R.미수수납.카드)]);
+  h+=tr([tdl("현금"), tdv(R.미수수납.현금)]);
+  h+=tr([tdl("통장"), tdv(R.미수수납.통장)]);
+  h+=tr([th("건보청구",1,1), tdl(""), tdv(R.건보청구)]);
+  h+=tr([th("자보청구",1,1), tdl(""), tdv(R.자보청구)]);
+  h+=tr([th("단말기내역",2,1), tdl("카드",2), tdv(R.단말기.카드)]);
+  h+=tr([tdl("현금영수증",2), tdv(R.단말기.현금영수증)]);
+  h+=tr([th("지원 / 건생비",1,2), tdl(""), tdv(R.건생지원)]);
+  h+=tr([th("현금수입",1,2), tdl(""), tdv(R.현금수입)]);
+  h+=tr([th("통장수입",1,2), tdl(""), tdv(R.통장수입)]);
+  h+=tr([th("금고내역",4,1), tdl("전일금고",2), tdv(R.금고.전일)]);
+  h+=tr([tdl("지출",2), tdv(R.금고.지출)]);
+  h+=tr([tdl("입금",2), tdv(R.금고.입금)]);
+  h+=tr([tdl("금일금고",2), tdv(R.금고.금일)]);
+  h+=tr([th("일 결산",2,1), tdl("수입",2), tdv(R.일결산.수입)]);
+  h+=tr([tdl("지출",2), tdv(R.일결산.지출)]);
+  h+=tr([th("환불",3,1), tdl("손비처리",2), tdv(R.환불상세.손비)]);
+  h+=tr([tdl("통장",2), tdv(R.환불상세.통장)]);
+  h+=tr([tdl("카드",2), tdv(R.환불상세.카드)]);
+  h+=tr([th("전일 통장수입",1,3), tdv(R.전일누계.통장)]);
+  h+=tr([th("총 통장수입",1,3), tdv(R.누계.통장)]);
+  h+=tr([th("전일 지출",1,3), tdv(R.전일누계.지출)]);
+  h+=tr([th("총 지출",1,3), tdv(R.누계.지출)]);
+  h+=tr([th("전일 환불",1,3), tdv(R.전일누계.환불)]);
+  h+=tr([th("총 환불",1,3), tdv(R.누계.환불)]);
+  h+=tr([th("전일 카드 수입",1,3), tdv(R.전일누계.카드)]);
+  h+=tr([th("총 카드 수입",1,3), tdv(R.누계.카드)]);
+  h+=tr([th("전일 매출",1,3), tdv(R.전일누계.매출)]);
+  h+=tr([th("총 매출",1,3), tdv(R.누계.매출)]);
+  h+='</table>';
+  if(!R.미수분리) h+='<div style="font-size:10px;color:#888">※ 환자별 수납 열이 없는 붙여넣기 — 미수수납 분리 생략(전체를 당일매출로 표기)</div>';
+  return h;
+}
+
+/* v3.1: 공식 양식을 엑셀 파일로 산출 (HTML표 기반 .xls — 병합·테두리 유지, 엑셀 더블클릭으로 열림) */
+function exportReportXls(R){
+  if(!R){ alert("보고서 데이터가 없습니다."); return; }
+  var html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8">'
+   +'<style>table{border-collapse:collapse}th,td{border:1px solid #1e6b3a;padding:4px 10px;font-family:"맑은 고딕",sans-serif;font-size:11pt;mso-number-format:"#,##0"}'
+   +'th{background:#f2f2f2;font-weight:bold;text-align:center}td{text-align:right}</style></head><body>'
+   +'<table><tr><td colspan="5" style="text-align:center;font-size:14pt;font-weight:bold;border:none">일일결산 보고서</td></tr>'
+   +'<tr><td colspan="5" style="text-align:right;border:none">대표원장 확인: ______</td></tr></table>'
+   +renderReportHtml(R).replace(/<div class="ph">[\s\S]*?<\/div><\/div>/,'')
+   +'</body></html>';
+  var ymd=String(R.날짜||todayStr()).replace(/-/g,"").slice(2);
+  var blob=new Blob(["﻿"+html],{type:"application/vnd.ms-excel;charset=utf-8"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="일일결산보고서_"+ymd+".xls";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function histXls(i){
+  var r=HIST[i]; if(!r) return;
+  try{
+    if(r["보고서JSON"]&&String(r["보고서JSON"]).length>2){
+      var R=JSON.parse(r["보고서JSON"]);
+      if(R&&R.누계){ exportReportXls(R); return; }
+    }
+  }catch(e){}
+  alert("이 제출분은 보고서 데이터(v3.0 이후)가 없어 엑셀 양식 산출이 안 됩니다. 📥 엑셀 백업(전체 CSV)을 이용하세요.");
 }
 
 /* ================= 저장/전송 ================= */
@@ -470,6 +592,7 @@ function payload(){
     inputs:{allthat:num(S.allthat),smartro:num(S.smartro),emsAmt:num(S.emsAmt),delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),bankReal:c.bankReal,denomTotal:c.denomTotal,prevSafeUsed:c.prevSafeUsed,prevSafeSource:c.prevSafeSource},
     judge:{card:c.pass.card,bank:c.pass.bank,safe:c.pass.safe,cardDiff:c.cardDiff,bankDiff:c.bankDiff,safeDiff:c.safeDiff,delivBankCnt:c.delivBankCnt},
     refundAnswers:{cardToday:S.refCardToday,bankOut:S.refBankOut},
+    report:buildReport(c),
     memos:memosList(), aiChat:S.aiChat,
     line:document.getElementById("lineOut")?document.getElementById("lineOut").textContent:"" };
 }
@@ -508,8 +631,11 @@ function printReport(){
   var memoRows = memosList().map(function(m){return '<tr><td>'+esc(m.rail)+'</td><td style="text-align:left">'+esc(m.note)+'</td></tr>';}).join("");
   var refA=[]; if(S.refCardToday) refA.push("카드취소: "+(S.refCardToday==="today"?"오늘 단말 취소":"다른 날/미처리"));
   if(S.refBankOut) refA.push("통장환불 이체: "+(S.refBankOut==="done"?"완료":"예정"));
+  var R = buildReport(c);
   var html =
-  '<div class="ph"><h2>아크로한의원 일일결산서</h2><div class="pd">결산일 <b>'+(S.parsed.date||todayStr())+'</b><br>담당 '+esc(S.staff||"________")+' · 출력 '+new Date().toLocaleString("ko-KR")+'</div></div>'+
+  renderReportHtml(R)+
+  '<div style="page-break-before:always"></div>'+
+  '<div class="ph"><h2>부록 — 검증 상세</h2><div class="pd">결산일 <b>'+(S.parsed.date||todayStr())+'</b><br>담당 '+esc(S.staff||"________")+' · 출력 '+new Date().toLocaleString("ko-KR")+'</div></div>'+
   '<div class="sec">1. 수납 요약 (OK차트)</div>'+
   '<table><tr><th>수납총액</th><th>현금수납</th><th>카드수납</th><th>통장회수</th><th>환불총액</th><th>미수금</th><th>내원환자</th></tr>'+
   '<tr><td style="text-align:right">'+won(c.ok.total)+'</td><td>'+won(c.ok.cash)+'</td><td>'+won(c.ok.card)+'</td><td>'+won(c.ok.bank)+'</td><td>'+won(c.ok.refund)+'</td><td>'+won(c.ok.misu)+'</td><td>'+fmt(s["내원환자수"])+'명</td></tr></table>'+
@@ -563,8 +689,29 @@ function histList(){
     var r=HIST[i];
     h+='<div class="kv" style="cursor:pointer" onclick="histDetail('+i+')"><span>'+esc(String(r["날짜"]).slice(0,10))+' · '+esc(r["담당자"]||"")+'</span><b>'+won(r["수납총액"])+' · '+jt(r["카드판정"])+jt(r["통장판정"])+jt(r["금고판정"])+'</b></div>';
   }
-  h+='<div class="btn-row"><button class="btn btn-p" onclick="render()">← 결산으로 돌아가기</button></div></div>';
+  h+='<div class="btn-row"><button class="btn btn-s" onclick="histExcel()">📥 엑셀 백업</button><button class="btn btn-p" onclick="render()">← 결산으로 돌아가기</button></div>'
+   +'<div class="hint" id="histXlsMsg" style="margin-top:6px"></div></div>';
   document.getElementById("stage").innerHTML=h;
+}
+/* v2.9: 결산원장 전체 → 엑셀(CSV·BOM) 다운로드 백업 */
+function histExcel(){
+  var msg=document.getElementById("histXlsMsg");
+  if(msg) msg.textContent="결산원장 전체를 불러오는 중...";
+  fetch(CFG.GAS_URL+"?action=history&n=3650&k="+encodeURIComponent(CFG.APP_KEY)).then(function(r){return r.json();}).then(function(j){
+    var rows=(j&&j.rows)||[];
+    if(!rows.length){ if(msg) msg.textContent="백업할 결산 기록이 없습니다."; return; }
+    var heads=Object.keys(rows[0]);
+    function cell(v){ v=(v===null||v===undefined)?"":String(v); return '"'+v.replace(/"/g,'""')+'"'; }
+    var lines=[heads.map(cell).join(",")];
+    for(var i=rows.length-1;i>=0;i--){ lines.push(heads.map(function(h){return cell(rows[i][h]);}).join(",")); } // 시트 순서(과거→최근)
+    var csv="﻿"+lines.join("\r\n");
+    var d=new Date(), ymd=String(d.getFullYear()).slice(2)+("0"+(d.getMonth()+1)).slice(-2)+("0"+d.getDate()).slice(-2);
+    var blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+    var a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download="결산백업_"+ymd+".csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    if(msg) msg.textContent="✅ "+rows.length+"건 백업 완료 — 다운로드 폴더의 결산백업_"+ymd+".csv (엑셀에서 바로 열립니다)";
+  }).catch(function(e){ if(msg) msg.textContent="⚠ 불러오기 실패 — 잠시 후 다시 시도해 주세요."; });
 }
 function histDetail(i){
   var r=HIST[i]; if(!r) return histList();
@@ -576,11 +723,22 @@ function histDetail(i){
    +'<div class="kv"><span>택배 (카드/통장)</span><b>'+fmt(r["택배카드건"])+'건 / '+fmt(r["택배통장건"])+'건</b></div>'
    +(r["EMS비용"]!==undefined&&r["EMS비용"]!==""&&num(r["EMS비용"])?'<div class="kv"><span>EMS비용(제외)</span><b>'+won(r["EMS비용"])+'</b></div>':'')
    +kv("현금지출합")+kv("서울페이")+kv("금고실측")+memos
-   +'<div class="btn-row"><button class="btn btn-s" onclick="histList()">← 목록</button><button class="btn btn-s" onclick="histPrint('+i+')">🖨 A4 인쇄</button><button class="btn btn-p" onclick="render()">결산으로</button></div></div>';
+   +'<div class="btn-row"><button class="btn btn-s" onclick="histList()">← 목록</button><button class="btn btn-s" onclick="histPrint('+i+')">🖨 A4 인쇄</button><button class="btn btn-s" onclick="histXls('+i+')">📊 엑셀</button><button class="btn btn-p" onclick="render()">결산으로</button></div></div>';
   document.getElementById("stage").innerHTML=h;
 }
 function histPrint(i){
   var r=HIST[i]; if(!r) return;
+  /* v3.0 이후 제출분: 저장된 보고서JSON으로 공식 양식 재인쇄 */
+  try{
+    if(r["보고서JSON"]&&String(r["보고서JSON"]).length>2){
+      var R=JSON.parse(r["보고서JSON"]);
+      if(R&&R.누계){
+        document.getElementById("printSheet").innerHTML=renderReportHtml(R)
+          +'<div class="pfoot">보관본 재인쇄 · 제출 '+esc(String(r["제출시각"]||""))+' · 원본: 결산원장 시트</div>';
+        window.print(); return;
+      }
+    }
+  }catch(e){}
   function row(k,v){ return '<tr><td>'+k+'</td><td>'+v+'</td></tr>'; }
   var memos=""; try{ (JSON.parse(r["메모"]||"[]")||[]).forEach(function(m){ memos+=row("메모["+esc(m.rail)+"]", esc(m.note||"")); }); }catch(e){}
   document.getElementById("printSheet").innerHTML=
