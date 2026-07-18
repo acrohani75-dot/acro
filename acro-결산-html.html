@@ -82,7 +82,7 @@ input:focus{outline:none;border-color:var(--amber);}
   <div class="prog-hint">△ 막대를 누르면 지나온 단계로 돌아갈 수 있어요 (입력값은 유지됩니다)</div>
   <div id="stage"></div>
   <div id="printSheet"></div>
-  <div class="foot">아크로한의원 결산 v2 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
+  <div class="foot">아크로한의원 결산 v2.5 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
 </div>
 
 <script>
@@ -167,6 +167,7 @@ var S = {
   denom: {}, denomEtc: "",
   refCardToday: null,      // 카드환불: 오늘 단말에서 취소했나 ('today'|'other')
   refBankOut: null,        // 통장환불: 이체 나갔나 ('done'|'later')
+  prevSafeIn: null,        // 전일 금고 마감액 수동 입력 (null=자동 이월값 사용)
   staff: "",
   memoDraft: {},           // 레일별 확인 메모 (상태 저장 — 재렌더에도 보존)
   aiChat: []               // AI 상담 대화 [{role, content}]
@@ -215,7 +216,8 @@ function computeChecks(){
   var bankDiff = rawBankDiff - delivBankCnt*CFG.DELIVERY_UNIT;
 
   // ③ 현금(금고) 폐쇄회계: 전일금고 + 현금수납 − 현금지출 − 현금환불 = 실측
-  var expectSafe = (carry.prevSafe===null? null : num(carry.prevSafe) + okCash - expenseSum - refCash);
+  var prevSafeEff = effPrevSafe();
+  var expectSafe = (prevSafeEff===null? null : num(prevSafeEff) + okCash - expenseSum - refCash);
   var denomTotal = CFG.DENOMS.reduce(function(a,d){return a+d*num(S.denom[d]);},0)+num(S.denomEtc);
   var safeDiff = (expectSafe===null)? null : denomTotal - expectSafe;
 
@@ -225,12 +227,19 @@ function computeChecks(){
     termCard:termCard, cardDiff:cardDiff, delivCard:delivCard,
     bankReal:bankReal, bankDiff:bankDiff, delivBankCnt:delivBankCnt, seoul:seoul,
     expenseSum:expenseSum, expectSafe:expectSafe, denomTotal:denomTotal, safeDiff:safeDiff,
+    prevSafeUsed:prevSafeEff, prevSafeSource:(S.prevSafeIn!==null && S.prevSafeIn!=="")?"수동":"자동이월",
     pass:{
       card: Math.abs(cardDiff)<=CFG.TOLERANCE,
       bank: Math.abs(bankDiff)<=CFG.TOLERANCE,
       safe: safeDiff===null? null : Math.abs(safeDiff)<=CFG.TOLERANCE
     }
   };
+}
+
+/* 전일 금고 마감액 (수동 입력 우선, 없으면 자동 이월값) */
+function effPrevSafe(){
+  if(S.prevSafeIn!==null && S.prevSafeIn!=="") return num(S.prevSafeIn);
+  return carry.prevSafe;
 }
 
 /* ================= 화면 ================= */
@@ -339,15 +348,21 @@ function(){
   var s=S.parsed.summary;
   var expenseSum=S.expenses.reduce(function(a,b){return a+num(b.amt);},0);
   var refCash6=num(s["현금환불"]);
-  var expect = carry.prevSafe===null? null : num(carry.prevSafe)+num(s["현금수납"])-expenseSum-refCash6;
+  var pvs = effPrevSafe();
+  var expect = pvs===null? null : num(pvs)+num(s["현금수납"])-expenseSum-refCash6;
   var dens = CFG.DENOMS.map(function(d){
     return '<div class="den"><label>'+fmt(d)+'원권</label><input type="tel" value="'+(S.denom[d]||"")+'" placeholder="장" onchange="S.denom['+d+']=num(this.value);updDenomSum()"><span id="den'+d+'"></span></div>';
   }).join("");
   var bankCard = bankAuto===null? '<div class="card"><div class="q">통장(기업은행) 입금 합계</div>'+
     '<div class="hint">자동 조회 연결 전이라 이번만 직접: Slack 봇 채널의 오늘 😎💰 입금 합계를 입력해 주세요.</div>'+
     '<input type="tel" value="'+(S.bankInManual!==""?fmt(S.bankInManual):"")+'" placeholder="0" onchange="S.bankInManual=num(this.value)"></div>' : '';
-  return bankCard+'<div class="card"><div class="q">7. 금고 현금을 세어 주세요</div>'+
-  '<div class="hint">'+(expect!==null? '어제 금고 '+won(carry.prevSafe)+' + 오늘 현금수납 '+won(s["현금수납"])+' − 현금지출 '+won(expenseSum)+(refCash6>0?' − 현금환불 '+won(refCash6):'')+' = <b>'+won(expect)+'</b>이 있어야 정상입니다.' : '오늘은 기준(전일 시재)이 없어 이번 실측이 <b>내일부터의 기준</b>이 됩니다.')+'</div>'+
+  var prevCard = '<div class="card"><div class="q">7-0. 어제 금고 마감액 확인</div>'+
+    '<div class="hint">'+(carry.prevSafe!==null? '어제 결산에서 자동으로 이어받은 값입니다. 실제 어제 마감과 다르면 고쳐 주세요.' : '자동 이월값이 없습니다 (첫 결산이거나 어제 기록 없음). <b>어제 금고 마감액을 직접 입력</b>해 주세요 — 비워두면 이번 실측이 내일부터의 기준이 됩니다.')+'</div>'+
+    '<input type="tel" value="'+(S.prevSafeIn!==null && S.prevSafeIn!==""? fmt(S.prevSafeIn) : (carry.prevSafe!==null? fmt(carry.prevSafe) : ""))+'" placeholder="어제 금고 마감액 (원)" onchange="S.prevSafeIn=String(num(this.value));render()">'+
+    (S.prevSafeIn!==null && S.prevSafeIn!=="" && carry.prevSafe!==null && num(S.prevSafeIn)!==num(carry.prevSafe)? '<div class="hint" style="color:#b3452e">수동 수정됨 (자동 이월값 '+won(carry.prevSafe)+' → '+won(num(S.prevSafeIn))+') — 결산 기록에 남습니다.</div>' : '')+
+    '</div>';
+  return bankCard+prevCard+'<div class="card"><div class="q">7. 금고 현금을 세어 주세요</div>'+
+  '<div class="hint">'+(expect!==null? '어제 금고 '+won(pvs)+' + 오늘 현금수납 '+won(s["현금수납"])+' − 현금지출 '+won(expenseSum)+(refCash6>0?' − 현금환불 '+won(refCash6):'')+' = <b>'+won(expect)+'</b>이 있어야 정상입니다.' : '기준(전일 시재)이 없어 이번 실측이 <b>내일부터의 기준</b>이 됩니다.')+'</div>'+
   '<div class="denoms">'+dens+'</div>'+
   '<div class="den" style="margin-top:10px"><label>기타(동전 등)</label><input type="tel" value="'+(S.denomEtc?fmt(S.denomEtc):"")+'" placeholder="금액" onchange="S.denomEtc=num(this.value);updDenomSum()"><span></span></div>'+
   '<div class="big" id="denomSum"></div>'+
@@ -444,7 +459,7 @@ function payload(){
   var c=computeChecks();
   return { ver:CFG.RULE_VER, date:S.parsed.date||todayStr(), staff:document.getElementById("staffIn")?document.getElementById("staffIn").value:S.staff,
     ok:c.ok, refund:c.refund, cardMode:c.cardMode,
-    inputs:{allthat:num(S.allthat),smartro:num(S.smartro),delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),bankReal:c.bankReal,denomTotal:c.denomTotal},
+    inputs:{allthat:num(S.allthat),smartro:num(S.smartro),delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),bankReal:c.bankReal,denomTotal:c.denomTotal,prevSafeUsed:c.prevSafeUsed,prevSafeSource:c.prevSafeSource},
     judge:{card:c.pass.card,bank:c.pass.bank,safe:c.pass.safe,cardDiff:c.cardDiff,bankDiff:c.bankDiff,safeDiff:c.safeDiff,delivBankCnt:c.delivBankCnt},
     refundAnswers:{cardToday:S.refCardToday,bankOut:S.refBankOut},
     memos:memosList(), aiChat:S.aiChat,
@@ -462,7 +477,7 @@ function aiAsk(){
   var c=computeChecks();
   var ctx="[오늘 결산 상황] 날짜:"+(S.parsed&&S.parsed.date||todayStr())
     +" / OK차트: 수납총액 "+c.ok.total+", 현금 "+c.ok.cash+", 카드 "+c.ok.card+", 통장 "+c.ok.bank+", 환불 "+c.ok.refund+"(현"+c.refund.cash+"/카"+c.refund.card+"/통"+c.refund.bank+"), 미수 "+c.ok.misu
-    +" / 입력: 올댓 "+num(S.allthat)+", 스마트로 "+num(S.smartro)+", 카드택배 "+S.delivCardCnt+"건, 현금지출 "+c.expenseSum+", 금고실측 "+c.denomTotal
+    +" / 입력: 올댓 "+num(S.allthat)+", 스마트로 "+num(S.smartro)+", 카드택배 "+S.delivCardCnt+"건, 현금지출 "+c.expenseSum+", 전일금고 "+(c.prevSafeUsed===null?"없음":c.prevSafeUsed+"("+c.prevSafeSource+")")+", 금고실측 "+c.denomTotal
     +" / 판정: 카드 "+(c.pass.card?"일치":"차이 "+c.cardDiff)+"("+c.cardMode+"), 통장 "+(c.pass.bank?"일치":"차이 "+c.bankDiff)+"(실측 "+c.bankReal+", 통장택배 "+c.delivBankCnt+"건, 서울페이 "+c.seoul+"), 금고 "+(c.pass.safe===null?"기준설정":(c.pass.safe?"일치":"차이 "+c.safeDiff))+(c.expectSafe!==null?"(기대 "+c.expectSafe+")":"");
   fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"ai",k:CFG.APP_KEY,data:{context:ctx,messages:S.aiChat}})})
     .then(function(r){return r.json();})
