@@ -82,7 +82,7 @@ input:focus{outline:none;border-color:var(--amber);}
   <div class="prog-hint">△ 막대를 누르면 지나온 단계로 돌아갈 수 있어요 (입력값은 유지됩니다)</div>
   <div id="stage"></div>
   <div id="printSheet"></div>
-  <div class="foot">아크로한의원 결산 v2.5 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
+  <div class="foot">아크로한의원 결산 v2.7 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
 </div>
 
 <script>
@@ -271,7 +271,7 @@ function(){
   '<div class="hint">OK차트 → 일일결산표 화면 전체 선택(Ctrl+A) → 복사(Ctrl+C) → 아래 칸에 붙여넣기(Ctrl+V)</div>'+
   '<textarea id="rawIn" placeholder="여기에 붙여넣기...">'+esc(S.raw)+'</textarea>'+
   '<div id="pasteErr" style="color:var(--red);font-size:13px;margin-top:8px;"></div>'+
-  '<div class="btn-row"><button class="btn btn-s" onclick="demoLoad()">📋 샘플로 둘러보기</button><button class="btn btn-p" onclick="onPaste()">다음 →</button></div></div>';
+  '<div class="btn-row"><button class="btn btn-s" onclick="historyShow()">📖 지난 결산</button><button class="btn btn-s" onclick="demoLoad()">📋 샘플로 둘러보기</button><button class="btn btn-p" onclick="onPaste()">다음 →</button></div></div>';
 },
 /* 1. 파싱 확인 */
 function(){
@@ -386,7 +386,7 @@ function onPaste(){
                                             : "⚠ 일일결산표 형식을 찾지 못했어요. OK차트 일일결산표 화면에서 전체 복사(Ctrl+A→C)했는지 확인해 주세요.";
     return;
   }
-  S.parsed=p; go(1);
+  S.parsed=p; syncBootToParsedDate(); go(1);
 }
 function afterParseConfirm(){ go(hasRefund()?2:3); }
 function updDenomSum(){
@@ -405,7 +405,7 @@ function renderJudge(){
     return '<div class="kv"><span>'+name+'</span><span>'+tag+'</span></div><div class="hint" style="margin:4px 0 10px">'+detail+'</div>';
   }
   var cardD='단말 '+won(num(S.allthat))+' + '+won(num(S.smartro))+' − 택배 '+won(c.delivCard)+' = '+won(c.termCard)+' ↔ OK카드 '+won(c.ok.card)+(c.cardMode==='net'?' − 카드취소 '+won(c.refund.card)+' <b>(단말=취소반영 순액)</b>':'')+(c.cardModeNote?' · 🔍 <b>'+c.cardModeNote+'</b>':'')+(c.pass.card?'':' · 차이 <b>'+won(c.cardDiff)+'</b>');
-  var bankD='실측입금 '+won(c.bankReal)+(bankAuto?' (봇 '+bankAuto.count+'건 자동)':' (수동)')+' ↔ OK통장 '+won(c.ok.bank)+(c.delivBankCnt?' · 통장택배 '+c.delivBankCnt+'건 자동인정':'')+(c.seoul?' · 서울페이 '+won(c.seoul)+' ⏳정산대기':'')+(c.pass.bank?'':' · 차이 <b>'+won(c.bankDiff)+'</b>');
+  var bankD='실측입금 '+won(c.bankReal)+(bankAuto?' (봇 '+bankAuto.count+'건 · '+(bootDate||'오늘')+' 기준 자동조회)':' (수동)')+' ↔ OK통장 '+won(c.ok.bank)+(c.delivBankCnt?' · 통장택배 '+c.delivBankCnt+'건 자동인정':'')+(c.seoul?' · 서울페이 '+won(c.seoul)+' ⏳정산대기':'')+(c.pass.bank?'':' · 차이 <b>'+won(c.bankDiff)+'</b>');
   var safeD= c.expectSafe===null? '실측 '+won(c.denomTotal)+' — 오늘부터 기준 저장'
     : '기대 '+won(c.expectSafe)+' ↔ 실측 '+won(c.denomTotal)+(c.pass.safe?'':' · 차이 <b>'+won(c.safeDiff)+'</b>'+(c.safeDiff<0?' (현금 부족 — 증발 신호)':' (현금 초과)'));
 
@@ -537,20 +537,78 @@ function copyLineFallback(p){
   document.getElementById("stage").innerHTML='<div class="card"><div class="q">✅ 결산 완료 (수동 게시 모드)</div><div class="hint">요약 한 줄이 복사됐어요 — Slack #결산_입금및키인에 붙여넣어 주세요.<br>오늘 금고 시재('+won(p.inputs.denomTotal)+')는 이 컴퓨터에 저장돼 내일 기준값이 됩니다.</div><div class="summary-line">'+esc(p.line)+'</div></div>';
 }
 
+/* ================= 지난 결산 보기 (v2.7 — 결산원장 조회) ================= */
+var HIST = [];
+function jt(v){ v=String(v||""); return v==="OK"?"✅":(v==="WARN"?"⚠":"🆕"); }
+function historyShow(){
+  var st=document.getElementById("stage");
+  if(CFG.GAS_URL===""){ st.innerHTML='<div class="card"><div class="q">📖 지난 결산</div><div class="hint">서버 연결이 없어 조회할 수 없어요.</div><div class="btn-row"><button class="btn btn-s" onclick="render()">← 돌아가기</button></div></div>'; return; }
+  st.innerHTML='<div class="card"><div class="q">📖 지난 결산 불러오는 중…</div><div class="spin"></div></div>';
+  fetch(CFG.GAS_URL+"?action=history&n=30&k="+encodeURIComponent(CFG.APP_KEY)).then(function(r){return r.json();}).then(function(j){
+    HIST=(j&&j.rows)||[]; histList();
+  }).catch(function(e){ st.innerHTML='<div class="card"><div class="q">⚠ 불러오기 실패</div><div class="hint">네트워크 또는 서버 상태를 확인해 주세요.</div><div class="btn-row"><button class="btn btn-s" onclick="render()">← 돌아가기</button></div></div>'; });
+}
+function histList(){
+  var h='<div class="card"><div class="q">📖 지난 결산 (최근 '+HIST.length+'건)</div><div class="hint">누르면 상세를 볼 수 있어요. 같은 날짜가 여러 건이면 가장 위(최근 제출)가 유효본입니다.</div>';
+  if(!HIST.length) h+='<div class="hint">아직 저장된 결산이 없습니다.</div>';
+  for(var i=0;i<HIST.length;i++){
+    var r=HIST[i];
+    h+='<div class="kv" style="cursor:pointer" onclick="histDetail('+i+')"><span>'+esc(String(r["날짜"]).slice(0,10))+' · '+esc(r["담당자"]||"")+'</span><b>'+won(r["수납총액"])+' · '+jt(r["카드판정"])+jt(r["통장판정"])+jt(r["금고판정"])+'</b></div>';
+  }
+  h+='<div class="btn-row"><button class="btn btn-p" onclick="render()">← 결산으로 돌아가기</button></div></div>';
+  document.getElementById("stage").innerHTML=h;
+}
+function histDetail(i){
+  var r=HIST[i]; if(!r) return histList();
+  function kv(k){ return '<div class="kv"><span>'+k+'</span><b>'+won(r[k])+'</b></div>'; }
+  var memos=""; try{ (JSON.parse(r["메모"]||"[]")||[]).forEach(function(m){ memos+='<div class="kv"><span>메모['+esc(m.rail)+']</span><b style="font-weight:400">'+esc(m.note||"")+'</b></div>'; }); }catch(e){}
+  var h='<div class="card"><div class="q">📖 '+esc(String(r["날짜"]).slice(0,10))+' 결산 · '+esc(r["담당자"]||"")+'</div>'
+   +'<div class="hint">제출 '+esc(String(r["제출시각"]||""))+' · 판정: 카드 '+jt(r["카드판정"])+' 통장 '+jt(r["통장판정"])+' 금고 '+jt(r["금고판정"])+(String(r["카드모드"])==="net"?" · 카드 순액모드":"")+'</div>'
+   +kv("수납총액")+kv("현금")+kv("카드")+kv("통장")+kv("환불")+kv("미수")+kv("올댓")+kv("스마트로")
+   +'<div class="kv"><span>택배 (카드/통장)</span><b>'+fmt(r["택배카드건"])+'건 / '+fmt(r["택배통장건"])+'건</b></div>'
+   +kv("현금지출합")+kv("서울페이")+kv("금고실측")+memos
+   +'<div class="btn-row"><button class="btn btn-s" onclick="histList()">← 목록</button><button class="btn btn-s" onclick="histPrint('+i+')">🖨 A4 인쇄</button><button class="btn btn-p" onclick="render()">결산으로</button></div></div>';
+  document.getElementById("stage").innerHTML=h;
+}
+function histPrint(i){
+  var r=HIST[i]; if(!r) return;
+  function row(k,v){ return '<tr><td>'+k+'</td><td>'+v+'</td></tr>'; }
+  var memos=""; try{ (JSON.parse(r["메모"]||"[]")||[]).forEach(function(m){ memos+=row("메모["+esc(m.rail)+"]", esc(m.note||"")); }); }catch(e){}
+  document.getElementById("printSheet").innerHTML=
+   '<div class="ph"><h2>일일결산서 (보관본 재인쇄)</h2><div class="pd">아크로한의원 · '+esc(String(r["날짜"]).slice(0,10))+'<br>담당 '+esc(r["담당자"]||"")+' · 제출 '+esc(String(r["제출시각"]||""))+'</div></div>'
+   +'<table>'+row("수납총액",won(r["수납총액"]))+row("현금",won(r["현금"]))+row("카드",won(r["카드"]))+row("통장",won(r["통장"]))
+   +row("환불",won(r["환불"]))+row("미수",won(r["미수"]))+row("올댓/스마트로",won(r["올댓"])+" / "+won(r["스마트로"]))
+   +row("택배(카드/통장)",fmt(r["택배카드건"])+"건 / "+fmt(r["택배통장건"])+"건")+row("현금지출합",won(r["현금지출합"]))
+   +row("서울페이",won(r["서울페이"]))+row("금고실측",won(r["금고실측"]))
+   +row("판정","카드 "+esc(r["카드판정"])+" · 통장 "+esc(r["통장판정"])+" · 금고 "+esc(r["금고판정"]))+memos+'</table>'
+   +'<div class="signs"><div class="sign">담당자 확인: '+esc(r["담당자"]||"")+' (서명)</div><div class="sign">원장 확인: (서명)</div></div>'
+   +'<div class="pfoot">보관본 재인쇄 · 원본 데이터: 결산원장 시트 · Drive 03_결산에 제출 당시 PDF 정본 보관</div>';
+  window.print();
+}
+
 /* ================= 초기화: 이월값·봇입금 로드 ================= */
+var bootDate = ""; // 마지막으로 통장 조회한 기준일
+function fetchBoot(dateStr, rerender){
+  if(CFG.GAS_URL==="") return;
+  bootDate = dateStr;
+  fetch(CFG.GAS_URL+"?action=boot&k="+encodeURIComponent(CFG.APP_KEY)+"&date="+dateStr).then(function(r){return r.json();}).then(function(j){
+    if(j.config) Object.keys(j.config).forEach(function(k){ CFG[k]=j.config[k]; });
+    if(j.carry && j.carry.prevSafe!==undefined) carry=j.carry;
+    if(j.bank) bankAuto=j.bank; // {sum,count} — dateStr 기준일의 입금 합계
+    if(rerender) render();
+  }).catch(function(e){ /* 폴백 모드 유지 */ });
+}
+/* 붙여넣기에서 결산표 날짜가 확정되면 그 날짜 기준으로 통장 재조회 (익일 결산 대응 — 260718 실장 제보) */
+function syncBootToParsedDate(){
+  if(S.parsed && S.parsed.date && S.parsed.date !== bootDate){ fetchBoot(S.parsed.date, true); }
+}
 function init(){
   document.getElementById("todayLabel").textContent=todayStr();
   try{
     var c=JSON.parse(localStorage.getItem("acro_settle_carry")||"null");
     if(c && c.prevSafe!==undefined){ carry.prevSafe=c.prevSafe; carry.prevDate=c.prevDate; }
   }catch(e){}
-  if(CFG.GAS_URL!==""){
-    fetch(CFG.GAS_URL+"?action=boot&k="+encodeURIComponent(CFG.APP_KEY)+"&date="+todayStr()).then(function(r){return r.json();}).then(function(j){
-      if(j.config) Object.keys(j.config).forEach(function(k){ CFG[k]=j.config[k]; });
-      if(j.carry && j.carry.prevSafe!==undefined) carry=j.carry;
-      if(j.bank) bankAuto=j.bank; // {sum,count}
-    }).catch(function(e){ /* 폴백 모드 유지 */ });
-  }
+  fetchBoot(todayStr(), false);
   render();
 }
 init();
