@@ -275,7 +275,8 @@ function(){
   '<div class="hint">OK차트 → 일일결산표 화면 전체 선택(Ctrl+A) → 복사(Ctrl+C) → 아래 칸에 붙여넣기(Ctrl+V)</div>'+
   '<textarea id="rawIn" placeholder="여기에 붙여넣기...">'+esc(S.raw)+'</textarea>'+
   '<div id="pasteErr" style="color:var(--red);font-size:13px;margin-top:8px;"></div>'+
-  '<div class="btn-row"><button class="btn btn-s" onclick="historyShow()">📖 지난 결산</button><button class="btn btn-s" onclick="monthlyShow()">📅 월결산</button><button class="btn btn-s" onclick="demoLoad()">📋 샘플</button><button class="btn btn-p" onclick="onPaste()">다음 →</button></div></div>';
+  '<div class="hint" style="margin-top:12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 11px;color:#1e40af">💡 <b>지난 결산이 맞는지</b>, <b>이번 달 결산</b>을 체크하고 싶으면 → <b>🔍 결산 점검</b> 클릭!</div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="checkShow()">🔍 결산 점검</button><button class="btn btn-s" onclick="demoLoad()">📋 샘플</button><button class="btn btn-p" onclick="onPaste()">다음 →</button></div></div>';
 },
 /* 1. 파싱 확인 */
 function(){
@@ -671,6 +672,30 @@ function copyLineFallback(p){
   document.getElementById("stage").innerHTML='<div class="card"><div class="q">✅ 결산 완료 (수동 게시 모드)</div><div class="hint">요약 한 줄이 복사됐어요 — Slack #결산_입금및키인에 붙여넣어 주세요.<br>오늘 금고 시재('+won(p.inputs.denomTotal)+')는 이 컴퓨터에 저장돼 내일 기준값이 됩니다.</div><div class="summary-line">'+esc(p.line)+'</div></div>';
 }
 
+/* ================= v3.3 결산 점검 허브 (첫 화면 진입점) ================= */
+/* 붙여넣기 없이 최근 결산 훑기(결산원장 직독) → OK차트 월 대조(미제출 잡기)로 승격 */
+function checkShow(){
+  var st=document.getElementById("stage");
+  var hint='<div class="hint" style="margin-bottom:10px">💡 <b>지난 결산이 맞는지</b>, <b>이번 달 결산</b>을 확인할 때 여기예요. 아래는 최근 제출된 결산 목록(누르면 상세). OK차트를 붙이면 <b>안 낸 날(미제출)·안 맞는 날(불일치)</b>까지 한 번에 잡아줍니다.</div>';
+  var deep='<div class="btn-row" style="justify-content:flex-start;margin:2px 0 12px"><button class="btn btn-p" onclick="monthlyShow()">📅 OK차트 붙여넣고 월 정밀 대조 (미제출까지)</button></div>';
+  if(CFG.GAS_URL===""){ st.innerHTML='<div class="card"><div class="q">🔍 결산 점검</div>'+hint+'<div class="hint">서버 연결이 없어 최근 결산 목록은 못 불러와요. 아래 OK차트 월 대조는 됩니다.</div>'+deep+'<div class="btn-row"><button class="btn btn-s" onclick="render()">← 돌아가기</button></div></div>'; return; }
+  st.innerHTML='<div class="card"><div class="q">🔍 결산 점검 · 최근 결산 불러오는 중…</div><div class="spin"></div></div>';
+  fetch(CFG.GAS_URL+"?action=history&n=14&k="+encodeURIComponent(CFG.APP_KEY)).then(function(r){return r.json();}).then(function(j){
+    HIST=(j&&j.rows)||[]; checkList(hint, deep);
+  }).catch(function(e){ document.getElementById("stage").innerHTML='<div class="card"><div class="q">⚠ 불러오기 실패</div>'+hint+deep+'<div class="btn-row"><button class="btn btn-s" onclick="render()">← 돌아가기</button><button class="btn btn-s" onclick="checkShow()">↻ 다시</button></div></div>'; });
+}
+function checkList(hint, deep){
+  var h='<div class="card"><div class="q">🔍 결산 점검</div>'+hint+deep;
+  if(!HIST.length) h+='<div class="hint">아직 제출된 결산이 없어요. OK차트를 붙여 월 대조부터 해보세요.</div>';
+  else {
+    h+='<div class="hint" style="margin-bottom:4px">최근 제출된 결산 '+HIST.length+'건 — 누르면 상세 · 판정 '+jt("OK")+'정상 '+jt("WARN")+'확인필요</div>';
+    for(var i=0;i<HIST.length;i++){ var r=HIST[i];
+      h+='<div class="kv" style="cursor:pointer" onclick="histDetail('+i+')"><span>'+esc(String(r["날짜"]).slice(0,10))+' · '+esc(r["담당자"]||"")+'</span><b>'+won(r["수납총액"])+' · '+jt(r["카드판정"])+jt(r["통장판정"])+jt(r["금고판정"])+'</b></div>';
+    }
+  }
+  h+='<div class="btn-row"><button class="btn btn-s" onclick="render()">← 돌아가기</button></div></div>';
+  document.getElementById("stage").innerHTML=h;
+}
 /* ================= 지난 결산 보기 (v2.7 — 결산원장 조회) ================= */
 var HIST = [];
 function jt(v){ v=String(v||""); return v==="OK"?"✅":(v==="WARN"?"⚠":"🆕"); }
