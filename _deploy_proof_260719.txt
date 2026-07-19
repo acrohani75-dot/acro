@@ -1,0 +1,4 @@
+무인배포 파이프라인 첫 실전 커밋
+2026-07-19 KST
+경로: 클로드 → GAS doPost(action:deploy) → lwGitPutTo_ → GitHub Contents API
+이 파일이 acro 리포에 보이면 무인배포 자기증명 완료.
