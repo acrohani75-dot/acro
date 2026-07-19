@@ -96,8 +96,8 @@ var CFG = {
   TOLERANCE: 0,                // 허용 오차(원)
   DENOMS: [50000,10000,5000,1000],
   RULE_VER: "260716",
-  // v3.0 일일결산 보고서 누계 시드 — 2026-07-17 마감 기준 (원장 제공 보고서 실측값)
-  SEED_CUM: { date:"2026-07-17", 통장:17428400, 지출:52000, 환불:1050000, 카드:79815250, 매출:103254110 }
+  // v3.2 누계 시드 — 2026-07-17 마감 기준. 매출=총진료비 총액(환불·지출 미차감). 260719 교정: 103,254,110(순액)→104,356,110(총액, +1,102,000=환불1,050,000+지출52,000)
+  SEED_CUM: { date:"2026-07-17", 통장:17428400, 지출:52000, 환불:1050000, 카드:79815250, 매출:104356110 }
 };
 var carry = { prevSafe: null, prevDate: "", pendingSeoulpay: [] }; // 이월값 (GAS→localStorage 폴백)
 var bankAuto = null; // {sum, count} GAS 봇입금 조회 결과
@@ -275,7 +275,7 @@ function(){
   '<div class="hint">OK차트 → 일일결산표 화면 전체 선택(Ctrl+A) → 복사(Ctrl+C) → 아래 칸에 붙여넣기(Ctrl+V)</div>'+
   '<textarea id="rawIn" placeholder="여기에 붙여넣기...">'+esc(S.raw)+'</textarea>'+
   '<div id="pasteErr" style="color:var(--red);font-size:13px;margin-top:8px;"></div>'+
-  '<div class="btn-row"><button class="btn btn-s" onclick="historyShow()">📖 지난 결산</button><button class="btn btn-s" onclick="demoLoad()">📋 샘플로 둘러보기</button><button class="btn btn-p" onclick="onPaste()">다음 →</button></div></div>';
+  '<div class="btn-row"><button class="btn btn-s" onclick="historyShow()">📖 지난 결산</button><button class="btn btn-s" onclick="monthlyShow()">📅 월결산</button><button class="btn btn-s" onclick="demoLoad()">📋 샘플</button><button class="btn btn-p" onclick="onPaste()">다음 →</button></div></div>';
 },
 /* 1. 파싱 확인 */
 function(){
@@ -769,6 +769,155 @@ function fetchBoot(dateStr, rerender){
 function syncBootToParsedDate(){
   if(S.parsed && S.parsed.date && S.parsed.date !== bootDate){ fetchBoot(S.parsed.date, true); }
 }
+/* ================= v3.2 OK차트 월결산 (붙여넣기 인제스트) ================= */
+/* 매출=총진료비(총액) · 환불=비용분리 · 일별 합=월합계 대조 · 누락일 경고 · 엑셀 산출. 서버 불필요(순수 클라이언트). */
+var MONTH = null;
+function monthlyShow(){
+  var st=document.getElementById("stage");
+  st.innerHTML='<div class="card"><div class="q">📅 OK차트 월결산 — 붙여넣기</div>'
+   +'<div class="hint">OK차트 <b>월말결산</b> 또는 <b>일자별</b> 표를 전체 선택(Ctrl+A)→복사→아래에 붙여넣기(Ctrl+V). 월합계·일별 어느 쪽이든, 둘 다여도 됩니다.</div>'
+   +'<textarea id="monRaw" placeholder="여기에 OK차트 표 붙여넣기...">'+esc(MONTH&&MONTH.raw||"")+'</textarea>'
+   +'<div id="monErr" style="color:var(--red);font-size:13px;margin-top:8px;"></div>'
+   +'<div class="btn-row"><button class="btn btn-s" onclick="render()">← 돌아가기</button><button class="btn btn-p" onclick="monthlyParse()">분석 →</button></div></div>';
+  var f=st.querySelector("textarea"); if(f) f.focus();
+}
+function monClean(x){ return String(x==null?"":x).replace(/\s/g,""); }
+function monCol(H,name){ for(var k=0;k<H.length;k++){ var h=monClean(H[k]); if(h===name||h.indexOf(name)===0) return k; } return -1; }
+function monthlyParseRaw(raw){
+  var lines=raw.split(/\r?\n/).filter(function(l){return l.trim().length;});
+  var hi=-1;
+  for(var i=0;i<lines.length;i++){ if(lines[i].indexOf("일자")===0 && lines[i].indexOf("총진료비")>=0){ hi=i; break; } }
+  var days=[], monRev=null, monPay=null, monRefund=null, monCard=null, monBank=null, monMisu=null;
+  if(hi>=0){
+    var H=lines[hi].split("\t");
+    var ix={date:monCol(H,"일자"),visit:monCol(H,"내원환자수"),nu:monCol(H,"신규환자수"),rev:monCol(H,"총진료비"),pay:monCol(H,"수납총액"),refund:monCol(H,"환불총액"),card:monCol(H,"카드수납"),bank:monCol(H,"통장회수"),misu:monCol(H,"미수금")};
+    for(var i=hi+1;i<lines.length;i++){
+      var c=lines[i].split("\t"); var d0=(c[0]||"").trim();
+      if(!/^\d{4}-\d{2}-\d{2}/.test(d0)) continue;
+      days.push({date:d0.slice(0,10),visit:num(c[ix.visit]),nu:num(c[ix.nu]),rev:num(c[ix.rev]),pay:num(c[ix.pay]),refund:num(c[ix.refund]),card:num(c[ix.card]),bank:num(c[ix.bank]),misu:num(c[ix.misu])});
+    }
+  }
+  /* 월합계 블록(일자 헤더가 아닌, 내원환자수+총진료비 헤더) */
+  for(var i=0;i<lines.length;i++){
+    if(i===hi) continue;
+    var t=lines[i];
+    if(t.indexOf("내원환자수")>=0 && t.indexOf("총진료비")>=0 && t.indexOf("일자")<0){
+      var MH=t.split("\t"), mv=(lines[i+1]||"").split("\t");
+      var gr=monCol(MH,"총진료비"), gp=monCol(MH,"수납총액"), grf=monCol(MH,"환불총액"), gc=monCol(MH,"카드수납"), gb=monCol(MH,"통장회수"), gm=monCol(MH,"미수금");
+      if(gr>=0 && mv.length>gr){ monRev=num(mv[gr]); monPay=gp>=0?num(mv[gp]):null; monRefund=grf>=0?num(mv[grf]):null; monCard=gc>=0?num(mv[gc]):null; monBank=gb>=0?num(mv[gb]):null; monMisu=gm>=0?num(mv[gm]):null; }
+      break;
+    }
+  }
+  return {raw:raw, days:days, monthSummary:{rev:monRev,pay:monPay,refund:monRefund,card:monCard,bank:monBank,misu:monMisu}};
+}
+function monthlyParse(){
+  var raw=document.getElementById("monRaw").value||"";
+  var err=document.getElementById("monErr");
+  var P=monthlyParseRaw(raw);
+  var active=P.days.filter(function(d){return d.rev>0||d.pay>0;});
+  if(!active.length && P.monthSummary.rev===null){ err.textContent="표를 읽지 못했어요. OK차트의 '일자별' 또는 '월말결산' 표를 그대로 붙여넣어 주세요."; return; }
+  /* 합계 */
+  var sum={rev:0,pay:0,refund:0,card:0,bank:0,misu:0,visit:0,nu:0};
+  active.forEach(function(d){ sum.rev+=d.rev; sum.pay+=d.pay; sum.refund+=d.refund; sum.card+=d.card; sum.bank+=d.bank; sum.misu+=d.misu; sum.visit+=d.visit; sum.nu+=d.nu; });
+  /* 경고: 일별합 vs 월합계 대조 */
+  var warns=[];
+  var ms=P.monthSummary;
+  if(active.length && ms.rev!==null && ms.rev!==sum.rev) warns.push("일별 총진료비 합("+won(sum.rev)+")과 월합계("+won(ms.rev)+")가 불일치 — 붙여넣기 누락 가능");
+  /* 경고: 활성일 사이 날짜 간격(달력상 빠진 날) */
+  if(active.length>1){
+    var ds=active.map(function(d){return d.date;}).sort();
+    var gaps=[];
+    for(var i=1;i<ds.length;i++){
+      var a=new Date(ds[i-1]+"T00:00:00"), b=new Date(ds[i]+"T00:00:00");
+      var diff=Math.round((b-a)/86400000);
+      if(diff>1){ for(var g=1;g<diff;g++){ var dd=new Date(a.getTime()+g*86400000); gaps.push((dd.getMonth()+1)+"/"+dd.getDate()); } }
+    }
+    if(gaps.length) warns.push("활성일 사이 빈 날짜: "+gaps.join(", ")+" (휴진이면 정상, 진료일인데 빠졌으면 붙여넣기 확인)");
+  }
+  MONTH={raw:raw, days:P.days, active:active, sum:sum, monthSummary:ms, warns:warns, range:active.length?(active[0].date+" ~ "+active[active.length-1].date):"—"};
+  monthlyResult();
+}
+function monDayStatus(d){
+  /* 결산원장 대조 후: led 유무·수납일치로 상태 판정 */
+  if(!MONTH.reconciled) return {t:"",cls:"",note:""};
+  var led=MONTH.ledger[d.date];
+  if(!led) return {t:"❌ 미제출",cls:"bad",note:"결산원장에 이 날짜 결산이 없음"};
+  var lp=num(led["수납총액"]);
+  if(lp!==d.pay) return {t:"⚠ 수납 불일치",cls:"warn",note:"OK차트 "+won(d.pay)+" · 결산원장 "+won(lp)};
+  var wj=[led["카드판정"],led["통장판정"],led["금고판정"]].filter(function(x){return String(x)==="WARN";}).length;
+  if(wj) return {t:"⚠ 판정확인",cls:"warn",note:"카드/통장/금고 판정에 경고 있음"};
+  return {t:"✅ 정상",cls:"ok",note:""};
+}
+function monthlyResult(){
+  var M=MONTH; var s=M.sum;
+  var h='<div class="card"><div class="q">📅 월결산 · 최근 결산 점검</div>';
+  h+='<div class="hint">기간 '+esc(M.range)+' · 활성 '+M.active.length+'일 · <b>매출=총진료비(총액)</b>, 환불·지출은 비용 분리</div>';
+  if(M.warns.length){ h+='<div class="carrybox" style="background:#fef2f2;border-color:#fecaca;color:#b3452e">⚠ '+M.warns.map(esc).join("<br>⚠ ")+'</div>'; }
+  else { h+='<div class="carrybox" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534">✅ 일별 합과 월합계 일치 · 날짜 연속</div>'; }
+  /* 대조 요약 */
+  if(M.reconciled){
+    var miss=0,mm=0,ok=0;
+    M.active.forEach(function(d){ var st=monDayStatus(d); if(st.cls==="bad")miss++; else if(st.cls==="warn")mm++; else ok++; });
+    h+='<div class="carrybox" style="background:'+(miss||mm?"#fffbeb;border-color:#fde68a;color:#92400e":"#f0fdf4;border-color:#bbf7d0;color:#166534")+'">🔍 결산원장 대조 — 정상 '+ok+'일 · 미제출 '+miss+'일 · 확인필요 '+mm+'일</div>';
+  }
+  /* 일별 점검표 (최신순) */
+  h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px;margin:4px 0 8px">';
+  h+='<tr style="background:#f3f4f6"><th style="padding:5px 7px;text-align:left">날짜</th><th style="padding:5px 7px;text-align:right">매출</th><th style="padding:5px 7px;text-align:right">수납</th><th style="padding:5px 7px;text-align:right">환불</th>'+(M.reconciled?'<th style="padding:5px 7px;text-align:center">제출상태</th>':'')+'</tr>';
+  var col={ok:"#166534",warn:"#92400e",bad:"#b3452e"};
+  M.active.slice().reverse().forEach(function(d){
+    var st=monDayStatus(d);
+    h+='<tr style="border-top:1px solid #eee"><td style="padding:5px 7px;text-align:left"><b>'+esc(d.date.slice(5))+'</b></td>'
+      +'<td style="padding:5px 7px;text-align:right">'+fmt(d.rev)+'</td>'
+      +'<td style="padding:5px 7px;text-align:right">'+fmt(d.pay)+'</td>'
+      +'<td style="padding:5px 7px;text-align:right">'+(d.refund?fmt(d.refund):"·")+'</td>'
+      +(M.reconciled?'<td style="padding:5px 7px;text-align:center;color:'+(col[st.cls]||"#666")+'" title="'+esc(st.note)+'">'+esc(st.t)+'</td>':'')+'</tr>';
+  });
+  h+='</table></div>';
+  /* 합계 */
+  var kv=[["총매출 (총진료비)",won(s.rev)],["총수납",won(s.pay)],["환불 (비용)",won(s.refund)],["미수금",won(s.misu)]];
+  h+=kv.map(function(r){return '<div class="kv"><span>'+esc(r[0])+'</span><b>'+r[1]+'</b></div>';}).join("");
+  h+='<div class="btn-row" style="flex-wrap:wrap"><button class="btn btn-s" onclick="monthlyShow()">← 다시 붙여넣기</button>'
+    +(CFG.GAS_URL!==""&&!M.reconciled?'<button class="btn btn-s" onclick="monthlyReconcile()">🔍 결산원장 대조</button>':'')
+    +'<button class="btn btn-p" onclick="monthlyExcel()">📊 엑셀 산출</button></div>';
+  h+='<div class="hint" id="monXlsMsg" style="margin-top:6px"></div></div>';
+  document.getElementById("stage").innerHTML=h;
+}
+function monthlyReconcile(){
+  if(CFG.GAS_URL===""){ var m=document.getElementById("monXlsMsg"); if(m) m.textContent="서버 연결이 없어 대조할 수 없어요."; return; }
+  var m=document.getElementById("monXlsMsg"); if(m) m.textContent="결산원장 불러오는 중…";
+  fetch(CFG.GAS_URL+"?action=history&n=90&k="+encodeURIComponent(CFG.APP_KEY)).then(function(r){return r.json();}).then(function(j){
+    var rows=(j&&j.rows)||[]; var byDate={};
+    rows.forEach(function(r){ var d=String(r["날짜"]).slice(0,10); if(!byDate[d]) byDate[d]=r; }); // history 최신순 → 같은날 최신 제출 유효
+    MONTH.ledger=byDate; MONTH.reconciled=true; monthlyResult();
+  }).catch(function(e){ var m2=document.getElementById("monXlsMsg"); if(m2) m2.textContent="⚠ 결산원장 불러오기 실패 — 네트워크/서버 확인"; });
+}
+function monTd(v,align){ return '<td style="text-align:'+(align||"right")+'">'+(typeof v==="number"?v:esc(String(v)))+'</td>'; }
+function monthlyExcel(){
+  var M=MONTH; if(!M){ return; }
+  var s=M.sum;
+  var ym=(M.active[0]&&M.active[0].date.slice(0,7))||"month";
+  var style='<style>table{border-collapse:collapse}th,td{border:1px solid #999;padding:4px 9px;mso-number-format:"#,##0";text-align:right;font-family:"맑은 고딕",sans-serif;font-size:11pt}th{background:#1F3864;color:#fff;font-weight:bold;text-align:center}.def{border:none;text-align:left;font-size:10pt;color:#555}.tt{border:none;text-align:left;font-size:14pt;font-weight:bold}</style>';
+  var html='<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8">'+style+'</head><body>';
+  html+='<table><tr><td colspan="9" class="tt">아크로한의원 월결산 — '+esc(ym)+' ('+esc(M.range)+')</td></tr>';
+  html+='<tr><td colspan="9" class="def">매출 = OK차트 총진료비(총액). 환불은 매출에서 빼지 않고 비용으로 별도 계상. 지출(현금 실지출)은 일일결산에서 별도 집계.</td></tr></table>';
+  html+='<table><tr><th>일자</th><th>내원</th><th>신규</th><th>매출(총진료비)</th><th>수납총액</th><th>카드수납</th><th>통장회수</th><th>환불</th><th>미수금</th></tr>';
+  M.active.forEach(function(d){
+    html+='<tr>'+monTd(d.date,"center")+monTd(d.visit)+monTd(d.nu)+monTd(d.rev)+monTd(d.pay)+monTd(d.card)+monTd(d.bank)+monTd(d.refund)+monTd(d.misu)+'</tr>';
+  });
+  html+='<tr><th style="text-align:right">합계</th>'+monTd(s.visit)+monTd(s.nu)+monTd(s.rev)+monTd(s.pay)+monTd(s.card)+monTd(s.bank)+monTd(s.refund)+monTd(s.misu)+'</tr></table>';
+  html+='<table><tr><th>요약</th><th>금액</th></tr>'
+    +'<tr>'+monTd("총매출 (총진료비)","left")+monTd(s.rev)+'</tr>'
+    +'<tr>'+monTd("총수납","left")+monTd(s.pay)+'</tr>'
+    +'<tr>'+monTd("환불 (비용)","left")+monTd(s.refund)+'</tr>'
+    +'<tr>'+monTd("미수금","left")+monTd(s.misu)+'</tr>'
+    +'<tr>'+monTd("매출 − 환불 (참고)","left")+monTd(s.rev-s.refund)+'</tr></table>';
+  html+='</body></html>';
+  var blob=new Blob(["﻿"+html],{type:"application/vnd.ms-excel;charset=utf-8"});
+  var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="아크로_월결산_"+ym+".xls";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  var msg=document.getElementById("monXlsMsg"); if(msg) msg.textContent="엑셀 다운로드됨: 아크로_월결산_"+ym+".xls";
+}
+
 function init(){
   document.getElementById("todayLabel").textContent=todayStr();
   try{
