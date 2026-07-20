@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>온다리프팅 시술 동선 가이드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{--brand:#7a5af8;--brand-soft:#f1edff;--ink:#1e2130;--ink-soft:#6b7080;--line:#e7e6f2;--bg:#f6f5fb;--ok:#12b76a;--red:#d92d20;--red-soft:#fef1f0;--face:#e8590c;--face-soft:#fff0e6;--bodyc:#0b7285;--body-soft:#e3fafc}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Pretendard,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;padding:14px 12px 40px}
+.wrap{max-width:560px;margin:0 auto}
+.hero{background:linear-gradient(135deg,#6a48f0,#9b7bff);color:#fff;border-radius:18px;padding:20px 18px;margin-bottom:14px}
+.hero .tag{display:inline-block;background:rgba(255,255,255,.18);border-radius:999px;padding:3px 12px;font-size:12px;font-weight:600;margin-bottom:8px}
+.hero h1{font-size:22px;font-weight:800;letter-spacing:-.3px}
+.hero p{font-size:13px;opacity:.92;margin-top:5px}
+.hand{display:flex;gap:8px;margin-top:12px}
+.hand div{flex:1;background:rgba(255,255,255,.14);border-radius:12px;padding:8px 10px;font-size:12px;font-weight:600;text-align:center}
+.hand b{display:block;font-size:17px;font-weight:800;margin-top:2px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 14px;margin-bottom:14px}
+h2{font-size:15px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--brand);flex:none}
+.sub{font-size:12px;color:var(--ink-soft);margin-bottom:10px}
+.step{display:flex;gap:11px;align-items:flex-start;padding:12px 10px;border:1px solid var(--line);border-radius:13px;margin-top:9px;cursor:pointer;background:#fff}
+.step input{display:none}
+.num{flex:none;width:27px;height:27px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.num.c{font-size:13px}
+.body{flex:1;min-width:0}
+.tt{display:block;font-weight:700;font-size:14.5px;letter-spacing:-.2px}
+.dd{display:block;font-size:13px;color:var(--ink-soft);margin-top:4px}
+.dd.big{font-size:14px;color:var(--ink);margin-top:0}
+.dd b,.tt b{color:var(--brand);font-weight:700}
+.pt{display:inline-block;margin-top:2px}
+.sm2{font-size:12px}
+.tip{display:inline-block;margin-top:5px;background:#fdf6e3;border:1px solid #f0e3bd;color:#8a6d1a;font-size:12.5px;border-radius:9px;padding:6px 10px;line-height:1.55}
+.tip b{color:#8a6d1a}
+.handnote{margin-top:8px;font-size:12px;background:rgba(255,255,255,.14);border-radius:10px;padding:6px 11px;text-align:center}
+.handnote b{font-weight:800}
+.hand .en{font-size:10.5px;opacity:.85;font-weight:700;letter-spacing:.3px}
+.warn{display:inline-block;margin-top:3px;background:var(--red-soft);color:var(--red);font-weight:700;font-size:12.5px;border-radius:8px;padding:3px 9px}
+.bd{display:inline-block;font-size:11.5px;font-weight:800;border-radius:7px;padding:1.5px 8px;margin:2px 4px 2px 0;vertical-align:1px}
+.bd.f{background:var(--face-soft);color:var(--face)}
+.bd.b{background:var(--body-soft);color:var(--bodyc)}
+.chk{flex:none;width:21px;height:21px;border:2px solid var(--line);border-radius:7px;margin-top:3px;position:relative}
+.step input:checked~.chk{background:var(--ok);border-color:var(--ok)}
+.step input:checked~.chk::after{content:"";position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
+.step:has(input:checked){background:#f3fbf6;border-color:#c9ecd8}
+.step:has(input:checked) .tt{color:#4c8563}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+th,td{padding:9px 8px;text-align:center;border-bottom:1px solid var(--line)}
+th{font-size:12px;color:var(--ink-soft);font-weight:600}
+td:first-child,th:first-child{text-align:left;color:var(--ink-soft);font-size:12.5px;width:26%}
+.col-o{color:var(--brand);font-weight:700}
+.concl{background:var(--brand-soft);border-radius:12px;padding:11px 13px;font-size:13.5px;margin-top:12px}
+.concl b{color:var(--brand)}
+.foot{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:16px}
+
+/* ── 태블릿(iPad) 이상 ── */
+@media (min-width:700px){
+  body{padding:24px 20px 60px;font-size:15px}
+  .wrap{max-width:720px}
+  .hero{padding:26px 26px;border-radius:22px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .hero h1{font-size:27px}
+  .hero p{font-size:14px}
+  .hand{margin-top:0;flex:none;width:250px}
+  .card{padding:20px 20px;border-radius:20px}
+  .tt{font-size:15.5px}
+  .dd{font-size:14px}
+  .dd.big{font-size:15px}
+  table{font-size:14.5px}
+  .concl{font-size:14.5px}
+}
+
+/* ── PC 와이드 ── */
+@media (min-width:1100px){
+  .wrap{max-width:760px}
+  .hero h1{font-size:30px}
+}
+</style></head><body><div class="wrap">
+
+  <div class="hero">
+    <span class="tag">직원 교육 · 인수인계</span>
+    <h1>온다리프팅 <span style="opacity:.85;font-weight:600">ONDA</span> 시술 동선</h1>
+    <p>결제부터 정리까지 — 체크하며 따라가면 됩니다</p>
+    <div class="hand"><div>왼쪽 핸드피스 <span class="en">shallow</span><b>7mm</b></div><div>오른쪽 핸드피스 <span class="en">pocket</span><b>3mm</b></div></div>
+    <div class="handnote">화면 가운데 <b>shallow · pocket</b> 버튼을 눌러 핸드피스 변경</div>
+  </div>
+
+  <div class="card steps">
+    <h2><span class="dot"></span>시술 동선 1 ~ 7</h2>
+    <div class="sub">순서대로 진행 · 완료하면 탭해서 체크 · <span class="bd f">얼굴</span><span class="bd b">바디</span> 구분 확인</div>
+    
+      <label class="step"><input type="checkbox">
+        <span class="num">1</span>
+        <span class="body"><span class="tt">결제 후 안내</span><span class="dd"><span class='bd f'>얼굴</span> 데스크에서 안내 → <b>화장실에서 세안</b> 후 대기실 대기<br><span class='bd b'>바디</span> 대기실에서 대기</span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step"><input type="checkbox">
+        <span class="num">2</span>
+        <span class="body"><span class="tt">ONDA 기계 켜기 + 세팅</span><span class="dd">환자 결제·세안 중에 미리 진행.<br><span class='pt'>기계에 꽂혀 있는 <b>열쇠를 돌리면 켜짐</b></span><br><span class='warn'>⚠ 빨간 버튼은 절대 누르지 않게 조심</span><br><span class='pt'>세팅: <b>오일 · 붓 · 터번 · 목침베개 · 일회용 패드</b> 깔아두기</span><br><span class='tip'>기본은 <b>7mm(왼쪽 · shallow)</b>로 세팅해두기.<br>원장님이 <b>3mm 오더</b> 시 → 화면 가운데 <b>pocket</b> 눌러 3mm(오른쪽)로 변경</span></span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step"><input type="checkbox">
+        <span class="num">3</span>
+        <span class="body"><span class="tt">치료실 안내 · 환복</span><span class="dd">개인 소지품 보관 + 환복은 <b>치료실 4번 베드</b>에서.<br><span class='warn'>★ 절대 추나실에서 환복하지 말 것</span><br>4번 베드 안내 후 <b>커튼으로 입구 꼭 가리기</b></span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step"><input type="checkbox">
+        <span class="num">4</span>
+        <span class="body"><span class="tt">시술 전 사진 촬영</span><span class="dd"><span class='bd f'>얼굴</span> 4번 베드 앞 <b>모눈종이 배경</b><br><span class='bd b'>바디</span> 추나실 <b>모눈종이 배경</b></span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step"><input type="checkbox">
+        <span class="num">5</span>
+        <span class="body"><span class="tt">추나실 안내</span><span class="dd">누워 계시도록 안내 → <b>담요 덮어드리기</b> → 얼굴에 <b>터번 씌워드리기</b></span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step"><input type="checkbox">
+        <span class="num">6</span>
+        <span class="body"><span class="tt">원장님 콜</span><span class="dd">준비 완료되면 원장님께 콜.</span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step"><input type="checkbox">
+        <span class="num">7</span>
+        <span class="body"><span class="tt">시술 종료 후 귀가 안내</span><span class="dd"><b>4번 베드로 이동</b>하면서 시술 부위 오일 확인 → 준비된 <b>일회용 티슈로 닦으시도록</b> 안내<br><span class='bd f'>얼굴</span> <b>재생크림 → 선크림</b> 순서로 바르고 귀가 안내<br><span class='pt sm2'>※ 4번 베드에 선크림·재생크림·일회용 티슈 구비</span></span></span>
+        <span class="chk"></span>
+      </label>
+  </div>
+
+  <div class="card steps">
+    <h2><span class="dot"></span>8. 시술 후 정리</h2>
+    <div class="sub">아크로웨이브 정리와 동일</div>
+    
+      <label class="step sm"><input type="checkbox">
+        <span class="num c">✓</span>
+        <span class="body"><span class="dd big"><b>열쇠 반대로 돌려서</b> 기계 끄기</span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step sm"><input type="checkbox">
+        <span class="num c">✓</span>
+        <span class="body"><span class="dd big">팁 <b>양쪽 다 알콜솜으로</b> 닦아두기</span></span>
+        <span class="chk"></span>
+      </label>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot"></span>온다 vs 아크로웨이브 <span style="font-weight:600;font-size:12px;color:var(--ink-soft)">환자 설명용</span></h2>
+    <table>
+      <tr><th></th><th>아크로웨이브</th><th class="col-o">온다</th></tr>
+      <tr><td>시술 방식</td><td>마이크로웨이브</td><td class="col-o">마이크로웨이브</td></tr>
+      <tr><td>타겟</td><td>지방</td><td class="col-o">지방</td></tr>
+      <tr><td>타겟 깊이</td><td>5mm</td><td class="col-o">3mm · 1mm</td></tr>
+    </table>
+    <div class="concl">→ 온다는 <b>더 세밀하게 겨냥한 정리 시술</b>이 가능합니다.</div>
+  </div>
+
+  <div class="foot">아크로한의원 내부 교육자료 · onda_flow_v5</div>
+</div></body></html>
