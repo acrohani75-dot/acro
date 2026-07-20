@@ -58,10 +58,11 @@ td:first-child,th:first-child{text-align:left;color:var(--ink-soft);font-size:12
 @media (min-width:700px){
   body{padding:24px 20px 60px;font-size:15px}
   .wrap{max-width:720px}
-  .hero{padding:26px 26px;border-radius:22px;display:flex;align-items:center;justify-content:space-between;gap:20px}
-  .hero h1{font-size:27px}
+  .hero{padding:26px 28px;border-radius:22px}
+  .hero h1{font-size:26px;white-space:nowrap}
   .hero p{font-size:14px}
-  .hand{margin-top:0;flex:none;width:250px}
+  .hand{margin-top:14px;max-width:460px}
+  .handnote{max-width:460px}
   .card{padding:20px 20px;border-radius:20px}
   .tt{font-size:15.5px}
   .dd{font-size:14px}
@@ -73,7 +74,7 @@ td:first-child,th:first-child{text-align:left;color:var(--ink-soft);font-size:12
 /* ── PC 와이드 ── */
 @media (min-width:1100px){
   .wrap{max-width:760px}
-  .hero h1{font-size:30px}
+  .hero h1{font-size:28px}
 }
 </style></head><body><div class="wrap">
 
@@ -86,7 +87,7 @@ td:first-child,th:first-child{text-align:left;color:var(--ink-soft);font-size:12
   </div>
 
   <div class="card steps">
-    <h2><span class="dot"></span>시술 동선 1 ~ 7</h2>
+    <h2><span class="dot"></span>시술 동선 1 ~ 8</h2>
     <div class="sub">순서대로 진행 · 완료하면 탭해서 체크 · <span class="bd f">얼굴</span><span class="bd b">바디</span> 구분 확인</div>
     
       <label class="step"><input type="checkbox">
@@ -121,13 +122,18 @@ td:first-child,th:first-child{text-align:left;color:var(--ink-soft);font-size:12
       </label>
       <label class="step"><input type="checkbox">
         <span class="num">7</span>
+        <span class="body"><span class="tt">오일 확인 · 후사진 촬영</span><span class="dd">귀·얼굴에 <b>남아 있는 오일이 있는지 여쭤본 후 닦아드리기</b><br>후사진 촬영: <span class='bd f'>얼굴</span> 4번 베드 앞 &nbsp; <span class='bd b'>바디</span> 추나실</span></span>
+        <span class="chk"></span>
+      </label>
+      <label class="step"><input type="checkbox">
+        <span class="num">8</span>
         <span class="body"><span class="tt">시술 종료 후 귀가 안내</span><span class="dd"><b>4번 베드로 이동</b>하면서 시술 부위 오일 확인 → 준비된 <b>일회용 티슈로 닦으시도록</b> 안내<br><span class='bd f'>얼굴</span> <b>재생크림 → 선크림</b> 순서로 바르고 귀가 안내<br><span class='pt sm2'>※ 4번 베드에 선크림·재생크림·일회용 티슈 구비</span></span></span>
         <span class="chk"></span>
       </label>
   </div>
 
   <div class="card steps">
-    <h2><span class="dot"></span>8. 시술 후 정리</h2>
+    <h2><span class="dot"></span>9. 시술 후 정리</h2>
     <div class="sub">아크로웨이브 정리와 동일</div>
     
       <label class="step sm"><input type="checkbox">
@@ -153,5 +159,5 @@ td:first-child,th:first-child{text-align:left;color:var(--ink-soft);font-size:12
     <div class="concl">→ 온다는 <b>더 세밀하게 겨냥한 정리 시술</b>이 가능합니다.</div>
   </div>
 
-  <div class="foot">아크로한의원 내부 교육자료 · onda_flow_v5</div>
+  <div class="foot">아크로한의원 내부 교육자료 · onda_flow_v7</div>
 </div></body></html>
