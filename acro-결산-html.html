@@ -82,7 +82,7 @@ input:focus{outline:none;border-color:var(--amber);}
   <div class="prog-hint">△ 막대를 누르면 지나온 단계로 돌아갈 수 있어요 (입력값은 유지됩니다)</div>
   <div id="stage"></div>
   <div id="printSheet"></div>
-  <div class="foot">아크로한의원 결산 v3.1 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
+  <div class="foot">아크로한의원 결산 v3.4 · 규칙 개정은 원장 지시 → 설정에서만 (코드 수정 없음)<br>레일 원칙: 카드(단말) · 통장(기업은행) · 현금(금고) 은 서로 섞이지 않습니다</div>
 </div>
 
 <script>
@@ -92,6 +92,7 @@ var CFG = {
   GAS_URL: "https://script.google.com/macros/s/AKfycbwMX27NWJ7mW7VYmew0WvawhFbvUbL87te3QeOv-2LDwZTmFMI1IpcbGC8Y-lHiPVf7_Q/exec",
   APP_KEY: "d04fb7af5ffda6a1556bc26d",
   DELIVERY_UNIT: 4000,         // 택배비 단가
+  SMARTRO_FEE: 0.04,           // 스마트로(해외카드) 수수료율 — 표시액=(진료비+EMS)×(1+수수료). 규칙 개정은 여기서만
   TERMINALS: "올댓페이=국내, 스마트로=해외환자",
   TOLERANCE: 0,                // 허용 오차(원)
   DENOMS: [50000,10000,5000,1000],
@@ -148,7 +149,7 @@ var SAMPLE_OK = [
 function demoLoad(){
   S.raw=SAMPLE_OK; S.parsed=parseOkchart(SAMPLE_OK);
   if(carry.prevSafe===null){ carry.prevSafe=300000; carry.prevDate="(샘플)"; }
-  S.allthat=3840000; S.smartro=111700; S.delivCardCnt=1;        // 단말 순액 3,947,700 = OK카드 4,027,700 − 카드환불 80,000 (오늘취소 시나리오)
+  S.allthat=3840000; S.smartro=131300; S.smartroRev=111700; S.delivCardCnt=1;  // 스마트로 표시액 131,300 → 진료비 111,700+EMS 14,550+수수료 5,050. 단말 순액 3,947,700 = 올댓 3,840,000 + 진료비 111,700 − 택배 4,000; OK카드 4,027,700 − 카드환불 80,000
   S.refCardToday="today"; S.refBankOut="done";
   S.bankInManual=1428000;                                       // 통장회수 1,420,000 + 택배 2건(8,000)
   S.expenses=[{item:"생수 구입",amt:10000}];
@@ -164,7 +165,8 @@ var S = {
   allthat: "", smartro: "",
   expenses: [],            // {item, amt} 현금 지출 (금고에서 나감)
   delivCardCnt: 0,         // 카드로 받은 택배비 건수
-  emsAmt: "",              // 스마트로에 섞인 EMS(국제택배) 비용 총액 — 카드 대조에서 제외
+  smartroRev: "",          // 스마트로 진료비(매출·프로그램가) 총액 — 표시액에서 EMS·수수료 역산의 기준
+  emsAmt: "",              // (역산 파생) 스마트로 EMS = round(표시액/(1+수수료)) − 진료비 — 카드 대조·매출에서 제외
   bankInManual: "",        // GAS 미연결 시 통장 실측 수동 입력
   seoulpayToday: "",       // 불일치 해소용: 오늘 서울페이 결제액 (정산대기)
   denom: {}, denomEtc: "",
@@ -190,10 +192,14 @@ function computeChecks(){
   var delivCard = S.delivCardCnt * CFG.DELIVERY_UNIT;
   var expenseSum = S.expenses.reduce(function(a,b){return a+num(b.amt);},0);
 
-  // ① 카드 레일: 단말 합계 − 카드택배비 − EMS비용 = OK차트 카드수납
+  // ① 카드 레일: 단말 합계 − 카드택배비 − 스마트로수수료(4%) − EMS = OK차트 카드수납(매출)
+  //    스마트로(해외카드): 표시액=(진료비+EMS)×(1+수수료). 진료비만 매출. 표시액에서 수수료·EMS를 역산 제거.
   //    카드환불(취소)이 있는 날: 단말 마감이 취소 차감된 순액일 수 있음 → 양쪽 다 시도해 맞는 쪽 자동 채택
-  var ems = num(S.emsAmt);
-  var termCard = allthat + smartro - delivCard - ems;
+  var smartroRev = num(S.smartroRev);                                  // 스마트로 진료비(매출)
+  var smBase = smartro>0 ? Math.round(smartro/(1+CFG.SMARTRO_FEE)) : 0; // 진료비+EMS (수수료 제거)
+  var smFee  = smartro - smBase;                                       // 스마트로 수수료(4%) — 매출 아님
+  var ems    = smartro>0 ? (smBase - smartroRev) : 0;                  // EMS(국제택배) — 매출 아님
+  var termCard = allthat + smartro - delivCard - smFee - ems;          // = allthat + smartroRev − delivCard
   var grossDiff = termCard - okCard;
   var netDiff = termCard - (okCard - refCard);
   var cardMode="gross", cardDiff=grossDiff, cardModeNote="";
@@ -228,7 +234,7 @@ function computeChecks(){
   return {
     ok:{card:okCard,bank:okBank,cash:okCash,total:okTotal,refund:okRefund,misu:okMisu},
     refund:{cash:refCash,card:refCard,bank:refBank}, cardMode:cardMode, cardModeNote:cardModeNote,
-    termCard:termCard, cardDiff:cardDiff, delivCard:delivCard, ems:ems,
+    termCard:termCard, cardDiff:cardDiff, delivCard:delivCard, ems:ems, fee:smFee, smartroRev:smartroRev, smBase:smBase, smartroShown:smartro,
     bankReal:bankReal, bankDiff:bankDiff, delivBankCnt:delivBankCnt, seoul:seoul,
     expenseSum:expenseSum, expectSafe:expectSafe, denomTotal:denomTotal, safeDiff:safeDiff,
     prevSafeUsed:prevSafeEff, prevSafeSource:(S.prevSafeIn!==null && S.prevSafeIn!=="")?"수동":"자동이월",
@@ -319,15 +325,23 @@ function(){
 function(){
   return qNum("3. 올댓페이 카드 매출은 얼마였나요?","단말기 마감(정산) 화면의 오늘 합계 금액 그대로. 국내 환자 카드 결제분입니다.","allthat",4,(hasRefund()?2:1));
 },
-/* 4. 스마트로 (+ EMS비용 분리) */
+/* 4. 스마트로 (해외카드 — 표시액 그대로 입력 → EMS·수수료 자동 역산) */
 function(){
-  return '<div class="card"><div class="q">4. 스마트로 매출은 얼마였나요?</div>'+
-  '<div class="hint">해외 환자 전용 단말입니다. 외국인 결제가 없었다면 0 그대로 다음.</div>'+
-  '<input type="tel" id="qIn" value="'+(S.smartro!==""?fmt(S.smartro):"")+'" placeholder="0">'+
-  '<div class="q" style="margin-top:16px;font-size:16px">↳ 그중 EMS(국제택배) 비용이 있나요?</div>'+
-  '<div class="hint">스마트로로 결제된 EMS 배송비 <b>총액(원)</b> — 진료 수납이 아니므로 카드 대조에서 자동 제외됩니다. 없으면 0.</div>'+
-  '<input type="tel" id="emsIn" value="'+(num(S.emsAmt)?fmt(S.emsAmt):"")+'" placeholder="0">'+
-  '<div class="btn-row"><button class="btn btn-s" onclick="go(3)">←</button><button class="btn btn-p" onclick="S.smartro=num(document.getElementById(\'qIn\').value);S.emsAmt=num(document.getElementById(\'emsIn\').value);go(5)">다음 →</button></div></div>';
+  var shown=num(S.smartro), rev=num(S.smartroRev);
+  var base=shown>0?Math.round(shown/(1+CFG.SMARTRO_FEE)):0;
+  var fee=shown-base, ems=shown>0?(base-rev):0;
+  var pct=Math.round(CFG.SMARTRO_FEE*100);
+  var prev = shown>0 ? '<div class="suggest" style="margin-top:14px">↳ 표시액 '+won(shown)+' 자동 분해<br>· 수수료('+pct+'%): <b>'+won(fee)+'</b> <span style="color:var(--gray)">(매출 아님)</span><br>· EMS(국제택배): <b'+(ems<0?' style="color:#c0392b"':'')+'>'+won(ems)+'</b> '+(ems<0?'<span style="color:#c0392b">⚠ 진료비가 표시액÷'+(1+CFG.SMARTRO_FEE)+'보다 큼 — 입력 확인</span>':'<span style="color:var(--gray)">(매출 아님)</span>')+'<br>· <b>진료비(매출): '+won(rev)+'</b> → 카드 대조 대상' + (rev===0?' <span style="color:#c0392b">⚠ 진료비를 입력하세요</span>':'') + '</div>' : '';
+  return '<div class="card"><div class="q">4. 스마트로(해외환자) 결제가 있었나요?</div>'+
+  '<div class="hint">해외 환자 전용 단말입니다. 외국인 카드결제가 없었다면 둘 다 0으로 다음.</div>'+
+  '<div class="q" style="font-size:16px;margin-top:6px">① 스마트로 단말 표시액 총액</div>'+
+  '<div class="hint"><b>표시된 금액 그대로</b> 입력 — EMS·카드수수료 포함. (직원이 빼지 마세요, 시스템이 자동 역산합니다)</div>'+
+  '<input type="tel" id="qIn" value="'+(S.smartro!==""?fmt(S.smartro):"")+'" placeholder="0" onchange="S.smartro=num(this.value);render()">'+
+  '<div class="q" style="margin-top:16px;font-size:16px">② 그중 진료비(프로그램가·매출) 총액</div>'+
+  '<div class="hint">환자에게 청구한 <b>프로그램 금액 합계</b> — EMS·수수료 제외한 순수 진료 매출. (예: 3개월 58만원)</div>'+
+  '<input type="tel" id="revIn" value="'+(S.smartroRev!==""?fmt(S.smartroRev):"")+'" placeholder="0" onchange="S.smartroRev=num(this.value);render()">'+
+  prev+
+  '<div class="btn-row"><button class="btn btn-s" onclick="go(3)">←</button><button class="btn btn-p" onclick="S.smartro=num(document.getElementById(\'qIn\').value);S.smartroRev=num(document.getElementById(\'revIn\').value);go(5)">다음 →</button></div></div>';
 },
 /* 4. 현금 지출 */
 function(){
@@ -344,7 +358,8 @@ function(){
 /* 5. 택배비(카드) */
 function(){
   var s=S.parsed.summary;
-  var diff = num(S.allthat)+num(S.smartro)-num(S.emsAmt)-num(s["카드수납"]);
+  var smRev=num(S.smartroRev);
+  var diff = num(S.allthat)+smRev-num(s["카드수납"]);  // 진료비 레벨(올댓+스마트로진료비) − OK카드 = 카드택배 잔차
   var guess = (diff>0 && diff%CFG.DELIVERY_UNIT===0)? diff/CFG.DELIVERY_UNIT : 0;
   if(S.delivCardCnt===0 && guess>0) S.delivCardCnt=guess;
   var sug = guess>0? '<div class="suggest">💡 단말 합계가 OK차트 카드수납보다 <b>'+won(diff)+'</b> 많아요.<br>택배비 <b>'+guess+'건('+won(guess*CFG.DELIVERY_UNIT)+')</b>이 카드로 결제된 것 같은데, 맞나요?</div>'
@@ -415,7 +430,7 @@ function renderJudge(){
     var tag = pass===null? '<span class="tag tag-wait">기준설정</span>' : pass? '<span class="tag tag-ok">✅ 일치</span>':'<span class="tag tag-warn">⚠ 불일치</span>';
     return '<div class="kv"><span>'+name+'</span><span>'+tag+'</span></div><div class="hint" style="margin:4px 0 10px">'+detail+'</div>';
   }
-  var cardD='단말 '+won(num(S.allthat))+' + '+won(num(S.smartro))+' − 택배 '+won(c.delivCard)+(c.ems?' − EMS '+won(c.ems):'')+' = '+won(c.termCard)+' ↔ OK카드 '+won(c.ok.card)+(c.cardMode==='net'?' − 카드취소 '+won(c.refund.card)+' <b>(단말=취소반영 순액)</b>':'')+(c.cardModeNote?' · 🔍 <b>'+c.cardModeNote+'</b>':'')+(c.pass.card?'':' · 차이 <b>'+won(c.cardDiff)+'</b>');
+  var cardD='단말 올댓 '+won(num(S.allthat))+' + 스마트로표시 '+won(c.smartroShown)+' − 택배 '+won(c.delivCard)+(c.fee?' − 수수료 '+won(c.fee):'')+(c.ems?' − EMS '+won(c.ems):'')+' = '+won(c.termCard)+' ↔ OK카드 '+won(c.ok.card)+(c.cardMode==='net'?' − 카드취소 '+won(c.refund.card)+' <b>(단말=취소반영 순액)</b>':'')+(c.cardModeNote?' · 🔍 <b>'+c.cardModeNote+'</b>':'')+(c.pass.card?'':' · 차이 <b>'+won(c.cardDiff)+'</b>');
   var bankD='실측입금 '+won(c.bankReal)+(bankAuto?' (봇 '+bankAuto.count+'건 · '+(bootDate||'오늘')+' 기준 자동조회)':' (수동)')+' ↔ OK통장 '+won(c.ok.bank)+(c.delivBankCnt?' · 통장택배 '+c.delivBankCnt+'건 자동인정':'')+(c.seoul?' · 서울페이 '+won(c.seoul)+' ⏳정산대기':'')+(c.pass.bank?'':' · 차이 <b>'+won(c.bankDiff)+'</b>');
   var safeD= c.expectSafe===null? '실측 '+won(c.denomTotal)+' — 오늘부터 기준 저장'
     : '기대 '+won(c.expectSafe)+' ↔ 실측 '+won(c.denomTotal)+(c.pass.safe?'':' · 차이 <b>'+won(c.safeDiff)+'</b>'+(c.safeDiff<0?' (현금 부족 — 증발 신호)':' (현금 초과)'));
@@ -590,7 +605,7 @@ function payload(){
   var c=computeChecks();
   return { ver:CFG.RULE_VER, date:S.parsed.date||todayStr(), staff:document.getElementById("staffIn")?document.getElementById("staffIn").value:S.staff,
     ok:c.ok, refund:c.refund, cardMode:c.cardMode,
-    inputs:{allthat:num(S.allthat),smartro:num(S.smartro),emsAmt:num(S.emsAmt),delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),bankReal:c.bankReal,denomTotal:c.denomTotal,prevSafeUsed:c.prevSafeUsed,prevSafeSource:c.prevSafeSource},
+    inputs:{allthat:num(S.allthat),smartro:num(S.smartro),smartroRev:c.smartroRev,smartroFee:c.fee,emsAmt:c.ems,delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),bankReal:c.bankReal,denomTotal:c.denomTotal,prevSafeUsed:c.prevSafeUsed,prevSafeSource:c.prevSafeSource},
     judge:{card:c.pass.card,bank:c.pass.bank,safe:c.pass.safe,cardDiff:c.cardDiff,bankDiff:c.bankDiff,safeDiff:c.safeDiff,delivBankCnt:c.delivBankCnt},
     refundAnswers:{cardToday:S.refCardToday,bankOut:S.refBankOut},
     report:buildReport(c),
@@ -609,7 +624,7 @@ function aiAsk(){
   var c=computeChecks();
   var ctx="[오늘 결산 상황] 날짜:"+(S.parsed&&S.parsed.date||todayStr())
     +" / OK차트: 수납총액 "+c.ok.total+", 현금 "+c.ok.cash+", 카드 "+c.ok.card+", 통장 "+c.ok.bank+", 환불 "+c.ok.refund+"(현"+c.refund.cash+"/카"+c.refund.card+"/통"+c.refund.bank+"), 미수 "+c.ok.misu
-    +" / 입력: 올댓 "+num(S.allthat)+", 스마트로 "+num(S.smartro)+", 카드택배 "+S.delivCardCnt+"건, EMS "+num(S.emsAmt)+", 현금지출 "+c.expenseSum+", 전일금고 "+(c.prevSafeUsed===null?"없음":c.prevSafeUsed+"("+c.prevSafeSource+")")+", 금고실측 "+c.denomTotal
+    +" / 입력: 올댓 "+num(S.allthat)+", 스마트로표시 "+num(S.smartro)+"(진료비 "+c.smartroRev+"·수수료 "+c.fee+"·EMS "+c.ems+"), 카드택배 "+S.delivCardCnt+"건, 현금지출 "+c.expenseSum+", 전일금고 "+(c.prevSafeUsed===null?"없음":c.prevSafeUsed+"("+c.prevSafeSource+")")+", 금고실측 "+c.denomTotal
     +" / 판정: 카드 "+(c.pass.card?"일치":"차이 "+c.cardDiff)+"("+c.cardMode+"), 통장 "+(c.pass.bank?"일치":"차이 "+c.bankDiff)+"(실측 "+c.bankReal+", 통장택배 "+c.delivBankCnt+"건, 서울페이 "+c.seoul+"), 금고 "+(c.pass.safe===null?"기준설정":(c.pass.safe?"일치":"차이 "+c.safeDiff))+(c.expectSafe!==null?"(기대 "+c.expectSafe+")":"");
   fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"ai",k:CFG.APP_KEY,data:{context:ctx,messages:S.aiChat}})})
     .then(function(r){return r.json();})
@@ -643,7 +658,7 @@ function printReport(){
   (c.ok.refund>0?'<div class="sec">1-1. 환불 내역</div><table><tr><th>현금환불(금고)</th><th>카드환불(단말)</th><th>통장환불(이체)</th><th>확인 답변</th></tr><tr><td style="text-align:right">'+won(c.refund.cash)+'</td><td>'+won(c.refund.card)+'</td><td>'+won(c.refund.bank)+'</td><td style="text-align:left">'+esc(refA.join(" / ")||"—")+'</td></tr></table>':"")+
   '<div class="sec">2. 3레일 대조</div>'+
   '<table><tr><th>레일</th><th>기대(근거)</th><th>실측</th><th>차이</th><th>판정</th></tr>'+
-  '<tr><td>카드 (올댓+스마트로'+(c.cardMode==="net"?" · 취소반영 순액":"")+(c.ems?' · EMS제외 '+won(c.ems):'')+')</td><td>'+won(c.ok.card-(c.cardMode==="net"?c.refund.card:0))+'</td><td>'+won(c.termCard)+'</td><td>'+won(c.cardDiff)+'</td><td>'+tag(c.pass.card)+'</td></tr>'+
+  '<tr><td>카드 (올댓+스마트로'+(c.cardMode==="net"?" · 취소반영 순액":"")+(c.fee?' · 수수료제외 '+won(c.fee):'')+(c.ems?' · EMS제외 '+won(c.ems):'')+')</td><td>'+won(c.ok.card-(c.cardMode==="net"?c.refund.card:0))+'</td><td>'+won(c.termCard)+'</td><td>'+won(c.cardDiff)+'</td><td>'+tag(c.pass.card)+'</td></tr>'+
   '<tr><td>통장 (기업은행'+(bankAuto?" · 봇 "+bankAuto.count+"건":" · 수동")+(c.delivBankCnt?" · 택배"+c.delivBankCnt+"건":"")+(c.seoul?" · 서울페이⏳"+won(c.seoul):"")+')</td><td>'+won(c.ok.bank-c.seoul+c.delivBankCnt*CFG.DELIVERY_UNIT)+'</td><td>'+won(c.bankReal)+'</td><td>'+won(c.bankDiff)+'</td><td>'+tag(c.pass.bank)+'</td></tr>'+
   '<tr><td>현금·금고 (폐쇄회계)</td><td>'+(c.expectSafe===null?"—":won(c.expectSafe))+'</td><td>'+won(c.denomTotal)+'</td><td>'+(c.safeDiff===null?"—":won(c.safeDiff))+'</td><td>'+tag(c.pass.safe)+'</td></tr></table>'+
   (expRows?'<div class="sec">3. 현금 지출 (금고 차감)</div><table><tr><th>내용</th><th>금액</th></tr>'+expRows+'<tr><td><b>합계</b></td><td><b>'+won(c.expenseSum)+'</b></td></tr></table>':"")+
