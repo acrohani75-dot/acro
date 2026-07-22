@@ -3,154 +3,142 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>교정장치 관리법·주의사항 — 아크로한의원</title>
+<title>교정장치 관리법 · 아크로한의원 / Appliance Care</title>
 <style>
-  :root{
-    --ink:#22303a; --sub:#5b6b76; --line:#e4e8ec;
-    --accent:#2f7f77; --accent-soft:#e8f3f1;
-    --gold:#b98d4f; --gold-soft:#faf4ea;
-    --red:#b4534f; --red-soft:#faf0ef;
-  }
+  :root{--ink:#22303a;--sub:#5b6b76;--line:#e4e8ec;--accent:#2f7f77;--accent-soft:#e8f3f1;--gold:#b98d4f;--gold-soft:#faf4ea;--red:#b4534f;--red-soft:#faf0ef;--bg:#fbfcfd;}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:var(--ink);background:#fbfcfd;line-height:1.75;font-size:15.5px}
-  .wrap{max-width:760px;margin:0 auto;padding:0 24px 70px}
-  header{padding:48px 0 28px;border-bottom:2px solid var(--ink)}
-  .brand{font-size:12px;letter-spacing:.18em;color:var(--gold);font-weight:700;margin-bottom:10px}
-  h1{font-size:27px;font-weight:800;letter-spacing:-.02em;line-height:1.35}
-  .lead{margin-top:10px;color:var(--sub);font-size:14.5px}
-  section{margin-top:42px}
-  h2{font-size:19px;font-weight:800;margin-bottom:12px}
-  h2 .ico{color:var(--gold);margin-right:6px}
-  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin-top:12px}
+  body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR','Noto Sans JP','Noto Sans TC','Noto Sans SC','Noto Sans Thai',sans-serif;color:var(--ink);background:var(--bg);line-height:1.75;font-size:16px}
+  .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 8px rgba(30,50,60,.05)}
+  .tb-in{max-width:760px;margin:0 auto;padding:11px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .brand{font-size:11.5px;letter-spacing:.16em;color:var(--gold);font-weight:800;white-space:nowrap}
+  .langs{display:flex;gap:5px;flex-wrap:wrap}
+  .langs button{border:1px solid var(--line);background:#fff;border-radius:16px;padding:4px 11px;font-size:12.5px;font-weight:700;color:var(--sub);cursor:pointer;font-family:inherit}
+  .langs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .wrap{max-width:760px;margin:0 auto;padding:30px 22px 70px}
+  h1{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.35;margin-bottom:6px}
+  .lead{color:var(--sub);font-size:15px;margin-bottom:24px}
+  h2{font-size:19px;font-weight:800;margin:34px 0 10px}
+  h2 .num{color:var(--gold);font-size:13px;letter-spacing:.12em;display:block;margin-bottom:3px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-top:12px}
   ul.cln{list-style:none}
-  ul.cln li{padding-left:22px;position:relative;margin-bottom:9px;font-size:14.5px}
+  ul.cln li{padding-left:21px;position:relative;margin-bottom:8px;font-size:14.5px}
   ul.cln li::before{content:"";position:absolute;left:2px;top:11px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
-  ul.cln.no li::before{background:var(--red)}
-  .tip{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:16px 20px;margin-top:14px;font-size:14.5px}
-  .warn{border-left:4px solid var(--red);background:var(--red-soft);border-radius:0 12px 12px 0;padding:16px 20px;margin-top:14px;font-size:14.5px}
-  .warn b.t{color:var(--red)}
-  .vid{display:block;background:#fff;border:2px solid var(--accent);border-radius:12px;padding:14px 18px;margin-top:12px;font-size:15px;text-decoration:none;color:var(--ink);font-weight:600}
+  ul.cln.red li::before{background:var(--red)}
+  .callout{border-left:4px solid var(--accent);background:var(--accent-soft);border-radius:0 12px 12px 0;padding:16px 20px;margin-top:14px;font-size:14.5px}
+  .callout.red{border-left-color:var(--red);background:var(--red-soft)}
+  .callout .ct{font-weight:800;margin-bottom:5px;font-size:15px}
+  .callout.red .ct{color:var(--red)}
+  .vid{display:block;background:#fff;border:2px solid var(--accent);border-radius:12px;padding:13px 17px;margin-top:12px;font-size:14.5px;text-decoration:none;color:var(--ink);font-weight:600}
   .vid span{color:var(--accent)}
-  footer{margin-top:52px;background:var(--ink);color:#fff;border-radius:16px;padding:26px 30px}
+  .ko-gloss{display:block;font-size:11.5px;font-weight:600;color:#9aa7b1;margin-top:2px;letter-spacing:0}
+  footer{margin-top:44px;background:var(--ink);color:#fff;border-radius:16px;padding:24px 28px}
   footer .fb{font-size:12px;letter-spacing:.15em;color:var(--gold);font-weight:700;margin-bottom:6px}
   footer .fi{font-size:14px;line-height:2;color:#cfd8de}
-  .copybox{margin-top:60px;border-top:2px dashed #c4ced6;padding-top:30px}
-  .copybox h2{color:var(--sub);font-size:16px}
-  .copybox .hint{font-size:13px;color:#8a97a1;margin-bottom:12px}
-  pre{background:#f4f6f8;border:1px solid var(--line);border-radius:12px;padding:20px;font-family:inherit;font-size:14px;white-space:pre-wrap;line-height:1.8;color:#3d4c56}
-  @media print{body{background:#fff}.copybox{display:none}}
 </style>
 </head>
 <body>
+<div class="topbar"><div class="tb-in">
+  <div class="brand">ACRO KOREAN MEDICINE CLINIC</div>
+  <div class="langs" id="langBar"></div>
+</div></div>
 <div class="wrap">
-
-<header>
-  <div class="brand">ACRO KOREAN MEDICINE CLINIC · 신논현</div>
-  <h1>턱관절 교정장치 관리법과<br>치료 후 주의사항</h1>
-  <p class="lead">오늘 받으신 치료의 효과를 오래 지키는 방법입니다. 한 번만 읽어두시면 됩니다.</p>
-</header>
-
-<section>
-  <h2><span class="ico">01</span>교정장치, 이렇게 착용하세요</h2>
-  <div class="card">
-    <ul class="cln">
-      <li><b>오래 착용할수록 좋습니다.</b> 기본은 <b>주무실 때 착용</b>입니다.</li>
-      <li>낮에도 시간이 될 때 장치를 물고 <b>스트레칭이나 가벼운 운동</b>을 하시면 더 좋습니다.</li>
-      <li>착용 초기 며칠은 침이 많이 나오거나 이물감이 있을 수 있습니다 — 자연스러운 적응 과정입니다.</li>
-      <li>장치는 아기 젖병과 같은 성분의 안전한 소재로 만들어졌습니다.</li>
-    </ul>
-  </div>
-  <div class="warn">
-    <b class="t">착용을 중단하고 연락 주세요</b> — 착용 중 턱이나 치아에 통증이 생기는 경우,
-    아침에 어금니가 잘 안 맞는 느낌이 계속되는 경우. 무리해서 계속 착용하지 마시고 먼저 연락 주세요.
-  </div>
-</section>
-
-<section>
-  <h2><span class="ico">02</span>세척과 보관</h2>
-  <div class="card">
-    <ul class="cln">
-      <li>사용 후에는 <b>흐르는 미온수</b>에 부드러운 칫솔로 가볍게 세척하세요.</li>
-      <li><b>치약은 사용하지 마세요.</b> 연마제가 표면에 흠집을 내 세균이 번식하기 쉬워집니다.</li>
-      <li>주 1~2회는 의치·구강장치 전용 세정제로 소독해 주세요.</li>
-      <li>물기를 말린 뒤 <b>전용 케이스</b>에 보관하세요. 휴지에 싸두면 분실의 가장 큰 원인이 됩니다.</li>
-    </ul>
-    <a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>영상으로 보기</span> — 구강장치 세척·소독법 (1분)</a>
-  </div>
-  <div class="tip">
-    <b>열탕·전자레인지 소독도 가능합니다</b> — 젖병과 같은 소재라 끓는 물에 삶아 소독하거나 전자레인지 소독기 사용도 가능합니다.
-    분실·파손 시 재제작(150,000원)이 필요하니 케이스 보관만 꼭 지켜주세요.
-  </div>
-</section>
-
-<section>
-  <h2><span class="ico">03</span>치료 효과를 지키는 생활 습관</h2>
-  <p style="font-size:14.5px;color:var(--sub);margin-bottom:4px">치료로 풀어둔 근육은 습관에 따라 다시 짧아질 수 있습니다. 되돌아가는 속도는 정해져 있지 않고, <b>습관에 달려 있습니다.</b></p>
-  <div class="card">
-    <ul class="cln no">
-      <li><b>한쪽으로만 씹지 않기</b> — 양쪽을 번갈아 사용하는 것이 가장 중요합니다.</li>
-      <li>턱 괴지 않기, 이 악물지 않기(집중할 때 무의식적으로 하기 쉽습니다)</li>
-      <li>딱딱하고 질긴 음식(오징어·질긴 육포 등)은 치료 기간 중 줄이기</li>
-      <li>한쪽으로만 옆으로 자는 습관 피하기 — 가급적 바로 눕기</li>
-      <li>장시간 스마트폰 숙임 자세 줄이기 (목 근육이 턱 균형에 직접 영향)</li>
-    </ul>
-  </div>
-  <div class="tip">
-    치료 당일에는 시술 부위에 가벼운 뻐근함이나 멍이 있을 수 있습니다. 대부분 1~2일 내 사라지며,
-    당일 과격한 운동·음주·사우나는 피해 주세요.
-  </div>
-</section>
-
-<section>
-  <h2><span class="ico">04</span>다음 내원 안내</h2>
-  <div class="card">
-    <ul class="cln">
-      <li>프로그램 초반 2주는 <b>주 2회</b>, 이후 4주는 <b>주 1회</b> 내원합니다. 간격이 벌어지면 효과가 끊기니 예약을 지켜 주세요.</li>
-      <li>매회 동일 조건으로 사진을 촬영해 변화를 기록하고, 마지막에 처음과 비교해 드립니다.</li>
-      <li>해외에 계시거나 단기 방문이신 경우: 귀국 후에도 장치 착용(수면 중심 + 주간 스트레칭)을 이어가 주세요. 문의는 카카오톡·LINE·WhatsApp으로 언제든 가능합니다. 교정장치는 추후 EMS 국제배송으로도 받아보실 수 있습니다.</li>
-    </ul>
-  </div>
-</section>
-
-<footer>
-  <div class="fb">ACRO KOREAN MEDICINE CLINIC</div>
-  <div class="fi">
-    아크로한의원 · 서울 신논현 · 02-6925-1175<br>
-    카카오톡: pf.kakao.com/_VcUxmC<br>
-    LINE(日本): @903rlqfz · LINE(台灣): @814kgltm · WhatsApp: +82 2-6925-1175
-  </div>
-</footer>
-
-<div class="copybox">
-  <h2>[원내용] 카카오톡·LINE 발송 텍스트</h2>
-  <p class="hint">아래 내용을 복사해 치료 당일 발송하세요. (이 블록은 인쇄 시 제외됩니다)</p>
-  <pre>[아크로한의원] 안면 밸런스 치료 안내
-
-오늘 치료 받으시느라 고생 많으셨습니다.
-치료 효과를 오래 지키는 3가지만 기억해 주세요.
-
-1. 교정장치 착용
-- 기본은 주무실 때 착용, 오래 착용할수록 좋습니다.
-- 낮에도 장치를 물고 스트레칭이나 가벼운 운동을 해주시면 더 좋습니다.
-- 착용 초기 이물감·침 분비는 자연스러운 적응 과정입니다.
-
-2. 장치 세척·보관
-- 사용 후 미온수 + 부드러운 칫솔로 세척 (치약 사용 금지)
-- 주 1~2회 전용 세정제 소독, 케이스에 보관
-- 열탕 소독·전자레인지 소독도 가능 (젖병과 같은 소재)
-- 세척법 영상(1분): https://www.youtube.com/watch?v=VGY9miP2XYk
-
-3. 생활 습관
-- 양쪽으로 번갈아 씹기 / 턱 괴지 않기 / 질긴 음식 줄이기
-- 풀어둔 근육은 습관에 따라 다시 짧아질 수 있어, 습관 관리가 곧 치료입니다.
-
-* 착용 중 통증이 있거나 아침에 치아 맞물림이 이상하면
-  착용을 중단하고 먼저 연락 주세요.
-
-다음 예약: __월 __일 (__) __시
-문의: 02-6925-1175 / 카카오톡 pf.kakao.com/_VcUxmC</pre>
+  <div id="afterRoot"></div>
+  <footer>
+    <div class="fb">ACRO KOREAN MEDICINE CLINIC</div>
+    <div class="fi">
+      아크로한의원 · 서울 신논현 · 02-6925-1175<br>
+      KakaoTalk: pf.kakao.com/_VcUxmC · LINE(JP): @903rlqfz · LINE(TW): @814kgltm<br>
+      WhatsApp: +82 2-6925-1175 · www.acrohani.com
+    </div>
+  </footer>
 </div>
-
-</div>
+<script>
+var AFTER=(function(){ return {
+ko: '<h1>교정장치 관리법과 주의사항</h1><p class="lead">오늘 받으신 치료의 효과를 오래 지키는 방법입니다.</p>'+
+'<h2><span class="num">01</span>착용법</h2><div class="card"><ul class="cln"><li><b>오래 착용할수록 좋습니다.</b> 기본은 <b>주무실 때 착용</b>입니다.</li><li>낮에도 장치를 물고 <b>스트레칭·가벼운 운동</b>을 하시면 더 좋습니다.</li><li>초기 며칠은 침 분비·이물감이 있을 수 있습니다 — 자연스러운 적응 과정입니다.</li><li>아기 젖병과 같은 성분의 안전한 소재입니다.</li></ul></div>'+
+'<div class="callout red"><div class="ct">착용을 중단하고 연락 주세요</div>착용 중 턱·치아 통증, 아침에 어금니가 안 맞는 느낌이 계속되면 무리하지 말고 먼저 연락 주세요.</div>'+
+'<h2><span class="num">02</span>세척과 보관</h2><div class="card"><ul class="cln"><li>사용 후 <b>흐르는 미온수</b> + 부드러운 칫솔로 세척. <b>치약 사용 금지</b>(흠집→세균 번식).</li><li>주 1~2회 전용 세정제로 소독.</li><li>물기 말린 뒤 <b>전용 케이스</b> 보관. 휴지에 싸두면 분실 1순위.</li></ul>'+
+'<a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>영상으로 보기</span> — 구강장치 세척·소독법 (1분)</a></div>'+
+'<div class="callout"><div class="ct">열탕·전자레인지 소독도 가능합니다</div>젖병과 같은 소재라 끓는 물에 삶아 소독하거나 전자레인지 소독기 사용도 가능합니다. 분실·파손 시 재제작(150,000원)이 필요하니 케이스 보관만 꼭 지켜주세요.</div>'+
+'<h2><span class="num">03</span>생활 습관</h2><div class="card"><ul class="cln red"><li><b>한쪽으로만 씹지 않기</b> — 가장 중요합니다.</li><li>턱 괴지 않기 · 이 악물지 않기</li><li>질긴 음식(오징어 등) 치료 기간 중 줄이기</li><li>한쪽으로만 옆으로 자지 않기 — 가급적 바로 눕기</li><li>스마트폰 숙임 자세 줄이기</li></ul></div>'+
+'<div class="callout">치료 당일 뻐근함·멍은 1~2일 내 사라집니다. 당일 과격한 운동·음주·사우나는 피해 주세요.</div>'+
+'<h2><span class="num">04</span>다음 내원</h2><div class="card"><ul class="cln"><li>초반 2주 <b>주 2회</b> → 이후 4주 <b>주 1회</b>. 간격이 벌어지면 효과가 끊깁니다.</li><li>매회 동일 조건 사진으로 변화를 기록합니다.</li><li>해외 체류 시: 귀국 후에도 장치 착용을 이어가시고, 카카오톡·LINE·WhatsApp으로 언제든 문의하세요.</li></ul></div>',
+en: '<h1>Appliance Care & Aftercare</h1><p class="lead">How to keep today\'s result for longer.</p>'+
+'<h2><span class="num">01</span>How to wear</h2><div class="card"><ul class="cln"><li><b>The longer you wear it, the better.</b> Baseline: <b>wear it while sleeping.</b></li><li>In the daytime, bite the appliance during <b>stretching or light exercise</b> — this also helps.</li><li>Extra saliva or a foreign-body feeling in the first days is a normal adaptation.</li><li>It is made of the same safe material as baby bottles.</li></ul></div>'+
+'<div class="callout red"><div class="ct">Stop wearing and contact us if…</div>you feel jaw/tooth pain while wearing it, or your bite feels off in the morning repeatedly. Do not push through — contact us first.</div>'+
+'<h2><span class="num">02</span>Cleaning & storage</h2><div class="card"><ul class="cln"><li>Rinse under <b>lukewarm running water</b> with a soft toothbrush. <b>No toothpaste</b> (abrasives scratch the surface).</li><li>Disinfect 1–2×/week with a denture/appliance cleanser.</li><li>Dry and keep it in <b>its case</b> — wrapping it in tissue is the #1 cause of loss.</li></ul>'+
+'<a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>Watch</span> — How to clean the oral appliance (1 min)</a></div>'+
+'<div class="callout"><div class="ct">Boiling and microwave sterilization are fine</div>Made of the same material as baby bottles, it can be boiled or sterilized in a microwave sterilizer. Just keep it in its case — replacement after loss or damage is ₩150,000.</div>'+
+'<h2><span class="num">03</span>Habits that protect your result</h2><div class="card"><ul class="cln red"><li><b>Do not chew on one side only</b> — the most important rule.</li><li>No chin-resting, no clenching.</li><li>Reduce tough, chewy foods during treatment.</li><li>Avoid sleeping on one side only — sleep on your back if possible.</li><li>Reduce prolonged head-down phone posture.</li></ul></div>'+
+'<div class="callout">Mild soreness or bruising on the treatment day usually resolves in 1–2 days. Avoid intense exercise, alcohol and sauna on the day.</div>'+
+'<h2><span class="num">04</span>Next visits</h2><div class="card"><ul class="cln"><li>First 2 weeks <b>2×/week</b> → next 4 weeks <b>1×/week</b>. Long gaps break the effect.</li><li>We take standardized photos every visit to track your change.</li><li>Living abroad? Keep wearing the appliance after you return home, and contact us anytime via KakaoTalk, LINE or WhatsApp.</li></ul></div>',
+it: '<h1>Cura del bite e indicazioni post-trattamento</h1><p class="lead">Come conservare più a lungo il risultato di oggi.</p>'+
+'<h2><span class="num">01</span>Come indossarlo</h2><div class="card"><ul class="cln"><li><b>Più a lungo lo indossa, meglio è.</b> Base: <b>durante il sonno.</b></li><li>Di giorno, lo tenga in bocca durante <b>stretching o attività leggera</b>: aiuta.</li><li>Nei primi giorni salivazione o sensazione di corpo estraneo sono un normale adattamento.</li><li>È fatto dello stesso materiale sicuro dei biberon.</li></ul></div>'+
+'<div class="callout red"><div class="ct">Sospenda l\'uso e ci contatti se…</div>sente dolore a mandibola o denti durante l\'uso, o al mattino l\'occlusione sembra ripetutamente alterata. Non insista: ci contatti prima.</div>'+
+'<h2><span class="num">02</span>Pulizia e conservazione</h2><div class="card"><ul class="cln"><li>Dopo l\'uso, risciacqui con <b>acqua tiepida corrente</b> e spazzolino morbido. <b>Niente dentifricio</b> (gli abrasivi graffiano la superficie).</li><li>Disinfetti 1–2 volte a settimana con detergente per protesi/apparecchi.</li><li>Asciughi e conservi <b>nella custodia</b>: avvolgerlo nei fazzoletti è la prima causa di smarrimento.</li></ul>'+
+'<a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>Video</span> — Pulizia dell\'apparecchio orale (1 min)</a></div>'+
+'<div class="callout"><div class="ct">Sterilizzabile in acqua bollente o al microonde</div>Essendo dello stesso materiale dei biberon, può essere bollito o sterilizzato al microonde. Lo conservi sempre nella custodia: la sostituzione in caso di smarrimento o danno costa ₩150.000.</div>'+
+'<h2><span class="num">03</span>Abitudini che proteggono il risultato</h2><div class="card"><ul class="cln red"><li><b>Non masticare da un solo lato</b> — la regola più importante.</li><li>Non appoggiare il mento, non stringere i denti.</li><li>Ridurre i cibi duri e gommosi durante il trattamento.</li><li>Evitare di dormire sempre sullo stesso fianco — meglio supini.</li><li>Ridurre la postura a capo chino sullo smartphone.</li></ul></div>'+
+'<div class="callout">Lieve indolenzimento o lividi il giorno del trattamento si risolvono in 1–2 giorni. Eviti sport intenso, alcol e sauna in giornata.</div>'+
+'<h2><span class="num">04</span>Prossime visite</h2><div class="card"><ul class="cln"><li>Prime 2 settimane <b>2×/settimana</b> → poi 4 settimane <b>1×/settimana</b>. Pause lunghe interrompono l\'effetto.</li><li>Ad ogni visita foto standardizzate per documentare il cambiamento.</li><li>Vive all\'estero? Continui a usare il bite dopo il rientro e ci scriva quando vuole su KakaoTalk, LINE o WhatsApp.</li></ul></div>',
+ja: '<h1>矯正装置の管理方法と注意事項</h1><p class="lead">本日の治療効果を長く保つ方法です。</p>'+
+'<h2><span class="num">01</span>装着方法</h2><div class="card"><ul class="cln"><li><b>長く着けるほど良いです。</b>基本は<b>就寝時の装着</b>です。</li><li>日中も装置を噛みながら<b>ストレッチや軽い運動</b>をするとさらに効果的です。</li><li>初めの数日は唾液が増えたり違和感があったりしますが、自然な適応過程です。</li><li>哺乳瓶と同じ成分の安全な素材です。</li></ul></div>'+
+'<div class="callout red"><div class="ct">装着を中止してご連絡ください</div>装着中に顎や歯の痛みが出る、朝の噛み合わせの違和感が続く場合は、無理せずまずご連絡ください。</div>'+
+'<h2><span class="num">02</span>洗浄と保管</h2><div class="card"><ul class="cln"><li>使用後は<b>ぬるま湯の流水</b>+やわらかい歯ブラシで洗浄。<b>歯磨き粉は使用禁止</b>(研磨剤で傷→細菌繁殖)。</li><li>週1~2回、入れ歯・口腔装置用洗浄剤で消毒。</li><li>水気を切って<b>専用ケース</b>で保管。ティッシュに包むのは紛失原因の第1位です。</li></ul>'+
+'<a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>動画で見る</span> — 口腔装置の洗浄・消毒法 (1分)</a></div>'+
+'<div class="callout"><div class="ct">煮沸・電子レンジ消毒もOK</div>哺乳瓶と同じ素材のため、煮沸消毒や電子レンジ消毒も可能です。紛失・破損時は再作製(₩150,000)が必要になるため、ケース保管だけは必ずお守りください。</div>'+
+'<h2><span class="num">03</span>効果を守る生活習慣</h2><div class="card"><ul class="cln red"><li><b>片側だけで噛まない</b> — 最も重要です。</li><li>頬杖をつかない・食いしばらない。</li><li>硬い・弾力のある食べ物は治療期間中控えめに。</li><li>片側だけを下にして寝ない — できれば仰向けで。</li><li>スマホのうつむき姿勢を減らす。</li></ul></div>'+
+'<div class="callout">治療当日の軽いだるさ・あざは1~2日で消えます。当日の激しい運動・飲酒・サウナはお控えください。</div>'+
+'<h2><span class="num">04</span>次回のご来院</h2><div class="card"><ul class="cln"><li>最初の2週間は<b>週2回</b> → その後4週間は<b>週1回</b>。間隔が空くと効果が途切れます。</li><li>毎回同一条件の写真で変化を記録します。</li><li>海外にお住まいの方: 帰国後も装置の装着を続け、LINE・カカオトーク・WhatsAppでいつでもご相談ください。</li></ul></div>',
+zhCN: '<h1>矫正器护理方法与注意事项</h1><p class="lead">让今天的治疗效果保持更久的方法。</p>'+
+'<h2><span class="num">01</span>佩戴方法</h2><div class="card"><ul class="cln"><li><b>戴得越久越好。</b>基础是<b>睡觉时佩戴</b>。</li><li>白天也可以咬着矫正器做<b>拉伸或轻度运动</b>,效果更好。</li><li>最初几天口水增多、有异物感是正常的适应过程。</li><li>材质与婴儿奶瓶相同,安全放心。</li></ul></div>'+
+'<div class="callout red"><div class="ct">出现以下情况请停止佩戴并联系我们</div>佩戴中出现下颌或牙齿疼痛,或早晨咬合持续感觉不对。请不要勉强,先联系我们。</div>'+
+'<h2><span class="num">02</span>清洁与保管</h2><div class="card"><ul class="cln"><li>使用后用<b>流动温水</b>+软毛牙刷轻刷。<b>禁用牙膏</b>(研磨剂会划伤表面滋生细菌)。</li><li>每周1~2次用假牙/口腔矫正器专用清洁剂消毒。</li><li>晾干后放入<b>专用盒</b>保管。用纸巾包着是丢失的头号原因。</li></ul>'+
+'<a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>观看视频</span> — 口腔矫正器清洁消毒法 (1分钟)</a></div>'+
+'<div class="callout"><div class="ct">可以水煮·微波炉消毒</div>与婴儿奶瓶相同的材质,可煮沸消毒,也可使用微波炉消毒器。丢失或损坏需重做(₩150,000),请务必放入专用盒保管。</div>'+
+'<h2><span class="num">03</span>保护效果的生活习惯</h2><div class="card"><ul class="cln red"><li><b>不要只用一边咀嚼</b> — 最重要。</li><li>不托腮、不紧咬牙。</li><li>治疗期间少吃硬、韧的食物。</li><li>不要总朝同一侧侧睡 — 尽量仰卧。</li><li>减少长时间低头看手机。</li></ul></div>'+
+'<div class="callout">治疗当天的轻微酸胀、瘀青一般1~2天消退。当天请避免剧烈运动、饮酒、桑拿。</div>'+
+'<h2><span class="num">04</span>下次就诊</h2><div class="card"><ul class="cln"><li>前2周<b>每周2次</b> → 之后4周<b>每周1次</b>。间隔太久效果会中断。</li><li>每次以同一条件拍照记录变化。</li><li>海外居住者: 回国后请继续佩戴矫正器,随时通过KakaoTalk、LINE或WhatsApp联系我们。</li></ul></div>',
+zhTW: '<h1>矯正器照護方法與注意事項</h1><p class="lead">讓今天的治療效果維持更久的方法。</p>'+
+'<h2><span class="num">01</span>配戴方法</h2><div class="card"><ul class="cln"><li><b>戴得越久越好。</b>基礎是<b>睡覺時配戴</b>。</li><li>白天也可以咬著矯正器做<b>伸展或輕度運動</b>,效果更好。</li><li>最初幾天口水變多、有異物感是正常的適應過程。</li><li>材質與嬰兒奶瓶相同,安全安心。</li></ul></div>'+
+'<div class="callout red"><div class="ct">出現以下情況請停止配戴並聯絡我們</div>配戴中出現下顎或牙齒疼痛,或早晨咬合持續感覺不對。請不要勉強,先聯絡我們。</div>'+
+'<h2><span class="num">02</span>清潔與保管</h2><div class="card"><ul class="cln"><li>使用後用<b>流動溫水</b>+軟毛牙刷輕刷。<b>禁用牙膏</b>(研磨劑會刮傷表面滋生細菌)。</li><li>每週1~2次用假牙/口腔裝置專用清潔錠消毒。</li><li>晾乾後放入<b>專用盒</b>保管。用衛生紙包著是遺失的頭號原因。</li></ul>'+
+'<a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>觀看影片</span> — 口腔裝置清潔消毒法 (1分鐘)</a></div>'+
+'<div class="callout"><div class="ct">可以煮沸·微波爐消毒</div>與嬰兒奶瓶相同的材質,可煮沸消毒,也可使用微波爐消毒器。遺失或損壞需重做(₩150,000),請務必放入專用盒保管。</div>'+
+'<h2><span class="num">03</span>保護效果的生活習慣</h2><div class="card"><ul class="cln red"><li><b>不要只用一邊咀嚼</b> — 最重要。</li><li>不托腮、不緊咬牙關。</li><li>治療期間少吃硬、韌的食物。</li><li>不要總是朝同一側側睡 — 盡量仰睡。</li><li>減少長時間低頭滑手機。</li></ul></div>'+
+'<div class="callout">治療當天的輕微痠脹、瘀青一般1~2天消退。當天請避免劇烈運動、飲酒、三溫暖。</div>'+
+'<h2><span class="num">04</span>下次回診</h2><div class="card"><ul class="cln"><li>前2週<b>每週2次</b> → 之後4週<b>每週1次</b>。間隔太久效果會中斷。</li><li>每次以同一條件拍照記錄變化。</li><li>海外居住者: 回國後請繼續配戴矯正器,隨時透過LINE(@814kgltm)或WhatsApp聯絡我們。</li></ul></div>',
+th: '<h1>วิธีดูแลเครื่องมือและข้อควรระวัง</h1><p class="lead">วิธีรักษาผลของการรักษาวันนี้ให้อยู่นานขึ้น</p>'+
+'<h2><span class="num">01</span>วิธีใส่</h2><div class="card"><ul class="cln"><li><b>ยิ่งใส่นานยิ่งดี</b> พื้นฐานคือ<b>ใส่ตอนนอน</b></li><li>กลางวันกัดเครื่องมือขณะ<b>ยืดเหยียดหรือออกกำลังเบา ๆ</b> ก็ช่วยเพิ่มผล</li><li>ช่วงแรกอาจมีน้ำลายมากหรือรู้สึกแปลก ๆ เป็นการปรับตัวตามปกติ</li><li>ทำจากวัสดุปลอดภัยชนิดเดียวกับขวดนมเด็ก</li></ul></div>'+
+'<div class="callout red"><div class="ct">หยุดใส่และติดต่อเราเมื่อ…</div>มีอาการปวดขากรรไกร/ฟันขณะใส่ หรือตื่นเช้าแล้วรู้สึกว่าการสบฟันผิดปกติต่อเนื่อง อย่าฝืน ติดต่อเราก่อน</div>'+
+'<h2><span class="num">02</span>การทำความสะอาดและเก็บรักษา</h2><div class="card"><ul class="cln"><li>หลังใช้ ล้างด้วย<b>น้ำอุ่นไหล</b> + แปรงขนนุ่ม <b>ห้ามใช้ยาสีฟัน</b> (สารขัดทำให้เป็นรอย→เชื้อสะสม)</li><li>สัปดาห์ละ 1–2 ครั้ง แช่เม็ดฟู่ทำความสะอาดฟันปลอม/เครื่องมือ</li><li>เช็ดแห้งแล้วเก็บใน<b>กล่องเฉพาะ</b> — ห่อทิชชู่คือสาเหตุอันดับ 1 ของการทำหาย</li></ul>'+
+'<a class="vid" href="https://www.youtube.com/watch?v=VGY9miP2XYk">▶ <span>ดูวิดีโอ</span> — วิธีทำความสะอาดเครื่องมือในช่องปาก (1 นาที)</a></div>'+
+'<div class="callout"><div class="ct">ต้มฆ่าเชื้อหรือใช้ไมโครเวฟได้</div>เพราะเป็นวัสดุเดียวกับขวดนมเด็ก จึงต้มฆ่าเชื้อหรือใช้เครื่องนึ่งไมโครเวฟได้ หากสูญหายหรือเสียหายต้องทำใหม่ (₩150,000) กรุณาเก็บในกล่องทุกครั้ง</div>'+
+'<h2><span class="num">03</span>นิสัยที่ช่วยรักษาผลลัพธ์</h2><div class="card"><ul class="cln red"><li><b>อย่าเคี้ยวข้างเดียว</b> — สำคัญที่สุด</li><li>ไม่เท้าคาง ไม่ขบฟัน</li><li>ลดอาหารแข็ง/เหนียวระหว่างการรักษา</li><li>อย่านอนตะแคงข้างเดิมตลอด — นอนหงายถ้าทำได้</li><li>ลดการก้มหน้าดูมือถือนาน ๆ</li></ul></div>'+
+'<div class="callout">อาการตึงหรือรอยช้ำเล็กน้อยในวันรักษาจะหายใน 1–2 วัน วันนั้นงดออกกำลังหนัก แอลกอฮอล์ และซาวน่า</div>'+
+'<h2><span class="num">04</span>นัดครั้งต่อไป</h2><div class="card"><ul class="cln"><li>2 สัปดาห์แรก<b>สัปดาห์ละ 2 ครั้ง</b> → 4 สัปดาห์ถัดไป<b>สัปดาห์ละ 1 ครั้ง</b> เว้นนานผลจะขาดตอน</li><li>ถ่ายรูปเงื่อนไขเดิมทุกครั้งเพื่อบันทึกการเปลี่ยนแปลง</li><li>อยู่ต่างประเทศ: กลับบ้านแล้วใส่เครื่องมือต่อ และติดต่อเราได้ทุกเมื่อทาง LINE, KakaoTalk หรือ WhatsApp</li></ul></div>'
+}; })();
+var LANGS=[{code:"ko",label:"한국어"},{code:"en",label:"English"},{code:"it",label:"Italiano"},{code:"ja",label:"日本語"},{code:"zhCN",label:"简体中文"},{code:"zhTW",label:"繁體中文"},{code:"th",label:"ไทย"}];
+var cur="ko";
+function koRefs(sel){var d=document.createElement("div");d.innerHTML=AFTER.ko;return Array.prototype.map.call(d.querySelectorAll(sel),function(e){return e.textContent.trim();});}
+function render(){
+  var root=document.getElementById("afterRoot");
+  root.innerHTML=AFTER[cur];
+  if(cur!=="ko"){
+    ["h1","h2",".ct"].forEach(function(sel){
+      var ko=koRefs(sel), els=root.querySelectorAll(sel);
+      Array.prototype.forEach.call(els,function(e,i){ if(ko[i]){var g=document.createElement("span");g.className="ko-gloss";g.textContent=ko[i];e.appendChild(g);} });
+    });
+  }
+  document.documentElement.lang = (cur==="zhCN"?"zh-CN":cur==="zhTW"?"zh-TW":cur);
+}
+function buildBar(){
+  var b=document.getElementById("langBar"); b.innerHTML="";
+  LANGS.forEach(function(l){ var btn=document.createElement("button"); btn.textContent=l.label;
+    if(l.code===cur)btn.className="on";
+    btn.onclick=function(){cur=l.code;buildBar();render();window.scrollTo(0,0);}; b.appendChild(btn); });
+}
+buildBar(); render();
+</script>
 </body>
 </html>
