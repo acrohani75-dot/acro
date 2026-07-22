@@ -131,16 +131,22 @@ function today(){var d=new Date();return String(d.getFullYear()).slice(2)+String
 
 /* ---------- camera ---------- */
 function startCam(){
-  navigator.mediaDevices.getUserMedia({video:{width:{ideal:1920},height:{ideal:1080},facingMode:"user"},audio:false})
+  navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:"user"},audio:false})
   .then(function(s){
     video.srcObject=s; camOn=true;
-    video.onloadedmetadata=function(){ W=video.videoWidth||1280; H=video.videoHeight||720; cv.width=W; cv.height=H; document.getElementById("permMsg").style.display="none"; loop(); };
+    video.onloadedmetadata=function(){
+      var vw=video.videoWidth||1280, vh=video.videoHeight||720;
+      var sc=Math.min(1, 1280/Math.max(vw,vh));           // 최대 변 1280으로 다운스케일
+      W=Math.round(vw*sc); H=Math.round(vh*sc); cv.width=W; cv.height=H;
+      document.getElementById("permMsg").style.display="none"; loop();
+    };
   })
   .catch(function(e){ document.getElementById("permMsg").querySelector("b").textContent="카메라를 열 수 없습니다: "+e.name; });
 }
 
 /* ---------- render loop ---------- */
-function loop(){ if(mode==="live"){ draw(); } requestAnimationFrame(loop); }
+var lastDraw_=0;
+function loop(ts){ ts=ts||0; if(mode==="live" && ts-lastDraw_>=40){ draw(); lastDraw_=ts; } requestAnimationFrame(loop); }
 
 function drawFrame(){
   var mir=document.getElementById("mirrorChk").checked;
