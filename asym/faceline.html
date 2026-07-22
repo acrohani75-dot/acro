@@ -130,18 +130,31 @@ function toast(m){var t=document.getElementById("toast");t.textContent=m;t.class
 function today(){var d=new Date();return String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");}
 
 /* ---------- camera ---------- */
+function setPermMsg_(t){ var b=document.getElementById("permMsg").querySelector("b"); if(b) b.textContent=t; }
 function startCam(){
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){
+    setPermMsg_("이 브라우저는 카메라를 지원하지 않습니다. Safari 또는 Chrome으로 열어주세요."); return;
+  }
+  setPermMsg_("카메라 여는 중…");
   navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:"user"},audio:false})
   .then(function(s){
     video.srcObject=s; camOn=true;
-    video.onloadedmetadata=function(){
+    var started=false;
+    var onReady=function(){
+      if(started) return; started=true;
       var vw=video.videoWidth||1280, vh=video.videoHeight||720;
       var sc=Math.min(1, 1280/Math.max(vw,vh));           // 최대 변 1280으로 다운스케일
       W=Math.round(vw*sc); H=Math.round(vh*sc); cv.width=W; cv.height=H;
       document.getElementById("permMsg").style.display="none"; loop();
     };
+    video.onloadedmetadata=onReady;
+    var pp=video.play();                       // ★ iOS Safari: 명시적 재생 필수 (없으면 drawImage가 검은 프레임)
+    if(pp&&pp.catch){ pp.catch(function(){}); }
+    if(video.readyState>=2){ onReady(); }        // 메타데이터가 이미 준비된 경우(레이스) 대비
   })
-  .catch(function(e){ document.getElementById("permMsg").querySelector("b").textContent="카메라를 열 수 없습니다: "+e.name; });
+  .catch(function(e){
+    setPermMsg_("카메라를 열 수 없습니다 ("+e.name+"). 카카오·인스타·슬랙 앱에서 열었다면 오른쪽 위 ··· → Safari(또는 Chrome)로 열기 를 눌러주세요.");
+  });
 }
 
 /* ---------- render loop ---------- */
@@ -390,15 +403,27 @@ function sendSlack(){
   fetch(GAS_URL,{method:"POST",body:JSON.stringify({token:SHARED_TOKEN,type:"photo",chart:chart,name:name,label:j.label,image:j.url})})
     .then(function(r){return r.json();})
     .then(function(res){ toast(res&&res.ok?"Slack 전송 완료":"전송 실패: "+(res&&res.err||"")); })
-    .catch(function(){ toast("전송 실패 — 네트워크 확인"); });
+    .catch(function(e){ toast("전송 실패 — "+((e&&e.message)||"네트워크 확인")); });
 }
 window.addEventListener("keydown", function(e){
   if(e.code==="Space" && document.activeElement.tagName!=="INPUT"){ e.preventDefault(); capture(); }
 });
 
-/* auto-try camera on load */
+/* auto-try camera on load — 환경별 분기 (iOS/앱내브라우저/비보안 하드닝) */
 draw();
-if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){ startCam(); }
+(function initCam(){
+  var ua=navigator.userAgent||"";
+  var inApp=/KAKAOTALK|Instagram|FBAN|FBAV|Line\/|NAVER\(inapp|DaumApps|; wv\)/i.test(ua);
+  var iOS=/iPad|iPhone|iPod/.test(ua) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
+  if(!window.isSecureContext){
+    setPermMsg_("주소가 https(자물쇠 🔒)여야 카메라가 켜집니다. 주소창을 확인해주세요."); return;
+  }
+  if(inApp){
+    setPermMsg_("앱 안에서 열려 카메라가 막혀 있어요. 오른쪽 위 ··· → 'Safari로 열기'(또는 Chrome)를 눌러 다시 열어주세요."); return;
+  }
+  if(iOS){ setPermMsg_("아래 '카메라 시작'을 눌러주세요. (아이패드는 탭으로 시작합니다)"); return; }  // iOS: 제스처로만 시작
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){ startCam(); }                        // 데스크톱: 자동 시작
+})();
 </script>
 </body>
 </html>
