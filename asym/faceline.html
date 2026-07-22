@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACRO 페이스라인 — 안면 밸런스 진단 도구</title>
+<style>
+  :root{
+    --ink:#22303a; --sub:#8a97a1; --line:#2e3f4a;
+    --accent:#2f9d8f; --gold:#c9a35c; --red:#d4736e;
+    --bg:#141c22; --panel:#1b252d;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;user-select:none}
+  body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:#e8edf0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  header{display:flex;align-items:center;gap:14px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .brand{font-size:11px;letter-spacing:.16em;color:var(--gold);font-weight:800;white-space:nowrap}
+  .brand small{display:block;font-size:13px;color:#e8edf0;letter-spacing:0;font-weight:700}
+  header input[type=text]{background:#10171d;border:1px solid var(--line);border-radius:8px;color:#e8edf0;padding:7px 10px;font-size:13.5px;width:130px;font-family:inherit}
+  .spacer{flex:1}
+  .mode{display:flex;gap:4px;background:#10171d;border-radius:10px;padding:3px}
+  .mode button{border:none;background:transparent;color:var(--sub);font-size:13px;font-weight:700;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:inherit}
+  .mode button.on{background:var(--accent);color:#fff}
+  main{flex:1;display:flex;min-height:0}
+  .stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;background:#0c1116;min-width:0}
+  .stage canvas{max-width:100%;max-height:100%;cursor:crosshair;touch-action:none}
+  #liveVideo{display:none}
+  .sidebar{width:230px;background:var(--panel);border-left:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto}
+  .sb-title{font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.1em;margin:6px 0 2px}
+  .btn{border:1px solid var(--line);background:#10171d;color:#e8edf0;font-size:13.5px;font-weight:700;padding:10px 12px;border-radius:10px;cursor:pointer;font-family:inherit;text-align:left;display:flex;align-items:center;gap:8px}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.gold{background:var(--gold);border-color:var(--gold);color:#1b252d}
+  .btn.warn{color:var(--red)}
+  .btn.tool.on{background:#183530;border-color:var(--accent);color:var(--accent)}
+  .btn .k{display:inline-block;width:18px;text-align:center;font-size:15px}
+  .row2{display:flex;gap:8px}
+  .row2 .btn{flex:1;justify-content:center;text-align:center}
+  .sl{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--sub)}
+  .sl input[type=range]{flex:1;accent-color:var(--accent)}
+  .thumbs{display:flex;gap:8px}
+  .thumb{flex:1;aspect-ratio:3/4;background:#10171d;border:1px dashed var(--line);border-radius:10px;overflow:hidden;position:relative;cursor:pointer}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .thumb .tl{position:absolute;top:5px;left:6px;font-size:10.5px;font-weight:800;background:rgba(0,0,0,.55);padding:2px 7px;border-radius:8px}
+  .thumb.b .tl{color:#9fd8d0}.thumb.a .tl{color:#ecd3a0}
+  .hint{font-size:11.5px;color:var(--sub);line-height:1.6}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:13.5px;font-weight:700;padding:10px 20px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
+  .toast.show{opacity:1}
+  #permMsg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--sub);font-size:14px;text-align:center;padding:20px}
+  #permMsg button{margin-top:6px}
+  @media(max-width:760px){ .sidebar{width:190px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">ACRO FACELINE<small>안면 밸런스 진단</small></div>
+  <input type="text" id="chartNo" placeholder="차트번호/이름">
+  <div class="spacer"></div>
+  <div class="mode" id="modeBar">
+    <button data-m="live" class="on">라이브</button>
+    <button data-m="frozen">정지</button>
+    <button data-m="side">전후 비교</button>
+    <button data-m="blend">겹쳐 보기</button>
+  </div>
+</header>
+
+<main>
+  <div class="stage" id="stage">
+    <video id="liveVideo" autoplay playsinline muted></video>
+    <canvas id="cv" width="1280" height="720"></canvas>
+    <div id="permMsg">
+      <div style="font-size:34px">📷</div>
+      <div><b>카메라 권한이 필요합니다.</b><br>아래 버튼을 누르고 브라우저의 카메라 허용을 눌러주세요.</div>
+      <button class="btn primary" onclick="startCam()">카메라 시작</button>
+      <div class="hint">크롬/엣지 권장 · 권한 창이 안 뜨면 주소창 오른쪽 카메라 아이콘 확인</div>
+    </div>
+  </div>
+  <div class="sidebar">
+    <div class="sb-title">기준선 도구</div>
+    <button class="btn tool" id="t_h" onclick="setTool('h')"><span class="k">━</span>수평선 추가</button>
+    <button class="btn tool" id="t_v" onclick="setTool('v')"><span class="k">┃</span>수직 midline 추가</button>
+    <button class="btn tool" id="t_seg" onclick="setTool('seg')"><span class="k">∠</span>각도 측정 (2점 클릭)</button>
+    <div class="row2">
+      <button class="btn" onclick="undoLine()">↩ 되돌리기</button>
+      <button class="btn warn" onclick="clearLines()">✕ 전체 삭제</button>
+    </div>
+    <label class="sl"><input type="checkbox" id="gridChk" onchange="draw()"> 격자 표시</label>
+    <label class="sl"><input type="checkbox" id="mirrorChk" checked onchange="draw()"> 좌우 반전(거울)</label>
+
+    <div class="sb-title">캡처</div>
+    <div class="row2">
+      <button class="btn primary" onclick="capture('before')">📸 치료 전</button>
+      <button class="btn gold" onclick="capture('after')">📸 치료 후</button>
+    </div>
+    <div class="thumbs">
+      <div class="thumb b" onclick="viewShot('before')"><span class="tl">전</span><img id="thumbB" style="display:none"></div>
+      <div class="thumb a" onclick="viewShot('after')"><span class="tl">후</span><img id="thumbA" style="display:none"></div>
+    </div>
+    <div class="sl" id="blendRow" style="display:none">전 <input type="range" id="blendSl" min="0" max="100" value="50" oninput="draw()"> 후</div>
+
+    <div class="sb-title">저장</div>
+    <button class="btn" onclick="savePng()">⬇ 현재 화면 PNG 저장</button>
+    <button class="btn" onclick="saveBoth()">⬇ 전후 비교 PNG 저장</button>
+    <div class="hint">저장 파일명: 차트번호_날짜_전/후/비교<br>선은 드래그로 이동 · 사진은 어디에도 전송되지 않고 이 기기에만 저장됩니다.</div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+var video=document.getElementById("liveVideo"), cv=document.getElementById("cv"), ctx=cv.getContext("2d");
+var mode="live", tool=null, lines=[], segPending=null, camOn=false;
+var shots={before:null, after:null}; // {img:Image, lines:[...], ts}
+var W=1280,H=720;
+
+function toast(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},1600);}
+function today(){var d=new Date();return String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0");}
+
+/* ---------- camera ---------- */
+function startCam(){
+  navigator.mediaDevices.getUserMedia({video:{width:{ideal:1920},height:{ideal:1080},facingMode:"user"},audio:false})
+  .then(function(s){
+    video.srcObject=s; camOn=true;
+    video.onloadedmetadata=function(){ W=video.videoWidth||1280; H=video.videoHeight||720; cv.width=W; cv.height=H; document.getElementById("permMsg").style.display="none"; loop(); };
+  })
+  .catch(function(e){ document.getElementById("permMsg").querySelector("b").textContent="카메라를 열 수 없습니다: "+e.name; });
+}
+
+/* ---------- render loop ---------- */
+function loop(){ if(mode==="live"){ draw(); } requestAnimationFrame(loop); }
+
+function drawFrame(){
+  var mir=document.getElementById("mirrorChk").checked;
+  ctx.save();
+  if(mir){ ctx.translate(W,0); ctx.scale(-1,1); }
+  if(mode==="live" && camOn){ ctx.drawImage(video,0,0,W,H); }
+  else if(mode==="frozen" && frozenImg){ ctx.drawImage(frozenImg,0,0,W,H); }
+  ctx.restore();
+}
+
+var frozenImg=null;
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(mode==="side"){ drawSide(); return; }
+  if(mode==="blend"){ drawBlend(); return; }
+  drawFrame();
+  drawGrid();
+  drawLines(lines, ctx, 1);
+}
+
+function drawGrid(){
+  if(!document.getElementById("gridChk").checked) return;
+  ctx.save(); ctx.strokeStyle="rgba(255,255,255,.13)"; ctx.lineWidth=1;
+  for(var x=W/8;x<W;x+=W/8){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(var y=H/8;y<H;y+=H/8){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.restore();
+}
+
+function drawLines(ls,c,scale){
+  c.save(); c.lineWidth=2.5*scale; c.font=(15*scale)+"px sans-serif";
+  ls.forEach(function(l,i){
+    if(l.type==="h"){ c.strokeStyle="#2f9d8f"; c.beginPath(); c.moveTo(0,l.y); c.lineTo(W,l.y); c.stroke(); }
+    else if(l.type==="v"){ c.strokeStyle="#c9a35c"; c.beginPath(); c.moveTo(l.x,0); c.lineTo(l.x,H); c.stroke(); }
+    else if(l.type==="seg"){
+      c.strokeStyle="#d4736e"; c.beginPath(); c.moveTo(l.x1,l.y1); c.lineTo(l.x2,l.y2); c.stroke();
+      c.fillStyle="#d4736e"; c.beginPath(); c.arc(l.x1,l.y1,4*scale,0,7); c.fill(); c.beginPath(); c.arc(l.x2,l.y2,4*scale,0,7); c.fill();
+      var ang=Math.atan2(l.y2-l.y1,l.x2-l.x1)*180/Math.PI; ang=((ang%180)+180)%180; if(ang>90) ang-=180;
+      var label=Math.abs(ang).toFixed(1)+"°";
+      var mx=(l.x1+l.x2)/2, my=(l.y1+l.y2)/2;
+      c.fillStyle="rgba(0,0,0,.65)"; c.fillRect(mx+8,my-24*scale,58*scale,26*scale);
+      c.fillStyle="#ffd9d6"; c.fillText(label,mx+14,my-5*scale);
+    }
+  });
+  if(segPending){ c.fillStyle="#d4736e"; c.beginPath(); c.arc(segPending.x,segPending.y,5,0,7); c.fill(); }
+  c.restore();
+}
+
+/* ---------- compare views ---------- */
+function drawSide(){
+  ctx.fillStyle="#0c1116"; ctx.fillRect(0,0,W,H);
+  var hw=W/2;
+  ["before","after"].forEach(function(k,i){
+    var s=shots[k];
+    ctx.save(); ctx.beginPath(); ctx.rect(i*hw,0,hw,H); ctx.clip();
+    if(s){ var r=fitRect(s.img.width,s.img.height,hw,H); ctx.drawImage(s.img, i*hw+r.x, r.y, r.w, r.h); }
+    ctx.restore();
+    ctx.fillStyle="rgba(0,0,0,.6)"; ctx.fillRect(i*hw+10,10,120,34);
+    ctx.fillStyle= i===0?"#9fd8d0":"#ecd3a0"; ctx.font="bold 20px sans-serif";
+    ctx.fillText(i===0?"치료 전":"치료 후", i*hw+22, 34);
+    if(!s){ ctx.fillStyle="#5b6b76"; ctx.font="16px sans-serif"; ctx.fillText("캡처 없음", i*hw+hw/2-30, H/2); }
+  });
+  ctx.strokeStyle="#c9a35c"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(hw,0); ctx.lineTo(hw,H); ctx.stroke();
+  drawLines(lines, ctx, 1);
+}
+function drawBlend(){
+  ctx.fillStyle="#0c1116"; ctx.fillRect(0,0,W,H);
+  var a=shots.before, b=shots.after, mix=document.getElementById("blendSl").value/100;
+  if(a){ var r=fitRect(a.img.width,a.img.height,W,H); ctx.globalAlpha=1; ctx.drawImage(a.img,r.x,r.y,r.w,r.h); }
+  if(b){ var r2=fitRect(b.img.width,b.img.height,W,H); ctx.globalAlpha=mix; ctx.drawImage(b.img,r2.x,r2.y,r2.w,r2.h); }
+  ctx.globalAlpha=1;
+  drawLines(lines, ctx, 1);
+}
+function fitRect(iw,ih,bw,bh){ var s=Math.min(bw/iw,bh/ih); var w=iw*s,h=ih*s; return {x:(bw-w)/2,y:(bh-h)/2,w:w,h:h}; }
+
+/* ---------- tools & interaction ---------- */
+function setTool(t){ tool=(tool===t?null:t); segPending=null;
+  ["h","v","seg"].forEach(function(k){ document.getElementById("t_"+k).classList.toggle("on", tool===k); });
+}
+function undoLine(){ lines.pop(); segPending=null; draw(); }
+function clearLines(){ lines=[]; segPending=null; draw(); }
+
+function evPos(e){
+  var r=cv.getBoundingClientRect();
+  var p=e.touches?e.touches[0]:e;
+  return {x:(p.clientX-r.left)*(W/r.width), y:(p.clientY-r.top)*(H/r.height)};
+}
+var dragging=null;
+cv.addEventListener("pointerdown", function(e){
+  var p=evPos(e);
+  if(tool==="h"){ lines.push({type:"h",y:p.y}); setTool(null); draw(); return; }
+  if(tool==="v"){ lines.push({type:"v",x:p.x}); setTool(null); draw(); return; }
+  if(tool==="seg"){
+    if(!segPending){ segPending={x:p.x,y:p.y}; } else { lines.push({type:"seg",x1:segPending.x,y1:segPending.y,x2:p.x,y2:p.y}); segPending=null; setTool(null); }
+    draw(); return;
+  }
+  // drag existing line
+  var hit=null, tol=14*(W/cv.getBoundingClientRect().width);
+  for(var i=lines.length-1;i>=0;i--){
+    var l=lines[i];
+    if(l.type==="h"&&Math.abs(p.y-l.y)<tol){hit={i:i,part:"all"};break;}
+    if(l.type==="v"&&Math.abs(p.x-l.x)<tol){hit={i:i,part:"all"};break;}
+    if(l.type==="seg"){
+      if(Math.hypot(p.x-l.x1,p.y-l.y1)<tol){hit={i:i,part:"p1"};break;}
+      if(Math.hypot(p.x-l.x2,p.y-l.y2)<tol){hit={i:i,part:"p2"};break;}
+    }
+  }
+  dragging=hit;
+});
+cv.addEventListener("pointermove", function(e){
+  if(!dragging) return;
+  var p=evPos(e), l=lines[dragging.i];
+  if(l.type==="h") l.y=p.y;
+  else if(l.type==="v") l.x=p.x;
+  else if(dragging.part==="p1"){ l.x1=p.x; l.y1=p.y; }
+  else { l.x2=p.x; l.y2=p.y; }
+  if(mode!=="live") draw();
+});
+window.addEventListener("pointerup", function(){ dragging=null; });
+
+/* ---------- modes ---------- */
+document.getElementById("modeBar").addEventListener("click", function(e){
+  if(e.target.tagName!=="BUTTON") return;
+  var m=e.target.dataset.m;
+  if(m==="frozen" && mode!=="frozen"){ freeze(); }
+  mode=m;
+  document.querySelectorAll("#modeBar button").forEach(function(b){b.classList.toggle("on",b.dataset.m===m);});
+  document.getElementById("blendRow").style.display = m==="blend"?"flex":"none";
+  draw();
+});
+function freeze(){
+  if(!camOn) return;
+  var c=document.createElement("canvas"); c.width=W; c.height=H;
+  var cc=c.getContext("2d");
+  var mir=document.getElementById("mirrorChk").checked;
+  if(mir){ cc.translate(W,0); cc.scale(-1,1); }
+  cc.drawImage(video,0,0,W,H);
+  frozenImg=new Image(); frozenImg.src=c.toDataURL("image/png");
+}
+
+/* ---------- capture / save ---------- */
+function renderStamp(c, label){
+  var g=c.getContext("2d");
+  var name=(document.getElementById("chartNo").value||"미입력");
+  var txt=name+" · "+today()+" · "+label;
+  g.font="bold 20px sans-serif";
+  var w=g.measureText(txt).width+24;
+  g.fillStyle="rgba(0,0,0,.6)"; g.fillRect(c.width-w-14, c.height-46, w, 34);
+  g.fillStyle="#fff"; g.fillText(txt, c.width-w-2, c.height-22);
+}
+function snapshotCanvas(withLines, label){
+  var c=document.createElement("canvas"); c.width=W; c.height=H;
+  var g=c.getContext("2d");
+  var mir=document.getElementById("mirrorChk").checked;
+  g.save(); if(mir){ g.translate(W,0); g.scale(-1,1); }
+  if(mode==="frozen"&&frozenImg) g.drawImage(frozenImg,0,0,W,H); else if(camOn) g.drawImage(video,0,0,W,H);
+  g.restore();
+  if(withLines) drawLines(lines,g,1);
+  renderStamp(c,label);
+  return c;
+}
+function capture(kind){
+  if(!camOn && !(mode==="frozen"&&frozenImg)){ toast("카메라를 먼저 시작하세요"); return; }
+  var label = kind==="before"?"치료 전":"치료 후";
+  var c=snapshotCanvas(true,label);
+  var img=new Image(); img.src=c.toDataURL("image/png");
+  shots[kind]={img:img, ts:Date.now()};
+  var th=document.getElementById(kind==="before"?"thumbB":"thumbA");
+  th.src=img.src; th.style.display="block";
+  toast(label+" 캡처 완료");
+}
+function viewShot(kind){
+  if(!shots[kind]) return;
+  frozenImg=shots[kind].img; mode="frozen";
+  document.querySelectorAll("#modeBar button").forEach(function(b){b.classList.toggle("on",b.dataset.m==="frozen");});
+  draw();
+}
+function dl(url,name){ var a=document.createElement("a"); a.href=url; a.download=name; a.click(); }
+function savePng(){
+  var name=(document.getElementById("chartNo").value||"환자")+"_"+today();
+  if(mode==="side"||mode==="blend"){ dl(cv.toDataURL("image/png"), name+"_비교.png"); }
+  else { dl(snapshotCanvas(true,"기록").toDataURL("image/png"), name+"_기록.png"); }
+  toast("저장되었습니다");
+}
+function saveBoth(){
+  if(!shots.before||!shots.after){ toast("전·후 캡처가 모두 필요합니다"); return; }
+  var prev=mode; mode="side"; draw();
+  var name=(document.getElementById("chartNo").value||"환자")+"_"+today();
+  dl(cv.toDataURL("image/png"), name+"_전후비교.png");
+  mode=prev; draw(); toast("전후 비교 저장 완료");
+}
+
+/* auto-try camera on load */
+draw();
+if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){ startCam(); }
+</script>
+</body>
+</html>
