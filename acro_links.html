@@ -26,7 +26,6 @@
     color: var(--text);
     min-height: 100vh;
   }
-
   /* HEADER */
   header {
     background: linear-gradient(145deg, var(--g-dark) 0%, var(--g-mid) 100%);
@@ -47,7 +46,6 @@
   .header-logo { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 6px; }
   header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   header p { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px; }
-
   /* LAYOUT */
   main { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; }
   html { scroll-behavior: smooth; }
@@ -62,7 +60,6 @@
     border-radius: 999px; padding: 6px 14px; transition: .15s;
   }
   .jump a:hover { color: var(--g-dark); border-color: var(--g-light); }
-
   /* ── PC 반응형: 2열 → 3열 그리드 ── */
   @media (min-width: 768px) {
     main { max-width: 1060px; display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; align-items: start; }
@@ -75,7 +72,6 @@
     main, .sub-group { grid-template-columns: repeat(3, 1fr); }
     main, .jump { max-width: 1320px; }
   }
-
   /* SECTION LABEL */
   .section-label { display: flex; align-items: center; gap: 10px; margin: 28px 0 14px; }
   .section-label .pill {
@@ -86,9 +82,9 @@
   .pill.common  { background: #7a6030; }
   .pill.staff   { background: #3a6b5e; }
   .pill.doctor  { background: var(--g-dark); }
+  .pill.balance { background: #a85c5c; }
   .pill.links   { background: #5a4e7a; }
   .section-label hr { flex: 1; border: none; border-top: 1px solid var(--border); }
-
   /* CARD */
   .card {
     display: block;
@@ -114,8 +110,8 @@
   .card.common::before  { background: #c09020; }
   .card.staff::before   { background: #3a6b5e; }
   .card.doctor::before  { background: var(--g-dark); }
+  .card.balance::before { background: #a85c5c; }
   .card.links::before   { background: #5a4e7a; }
-
   .card-inner { display: flex; align-items: center; gap: 12px; }
   .card-icon {
     width: 38px; height: 38px;
@@ -126,8 +122,8 @@
   .card.common .card-icon { background: #f5ead8; }
   .card.staff  .card-icon { background: #e0efea; }
   .card.doctor .card-icon { background: var(--g-pale); }
+  .card.balance .card-icon { background: #f6e7e7; }
   .card.links  .card-icon { background: #ece9f4; }
-
   .card-text { flex: 1; min-width: 0; }
   .card-name { font-size: 14px; font-weight: 700; line-height: 1.3; }
   .card-desc { font-size: 11.5px; color: var(--sub); margin-top: 2px; }
@@ -139,7 +135,6 @@
   }
   .card-url .u { -webkit-user-select: all; user-select: all; }
   .card-url .lb { color: #8b83a5; user-select: none; -webkit-user-select: none; margin-right: 4px; }
-
   /* API KEY BOX */
   .api-box {
     margin-top: 10px;
@@ -175,7 +170,6 @@
   }
   .copy-btn:hover { background: #d4c070; }
   .copy-btn.copied { background: #a8d4a0; color: #1a4a18; }
-
   /* SURVEY SUB-GROUP */
   .sub-group {
     background: var(--g-pale);
@@ -192,14 +186,12 @@
   }
   .sub-group .card { margin-bottom: 8px; border-radius: 10px; }
   .sub-group .card:last-child { margin-bottom: 0; }
-
   /* FOOTER */
   footer { text-align: center; font-size: 11px; color: var(--sub); padding: 0 16px 32px; }
   footer span { color: var(--g-mid); font-weight: 600; }
 </style>
 </head>
 <body>
-
 <header>
   <div class="header-inner">
     <div class="header-logo">Acro Korean Medicine Clinic</div>
@@ -207,21 +199,18 @@
     <p>진료 · 시술 · 설문 내부 도구 모음집</p>
   </div>
 </header>
-
 <nav class="jump">
   <a href="#sec-common">공통</a>
   <a href="#sec-staff">직원</a>
   <a href="#sec-doctor">의료진</a>
+  <a href="#sec-balance">안면밸런스</a>
   <a href="#sec-survey">설문지</a>
 </nav>
-
 <main>
-
   <!-- ◈ 공통 ◈ -->
   <div class="section-label">
     <div class="pill common" id="sec-common">공통</div><hr>
   </div>
-
   <a class="card common" href="https://chatgpt.com/g/g-6a55ac39a15081919c2e9eea467b5283-silsigan-dagugeo-tongyeoggi" target="_blank">
     <div class="card-inner">
       <div class="card-icon">💬</div>
@@ -232,7 +221,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <div class="card common" style="cursor:default;">
     <a href="https://acrohani75-dot.github.io/acro/acro_interpreter.html" target="_blank" style="text-decoration:none; color:inherit;">
       <div class="card-inner">
@@ -245,7 +233,6 @@
       </div>
     </a>
   </div>
-
   <a class="card common" href="https://acrohani75-dot.github.io/acro/acro_photo_editor.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">📸</div>
@@ -256,13 +243,10 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
-
   <!-- ◈ 직원 ◈ -->
   <div class="section-label">
     <div class="pill staff" id="sec-staff">직원</div><hr>
   </div>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_reply_console.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">🤖</div>
@@ -273,7 +257,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro-결산-html.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">🧾</div>
@@ -284,7 +267,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_guide.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">📖</div>
@@ -295,7 +277,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_foreign_line_guide.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">💬</div>
@@ -306,7 +287,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <div class="qitem">
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_diet_guide.html" target="_blank">
     <div class="card-inner">
@@ -320,7 +300,6 @@
   </a>
     <div class="card-url"><span class="lb">🔗 복사용 링크</span><span class="u">https://acrohani75-dot.github.io/acro/acro_diet_guide.html</span></div>
   </div>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">📦</div>
@@ -331,7 +310,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/untact_guide.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">📝</div>
@@ -342,7 +320,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_photo_guide.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">📷</div>
@@ -353,7 +330,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_staff_education.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">📚</div>
@@ -364,7 +340,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card staff" href="https://acrohani75-dot.github.io/acro/onda_flow.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">📋</div>
@@ -375,12 +350,9 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
-
   <div class="section-label">
     <div class="pill doctor" id="sec-doctor">의료진</div><hr>
   </div>
-
   <a class="card doctor" href="https://acrohani75-dot.github.io/acro/Acro_first_treatment_park.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">🌸</div>
@@ -391,7 +363,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card doctor" href="https://acrohani75-dot.github.io/acro/acro_first_treatment.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">🩺</div>
@@ -402,7 +373,6 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
   <a class="card doctor" href="https://acrohani75-dot.github.io/acro/acro_treatment_guide.html" target="_blank">
     <div class="card-inner">
       <div class="card-icon">✂️</div>
@@ -413,13 +383,50 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-
-
+  <!-- ◈ 안면 밸런스 ◈ -->
+  <div class="section-label">
+    <div class="pill balance" id="sec-balance">안면 밸런스</div><hr>
+  </div>
+  <div class="qitem">
+  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/" target="_blank">
+    <div class="card-inner">
+      <div class="card-icon">🪞</div>
+      <div class="card-text">
+        <div class="card-name">안면비대칭 통합본</div>
+        <div class="card-desc">초진설문 · 치료안내 · 수가표 · 시술/환불 동의서 · 관리법 · 7개 언어</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+    <div class="card-url"><span class="lb">🔗 복사용 링크</span><span class="u">https://acrohani75-dot.github.io/acro/asym/</span></div>
+  </div>
+  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/faceline.html" target="_blank">
+    <div class="card-inner">
+      <div class="card-icon">📐</div>
+      <div class="card-text">
+        <div class="card-name">페이스라인 진단 도구</div>
+        <div class="card-desc">웹캠 촬영 · 수직/수평 각도 측정 · 전후 비교 · 슬랙 전송</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+  <div class="qitem">
+  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/aftercare.html" target="_blank">
+    <div class="card-inner">
+      <div class="card-icon">🦷</div>
+      <div class="card-text">
+        <div class="card-name">교정장치 관리법 (환자 발송용)</div>
+        <div class="card-desc">턱관절 교정장치 관리 · 주의사항 발송 URL</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+    <div class="card-url"><span class="lb">🔗 복사용 링크</span><span class="u">https://acrohani75-dot.github.io/acro/asym/aftercare.html</span></div>
+  </div>
   <!-- ◈ 설문지 링크 ◈ -->
   <div class="section-label">
     <div class="pill links" id="sec-survey">설문지 링크</div><hr>
   </div>
-
   <!-- 설문지 목록 -->
   <div class="sub-group" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
     <a class="card links" href="https://script.google.com/a/macros/acrohani.com/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec?list=1" target="_blank" style="margin:0;">
@@ -443,7 +450,6 @@
       </div>
     </a>
   </div>
-
   <!-- 초진 -->
   <div class="sub-group">
     <div class="sub-group-title">📋 초진</div>
@@ -486,7 +492,6 @@
     <div class="card-url"><span class="lb">🔗 복사용 링크</span><span class="u">https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec</span></div>
     </div>
   </div>
-
   <!-- 재진 -->
   <div class="sub-group">
     <div class="sub-group-title">📋 재진</div>
@@ -517,7 +522,6 @@
     <div class="card-url"><span class="lb">🔗 복사용 링크</span><span class="u">https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</span></div>
     </div>
   </div>
-
   <!-- 시술 -->
   <div class="sub-group">
     <div class="sub-group-title">📋 시술</div>
@@ -548,13 +552,10 @@
     <div class="card-url"><span class="lb">🔗 복사용 링크</span><span class="u">https://script.google.com/macros/s/AKfycbwjiS-wutd1-AZ7aGS4f8AWfnd__yoWWKtsPKprqOzUR_ClttV6hM41VaH8azYf8C4hkA/exec</span></div>
     </div>
   </div>
-
 </main>
-
 <footer>
   <span>아크로한의원</span> 내부 전용 · 강남대로 480 보라티알빌딩 2층
 </footer>
-
 <script>
 function copyKey() {
   const key = document.getElementById('apikey').innerText;
@@ -566,6 +567,5 @@ function copyKey() {
   });
 }
 </script>
-
 </body>
 </html>
