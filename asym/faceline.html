@@ -42,6 +42,12 @@
   .thumb img{width:100%;height:100%;object-fit:cover;display:block}
   .thumb .tl{position:absolute;top:5px;left:6px;font-size:10.5px;font-weight:800;background:rgba(0,0,0,.55);padding:2px 7px;border-radius:8px}
   .thumb.b .tl{color:#9fd8d0}.thumb.a .tl{color:#ecd3a0}
+  .shots-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .shot{position:relative;aspect-ratio:4/3;border:2px solid var(--line);border-radius:8px;overflow:hidden;cursor:pointer;background:#10171d}
+  .shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .shot.sel{border-color:var(--accent);box-shadow:0 0 0 2px rgba(47,157,143,.4)}
+  .shot .x{position:absolute;top:2px;right:2px;width:18px;height:18px;line-height:16px;text-align:center;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;font-size:11px}
+  .shot .n{position:absolute;bottom:2px;left:4px;font-size:10px;color:#fff;background:rgba(0,0,0,.5);padding:0 5px;border-radius:6px}
   .hint{font-size:11.5px;color:var(--sub);line-height:1.6}
   .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:13.5px;font-weight:700;padding:10px 20px;border-radius:20px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:99}
   .toast.show{opacity:1}
@@ -54,7 +60,7 @@
 
 <header>
   <div class="brand">ACRO FACELINE<small>안면 밸런스 진단</small></div>
-  <input type="text" id="chartNo" placeholder="차트번호/이름">
+  <input type="text" id="chartNo" placeholder="차트번호" style="width:100px"><input type="text" id="ptName" placeholder="환자 성함" style="width:110px">
   <div class="spacer"></div>
   <div class="mode" id="modeBar">
     <button data-m="live" class="on">라이브</button>
@@ -87,10 +93,13 @@
     <label class="sl"><input type="checkbox" id="gridChk" onchange="draw()"> 격자 표시</label>
     <label class="sl"><input type="checkbox" id="mirrorChk" checked onchange="draw()"> 좌우 반전(거울)</label>
 
-    <div class="sb-title">캡처</div>
+    <div class="sb-title">촬영</div>
+    <button class="btn primary" onclick="capture()" style="justify-content:center;font-size:15px">📸 촬영 <span style="font-weight:400;font-size:11.5px">(스페이스바)</span></button>
+    <div class="shots-strip" id="gallery"></div>
+    <div class="hint">여러 컷 찍고 → 썸네일 클릭으로 선택 → 선 긋고 편집 → 아래 버튼으로 전/후 지정</div>
     <div class="row2">
-      <button class="btn primary" onclick="capture('before')">📸 치료 전</button>
-      <button class="btn gold" onclick="capture('after')">📸 치료 후</button>
+      <button class="btn" onclick="assignShot('before')">→ 치료 전 지정</button>
+      <button class="btn gold" onclick="assignShot('after')">→ 치료 후 지정</button>
     </div>
     <div class="thumbs">
       <div class="thumb b" onclick="viewShot('before')"><span class="tl">전</span><img id="thumbB" style="display:none"></div>
@@ -99,6 +108,7 @@
     <div class="sl" id="blendRow" style="display:none">전 <input type="range" id="blendSl" min="0" max="100" value="50" oninput="draw()"> 후</div>
 
     <div class="sb-title">저장</div>
+    <button class="btn primary" onclick="sendSlack()" style="justify-content:center">📤 Slack으로 전송</button>
     <button class="btn" onclick="savePng()">⬇ 현재 화면 PNG 저장</button>
     <button class="btn" onclick="saveBoth()">⬇ 전후 비교 PNG 저장</button>
     <div class="hint">저장 파일명: 차트번호_날짜_전/후/비교<br>선은 드래그로 이동 · 사진은 어디에도 전송되지 않고 이 기기에만 저장됩니다.</div>
@@ -109,6 +119,8 @@
 
 <script>
 "use strict";
+var GAS_URL="https://script.google.com/macros/s/AKfycbwusK1BIrQi483kQa-xhlx4pPxGYd445BkQUKoYf78K0wItVyvypNNdz5KYutd8C6zE9A/exec"; // 설문과 동일 GAS
+var SHARED_TOKEN="acro-asym-2607";
 var video=document.getElementById("liveVideo"), cv=document.getElementById("cv"), ctx=cv.getContext("2d");
 var mode="live", tool=null, lines=[], segPending=null, camOn=false;
 var shots={before:null, after:null}; // {img:Image, lines:[...], ts}
@@ -133,8 +145,7 @@ function loop(){ if(mode==="live"){ draw(); } requestAnimationFrame(loop); }
 function drawFrame(){
   var mir=document.getElementById("mirrorChk").checked;
   ctx.save();
-  if(mir){ ctx.translate(W,0); ctx.scale(-1,1); }
-  if(mode==="live" && camOn){ ctx.drawImage(video,0,0,W,H); }
+  if(mode==="live" && camOn){ if(mir){ ctx.translate(W,0); ctx.scale(-1,1); } ctx.drawImage(video,0,0,W,H); }
   else if(mode==="frozen" && frozenImg){ ctx.drawImage(frozenImg,0,0,W,H); }
   ctx.restore();
 }
@@ -268,36 +279,74 @@ function freeze(){
   frozenImg=new Image(); frozenImg.src=c.toDataURL("image/png");
 }
 
-/* ---------- capture / save ---------- */
+/* ---------- capture gallery / save ---------- */
+var gallery=[], selIdx=-1, MAXSHOTS=8;
 function renderStamp(c, label){
   var g=c.getContext("2d");
-  var name=(document.getElementById("chartNo").value||"미입력");
+  var name=((document.getElementById("chartNo").value||"미입력")+" "+(document.getElementById("ptName").value||"")).trim();
   var txt=name+" · "+today()+" · "+label;
   g.font="bold 20px sans-serif";
   var w=g.measureText(txt).width+24;
   g.fillStyle="rgba(0,0,0,.6)"; g.fillRect(c.width-w-14, c.height-46, w, 34);
   g.fillStyle="#fff"; g.fillText(txt, c.width-w-2, c.height-22);
 }
-function snapshotCanvas(withLines, label){
+function rawSnapshot(){
   var c=document.createElement("canvas"); c.width=W; c.height=H;
   var g=c.getContext("2d");
   var mir=document.getElementById("mirrorChk").checked;
-  g.save(); if(mir){ g.translate(W,0); g.scale(-1,1); }
-  if(mode==="frozen"&&frozenImg) g.drawImage(frozenImg,0,0,W,H); else if(camOn) g.drawImage(video,0,0,W,H);
-  g.restore();
-  if(withLines) drawLines(lines,g,1);
+  g.save(); if(mir){ g.translate(W,0); g.scale(-1,1); } g.drawImage(video,0,0,W,H); g.restore();
+  return c;
+}
+function capture(){
+  if(!camOn){ toast("카메라를 먼저 시작하세요"); return; }
+  if(gallery.length>=MAXSHOTS){ toast("최대 "+MAXSHOTS+"컷 — 필요없는 컷을 ✕로 삭제하세요"); return; }
+  var img=new Image(); img.src=rawSnapshot().toDataURL("image/png");
+  gallery.push({img:img, ts:Date.now()});
+  var idx=gallery.length-1;
+  img.onload=function(){ selectShot(idx); };
+  toast("촬영 "+gallery.length+"컷");
+}
+function renderGallery(){
+  var g=document.getElementById("gallery"); g.innerHTML="";
+  gallery.forEach(function(s,i){
+    var d=document.createElement("div"); d.className="shot"+(i===selIdx?" sel":"");
+    d.innerHTML='<img src="'+s.img.src+'"><span class="n">'+(i+1)+'</span><span class="x">✕</span>';
+    d.querySelector("img").onclick=function(){ selectShot(i); };
+    d.querySelector(".x").onclick=function(ev){ ev.stopPropagation(); deleteShot(i); };
+    g.appendChild(d);
+  });
+}
+function selectShot(i){
+  if(!gallery[i]) return;
+  selIdx=i; frozenImg=gallery[i].img; mode="frozen";
+  document.querySelectorAll("#modeBar button").forEach(function(b){b.classList.toggle("on",b.dataset.m==="frozen");});
+  renderGallery(); draw();
+}
+function deleteShot(i){
+  gallery.splice(i,1);
+  if(selIdx>=gallery.length) selIdx=gallery.length-1;
+  if(selIdx>=0){ selectShot(selIdx); } else { frozenImg=null; mode="live";
+    document.querySelectorAll("#modeBar button").forEach(function(b){b.classList.toggle("on",b.dataset.m==="live");});
+    renderGallery(); draw(); }
+}
+function composeCurrent(label){
+  var c=document.createElement("canvas"); c.width=W; c.height=H;
+  var g=c.getContext("2d");
+  if(mode==="frozen" && frozenImg){ g.drawImage(frozenImg,0,0,W,H); }
+  else if(camOn){ g.drawImage(rawSnapshot(),0,0); }
+  drawLines(lines,g,1);
   renderStamp(c,label);
   return c;
 }
-function capture(kind){
-  if(!camOn && !(mode==="frozen"&&frozenImg)){ toast("카메라를 먼저 시작하세요"); return; }
+function assignShot(kind){
+  if(!(mode==="frozen"&&frozenImg) && !camOn){ toast("먼저 촬영하거나 컷을 선택하세요"); return; }
   var label = kind==="before"?"치료 전":"치료 후";
-  var c=snapshotCanvas(true,label);
+  var c=composeCurrent(label);
   var img=new Image(); img.src=c.toDataURL("image/png");
   shots[kind]={img:img, ts:Date.now()};
   var th=document.getElementById(kind==="before"?"thumbB":"thumbA");
   th.src=img.src; th.style.display="block";
-  toast(label+" 캡처 완료");
+  toast(label+" 지정 완료");
 }
 function viewShot(kind){
   if(!shots[kind]) return;
@@ -309,16 +358,37 @@ function dl(url,name){ var a=document.createElement("a"); a.href=url; a.download
 function savePng(){
   var name=(document.getElementById("chartNo").value||"환자")+"_"+today();
   if(mode==="side"||mode==="blend"){ dl(cv.toDataURL("image/png"), name+"_비교.png"); }
-  else { dl(snapshotCanvas(true,"기록").toDataURL("image/png"), name+"_기록.png"); }
+  else { dl(composeCurrent("기록").toDataURL("image/png"), name+"_기록.png"); }
   toast("저장되었습니다");
 }
 function saveBoth(){
-  if(!shots.before||!shots.after){ toast("전·후 캡처가 모두 필요합니다"); return; }
+  if(!shots.before||!shots.after){ toast("전·후 지정이 모두 필요합니다"); return; }
   var prev=mode; mode="side"; draw();
   var name=(document.getElementById("chartNo").value||"환자")+"_"+today();
   dl(cv.toDataURL("image/png"), name+"_전후비교.png");
   mode=prev; draw(); toast("전후 비교 저장 완료");
 }
+function currentJpeg(){
+  if(mode==="side"||mode==="blend"){ return {url:cv.toDataURL("image/jpeg",0.85), label:(mode==="side"?"전후비교":"겹쳐보기")}; }
+  var lb = (shots.before&&frozenImg===shots.before.img)?"치료 전":(shots.after&&frozenImg===shots.after.img)?"치료 후":"기록";
+  var c=composeCurrent(lb);
+  return {url:c.toDataURL("image/jpeg",0.85), label:lb};
+}
+function sendSlack(){
+  if(!camOn && !frozenImg && mode==="live"){ toast("먼저 촬영하세요"); return; }
+  if(!GAS_URL){ toast("GAS URL 미설정"); return; }
+  var chart=document.getElementById("chartNo").value||"미입력";
+  var name=document.getElementById("ptName").value||"";
+  var j=currentJpeg();
+  toast("전송 중...");
+  fetch(GAS_URL,{method:"POST",body:JSON.stringify({token:SHARED_TOKEN,type:"photo",chart:chart,name:name,label:j.label,image:j.url})})
+    .then(function(r){return r.json();})
+    .then(function(res){ toast(res&&res.ok?"Slack 전송 완료":"전송 실패: "+(res&&res.err||"")); })
+    .catch(function(){ toast("전송 실패 — 네트워크 확인"); });
+}
+window.addEventListener("keydown", function(e){
+  if(e.code==="Space" && document.activeElement.tagName!=="INPUT"){ e.preventDefault(); capture(); }
+});
 
 /* auto-try camera on load */
 draw();
