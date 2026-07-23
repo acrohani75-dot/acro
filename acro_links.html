@@ -49,7 +49,7 @@
   /* LAYOUT */
   main { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; }
   html { scroll-behavior: smooth; }
-  .section-label .pill { scroll-margin-top: 70px; }
+  .section-label .pill { scroll-margin-top: 140px; }
   .jump {
     display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
     max-width: 680px; margin: 14px auto -6px; padding: 0 16px;
@@ -69,6 +69,29 @@
     padding: 10px 0;
   }
   .jump-bar .jump { margin: 0 auto; }
+  .search-row { max-width: 1100px; margin: 8px auto 0; padding: 0 16px; }
+  #q {
+    width: 100%; box-sizing: border-box; font-size: 14px;
+    padding: 9px 14px; border: 1.5px solid var(--border); border-radius: 12px;
+    background: #fff; color: #333; outline: none;
+  }
+  #q:focus { border-color: #9db88f; }
+  .chips {
+    max-width: 1100px; margin: 7px auto 0; padding: 0 16px;
+    display: flex; gap: 6px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0; border: 1px solid var(--border); background: #fff;
+    color: #555; font-size: 12px; font-weight: 600;
+    padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .chip.on { background: #4a6741; border-color: #4a6741; color: #fff; }
+  #noresult {
+    max-width: 1100px; margin: 10px auto 0; padding: 0 16px;
+    font-size: 13px; color: #999;
+  }
   /* 직원 하위그룹 (틸 톤) */
   .staff-g { background: #e9f2ef; border-color: #c6dbd4; }
   .staff-g .sub-group-title { color: #2c584d; border-bottom-color: #c6dbd4; }
@@ -229,13 +252,24 @@
   <a href="#sec-balance">안면밸런스</a>
   <a href="#sec-survey">설문지</a>
 </nav>
+<div class="search-row">
+  <input type="search" id="q" placeholder="🔍 검색 (예: 수가, ㅅㄱㅍ, 결산)" autocomplete="off">
+</div>
+<div class="chips" id="chips">
+  <button type="button" class="chip on" data-kw="">전체</button>
+  <button type="button" class="chip" data-kw="외국인|응대콘솔|수가표|SNS|EMS|통역">🌏 외국인 응대</button>
+  <button type="button" class="chip" data-kw="시술|온다|전후|사진촬영">💉 시술</button>
+  <button type="button" class="chip" data-kw="초진|재진">📋 초진·재진</button>
+  <button type="button" class="chip" data-kw="결산">🧾 마감</button>
+</div>
+<div id="noresult" style="display:none">검색 결과가 없습니다</div>
 </div>
 <main>
   <!-- ◈ 공통 ◈ -->
   <div class="section-label">
     <div class="pill common" id="sec-common">공통</div><hr>
   </div>
-  <a class="card common" href="https://chatgpt.com/g/g-6a55ac39a15081919c2e9eea467b5283-silsigan-dagugeo-tongyeoggi" target="_blank">
+  <a class="card common" href="https://chatgpt.com/g/g-6a55ac39a15081919c2e9eea467b5283-silsigan-dagugeo-tongyeoggi" target="_blank" data-kw="통역 번역 음성 지피티 GPT">
     <div class="card-inner">
       <div class="card-icon">💬</div>
       <div class="card-text">
@@ -245,7 +279,7 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-  <a class="card common" href="https://acrohani75-dot.github.io/acro/acro_interpreter.html" target="_blank">
+  <a class="card common" href="https://acrohani75-dot.github.io/acro/acro_interpreter.html" target="_blank" data-kw="통역 번역 음성 무전기 외국인">
     <div class="card-inner">
       <div class="card-icon">🌐</div>
       <div class="card-text">
@@ -255,7 +289,7 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-  <a class="card common" href="https://acrohani75-dot.github.io/acro/acro_photo_editor.html" target="_blank">
+  <a class="card common" href="https://acrohani75-dot.github.io/acro/acro_photo_editor.html" target="_blank" data-kw="전후 비포 애프터 편집 보정 사진">
     <div class="card-inner">
       <div class="card-icon">📸</div>
       <div class="card-text">
@@ -272,7 +306,7 @@
   <!-- 💬 기본응대 -->
   <div class="sub-group staff-g">
     <div class="sub-group-title">💬 기본응대</div>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_reply_console.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_reply_console.html" target="_blank" data-kw="문의 답변 번역 슬랙 상담 컴플레인 리뷰 AI">
       <div class="card-inner">
         <div class="card-icon">🤖</div>
         <div class="card-text">
@@ -282,7 +316,7 @@
         <div class="card-arrow">›</div>
       </div>
     </a>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_guide.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_guide.html" target="_blank" data-kw="수가 가격 패키지 계산 결제 FAQ 통역 음성 접수 진료 검사 다이어트 QR">
       <div class="card-inner">
         <div class="card-icon">📖</div>
         <div class="card-text">
@@ -292,12 +326,12 @@
         <div class="card-arrow">›</div>
       </div>
     </a>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/untact_guide.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/untact_guide.html" target="_blank" data-kw="비대면 차팅 코디 전화진료">
       <div class="card-inner">
         <div class="card-icon">📝</div>
         <div class="card-text">
-          <div class="card-name">모드코디 작성 &amp; 비대면진료안내</div>
-          <div class="card-desc">모드코디 작성법 · 비대면진료 안내</div>
+          <div class="card-name">모든코디 작성 &amp; 비대면진료안내</div>
+          <div class="card-desc">모든코디 작성법 · 비대면진료 안내</div>
         </div>
         <div class="card-arrow">›</div>
       </div>
@@ -306,7 +340,7 @@
   <!-- 🌏 외국인 응대 -->
   <div class="sub-group staff-g">
     <div class="sub-group-title">🌏 외국인 응대</div>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_foreign_line_guide.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_foreign_line_guide.html" target="_blank" data-kw="라인 위챗 왓츠앱 채팅 결제 카드수수료 계좌이체 스마트로 송장 관세 영문증명서 복용 EMS 비대면 미수령">
       <div class="card-inner">
         <div class="card-icon">💬</div>
         <div class="card-text">
@@ -316,7 +350,7 @@
         <div class="card-arrow">›</div>
       </div>
     </a>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" data-kw="배송 발송 해외 미국 캡슐 탕약 송장 관세 스마트로 우체국 국제">
       <div class="card-inner">
         <div class="card-icon">📦</div>
         <div class="card-text">
@@ -327,7 +361,7 @@
       </div>
     </a>
     <div class="qitem">
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_diet_guide.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_diet_guide.html" target="_blank" data-kw="복용법 영상 책자 안내문 발송 한약">
       <div class="card-inner">
         <div class="card-icon">🥗</div>
         <div class="card-text">
@@ -343,7 +377,7 @@
   <!-- 📚 교육 · 매뉴얼 -->
   <div class="sub-group staff-g">
     <div class="sub-group-title">📚 교육 · 매뉴얼</div>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_photo_guide.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_photo_guide.html" target="_blank" data-kw="전후 비포 애프터 촬영 카메라 각도">
       <div class="card-inner">
         <div class="card-icon">📷</div>
         <div class="card-text">
@@ -353,7 +387,7 @@
         <div class="card-arrow">›</div>
       </div>
     </a>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_staff_education.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro_staff_education.html" target="_blank" data-kw="아크로컷 아크로웨이브 온다 지방분해 교육 기기">
       <div class="card-inner">
         <div class="card-icon">📚</div>
         <div class="card-text">
@@ -363,7 +397,7 @@
         <div class="card-arrow">›</div>
       </div>
     </a>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/onda_flow.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/onda_flow.html" target="_blank" data-kw="온다 동선 인수인계 체크리스트 준비 정리 리프팅">
       <div class="card-inner">
         <div class="card-icon">📋</div>
         <div class="card-text">
@@ -377,7 +411,7 @@
   <!-- 🧾 행정 -->
   <div class="sub-group staff-g">
     <div class="sub-group-title">🧾 행정</div>
-    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro-결산-html.html" target="_blank">
+    <a class="card staff" href="https://acrohani75-dot.github.io/acro/acro-결산-html.html" target="_blank" data-kw="마감 정산 일일 매출">
       <div class="card-inner">
         <div class="card-icon">🧾</div>
         <div class="card-text">
@@ -391,7 +425,7 @@
   <div class="section-label">
     <div class="pill doctor" id="sec-doctor">의료진</div><hr>
   </div>
-  <a class="card doctor" href="https://acrohani75-dot.github.io/acro/Acro_first_treatment_park.html" target="_blank">
+  <a class="card doctor" href="https://acrohani75-dot.github.io/acro/Acro_first_treatment_park.html" target="_blank" data-kw="초진 진료 다이어트">
     <div class="card-inner">
       <div class="card-icon">🌸</div>
       <div class="card-text">
@@ -401,7 +435,7 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-  <a class="card doctor" href="https://acrohani75-dot.github.io/acro/acro_first_treatment.html" target="_blank">
+  <a class="card doctor" href="https://acrohani75-dot.github.io/acro/acro_first_treatment.html" target="_blank" data-kw="초진 진료 다이어트">
     <div class="card-inner">
       <div class="card-icon">🩺</div>
       <div class="card-text">
@@ -411,7 +445,7 @@
       <div class="card-arrow">›</div>
     </div>
   </a>
-  <a class="card doctor" href="https://acrohani75-dot.github.io/acro/acro_treatment_guide.html" target="_blank">
+  <a class="card doctor" href="https://acrohani75-dot.github.io/acro/acro_treatment_guide.html" target="_blank" data-kw="시술 아크로컷 아크로웨이브 진료">
     <div class="card-inner">
       <div class="card-icon">✂️</div>
       <div class="card-text">
@@ -426,7 +460,7 @@
     <div class="pill balance" id="sec-balance">안면 밸런스</div><hr>
   </div>
   <div class="qitem">
-  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/" target="_blank">
+  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/" target="_blank" data-kw="안면 비대칭 교정 턱 얼굴">
     <div class="card-inner">
       <div class="card-icon">🪞</div>
       <div class="card-text">
@@ -438,7 +472,7 @@
   </a>
     <div class="card-url"><span class="lb">🔗</span><span class="u">https://acrohani75-dot.github.io/acro/asym/</span><button class="cp" type="button" onclick="doCopy(this.closest('.card-url'))">복사</button></div>
   </div>
-  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/faceline.html" target="_blank">
+  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/faceline.html" target="_blank" data-kw="페이스라인 진단 비대칭 측정 얼굴">
     <div class="card-inner">
       <div class="card-icon">📐</div>
       <div class="card-text">
@@ -449,7 +483,7 @@
     </div>
   </a>
   <div class="qitem">
-  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/aftercare.html" target="_blank">
+  <a class="card balance" href="https://acrohani75-dot.github.io/acro/asym/aftercare.html" target="_blank" data-kw="교정장치 관리 착용 비대칭">
     <div class="card-inner">
       <div class="card-icon">🦷</div>
       <div class="card-text">
@@ -467,7 +501,7 @@
   </div>
   <!-- 설문지 목록 -->
   <div class="sub-group" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-    <a class="card links" href="https://script.google.com/a/macros/acrohani.com/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec?list=1" target="_blank" style="margin:0;">
+    <a class="card links" href="https://script.google.com/a/macros/acrohani.com/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec?list=1" target="_blank" style="margin:0;" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">🗂️</div>
         <div class="card-text">
@@ -477,7 +511,7 @@
         <div class="card-arrow">›</div>
       </div>
     </a>
-    <a class="card links" href="https://docs.google.com/forms/d/e/1FAIpQLSfovOhaoTUCW7ohQq06C1dgF_grs6j7O_T24g8fZtUINjZXBg/viewform" target="_blank" style="margin:0;">
+    <a class="card links" href="https://docs.google.com/forms/d/e/1FAIpQLSfovOhaoTUCW7ohQq06C1dgF_grs6j7O_T24g8fZtUINjZXBg/viewform" target="_blank" style="margin:0;" data-kw="설문 만족도 조사 리뷰 평가">
       <div class="card-inner">
         <div class="card-icon">⭐</div>
         <div class="card-text">
@@ -492,7 +526,7 @@
   <div class="sub-group">
     <div class="sub-group-title">📋 초진</div>
     <div class="qitem">
-    <a class="card links" href="https://script.google.com/macros/s/AKfycbwZZtHt54WG37VTyu1l_VI8-fhZ1T9QBdFEAp88IKGiR4S5FXrfPRAaTfRiirnwpb5Y/exec" target="_blank">
+    <a class="card links" href="https://script.google.com/macros/s/AKfycbwZZtHt54WG37VTyu1l_VI8-fhZ1T9QBdFEAp88IKGiR4S5FXrfPRAaTfRiirnwpb5Y/exec" target="_blank" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">🇰🇷</div>
         <div class="card-text">
@@ -505,7 +539,7 @@
     <div class="card-url"><span class="lb">🔗</span><span class="u">https://script.google.com/macros/s/AKfycbwZZtHt54WG37VTyu1l_VI8-fhZ1T9QBdFEAp88IKGiR4S5FXrfPRAaTfRiirnwpb5Y/exec</span><button class="cp" type="button" onclick="doCopy(this.closest('.card-url'))">복사</button></div>
     </div>
     <div class="qitem">
-<a class="card links" href="https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec" target="_blank">
+<a class="card links" href="https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec" target="_blank" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">🌏</div>
         <div class="card-text">
@@ -518,7 +552,7 @@
     <div class="card-url"><span class="lb">🔗</span><span class="u">https://script.google.com/macros/s/AKfycbzQ7IB7TuLH26o1Wy5E8J_GXCgvyZdycw9dQpvMDW15ae-3CSOJEN4MFKJJBOmGWfBS_w/exec</span><button class="cp" type="button" onclick="doCopy(this.closest('.card-url'))">복사</button></div>
     </div>
     <div class="qitem">
-<a class="card links" href="https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec" target="_blank">
+<a class="card links" href="https://script.google.com/macros/s/AKfycbwUxM8Z4olZ7ivyRasEMsLJdLTGTc67kYXzRxjHfk5hMM7O5OcqjfQ923F4d97n9K1t/exec" target="_blank" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">✈️</div>
         <div class="card-text">
@@ -535,7 +569,7 @@
   <div class="sub-group">
     <div class="sub-group-title">📋 재진</div>
     <div class="qitem">
-<a class="card links" href="https://script.google.com/macros/s/AKfycbyOSkKZXlZDOGrAR5Ok6gyIdfwtLDocCPDDyDFQgfMjUShXpnh1POlnZQl2-oN_ZFoJ/exec" target="_blank">
+<a class="card links" href="https://script.google.com/macros/s/AKfycbyOSkKZXlZDOGrAR5Ok6gyIdfwtLDocCPDDyDFQgfMjUShXpnh1POlnZQl2-oN_ZFoJ/exec" target="_blank" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">🇰🇷</div>
         <div class="card-text">
@@ -548,7 +582,7 @@
     <div class="card-url"><span class="lb">🔗</span><span class="u">https://script.google.com/macros/s/AKfycbyOSkKZXlZDOGrAR5Ok6gyIdfwtLDocCPDDyDFQgfMjUShXpnh1POlnZQl2-oN_ZFoJ/exec</span><button class="cp" type="button" onclick="doCopy(this.closest('.card-url'))">복사</button></div>
     </div>
     <div class="qitem">
-<a class="card links" href="https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec" target="_blank">
+<a class="card links" href="https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec" target="_blank" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">🌏</div>
         <div class="card-text">
@@ -565,7 +599,7 @@
   <div class="sub-group">
     <div class="sub-group-title">📋 시술</div>
     <div class="qitem">
-<a class="card links" href="https://script.google.com/macros/s/AKfycbyCWbm7xVKSdBsO9t6-I76rt5q8LxLCQsUiNB2iAH2oGH8DXbgnfhy5vNDi3B5ldBnJ/exec" target="_blank">
+<a class="card links" href="https://script.google.com/macros/s/AKfycbyCWbm7xVKSdBsO9t6-I76rt5q8LxLCQsUiNB2iAH2oGH8DXbgnfhy5vNDi3B5ldBnJ/exec" target="_blank" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">🇰🇷</div>
         <div class="card-text">
@@ -578,7 +612,7 @@
     <div class="card-url"><span class="lb">🔗</span><span class="u">https://script.google.com/macros/s/AKfycbyCWbm7xVKSdBsO9t6-I76rt5q8LxLCQsUiNB2iAH2oGH8DXbgnfhy5vNDi3B5ldBnJ/exec</span><button class="cp" type="button" onclick="doCopy(this.closest('.card-url'))">복사</button></div>
     </div>
     <div class="qitem">
-<a class="card links" href="https://script.google.com/macros/s/AKfycbwjiS-wutd1-AZ7aGS4f8AWfnd__yoWWKtsPKprqOzUR_ClttV6hM41VaH8azYf8C4hkA/exec" target="_blank">
+<a class="card links" href="https://script.google.com/macros/s/AKfycbwjiS-wutd1-AZ7aGS4f8AWfnd__yoWWKtsPKprqOzUR_ClttV6hM41VaH8azYf8C4hkA/exec" target="_blank" data-kw="설문 QR 접수">
       <div class="card-inner">
         <div class="card-icon">💆</div>
         <div class="card-text">
@@ -596,6 +630,60 @@
   <span>아크로한의원</span> 내부 전용 · 강남대로 480 보라티알빌딩 2층
 </footer>
 <script>
+// ── 링크 검색 (초성 지원) ──
+const CHO = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+function toCho(str) {
+  let r = '';
+  for (const ch of str) {
+    const c = ch.charCodeAt(0);
+    r += (c >= 0xAC00 && c <= 0xD7A3) ? CHO[Math.floor((c - 0xAC00) / 588)] : ch;
+  }
+  return r;
+}
+const norm = t => t.toLowerCase().replace(/[\s·]/g, '');
+function cardText(a) {
+  const n = a.querySelector('.card-name'), d = a.querySelector('.card-desc');
+  return (n ? n.textContent : '') + ' ' + (d ? d.textContent : '') + ' ' + (a.dataset.kw || '');
+}
+function runFilter() {
+  const q = norm(document.getElementById('q').value);
+  const kws = (document.querySelector('.chip.on')?.dataset.kw || '').split('|').filter(Boolean).map(norm);
+  const isCho = q && [...q].every(ch => CHO.includes(ch));
+  let shown = 0;
+  document.querySelectorAll('main a.card').forEach(a => {
+    const t = norm(cardText(a));
+    let ok = true;
+    if (q) ok = isCho ? toCho(t).includes(q) : t.includes(q);
+    if (ok && kws.length) ok = kws.some(k => t.includes(k));
+    const wrap = a.closest('.qitem') || a;
+    wrap.style.display = ok ? '' : 'none';
+    if (ok) shown++;
+  });
+  document.querySelectorAll('.sub-group').forEach(g => {
+    const any = [...g.querySelectorAll('a.card')].some(a => (a.closest('.qitem') || a).style.display !== 'none');
+    g.style.display = any ? '' : 'none';
+  });
+  const main = document.querySelector('main');
+  let lbl = null, vis = false;
+  [...main.children].forEach(el => {
+    if (el.classList.contains('section-label')) {
+      if (lbl) lbl.style.display = vis ? '' : 'none';
+      lbl = el; vis = false;
+    } else if (el.style.display !== 'none') {
+      vis = true;
+    }
+  });
+  if (lbl) lbl.style.display = vis ? '' : 'none';
+  document.getElementById('noresult').style.display = shown ? 'none' : '';
+}
+document.getElementById('q').addEventListener('input', runFilter);
+document.getElementById('chips').addEventListener('click', e => {
+  const c = e.target.closest('.chip');
+  if (!c) return;
+  document.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+  c.classList.add('on');
+  runFilter();
+});
 function doCopy(box) {
   if (!box) return;
   const url = box.querySelector('.u').innerText.trim();
