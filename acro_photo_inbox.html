@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>아크로 포토인박스 v1_6</title>
+<title>아크로 포토인박스 v1_7</title>
 <style>
   :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -58,7 +58,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>아크로 포토인박스 <small>v1_6 · 전후사진 자동 저장</small></h1>
+  <h1>아크로 포토인박스 <small>v1_7 · 전후사진 자동 저장 (고화질)</small></h1>
 
   <div class="card">
     <div class="row2" style="margin-top:0">
@@ -127,7 +127,7 @@ var GAS_URL = "https://script.google.com/macros/s/AKfycbypKSEXsX0IzNm-GvPPBtK4b7
 var TREATMENTS = ["온다", "웨이브", "컷"];
 var BODY_PARTS = ["안면", "복부", "위팔", "허벅지", "종아리", "전신", "직접입력"];
 var TIMINGS = ["시술전", "시술후", "직접입력"];
-var MAX_EDGE = 2000, JPEG_Q = 0.88;
+var MAX_EDGE = 4096, JPEG_Q = 0.95;
 
 var photos = []; // {b64, mime, status, el}
 var selTreats = {}, selPart = null;
@@ -204,14 +204,17 @@ function setNameState(t, c) {
 }
 
 // ── 내장 카메라 (연속 촬영, 후면 기본) ──
-var camStream = null, camFacing = "environment";
+var camStream = null, camFacing = "environment", camIC = null;
 
 function openCam() {
   navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: camFacing }, width: { ideal: 1920 }, height: { ideal: 1440 } },
+    video: { facingMode: { ideal: camFacing }, width: { ideal: 4096 }, height: { ideal: 2160 } },
     audio: false
   }).then(function (s) {
     camStream = s;
+    var _tk = s.getVideoTracks()[0];
+    try { var _c = _tk.getCapabilities ? _tk.getCapabilities() : null; if (_c && _c.width && _c.height) _tk.applyConstraints({ width: _c.width.max, height: _c.height.max }); } catch (e) {}
+    camIC = (window.ImageCapture && _tk) ? new ImageCapture(_tk) : null;
     $("camView").srcObject = s;
     $("camModal").style.display = "block";
     $("camCnt").textContent = photos.length + "장";
@@ -227,7 +230,12 @@ function closeCam() {
   $("camModal").style.display = "none";
 }
 
-function shootFrame() {
+function camFeedback() {
+  $("camCnt").textContent = photos.length + "장";
+  var f = $("camFlash"); f.style.opacity = "0.7";
+  setTimeout(function () { f.style.opacity = "0"; }, 120);
+}
+function canvasCapture() {
   var v = $("camView");
   if (!v.videoWidth) return;
   var c = document.createElement("canvas");
@@ -240,10 +248,14 @@ function shootFrame() {
   photos.push(item);
   renderThumb(item, dataUrl);
   $("btnUp").style.display = "block";
-  $("camCnt").textContent = photos.length + "장";
-  var f = $("camFlash");
-  f.style.opacity = "0.7";
-  setTimeout(function () { f.style.opacity = "0"; }, 120);
+  camFeedback();
+}
+function shootFrame() {
+  if (camIC && camIC.takePhoto) {
+    camIC.takePhoto().then(function (blob) { addPhoto(blob); }).catch(function () { canvasCapture(); });
+  } else {
+    canvasCapture();
+  }
 }
 
 $("btnCam").onclick = openCam;
@@ -276,6 +288,7 @@ function addPhoto(file) {
     photos.push(item);
     renderThumb(item, dataUrl);
     $("btnUp").style.display = "block";
+    if ($("camModal").style.display === "block") camFeedback();
   };
   img.src = URL.createObjectURL(file);
 }
