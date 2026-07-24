@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>아크로 포토인박스 v1_7</title>
+<title>아크로 포토인박스 v1_8</title>
 <style>
   :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -22,7 +22,8 @@
   .btn { border:0; border-radius:11px; padding:15px; font-size:15px; font-weight:700; color:#fff; width:100%; }
   .btn:active { transform:scale(.97); }
   .missing { border-color:var(--bad) !important; }
-  #btnCam, #btnGal { background:#2b3342; color:var(--tx); border:1px dashed #4a5468; }
+  #btnGal { background:#2b3342; color:var(--tx); border:1px dashed #4a5468; }
+  .btnSmall { background:transparent; color:var(--dim); border:1px solid #313949; border-radius:9px; padding:10px; font-size:12.5px; width:100%; margin-top:6px; }
   #camModal { display:none; position:fixed; inset:0; background:#000; z-index:9999; }
   #camView { width:100%; height:100%; object-fit:cover; }
   #camTop { position:absolute; top:0; left:0; right:0; display:flex; justify-content:space-between; padding:14px; }
@@ -58,7 +59,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>아크로 포토인박스 <small>v1_7 · 전후사진 자동 저장 (고화질)</small></h1>
+  <h1>아크로 포토인박스 <small>v1_8 · 전후사진 업로더 (순정 화질)</small></h1>
 
   <div class="card">
     <div class="row2" style="margin-top:0">
@@ -91,10 +92,8 @@
   </div>
 
   <div class="card">
-    <div class="row2" style="margin-top:0">
-      <button class="btn" id="btnCam" type="button">📷 촬영 (연속)</button>
-      <button class="btn" id="btnGal" type="button">🖼️ 갤러리</button>
-    </div>
+    <button class="btn" id="btnGal" type="button">🖼️ 사진 선택 (갤러리에서 업로드)</button>
+    <button class="btnSmall" id="btnCam" type="button">📷 앱에서 바로 촬영 (순정 카메라)</button>
     <input id="fFilesCam" type="file" accept="image/*" capture="environment" hidden>
     <input id="fFilesGal" type="file" accept="image/*" multiple hidden>
     <div id="thumbs"></div>
@@ -127,7 +126,7 @@ var GAS_URL = "https://script.google.com/macros/s/AKfycbypKSEXsX0IzNm-GvPPBtK4b7
 var TREATMENTS = ["온다", "웨이브", "컷"];
 var BODY_PARTS = ["안면", "복부", "위팔", "허벅지", "종아리", "전신", "직접입력"];
 var TIMINGS = ["시술전", "시술후", "직접입력"];
-var MAX_EDGE = 4096, JPEG_Q = 0.95;
+var MAX_EDGE = 5000, JPEG_Q = 0.98;
 
 var photos = []; // {b64, mime, status, el}
 var selTreats = {}, selPart = null;
@@ -258,7 +257,7 @@ function shootFrame() {
   }
 }
 
-$("btnCam").onclick = openCam;
+$("btnCam").onclick = function () { $("fFilesCam").click(); };
 $("camShut").onclick = shootFrame;
 $("camDone").onclick = closeCam;
 $("camClose").onclick = closeCam;
