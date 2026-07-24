@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>아크로 포토인박스 v1_4</title>
+<title>아크로 포토인박스 v1_5</title>
 <style>
   :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -58,18 +58,15 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>아크로 포토인박스 <small>v1_4 · 전후사진 자동 저장</small></h1>
+  <h1>아크로 포토인박스 <small>v1_5 · 전후사진 자동 저장</small></h1>
 
   <div class="card">
-    <div class="chartRow">
+    <div class="row2" style="margin-top:0">
       <label>차트번호<input id="fChart" type="tel" inputmode="numeric" placeholder="예: 17136" maxlength="8"></label>
-      <button id="btnLookup" type="button">조회</button>
+      <label>이름<input id="fName" type="text" placeholder="예: 김민주"></label>
     </div>
     <div id="nameState"></div>
-    <div class="row2">
-      <label>이름<input id="fName" type="text" placeholder="조회 시 자동"></label>
-      <label>날짜<input id="fDate" type="date"></label>
-    </div>
+    <label style="margin-top:8px">날짜<input id="fDate" type="date"></label>
 
     <div class="grp">시술 <span class="hint">(여러 개 선택 가능)</span></div>
     <div id="treatChips" class="chips"></div>
@@ -196,19 +193,9 @@ function refreshRound() {
     }).catch(function () {});
 }
 
-$("btnLookup").onclick = function () {
-  var chart = $("fChart").value.trim();
-  if (!/^\d{3,8}$/.test(chart)) { setNameState("차트번호 형식 확인", "warn"); return; }
-  setNameState("조회 중…", "dim");
-  post({ action: "lookup", chart: chart }).then(function (j) {
-    if (!j.ok) { setNameState("조회 실패: " + j.error, "bad"); return; }
-    if (!j.lookup) { setNameState("대조 시트 미설정 — 이름 직접 입력", "warn"); return; }
-    if (j.notFound) { setNameState("미등록 차트번호 — 인입원장 등록 후 재시도", "bad"); return; }
-    $("fName").value = j.name;
-    setNameState("확인됨: " + j.name, "ok");
-    refreshRound();
-  }).catch(function (e) { setNameState("통신 오류: " + e, "bad"); });
-};
+// (v1_5) 차트번호 조회 기능 제거 — 환자 명부는 OK차트 전용이라 대조 불가. 이름은 직접 입력.
+$("fChart").addEventListener("change", refreshRound);
+$("fName").addEventListener("change", refreshRound);
 
 function setNameState(t, c) {
   var el = $("nameState");
