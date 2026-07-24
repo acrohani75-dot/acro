@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>아크로 포토인박스 v1_1</title>
+<title>아크로 포토인박스 v1_2</title>
 <style>
   :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -20,7 +20,7 @@
   .chartRow button { background:#2b3342; color:var(--acc); border:1px solid #3a4152; border-radius:8px; padding:11px 14px; font-size:13px; font-weight:700; }
   #nameState { font-size:11.5px; margin-top:6px; min-height:14px; }
   .btn { border:0; border-radius:11px; padding:15px; font-size:15px; font-weight:700; color:#fff; width:100%; }
-  #btnAdd { background:#2b3342; color:var(--tx); border:1px dashed #4a5468; }
+  #btnCam, #btnGal { background:#2b3342; color:var(--tx); border:1px dashed #4a5468; }
   #btnUp { background:var(--acc); color:#06222f; margin-top:8px; display:none; }
   #thumbs { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px; }
   .th { position:relative; }
@@ -45,7 +45,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>아크로 포토인박스 <small>v1_1 · 전후사진 자동 저장</small></h1>
+  <h1>아크로 포토인박스 <small>v1_2 · 전후사진 자동 저장</small></h1>
 
   <div class="card">
     <div class="chartRow">
@@ -81,8 +81,12 @@
   </div>
 
   <div class="card">
-    <button class="btn" id="btnAdd" type="button">📷 사진 추가 (촬영/갤러리)</button>
-    <input id="fFiles" type="file" accept="image/*" multiple hidden>
+    <div class="row2" style="margin-top:0">
+      <button class="btn" id="btnCam" type="button">📷 촬영</button>
+      <button class="btn" id="btnGal" type="button">🖼️ 갤러리</button>
+    </div>
+    <input id="fFilesCam" type="file" accept="image/*" capture="environment" hidden>
+    <input id="fFilesGal" type="file" accept="image/*" multiple hidden>
     <div id="thumbs"></div>
     <div id="prog"><div id="progBar"></div></div>
     <button class="btn" id="btnUp" type="button">업로드</button>
@@ -185,11 +189,14 @@ function setNameState(t, c) {
   el.style.color = c === "ok" ? "#66bb6a" : c === "warn" ? "#ffa726" : c === "bad" ? "#ef5350" : "#8b93a3";
 }
 
-$("btnAdd").onclick = function () { $("fFiles").click(); };
-$("fFiles").onchange = function () {
+$("btnCam").onclick = function () { $("fFilesCam").click(); };
+$("btnGal").onclick = function () { $("fFilesGal").click(); };
+function onPickFiles() {
   Array.prototype.forEach.call(this.files, function (file) { addPhoto(file); });
   this.value = "";
-};
+}
+$("fFilesCam").onchange = onPickFiles;
+$("fFilesGal").onchange = onPickFiles;
 
 function addPhoto(file) {
   var img = new Image();
