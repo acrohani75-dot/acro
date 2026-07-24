@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>아크로 포토인박스 v1_3</title>
+<title>아크로 포토인박스 v1_4</title>
 <style>
   :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -20,6 +20,8 @@
   .chartRow button { background:#2b3342; color:var(--acc); border:1px solid #3a4152; border-radius:8px; padding:11px 14px; font-size:13px; font-weight:700; }
   #nameState { font-size:11.5px; margin-top:6px; min-height:14px; }
   .btn { border:0; border-radius:11px; padding:15px; font-size:15px; font-weight:700; color:#fff; width:100%; }
+  .btn:active { transform:scale(.97); }
+  .missing { border-color:var(--bad) !important; }
   #btnCam, #btnGal { background:#2b3342; color:var(--tx); border:1px dashed #4a5468; }
   #camModal { display:none; position:fixed; inset:0; background:#000; z-index:9999; }
   #camView { width:100%; height:100%; object-fit:cover; }
@@ -56,7 +58,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>아크로 포토인박스 <small>v1_3 · 전후사진 자동 저장</small></h1>
+  <h1>아크로 포토인박스 <small>v1_4 · 전후사진 자동 저장</small></h1>
 
   <div class="card">
     <div class="chartRow">
@@ -309,10 +311,21 @@ $("btnUp").onclick = function () {
     treatment: getTreatment(), part: getPart(), timing: getTiming(),
     round: Number($("fRound").value) || 1, consent: $("fConsent").checked
   };
-  if (!/^\d{3,8}$/.test(chart) || !name || !ymd) { setNameState("차트번호·이름·날짜를 채우세요", "bad"); return; }
-  if (!meta.treatment) { $("result").textContent = "시술을 1개 이상 선택하거나 직접입력하세요"; return; }
-  if (!meta.part) { $("result").textContent = "부위를 선택하거나 직접입력하세요"; return; }
-  if (!meta.timing) { $("result").textContent = "시점을 선택하거나 직접입력하세요"; return; }
+  // 누락 검사: 안내는 버튼 바로 아래(#result) + 빈 칸 빨간 테두리 + 첫 누락 칸으로 스크롤
+  ["fChart", "fName", "fDate"].forEach(function (id) { $(id).classList.remove("missing"); });
+  var missing = [], firstEl = null;
+  function miss(label, el) { missing.push(label); if (el) { el.classList.add("missing"); if (!firstEl) firstEl = el; } }
+  if (!/^\d{3,8}$/.test(chart)) miss("차트번호", $("fChart"));
+  if (!name) miss("이름", $("fName"));
+  if (!ymd) miss("날짜", $("fDate"));
+  if (!meta.treatment) miss("시술", null);
+  if (!meta.part) miss("부위", null);
+  if (!meta.timing) miss("시점", null);
+  if (missing.length) {
+    $("result").innerHTML = '<span style="color:#ef5350; font-weight:700">⛔ 입력 누락: ' + missing.join(", ") + '</span><br>위 항목을 채운 뒤 다시 업로드를 누르세요' + (missing.indexOf("이름") > -1 ? ' (이름은 직접 입력)' : '');
+    if (firstEl) firstEl.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
   if (GAS_URL.indexOf("http") !== 0) { $("result").textContent = "GAS_URL 미설정 — 배포 후 URL을 넣어주세요"; return; }
   $("btnUp").disabled = true; $("prog").style.display = "block"; $("result").textContent = "";
   uploadAll(chart, name, ymd, meta).then(function (res) {
