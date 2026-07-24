@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>아크로 포토인박스 v1_1</title>
+<style>
+  :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg); color:var(--tx); font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif; }
+  .wrap { max-width:480px; margin:0 auto; padding:16px; }
+  h1 { font-size:17px; padding:4px 0 12px; }
+  h1 small { color:var(--dim); font-weight:400; font-size:12px; margin-left:6px; }
+  .card { background:var(--card); border-radius:14px; padding:14px; margin-bottom:12px; }
+  label { font-size:11.5px; color:var(--dim); display:flex; flex-direction:column; gap:4px; }
+  input, select { background:#242a36; border:1px solid #313949; border-radius:8px; color:var(--tx); padding:11px 8px; font-size:15px; width:100%; }
+  input:focus, select:focus { outline:none; border-color:var(--acc); }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+  .chartRow { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end; }
+  .chartRow button { background:#2b3342; color:var(--acc); border:1px solid #3a4152; border-radius:8px; padding:11px 14px; font-size:13px; font-weight:700; }
+  #nameState { font-size:11.5px; margin-top:6px; min-height:14px; }
+  .btn { border:0; border-radius:11px; padding:15px; font-size:15px; font-weight:700; color:#fff; width:100%; }
+  #btnAdd { background:#2b3342; color:var(--tx); border:1px dashed #4a5468; }
+  #btnUp { background:var(--acc); color:#06222f; margin-top:8px; display:none; }
+  #thumbs { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px; }
+  .th { position:relative; }
+  .th img { width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:7px; }
+  .th .x { position:absolute; top:-6px; right:-6px; background:var(--bad); color:#fff; border:0; width:22px; height:22px; border-radius:50%; font-size:12px; font-weight:700; }
+  .th .st { position:absolute; bottom:4px; left:4px; background:rgba(0,0,0,.6); border-radius:5px; font-size:10px; padding:2px 5px; }
+  #prog { height:8px; background:#242a36; border-radius:4px; overflow:hidden; margin-top:10px; display:none; }
+  #progBar { height:100%; width:0%; background:var(--ok); transition:width .2s; }
+  #result { font-size:13px; line-height:1.6; margin-top:10px; }
+  #result a { color:var(--acc); }
+  .foot { color:var(--dim); font-size:11px; text-align:center; padding:8px 0 20px; }
+  .grp { font-size:12px; color:var(--dim); margin:12px 0 6px; }
+  .hint { font-size:11px; color:var(--dim); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .chips button { background:#242a36; color:var(--tx); border:1px solid #313949; border-radius:16px; padding:9px 14px; font-size:13.5px; }
+  .chips button.on { border-color:var(--acc); color:var(--acc); font-weight:700; }
+  .stepRow { display:grid; grid-template-columns:44px 1fr 44px; gap:6px; }
+  .step { background:#2b3342; color:var(--tx); border:1px solid #3a4152; border-radius:8px; font-size:18px; font-weight:700; }
+  .tgl { flex-direction:row !important; align-items:center; gap:8px; font-size:13px; color:var(--tx); margin-top:12px; display:flex; }
+  .tgl input { width:auto; accent-color:var(--acc); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>아크로 포토인박스 <small>v1_1 · 전후사진 자동 저장</small></h1>
+
+  <div class="card">
+    <div class="chartRow">
+      <label>차트번호<input id="fChart" type="tel" inputmode="numeric" placeholder="예: 17136" maxlength="8"></label>
+      <button id="btnLookup" type="button">조회</button>
+    </div>
+    <div id="nameState"></div>
+    <div class="row2">
+      <label>이름<input id="fName" type="text" placeholder="조회 시 자동"></label>
+      <label>날짜<input id="fDate" type="date"></label>
+    </div>
+
+    <div class="grp">시술 <span class="hint">(여러 개 선택 가능)</span></div>
+    <div id="treatChips" class="chips"></div>
+    <input id="fTreatCustom" type="text" placeholder="시술 직접입력 (선택)">
+
+    <div class="grp">부위</div>
+    <div id="partChips" class="chips"></div>
+    <input id="fPartCustom" type="text" placeholder="부위 직접입력 (선택)" style="display:none">
+
+    <div class="row2" style="align-items:end">
+      <label>시점<select id="fTiming"></select></label>
+      <label>회차<div class="stepRow">
+        <button type="button" class="step" id="rMinus">−</button>
+        <input id="fRound" type="tel" inputmode="numeric" value="1" style="text-align:center">
+        <button type="button" class="step" id="rPlus">＋</button>
+      </div></label>
+    </div>
+    <input id="fTimingCustom" type="text" placeholder="시점 직접입력 (예: 2달후)" style="display:none; margin-top:8px">
+    <div id="roundHint" class="hint" style="margin-top:6px"></div>
+
+    <label class="tgl"><input id="fConsent" type="checkbox" checked> 활용동의 환자 (해제 시 '활용동의안함' 폴더로 저장)</label>
+  </div>
+
+  <div class="card">
+    <button class="btn" id="btnAdd" type="button">📷 사진 추가 (촬영/갤러리)</button>
+    <input id="fFiles" type="file" accept="image/*" multiple hidden>
+    <div id="thumbs"></div>
+    <div id="prog"><div id="progBar"></div></div>
+    <button class="btn" id="btnUp" type="button">업로드</button>
+    <div id="result"></div>
+  </div>
+
+  <div class="foot">사진은 폰에 남지 않고 Drive → 원내 공유폴더로 자동 정리됩니다</div>
+</div>
+
+<script>
+"use strict";
+// ── 설정: 배포 후 GAS 웹앱 URL을 여기 1곳만 교체 ──
+var GAS_URL = "https://script.google.com/macros/s/AKfycbypKSEXsX0IzNm-GvPPBtK4b7pMTHdvyPpWVB9PQEh2XZrnFAw-JRi-_2es2bnzGnDaow/exec";
+var TREATMENTS = ["온다", "웨이브", "컷"];
+var BODY_PARTS = ["안면", "복부", "위팔", "허벅지", "종아리", "전신", "직접입력"];
+var TIMINGS = ["시술전", "시술후", "직접입력"];
+var MAX_EDGE = 2000, JPEG_Q = 0.88;
+
+var photos = []; // {b64, mime, status, el}
+var selTreats = {}, selPart = null;
+var $ = function (id) { return document.getElementById(id); };
+
+function renderChips(elId, list, multi, onPick) {
+  var box = $(elId); box.innerHTML = "";
+  list.forEach(function (v) {
+    var b = document.createElement("button"); b.type = "button"; b.textContent = v;
+    b.onclick = function () { onPick(v, b); };
+    box.appendChild(b);
+  });
+}
+
+(function init() {
+  var d = new Date();
+  $("fDate").value = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+
+  renderChips("treatChips", TREATMENTS, true, function (v, b) {
+    selTreats[v] = !selTreats[v];
+    b.classList.toggle("on", selTreats[v]);
+    refreshRound();
+  });
+  renderChips("partChips", BODY_PARTS, false, function (v, b) {
+    selPart = v;
+    Array.prototype.forEach.call($("partChips").children, function (x) { x.classList.toggle("on", x === b); });
+    $("fPartCustom").style.display = v === "직접입력" ? "block" : "none";
+    refreshRound();
+  });
+  TIMINGS.forEach(function (t) { var o = document.createElement("option"); o.textContent = t; $("fTiming").appendChild(o); });
+  $("fTiming").onchange = function () {
+    $("fTimingCustom").style.display = this.value === "직접입력" ? "block" : "none";
+  };
+  $("rMinus").onclick = function () { $("fRound").value = Math.max(1, (Number($("fRound").value) || 1) - 1); };
+  $("rPlus").onclick = function () { $("fRound").value = (Number($("fRound").value) || 0) + 1; };
+})();
+
+function getTreatment() {
+  var arr = TREATMENTS.filter(function (t) { return selTreats[t]; });
+  var custom = $("fTreatCustom").value.trim();
+  if (custom) arr.push(custom);
+  return arr.join("+");
+}
+function getPart() {
+  if (selPart === "직접입력") return $("fPartCustom").value.trim();
+  return selPart || "";
+}
+function getTiming() {
+  var v = $("fTiming").value;
+  return v === "직접입력" ? $("fTimingCustom").value.trim() : v;
+}
+
+/** 차트+시술+부위가 갖춰지면 서버에서 회차 자동 제안 */
+function refreshRound() {
+  var chart = $("fChart").value.trim(), tr = getTreatment(), pt = getPart();
+  if (!/^\d{3,8}$/.test(chart) || !tr || !pt || GAS_URL.indexOf("http") !== 0) return;
+  post({ action: "suggest", chart: chart, name: $("fName").value.trim(), treatment: tr, part: pt, consent: $("fConsent").checked })
+    .then(function (j) {
+      if (j.ok) {
+        $("fRound").value = j.round;
+        $("roundHint").textContent = j.prevRound ? "이전 " + j.prevRound + "회차 확인됨 → " + j.round + "회차 제안 (수정 가능)" : "첫 회차";
+      }
+    }).catch(function () {});
+}
+
+$("btnLookup").onclick = function () {
+  var chart = $("fChart").value.trim();
+  if (!/^\d{3,8}$/.test(chart)) { setNameState("차트번호 형식 확인", "warn"); return; }
+  setNameState("조회 중…", "dim");
+  post({ action: "lookup", chart: chart }).then(function (j) {
+    if (!j.ok) { setNameState("조회 실패: " + j.error, "bad"); return; }
+    if (!j.lookup) { setNameState("대조 시트 미설정 — 이름 직접 입력", "warn"); return; }
+    if (j.notFound) { setNameState("미등록 차트번호 — 인입원장 등록 후 재시도", "bad"); return; }
+    $("fName").value = j.name;
+    setNameState("확인됨: " + j.name, "ok");
+    refreshRound();
+  }).catch(function (e) { setNameState("통신 오류: " + e, "bad"); });
+};
+
+function setNameState(t, c) {
+  var el = $("nameState");
+  el.textContent = t;
+  el.style.color = c === "ok" ? "#66bb6a" : c === "warn" ? "#ffa726" : c === "bad" ? "#ef5350" : "#8b93a3";
+}
+
+$("btnAdd").onclick = function () { $("fFiles").click(); };
+$("fFiles").onchange = function () {
+  Array.prototype.forEach.call(this.files, function (file) { addPhoto(file); });
+  this.value = "";
+};
+
+function addPhoto(file) {
+  var img = new Image();
+  img.onload = function () {
+    var w = img.width, h = img.height, scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+    var c = document.createElement("canvas");
+    c.width = Math.round(w * scale); c.height = Math.round(h * scale);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(img.src);
+    var dataUrl = c.toDataURL("image/jpeg", JPEG_Q);
+    var item = { b64: dataUrl.split(",")[1], mime: "image/jpeg", status: "대기" };
+    photos.push(item);
+    renderThumb(item, dataUrl);
+    $("btnUp").style.display = "block";
+  };
+  img.src = URL.createObjectURL(file);
+}
+
+function renderThumb(item, dataUrl) {
+  var d = document.createElement("div"); d.className = "th";
+  var im = document.createElement("img"); im.src = dataUrl;
+  var x = document.createElement("button"); x.className = "x"; x.textContent = "✕";
+  var st = document.createElement("div"); st.className = "st"; st.textContent = item.status;
+  x.onclick = function () { photos.splice(photos.indexOf(item), 1); d.remove(); if (!photos.length) $("btnUp").style.display = "none"; };
+  d.appendChild(im); d.appendChild(x); d.appendChild(st);
+  item.el = st; item.xBtn = x;
+  $("thumbs").appendChild(d);
+}
+
+$("btnUp").onclick = function () {
+  var chart = $("fChart").value.trim(), name = $("fName").value.trim();
+  var ymd = ($("fDate").value || "").replace(/-/g, ""); // YYYYMMDD (원내 실구조와 동일)
+  var meta = {
+    treatment: getTreatment(), part: getPart(), timing: getTiming(),
+    round: Number($("fRound").value) || 1, consent: $("fConsent").checked
+  };
+  if (!/^\d{3,8}$/.test(chart) || !name || !ymd) { setNameState("차트번호·이름·날짜를 채우세요", "bad"); return; }
+  if (!meta.treatment) { $("result").textContent = "시술을 1개 이상 선택하거나 직접입력하세요"; return; }
+  if (!meta.part) { $("result").textContent = "부위를 선택하거나 직접입력하세요"; return; }
+  if (!meta.timing) { $("result").textContent = "시점을 선택하거나 직접입력하세요"; return; }
+  if (GAS_URL.indexOf("http") !== 0) { $("result").textContent = "GAS_URL 미설정 — 배포 후 URL을 넣어주세요"; return; }
+  $("btnUp").disabled = true; $("prog").style.display = "block"; $("result").textContent = "";
+  uploadAll(chart, name, ymd, meta).then(function (res) {
+    $("btnUp").disabled = false;
+    var failed = photos.filter(function (p) { return p.status === "실패"; }).length;
+    var html = res.complete && !failed
+      ? "✅ 완료 — " + res.saved + "장 저장"
+      : "⚠️ 저장 " + res.saved + "/" + photos.length + "장" + (failed ? " (실패 " + failed + "장 — 다시 업로드 누르면 실패분만 재시도)" : " — 서버 확인 필요");
+    $("result").innerHTML = html + '<br><a href="' + res.folderUrl + '" target="_blank">폴더 열기</a>';
+  }).catch(function (e) {
+    $("btnUp").disabled = false;
+    $("result").textContent = "업로드 중단: " + e;
+  });
+};
+
+function uploadAll(chart, name, ymd, meta) {
+  var base = {
+    chart: chart, name: name, ymd: ymd,
+    treatment: meta.treatment, part: meta.part, round: meta.round,
+    timing: meta.timing, consent: meta.consent,
+    device: navigator.userAgent.slice(0, 80)
+  };
+  var pending = photos.map(function (p, i) { return { p: p, seq: i + 1 }; })
+    .filter(function (x) { return x.p.status !== "완료"; });
+  var done = 0;
+  var chain = Promise.resolve();
+  pending.forEach(function (x) {
+    chain = chain.then(function () {
+      x.p.el.textContent = "전송중";
+      var payload = Object.assign({ action: "upload", seq: x.seq, total: photos.length, mime: x.p.mime, b64: x.p.b64 }, base);
+      return post(payload).then(function (j) {
+        if (!j.ok) throw j.error;
+        x.p.status = "완료"; x.p.el.textContent = "완료"; x.p.xBtn.style.display = "none";
+      }).catch(function () {
+        // 1회 재시도
+        return post(payload).then(function (j2) {
+          if (!j2.ok) throw j2.error;
+          x.p.status = "완료"; x.p.el.textContent = "완료"; x.p.xBtn.style.display = "none";
+        }).catch(function () { x.p.status = "실패"; x.p.el.textContent = "실패"; });
+      }).then(function () {
+        done++;
+        $("progBar").style.width = Math.round(done / pending.length * 100) + "%";
+      });
+    });
+  });
+  return chain.then(function () {
+    return post(Object.assign({ action: "finalize", total: photos.length }, base));
+  }).then(function (j) {
+    if (!j.ok) throw j.error;
+    return j;
+  });
+}
+
+function post(payload) {
+  return fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(function (r) { return r.json(); });
+}
+</script>
+</body>
+</html>
