@@ -791,56 +791,93 @@ function syncBootToParsedDate(){
 var MONTH = null;
 function monthlyShow(){
   var st=document.getElementById("stage");
-  st.innerHTML='<div class="card"><div class="q">📅 OK차트 월결산 — 붙여넣기</div>'
-   +'<div class="hint">OK차트 <b>월말결산</b> 또는 <b>일자별</b> 표를 전체 선택(Ctrl+A)→복사→아래에 붙여넣기(Ctrl+V). 월합계·일별 어느 쪽이든, 둘 다여도 됩니다.</div>'
-   +'<textarea id="monRaw" placeholder="여기에 OK차트 표 붙여넣기...">'+esc(MONTH&&MONTH.raw||"")+'</textarea>'
+  var acc=(MONTH&&MONTH.days&&MONTH.days.length)?MONTH.days.length:0;
+  var accBox = acc ? '<div class="carrybox" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534">\U0001F4E5 현재 <b>'+acc+'일</b> 누적됨 ('+esc(MONTH.range||"—")+') · 이어서 붙여넣으면 <b>합쳐집니다</b>. 같은 날짜는 나중 것으로 덮어쓰기.</div>' : '';
+  st.innerHTML='<div class="card"><div class="q">\U0001F4C5 OK차트 월결산 — 붙여넣기</div>'
+   +'<div class="hint">OK차트 <b>월말결산</b> 또는 <b>일자별</b> 표를 복사→붙여넣기. <b>한 번에 다 안 돼도 됩니다</b> — 나눠서 여러 번 넣으면 누적됩니다. (탭 또는 2칸 이상 공백 구분, 날짜는 2026-07-01 / 2026.07.01 / 07-01 모두 인식)</div>'
+   +accBox
+   +'<textarea id="monRaw" placeholder="여기에 OK차트 표 붙여넣기... (여러 번 나눠 넣어도 됩니다)"></textarea>'
    +'<div id="monErr" style="color:var(--red);font-size:13px;margin-top:8px;"></div>'
-   +'<div class="btn-row"><button class="btn btn-s" onclick="render()">← 돌아가기</button><button class="btn btn-p" onclick="monthlyParse()">분석 →</button></div></div>';
+   +'<div class="btn-row" style="flex-wrap:wrap"><button class="btn btn-s" onclick="render()">← 돌아가기</button>'
+   +(acc?'<button class="btn btn-s" onclick="monthlyReset()">\U0001F5D1 누적 초기화</button><button class="btn btn-s" onclick="monthlyResult()">\U0001F4CA 현재 결과</button>':'')
+   +'<button class="btn btn-p" onclick="monthlyParse()">'+(acc?'추가 분석 →':'분석 →')+'</button></div></div>';
   var f=st.querySelector("textarea"); if(f) f.focus();
 }
 function monClean(x){ return String(x==null?"":x).replace(/\s/g,""); }
 function monCol(H,name){ for(var k=0;k<H.length;k++){ var h=monClean(H[k]); if(h===name||h.indexOf(name)===0) return k; } return -1; }
-function monthlyParseRaw(raw){
+/* v3.6 관용 파서 — 구분자(탭/2칸공백)·날짜형식·헤더위치 변형 허용. 계산식 미변경. */
+function monSplit(line){ if(line.indexOf("\t")>=0) return line.split("\t"); return line.split(/ {2,}/); }
+function monNormDate(s, yearHint){
+  var t=String(s==null?"":s).trim(); if(!t) return null; var m;
+  m=t.match(/^(\d{4})\s*[-.\/년]\s*(\d{1,2})\s*[-.\/월]\s*(\d{1,2})/);
+  if(m) return m[1]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2);
+  m=t.match(/^(\d{2})[-.\/](\d{1,2})[-.\/](\d{1,2})(?!\d)/);
+  if(m) return "20"+m[1]+"-"+("0"+m[2]).slice(-2)+"-"+("0"+m[3]).slice(-2);
+  m=t.match(/^(\d{1,2})[-.\/](\d{1,2})(?!\d)/);
+  if(m&&yearHint) return yearHint+"-"+("0"+m[1]).slice(-2)+"-"+("0"+m[2]).slice(-2);
+  return null;
+}
+function monthlyParseRaw(raw, yearHint){
   var lines=raw.split(/\r?\n/).filter(function(l){return l.trim().length;});
-  var hi=-1;
-  for(var i=0;i<lines.length;i++){ if(lines[i].indexOf("일자")===0 && lines[i].indexOf("총진료비")>=0){ hi=i; break; } }
-  var days=[], monRev=null, monPay=null, monRefund=null, monCard=null, monBank=null, monMisu=null;
+  var hi=-1, H=null;
+  for(var i=0;i<lines.length;i++){
+    if(lines[i].indexOf("총진료비")<0) continue;
+    var cells=monSplit(lines[i]);
+    if(monCol(cells,"일자")>=0){ hi=i; H=cells; break; }
+  }
+  var days=[], usedHint=false;
+  var monRev=null, monPay=null, monRefund=null, monCard=null, monBank=null, monMisu=null;
   if(hi>=0){
-    var H=lines[hi].split("\t");
     var ix={date:monCol(H,"일자"),visit:monCol(H,"내원환자수"),nu:monCol(H,"신규환자수"),rev:monCol(H,"총진료비"),pay:monCol(H,"수납총액"),refund:monCol(H,"환불총액"),card:monCol(H,"카드수납"),bank:monCol(H,"통장회수"),misu:monCol(H,"미수금")};
     for(var i=hi+1;i<lines.length;i++){
-      var c=lines[i].split("\t"); var d0=(c[0]||"").trim();
-      if(!/^\d{4}-\d{2}-\d{2}/.test(d0)) continue;
-      days.push({date:d0.slice(0,10),visit:num(c[ix.visit]),nu:num(c[ix.nu]),rev:num(c[ix.rev]),pay:num(c[ix.pay]),refund:num(c[ix.refund]),card:num(c[ix.card]),bank:num(c[ix.bank]),misu:num(c[ix.misu])});
+      var c=monSplit(lines[i]);
+      var d0=(c[ix.date>=0?ix.date:0]||"").trim();
+      var nd=monNormDate(d0, yearHint);
+      if(!nd) continue;
+      if(!/^\d{4}/.test(d0)) usedHint=true;
+      days.push({date:nd,visit:num(c[ix.visit]),nu:num(c[ix.nu]),rev:num(c[ix.rev]),pay:num(c[ix.pay]),refund:num(c[ix.refund]),card:num(c[ix.card]),bank:num(c[ix.bank]),misu:num(c[ix.misu])});
     }
   }
-  /* 월합계 블록(일자 헤더가 아닌, 내원환자수+총진료비 헤더) */
+  /* 월합계 블록 — 전수 스캔 후 마지막 유효값 채택 (이전: 첫 매치에서 break) */
   for(var i=0;i<lines.length;i++){
     if(i===hi) continue;
     var t=lines[i];
-    if(t.indexOf("내원환자수")>=0 && t.indexOf("총진료비")>=0 && t.indexOf("일자")<0){
-      var MH=t.split("\t"), mv=(lines[i+1]||"").split("\t");
+    if(t.indexOf("내원환자수")>=0 && t.indexOf("총진료비")>=0 && monCol(monSplit(t),"일자")<0){
+      var MH=monSplit(t), mv=monSplit(lines[i+1]||"");
       var gr=monCol(MH,"총진료비"), gp=monCol(MH,"수납총액"), grf=monCol(MH,"환불총액"), gc=monCol(MH,"카드수납"), gb=monCol(MH,"통장회수"), gm=monCol(MH,"미수금");
       if(gr>=0 && mv.length>gr){ monRev=num(mv[gr]); monPay=gp>=0?num(mv[gp]):null; monRefund=grf>=0?num(mv[grf]):null; monCard=gc>=0?num(mv[gc]):null; monBank=gb>=0?num(mv[gb]):null; monMisu=gm>=0?num(mv[gm]):null; }
-      break;
     }
   }
-  return {raw:raw, days:days, monthSummary:{rev:monRev,pay:monPay,refund:monRefund,card:monCard,bank:monBank,misu:monMisu}};
+  return {raw:raw, days:days, usedHint:usedHint, headerFound:hi>=0, monthSummary:{rev:monRev,pay:monPay,refund:monRefund,card:monCard,bank:monBank,misu:monMisu}};
 }
 function monthlyParse(){
   var raw=document.getElementById("monRaw").value||"";
   var err=document.getElementById("monErr");
-  var P=monthlyParseRaw(raw);
-  var active=P.days.filter(function(d){return d.rev>0||d.pay>0;});
-  if(!active.length && P.monthSummary.rev===null){ err.textContent="표를 읽지 못했어요. OK차트의 '일자별' 또는 '월말결산' 표를 그대로 붙여넣어 주세요."; return; }
-  /* 합계 */
+  var hadAcc=!!(MONTH&&MONTH.days&&MONTH.days.length);
+  if(!raw.trim()){ if(hadAcc){ monthlyResult(); return; } err.textContent="붙여넣은 내용이 없어요."; return; }
+  var yh=hadAcc?MONTH.days[0].date.slice(0,4):String(new Date().getFullYear());
+  var P=monthlyParseRaw(raw, yh);
+  if(!P.days.length && P.monthSummary.rev===null){
+    err.textContent=P.headerFound
+      ? "헤더는 찾았는데 날짜 행을 못 읽었어요. 날짜 열이 2026-07-01 / 2026.07.01 / 07-01 중 하나인지 확인해주세요."
+      : "표를 읽지 못했어요. '일자'와 '총진료비'가 같은 줄에 있는 헤더까지 포함해 복사해 주세요.";
+    return;
+  }
+  /* ── 누적 병합: 기존 + 신규, 같은 날짜는 신규 우선 ── */
+  var byDate={};
+  if(hadAcc) MONTH.days.forEach(function(d){ byDate[d.date]=d; });
+  var added=0, updated=0;
+  P.days.forEach(function(d){ if(byDate[d.date]) updated++; else added++; byDate[d.date]=d; });
+  var days=Object.keys(byDate).sort().map(function(k){ return byDate[k]; });
+  var ms=(hadAcc&&MONTH.monthSummary)||{rev:null,pay:null,refund:null,card:null,bank:null,misu:null};
+  if(P.monthSummary.rev!==null) ms=P.monthSummary;
+  var rawAll=((MONTH&&MONTH.raw)?MONTH.raw+"\n":"")+raw;
+  var active=days.filter(function(d){return d.rev>0||d.pay>0;});
   var sum={rev:0,pay:0,refund:0,card:0,bank:0,misu:0,visit:0,nu:0};
   active.forEach(function(d){ sum.rev+=d.rev; sum.pay+=d.pay; sum.refund+=d.refund; sum.card+=d.card; sum.bank+=d.bank; sum.misu+=d.misu; sum.visit+=d.visit; sum.nu+=d.nu; });
-  /* 경고: 일별합 vs 월합계 대조 */
   var warns=[];
-  var ms=P.monthSummary;
+  if(P.usedHint) warns.push("날짜에 연도가 없어 "+yh+"년으로 간주했습니다 — 다른 해 자료면 누적 초기화 후 다시 넣어주세요");
   if(active.length && ms.rev!==null && ms.rev!==sum.rev) warns.push("일별 총진료비 합("+won(sum.rev)+")과 월합계("+won(ms.rev)+")가 불일치 — 붙여넣기 누락 가능");
-  /* 경고: 활성일 사이 날짜 간격(달력상 빠진 날) */
   if(active.length>1){
     var ds=active.map(function(d){return d.date;}).sort();
     var gaps=[];
@@ -851,9 +888,14 @@ function monthlyParse(){
     }
     if(gaps.length) warns.push("활성일 사이 빈 날짜: "+gaps.join(", ")+" (휴진이면 정상, 진료일인데 빠졌으면 붙여넣기 확인)");
   }
-  MONTH={raw:raw, days:P.days, active:active, sum:sum, monthSummary:ms, warns:warns, range:active.length?(active[0].date+" ~ "+active[active.length-1].date):"—"};
+  var prevLedger=(MONTH&&MONTH.ledger)||null, prevRec=!!(MONTH&&MONTH.reconciled);
+  MONTH={raw:rawAll, days:days, active:active, sum:sum, monthSummary:ms, warns:warns,
+    range:active.length?(active[0].date+" ~ "+active[active.length-1].date):"—",
+    lastAdded:added, lastUpdated:updated,
+    ledger:prevLedger, reconciled:(added>0?false:prevRec)};
   monthlyResult();
 }
+function monthlyReset(){ MONTH=null; monthlyShow(); }
 function monDayStatus(d){
   /* 결산원장 대조 후: led 유무·수납일치로 상태 판정 */
   if(!MONTH.reconciled) return {t:"",cls:"",note:""};
