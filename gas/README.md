@@ -21,7 +21,7 @@ Apps Script 편집기 → 프로젝트 설정 → 스크립트 속성에 두 개
 
 | 키 | 필수 | 값 |
 |---|:---:|---|
-| `KB_SPREADSHEET_ID` | ✅ | 답변KB 탭이 있는 스프레드시트 ID |
+| `KB_SPREADSHEET_ID` | ✅ | `답변KB` 탭이 있는 스프레드시트 — **아크로_인입원장**. ID는 그 시트를 열었을 때 주소창 `/spreadsheets/d/` 와 `/edit` 사이 문자열 |
 | `SLACK_WEBHOOK_URL` | ✅ | 알림 받을 채널의 Incoming Webhook (#회의_프로그램) |
 | `GH_TOKEN` | △ | GitHub 토큰(contents:write). `lwGitPutTo_`를 쓰는 경우 불필요 |
 | `GH_REPO` | △ | `owner/repo` |
@@ -31,7 +31,7 @@ Drive 폴더는 ID가 아니라 **이름(`L2_확정지식`)으로 찾는다.** �
 
 ### 2. 어느 프로젝트에 둘 것인가 — 새 독립 프로젝트를 권한다
 
-이 스크립트는 GitHub 푸시를 자체적으로 한다(`ghPut_`). 그래서 **기존 17개 프로젝트를 건드릴
+이 스크립트는 GitHub 푸시를 자체적으로 한다(`acdGhPut_`). 그래서 **기존 17개 프로젝트를 건드릴
 필요가 없다.** 새 Apps Script 프로젝트(예: `아크로드_빌드`)를 만들어 넣으면 된다.
 
 새 프로젝트를 만드는 건 금지 규칙에 걸리지 않는다. 금지된 것은 **새 웹앱 배포**(`/exec` URL)를
@@ -43,22 +43,28 @@ Drive 폴더는 ID가 아니라 **이름(`L2_확정지식`)으로 찾는다.** �
 
 ### 3. ⚠ 이름 충돌 — Apps Script는 프로젝트 안 모든 파일이 전역을 공유한다
 
-라인브릿지처럼 **이미 코드가 있는 프로젝트**에 이 파일을 추가하면, 같은 이름의 함수·변수가
-있을 때 나중에 로드된 쪽이 이깁니다. 라인브릿지의 `slack_`이 빌드의 것으로 덮이면
-환자 응대가 조용히 망가진다.
+파일을 나눠도 전역 이름은 한 통에 들어간다. 라인브릿지처럼 이미 코드가 있는 프로젝트에
+같은 이름이 있으면 한쪽이 덮이고, 환자 응대가 오류 없이 조용히 이상해진다.
 
-그래서 이 파일의 전역 심볼은 전부 `kb` 접두어를 붙였다. 그래도 붙이기 전에 한 번 확인할 것.
+그래서 이 파일의 전역 심볼은 전부 **`acd`**(아크로드) 접두어를 쓴다.
+라인브릿지는 `lw` 접두어를 쓰므로 겹치지 않는다.
+
+`ACD_CFG` · `acdBuildDryRun` · `acdBuildAll` · `acdRun_` · `acdSelfCheck_` · `acdParseCanon_` ·
+`acdTrimEnd_` · `acdParseVer_` · `acdNormalizeAll_` · `acdWriteSheet_` · `acdWriteJson_` ·
+`acdGhPut_` · `acdSlack_`
+
+점검(260726 실행: 충돌 0):
 
 ```powershell
-# 이 목록 중 하나라도 Code.js에 있으면 이름을 더 바꿔야 한다
-Select-String -Path C:\acro-gas\linebridge\Code.js -Pattern 'KB_CFG|kbBuild|kbRun_|kbSelfCheck_|kbParse|kbTrimEnd_|kbNormalizeAll_|kbWrite|kbGhPut_|kbSlack_'
+Select-String -Path C:\acro-gas\linebridge\Code.js -Pattern 'ACD_CFG|acd[A-Z]' -CaseSensitive
 ```
 
-아무것도 안 나오면 안전하다. 나오면 알려줄 것.
+⚠ `Select-String`은 기본이 **대소문자 무시 + 부분 일치**다. `-CaseSensitive` 없이 `kbParse`로
+찾으면 라인브릿지의 `lwKbParse_`가 걸려 충돌로 오인된다(260726에 실제로 그랬다).
 
-전역 심볼 전체: `KB_CFG` · `kbBuildDryRun` · `kbBuildAll` · `kbRun_` · `kbSelfCheck_` ·
-`kbParseCanon_` · `kbTrimEnd_` · `kbParseVer_` · `kbNormalizeAll_` · `kbWriteSheet_` ·
-`kbWriteJson_` · `kbGhPut_` · `kbSlack_`
+라인브릿지에 이미 `lwKbParse_`·`lwKbBuild_`가 있다. **이름이 비슷하지만 다른 것이다** —
+`lwKbBuild_`는 라인브릿지가 `?action=kb`로 내보낼 KB 페이로드를 만드는 함수이고,
+`acdBuildAll`은 정본에서 시트·json을 찍는 함수다. 헷갈리지 말 것.
 
 ### 4. ⚠ `clasp push` 하기 전에 `clasp pull`
 
@@ -69,11 +75,20 @@ Select-String -Path C:\acro-gas\linebridge\Code.js -Pattern 'KB_CFG|kbBuild|kbRu
 ## 실행
 
 ```
-buildDryRun()   ← 반드시 먼저. 아무것도 쓰지 않고 리포트만 낸다.
-buildAll()      ← 실제 반영.
+acdBuildDryRun()   ← 반드시 먼저. 아무것도 쓰지 않고 리포트만 낸다.
+acdBuildAll()      ← 실제 반영.
 ```
 
-`buildDryRun()`이 슬랙에 뭘 몇 건 바꿀지 보고한다. 그 숫자가 납득되면 `buildAll()`.
+`acdBuildDryRun()`이 슬랙에 뭘 몇 건 바꿀지 보고한다. 그 숫자가 납득되면 `acdBuildAll()`.
+
+### 빌드 후 반드시 확인할 것 — 라인브릿지 캐시
+
+라인브릿지는 `lwKbBuild_()`로 KB 페이로드를 만들어 `?action=kb`로 내보낸다.
+그게 캐시(CacheService·스크립트 속성)를 쓰고 있으면 **시트를 갱신해도 라인 응대는 옛 KB를
+계속 쓴다.** "빌드했는데 라인이 안 바뀐다"가 이 경우다.
+
+`acdBuildAll()` 뒤에 `?action=kb`를 열어 건수가 정본과 같은지 본다.
+다르면 `lwKbBuild_`의 캐시를 무효화하는 호출을 빌드 끝에 붙여야 한다.
 
 ## 안전장치
 
@@ -84,8 +99,8 @@ buildAll()      ← 실제 반영.
 | 정본 폴더를 못 읽음 | 중단 + 슬랙 경보 (조용히 실패하지 않는다) |
 | `L2_확정지식` 이름의 폴더가 둘 이상 | 중단 — 어느 게 정본인지 알 수 없다 |
 | 정본 폴더에 정본 파일이 둘 이상 | 진행하되 **어느 것을 썼는지 슬랙에 보고** |
-| 파싱 결과가 `MIN_ITEMS`(380) 미달 | 중단 — 정본이 잘려 읽힌 것으로 본다 |
-| 시트 행이 `MAX_SHRINK`(5) 넘게 줄어듦 | 중단 |
+| 파싱 결과가 `ACD_CFG.MIN_ITEMS`(380) 미달 | 중단 — 정본이 잘려 읽힌 것으로 본다 |
+| 시트 행이 `ACD_CFG.MAX_SHRINK`(5) 넘게 줄어듦 | 중단 |
 | `원본ID`가 빈 항목이 있음 | 중단 + 어느 KB-ID인지 보고 |
 | `원본ID` 중복 | 중단 |
 | 정본에 없는 시트 행 | **지우지 않는다.** 맨 아래로 밀고 슬랙에 목록 보고 |
@@ -97,11 +112,11 @@ buildAll()      ← 실제 반영.
 
 클로드→슬랙 경로로 KB가 갱신되면 `:blush:` 같은 슬랙 표기가 문자 그대로 시트에 굳는다.
 그대로 발송되면 환자 화면에 `:blush:`가 찍힌다(260726에 13곳 발견).
-빌드가 매번 `CFG.EMOJI`로 치환하고, **매핑에 없는 새 숏코드가 보이면 슬랙으로 알린다.**
+빌드가 매번 `ACD_CFG.EMOJI`로 치환하고, **매핑에 없는 새 숏코드가 보이면 슬랙으로 알린다.**
 
 ## 정본 버전 고르기 — 사전순으로 하면 안 된다
 
-폴더에 정본이 여러 개일 때 `parseVer_`로 **버전을 숫자로** 비교한다.
+폴더에 정본이 여러 개일 때 `acdParseVer_`로 **버전을 숫자로** 비교한다.
 파일명 사전순으로 고르면 `v1_10 < v1_7`이 되어(`1 < 7`) 옛 파일을 정본으로 집는다.
 버전이 같으면 수정시각이 늦은 것, 버전을 못 읽는 이름은 맨 뒤로 보낸다.
 
