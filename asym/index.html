@@ -73,6 +73,10 @@
   .fine{font-size:12px;color:#8a97a1;line-height:1.7;margin-top:34px;padding-top:14px;border-top:1px solid var(--line)}
   .vid{display:block;background:#fff;border:2px solid var(--accent);border-radius:12px;padding:13px 17px;margin-top:12px;font-size:14.5px;text-decoration:none;color:var(--ink);font-weight:600}
   .vid span{color:var(--accent)}
+  .rng{display:flex;align-items:center;gap:12px;margin-top:4px}
+  .rng input[type=range]{flex:1;accent-color:var(--accent)}
+  .rng b{min-width:36px;text-align:center;font-size:18px;font-weight:800;color:var(--accent)}
+  .rng-cap{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-top:3px}
   /* form */
   .f-sec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-top:16px}
   .f-sec h3{font-size:15.5px;font-weight:800;margin-bottom:14px;color:var(--ink)}
@@ -131,7 +135,8 @@
 
 <div class="wrap">
   <div class="pane" id="pane-survey"><div id="surveyRoot"></div></div>
-  <div class="pane" id="pane-explain"><div id="explainRoot"></div></div>
+  <div class="pane" id="pane-revisit"><div id="revisitRoot"></div></div>
+  <div class="pane" id="pane-explain"><div id="explainAddRoot"></div><div id="explainRoot"></div></div>
   <div class="pane" id="pane-price"><div id="priceRoot"></div></div>
 
   <!-- ================= 시술 동의서 (한국어 정본) ================= -->
@@ -285,7 +290,7 @@ var LANGS = [
 <script>
 /* ================= 한국어 ================= */
 I18N.ko = {
-tabs:{survey:"초진 설문지",explain:"치료 안내",price:"수가표",consent1:"시술 동의서",consent2:"환불 동의서",after:"관리법·주의사항"},
+tabs:{survey:"초진 설문지",revisit:"재진 설문",explain:"치료 안내",price:"수가표",consent1:"시술 동의서",consent2:"환불 동의서",after:"관리법·주의사항"},
 ui:{submit:"설문 제출",copy:"내용 복사",copied:"복사되었습니다",sentOk:"제출되었습니다. 감사합니다!",sentFail:"전송에 실패했습니다. 아래 내용을 복사해 데스크에 보여주세요.",noHook:"(웹훅 미설정) 아래 내용을 복사해 데스크에 전달해 주세요.",required:"필수 항목을 입력해 주세요: ",print:"인쇄 / PDF 저장"},
 survey:{
 title:"안면 밸런스 초진 설문지",
@@ -315,10 +320,42 @@ surgery:{lb:"안면 부위 수술·시술 이력 (있다면)",ph:"예: 2023년 �
 trauma:{lb:"턱·얼굴 외상(다친 적)이 있나요?",op:["있음","없음"]},
 health:{lb:"해당되는 항목 (복수 선택)",op:["임신 중이거나 가능성 있음","항응고제 복용 · 출혈성향","최근 6개월 내 안면 수술·시술","심한 급성 턱 통증·입이 잘 안 벌어짐","해당 없음"]},
 healthEtc:{lb:"기타 질환·복용 약 (있다면)",ph:""},
-goal:{lb:"치료로 기대하는 것 (복수 선택)",op:["비대칭 개선","턱관절 통증·소리 개선","얼굴 라인 (리프팅)","전신 자세 교정"]},
+goal:{lb:"치료로 기대하는 것 (복수 선택)",op:["비대칭 개선","턱관절 통증·소리 개선","얼굴 라인 (리프팅)","목·어깨 뻐근함 개선"]},
 stay:{lb:"한국 체류 일정 (해외 거주 시)",op:["당일만","2~3일","1주 이상","한국 거주"]},
 wish:{lb:"기타 요청사항",ph:""},
+selfScore:{lb:"지금 내 얼굴 비대칭이 얼마나 신경 쓰이나요?",lo:"전혀 신경 안 씀",hi:"매우 신경 쓰임"},
+mirrorPhoto:{lb:"거울로 볼 때와 사진으로 볼 때, 어느 쪽이 더 신경 쓰이나요?",op:["거울","사진","비슷함"]},
+headache:{lb:"두통이 있나요? (있다면 주로 어디)",op:["없음","관자놀이","뒤통수","이마","정수리","여러 곳"]},
+earSx:{lb:"귀가 먹먹하거나 이명이 있나요?",op:["있음","가끔","없음"]},
+chewWhy:{lb:"한쪽으로 씹으신다면, 이유가 있나요?",op:["양쪽 골고루 씹음","그쪽이 편해서","반대쪽 치아가 아파서","반대쪽 치아가 없거나 치료 중","이유 모름"]},
+neckPain:{lb:"목·어깨가 자주 뻐근하거나 아픈가요?",op:["자주","가끔","없음"]},
+neckTurn:{lb:"목을 좌우로 돌릴 때 한쪽이 더 안 돌아가나요?",op:["왼쪽이 덜 돌아감","오른쪽이 덜 돌아감","차이 없음","모름"]},
+snore:{lb:"코골이가 있다고 들으신 적 있나요?",op:["자주 있음","가끔","없음","모름"]},
+apnea:{lb:"수면무호흡 진단을 받거나 검사한 적 있나요?",op:["진단받음","검사만 함","없음"]},
+sleepQual:{lb:"아침에 일어날 때 개운한가요?",op:["개운함","보통","개운하지 않음"]},
 privacy:{lb:"개인정보 수집·이용 동의 (필수)",tx:"작성하신 정보는 진료 및 상담 목적으로만 수집·이용되며, 관계 법령에 따라 보관 후 파기됩니다. 동의합니다."}
+}},
+revisit:{
+title:"안면 밸런스 재진 설문",
+lead:"치료 경과를 확인합니다. 30초면 됩니다.",
+langNote:"재진 설문은 현재 한국어·영어로만 제공됩니다.",
+sec:["기본 정보","지금 상태","증상 변화","관리 실행","오늘 설명"],
+f:{
+rChart:{lb:"차트번호",ph:"차트번호"},
+rName:{lb:"성명",ph:"성명"},
+rVisitNo:{lb:"오늘이 몇 회차인가요?",ph:"예: 3"},
+rSelfScore:{lb:"지금 내 얼굴 비대칭이 얼마나 신경 쓰이나요?",lo:"전혀 신경 안 씀",hi:"매우 신경 쓰임"},
+rOthers:{lb:"주변에서 \"달라졌다\"는 말을 들으셨나요?",op:["들었음","못 들었음","아직 안 물어봄"]},
+rTmj:{lb:"턱 소리·통증은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rStiff:{lb:"아침에 턱이 뻐근한 것은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rNeck:{lb:"목·어깨 뻐근함은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rHeadache:{lb:"두통은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rSnore:{lb:"코골이·수면은 어떤가요?",op:["좋아짐","같음","나빠짐","모름","원래 없었음"]},
+rSplint:{lb:"장치를 실제로 하루 몇 시간 착용하셨나요?",op:["8시간 이상","5~8시간","3~5시간","3시간 미만","거의 못 씀","장치 미처방"]},
+rHabit:{lb:"습관 교정은 어느 정도 하셨나요? (양쪽으로 씹기 · 턱 안 괴기)",op:["잘 지킴","절반쯤","거의 못 함"]},
+rUnderstood:{lb:"오늘 설명으로 내 비대칭 유형을 이해하셨나요?",op:["전혀 아니다","아니다","보통","그렇다","매우 그렇다"]},
+rNewKnow:{lb:"전에는 몰랐던 것을 알게 되셨나요?",op:["예","아니오"]},
+rNote:{lb:"하시고 싶은 말씀 (선택)",ph:""}
 }},
 explain:'<h1>안면 밸런스 프로그램</h1><p class="lead">오늘 풀고, 장치로 지킵니다 — 얼굴 비대칭의 상당수는 뼈가 아니라 근육과 턱관절의 문제입니다.</p>'+
 '<h2><span class="num">01</span>내 얼굴은 왜 비대칭일까요?</h2><div class="two">'+
@@ -363,7 +400,7 @@ after:'<h1>교정장치 관리법과 주의사항</h1><p class="lead">오늘 받
 
 /* ================= English ================= */
 I18N.en = {
-tabs:{survey:"Intake Form",explain:"Treatment Guide",price:"Price List",consent1:"Consent (Korean)",consent2:"Refund Policy (Korean)",after:"Aftercare"},
+tabs:{survey:"Intake Form",revisit:"Follow-up Form",explain:"Treatment Guide",price:"Price List",consent1:"Consent (Korean)",consent2:"Refund Policy (Korean)",after:"Aftercare"},
 ui:{submit:"Submit",copy:"Copy",copied:"Copied",sentOk:"Submitted. Thank you!",sentFail:"Sending failed. Please copy the text below and show it to our front desk.",noHook:"(Webhook not set) Please copy the text below and show it to our front desk.",required:"Please fill in the required fields: ",print:"Print / Save as PDF"},
 survey:{
 title:"Facial Balance — New Patient Intake Form",
@@ -393,10 +430,42 @@ surgery:{lb:"Facial surgery / procedures (if any)",ph:"e.g. cheekbone reduction 
 trauma:{lb:"Any jaw/face injury history?",op:["Yes","No"]},
 health:{lb:"Check all that apply",op:["Pregnant or possibly pregnant","Blood thinners / bleeding tendency","Facial surgery/procedure within 6 months","Severe acute jaw pain / limited mouth opening","None of these"]},
 healthEtc:{lb:"Other conditions / medications (if any)",ph:""},
-goal:{lb:"What do you hope for? (multiple)",op:["Improve asymmetry","Relieve TMJ pain/sounds","Facial line (lifting)","Whole-body posture"]},
+goal:{lb:"What do you hope for? (multiple)",op:["Improve asymmetry","Relieve TMJ pain/sounds","Facial line (lifting)","Neck & shoulder tension relief"]},
 stay:{lb:"Your schedule in Korea (if visiting)",op:["Today only","2–3 days","1 week or more","I live in Korea"]},
 wish:{lb:"Anything else you'd like us to know",ph:""},
+selfScore:{lb:"How much does your facial asymmetry bother you right now?",lo:"Not at all",hi:"Very much"},
+mirrorPhoto:{lb:"Which bothers you more — the mirror, or photographs?",op:["Mirror","Photographs","About the same"]},
+headache:{lb:"Do you get headaches? (if so, mainly where)",op:["None","Temples","Back of head","Forehead","Top of head","Several areas"]},
+earSx:{lb:"Do your ears feel blocked, or do you have ringing?",op:["Yes","Sometimes","No"]},
+chewWhy:{lb:"If you chew on one side, is there a reason?",op:["I chew evenly on both sides","That side is more comfortable","A tooth on the other side hurts","A tooth on the other side is missing or under treatment","I do not know"]},
+neckPain:{lb:"Do your neck and shoulders often feel stiff or painful?",op:["Often","Sometimes","No"]},
+neckTurn:{lb:"When you turn your head, does one side turn less than the other?",op:["Left turns less","Right turns less","No difference","Not sure"]},
+snore:{lb:"Have you been told that you snore?",op:["Often","Sometimes","No","Not sure"]},
+apnea:{lb:"Have you been diagnosed with, or tested for, sleep apnea?",op:["Diagnosed","Tested only","No"]},
+sleepQual:{lb:"Do you feel refreshed when you wake up?",op:["Refreshed","So-so","Not refreshed"]},
 privacy:{lb:"Privacy consent (required)",tx:"I agree that my information is collected and used only for medical consultation and treatment, and stored/discarded according to the law."}
+}},
+revisit:{
+title:"Facial Balance — Follow-up Form",
+lead:"A quick check on your progress. Takes about 30 seconds.",
+langNote:"This follow-up form is currently available in Korean and English only.",
+sec:["Basic Information","Right Now","Change in Symptoms","Home Care","Today's Explanation"],
+f:{
+rChart:{lb:"Chart number",ph:"Chart number"},
+rName:{lb:"Full name",ph:"Name"},
+rVisitNo:{lb:"Which visit is today?",ph:"e.g. 3"},
+rSelfScore:{lb:"How much does your facial asymmetry bother you right now?",lo:"Not at all",hi:"Very much"},
+rOthers:{lb:"Has anyone around you said you look different?",op:["Yes, I have been told","No","I have not asked yet"]},
+rTmj:{lb:"How are the jaw sounds and pain?",op:["Better","Same","Worse","Did not have it before"]},
+rStiff:{lb:"How is the morning jaw stiffness?",op:["Better","Same","Worse","Did not have it before"]},
+rNeck:{lb:"How is the neck and shoulder tension?",op:["Better","Same","Worse","Did not have it before"]},
+rHeadache:{lb:"How are the headaches?",op:["Better","Same","Worse","Did not have it before"]},
+rSnore:{lb:"How is your snoring and sleep?",op:["Better","Same","Worse","Not sure","Did not have it before"]},
+rSplint:{lb:"How many hours a day did you actually wear the appliance?",op:["8 hours or more","5-8 hours","3-5 hours","Under 3 hours","Barely wore it","No appliance prescribed"]},
+rHabit:{lb:"How well did you keep the habit changes? (chewing on both sides, not resting your chin)",op:["Kept them well","About half","Barely kept them"]},
+rUnderstood:{lb:"Did today's explanation help you understand your type of asymmetry?",op:["Not at all","No","Neutral","Yes","Very much"]},
+rNewKnow:{lb:"Did you learn something you did not know before?",op:["Yes","No"]},
+rNote:{lb:"Anything you would like to tell us (optional)",ph:""}
 }},
 explain:'<h1>Facial Balance Program</h1><p class="lead">Release today, hold with the appliance — most facial asymmetry comes from muscles and the jaw joint, not from bone.</p>'+
 '<h2><span class="num">01</span>Why is my face asymmetric?</h2><div class="two">'+
@@ -442,7 +511,7 @@ after:'<h1>Appliance Care & Aftercare</h1><p class="lead">How to keep today\'s r
 <script>
 /* ================= Italiano ================= */
 I18N.it = {
-tabs:{survey:"Questionario",explain:"Guida al trattamento",price:"Listino prezzi",consent1:"Consenso (coreano)",consent2:"Rimborsi (coreano)",after:"Cura post-trattamento"},
+tabs:{survey:"Questionario",revisit:"Questionario di controllo",explain:"Guida al trattamento",price:"Listino prezzi",consent1:"Consenso (coreano)",consent2:"Rimborsi (coreano)",after:"Cura post-trattamento"},
 ui:{submit:"Invia",copy:"Copia",copied:"Copiato",sentOk:"Inviato. Grazie!",sentFail:"Invio non riuscito. Copi il testo qui sotto e lo mostri alla reception.",noHook:"(Webhook non impostato) Copi il testo qui sotto e lo mostri alla reception.",required:"Compili i campi obbligatori: ",print:"Stampa / Salva PDF"},
 survey:{
 title:"Equilibrio del Viso — Questionario iniziale",
@@ -472,7 +541,7 @@ surgery:{lb:"Interventi/procedure al viso (se presenti)",ph:"es. riduzione zigom
 trauma:{lb:"Traumi a mandibola/viso?",op:["Sì","No"]},
 health:{lb:"Selezioni ciò che La riguarda",op:["Gravidanza (anche possibile)","Anticoagulanti / tendenza al sanguinamento","Chirurgia/procedura al viso negli ultimi 6 mesi","Dolore acuto intenso alla mandibola / apertura limitata","Nessuna delle precedenti"]},
 healthEtc:{lb:"Altre patologie / farmaci (se presenti)",ph:""},
-goal:{lb:"Cosa desidera dal trattamento? (più risposte)",op:["Migliorare l'asimmetria","Ridurre dolore/rumori ATM","Linea del viso (lifting)","Postura del corpo"]},
+goal:{lb:"Cosa desidera dal trattamento? (più risposte)",op:["Migliorare l'asimmetria","Ridurre dolore/rumori ATM","Linea del viso (lifting)","Sollievo da tensione a collo e spalle"]},
 stay:{lb:"Permanenza in Corea (se in visita)",op:["Solo oggi","2–3 giorni","1 settimana o più","Vivo in Corea"]},
 wish:{lb:"Altre richieste",ph:""},
 privacy:{lb:"Consenso privacy (obbligatorio)",tx:"Acconsento alla raccolta e all'uso dei miei dati esclusivamente a fini di consulenza e trattamento medico, conservati ed eliminati secondo la legge."}
@@ -520,7 +589,7 @@ after:'<h1>Cura del bite e indicazioni post-trattamento</h1><p class="lead">Come
 
 /* ================= 日本語 ================= */
 I18N.ja = {
-tabs:{survey:"初診問診票",explain:"治療のご案内",price:"料金表",consent1:"施術同意書(韓国語)",consent2:"返金同意書(韓国語)",after:"管理方法・注意事項"},
+tabs:{survey:"初診問診票",revisit:"再診問診票",explain:"治療のご案内",price:"料金表",consent1:"施術同意書(韓国語)",consent2:"返金同意書(韓国語)",after:"管理方法・注意事項"},
 ui:{submit:"送信",copy:"コピー",copied:"コピーしました",sentOk:"送信されました。ありがとうございます!",sentFail:"送信に失敗しました。下記の内容をコピーして受付にお見せください。",noHook:"(Webhook未設定) 下記の内容をコピーして受付にお見せください。",required:"必須項目をご記入ください: ",print:"印刷 / PDF保存"},
 survey:{
 title:"フェイシャルバランス 初診問診票",
@@ -550,7 +619,7 @@ surgery:{lb:"顔の手術・施術歴 (あれば)",ph:"例: 2023年 頬骨縮小
 trauma:{lb:"顎・顔のケガの経験は?",op:["ある","ない"]},
 health:{lb:"該当する項目 (複数選択可)",op:["妊娠中または可能性あり","抗凝固薬の服用・出血傾向","6ヶ月以内の顔・顎の手術や施術","強い急性の顎の痛み・口が開きにくい","該当なし"]},
 healthEtc:{lb:"その他の疾患・服用中の薬 (あれば)",ph:""},
-goal:{lb:"治療に期待すること (複数選択可)",op:["非対称の改善","顎関節の痛み・音の改善","フェイスライン (リフティング)","全身の姿勢"]},
+goal:{lb:"治療に期待すること (複数選択可)",op:["非対称の改善","顎関節の痛み・音の改善","フェイスライン (リフティング)","首・肩のこり改善"]},
 stay:{lb:"韓国滞在日程 (海外在住の方)",op:["本日のみ","2~3日","1週間以上","韓国在住"]},
 wish:{lb:"その他のご要望",ph:""},
 privacy:{lb:"個人情報の収集・利用同意 (必須)",tx:"ご記入いただいた情報は診療・相談の目的にのみ収集・利用され、関係法令に従い保管後、破棄されます。同意します。"}
@@ -599,7 +668,7 @@ after:'<h1>矯正装置の管理方法と注意事項</h1><p class="lead">本日
 <script>
 /* ================= 简体中文 ================= */
 I18N.zhCN = {
-tabs:{survey:"初诊问卷",explain:"治疗指南",price:"价格表",consent1:"手术同意书(韩文)",consent2:"退款同意书(韩文)",after:"护理与注意事项"},
+tabs:{survey:"初诊问卷",revisit:"复诊问卷",explain:"治疗指南",price:"价格表",consent1:"手术同意书(韩文)",consent2:"退款同意书(韩文)",after:"护理与注意事项"},
 ui:{submit:"提交",copy:"复制",copied:"已复制",sentOk:"已提交,谢谢!",sentFail:"发送失败。请复制下方内容并出示给前台。",noHook:"(未设置Webhook) 请复制下方内容并出示给前台。",required:"请填写必填项目: ",print:"打印 / 保存PDF"},
 survey:{
 title:"面部平衡 初诊问卷",
@@ -629,7 +698,7 @@ surgery:{lb:"面部手术/医美经历 (如有)",ph:"例: 2023年颧骨缩小、
 trauma:{lb:"下颌/面部受过伤吗?",op:["有","没有"]},
 health:{lb:"符合的项目 (可多选)",op:["怀孕中或有可能","服用抗凝药/易出血体质","6个月内做过面部/下颌手术或医美","急性严重下颌疼痛/张口困难","以上都没有"]},
 healthEtc:{lb:"其他疾病/正在服用的药物 (如有)",ph:""},
-goal:{lb:"希望通过治疗获得什么? (可多选)",op:["改善不对称","改善关节疼痛/弹响","面部线条 (提升)","全身姿态"]},
+goal:{lb:"希望通过治疗获得什么? (可多选)",op:["改善不对称","改善关节疼痛/弹响","面部线条 (提升)","颈肩酸痛改善"]},
 stay:{lb:"在韩行程 (海外居住者)",op:["仅今天","2~3天","1周以上","居住在韩国"]},
 wish:{lb:"其他需求",ph:""},
 privacy:{lb:"个人信息收集使用同意 (必选)",tx:"所填信息仅用于诊疗与咨询目的,并依相关法律保管后销毁。本人同意。"}
@@ -677,7 +746,7 @@ after:'<h1>矫正器护理方法与注意事项</h1><p class="lead">让今天的
 
 /* ================= 繁體中文 ================= */
 I18N.zhTW = {
-tabs:{survey:"初診問卷",explain:"治療指南",price:"價格表",consent1:"施術同意書(韓文)",consent2:"退費同意書(韓文)",after:"照護與注意事項"},
+tabs:{survey:"初診問卷",revisit:"複診問卷",explain:"治療指南",price:"價格表",consent1:"施術同意書(韓文)",consent2:"退費同意書(韓文)",after:"照護與注意事項"},
 ui:{submit:"送出",copy:"複製",copied:"已複製",sentOk:"已送出,謝謝!",sentFail:"傳送失敗。請複製下方內容並出示給櫃檯。",noHook:"(未設定Webhook) 請複製下方內容並出示給櫃檯。",required:"請填寫必填項目: ",print:"列印 / 儲存PDF"},
 survey:{
 title:"臉部平衡 初診問卷",
@@ -707,7 +776,7 @@ surgery:{lb:"臉部手術/醫美經歷 (如有)",ph:"例: 2023年顴骨縮小、
 trauma:{lb:"下顎/臉部曾受過傷嗎?",op:["有","沒有"]},
 health:{lb:"符合的項目 (可複選)",op:["懷孕中或有可能","服用抗凝血劑/易出血體質","6個月內做過臉部/下顎手術或醫美","急性嚴重下顎疼痛/張口困難","以上皆無"]},
 healthEtc:{lb:"其他疾病/服用中的藥物 (如有)",ph:""},
-goal:{lb:"希望透過治療獲得什麼? (可複選)",op:["改善不對稱","改善關節疼痛/聲響","臉部線條 (拉提)","全身姿勢"]},
+goal:{lb:"希望透過治療獲得什麼? (可複選)",op:["改善不對稱","改善關節疼痛/聲響","臉部線條 (拉提)","頸肩痠痛改善"]},
 stay:{lb:"在韓行程 (海外居住者)",op:["只有今天","2~3天","1週以上","居住在韓國"]},
 wish:{lb:"其他需求",ph:""},
 privacy:{lb:"個人資料蒐集利用同意 (必選)",tx:"所填資料僅用於診療與諮詢目的,並依相關法令保管後銷毀。本人同意。"}
@@ -755,7 +824,7 @@ after:'<h1>矯正器照護方法與注意事項</h1><p class="lead">讓今天的
 
 /* ================= ไทย ================= */
 I18N.th = {
-tabs:{survey:"แบบสอบถามผู้ป่วยใหม่",explain:"คู่มือการรักษา",price:"อัตราค่าบริการ",consent1:"หนังสือยินยอม (เกาหลี)",consent2:"นโยบายคืนเงิน (เกาหลี)",after:"การดูแลหลังการรักษา"},
+tabs:{survey:"แบบสอบถามผู้ป่วยใหม่",revisit:"แบบสอบถามติดตามผล",explain:"คู่มือการรักษา",price:"อัตราค่าบริการ",consent1:"หนังสือยินยอม (เกาหลี)",consent2:"นโยบายคืนเงิน (เกาหลี)",after:"การดูแลหลังการรักษา"},
 ui:{submit:"ส่งแบบสอบถาม",copy:"คัดลอก",copied:"คัดลอกแล้ว",sentOk:"ส่งเรียบร้อยแล้ว ขอบคุณค่ะ!",sentFail:"ส่งไม่สำเร็จ กรุณาคัดลอกข้อความด้านล่างและแสดงให้เจ้าหน้าที่",noHook:"(ยังไม่ได้ตั้งค่า Webhook) กรุณาคัดลอกข้อความด้านล่างและแสดงให้เจ้าหน้าที่",required:"กรุณากรอกข้อมูลที่จำเป็น: ",print:"พิมพ์ / บันทึก PDF"},
 survey:{
 title:"แบบสอบถามผู้ป่วยใหม่ — Facial Balance",
@@ -785,7 +854,7 @@ surgery:{lb:"ประวัติศัลยกรรม/หัตถการ
 trauma:{lb:"เคยบาดเจ็บที่ขากรรไกร/ใบหน้าไหม?",op:["เคย","ไม่เคย"]},
 health:{lb:"ข้อที่ตรงกับคุณ (เลือกได้หลายข้อ)",op:["ตั้งครรภ์หรืออาจตั้งครรภ์","ทานยาละลายลิ่มเลือด / เลือดออกง่าย","ผ่าตัด/หัตถการบนใบหน้าใน 6 เดือน","ปวดขากรรไกรเฉียบพลันรุนแรง/อ้าปากลำบาก","ไม่มีข้อใดตรง"]},
 healthEtc:{lb:"โรคประจำตัว/ยาที่ทานอยู่ (ถ้ามี)",ph:""},
-goal:{lb:"สิ่งที่คาดหวังจากการรักษา (เลือกได้หลายข้อ)",op:["ปรับความไม่สมมาตร","ลดอาการปวด/เสียงข้อต่อ","กรอบหน้า (ลิฟติ้ง)","ท่าทางของร่างกาย"]},
+goal:{lb:"สิ่งที่คาดหวังจากการรักษา (เลือกได้หลายข้อ)",op:["ปรับความไม่สมมาตร","ลดอาการปวด/เสียงข้อต่อ","กรอบหน้า (ลิฟติ้ง)","บรรเทาอาการตึงคอและบ่า"]},
 stay:{lb:"กำหนดการอยู่เกาหลี (สำหรับผู้อาศัยต่างประเทศ)",op:["วันนี้วันเดียว","2–3 วัน","1 สัปดาห์ขึ้นไป","อาศัยอยู่ในเกาหลี"]},
 wish:{lb:"ความต้องการอื่น ๆ",ph:""},
 privacy:{lb:"ความยินยอมให้เก็บและใช้ข้อมูลส่วนบุคคล (จำเป็น)",tx:"ข้าพเจ้ายินยอมให้เก็บและใช้ข้อมูลเพื่อการตรวจรักษาและให้คำปรึกษาเท่านั้น โดยจัดเก็บและทำลายตามกฎหมายที่เกี่ยวข้อง"}
@@ -839,13 +908,13 @@ var SURVEY_DEF = [
    {k:"name",t:"text",req:1},{k:"birth",t:"text"},{k:"gender",t:"single"},
    {k:"phone",t:"text",req:1},{k:"contact",t:"text"},{k:"source",t:"multi"},{k:"sourceEtc",t:"text",showIf:["source",5]}]},
  {sec:1, fields:[
-   {k:"areas",t:"multi"},{k:"since",t:"single"},{k:"concern",t:"area"}]},
+   {k:"areas",t:"multi"},{k:"since",t:"single"},{k:"selfScore",t:"range"},{k:"mirrorPhoto",t:"single"},{k:"concern",t:"area"}]},
  {sec:2, fields:[
-   {k:"tmjSound",t:"single"},{k:"tmjPain",t:"single"},{k:"mouthOpen",t:"single"},{k:"morningStiff",t:"single"}]},
+   {k:"tmjSound",t:"single"},{k:"tmjPain",t:"single"},{k:"mouthOpen",t:"single"},{k:"morningStiff",t:"single"},{k:"headache",t:"single"},{k:"earSx",t:"single"}]},
  {sec:3, fields:[
-   {k:"chewSide",t:"single"},{k:"chinRest",t:"single"},{k:"sleepPos",t:"single"},{k:"bruxism",t:"single"}]},
+   {k:"chewSide",t:"single"},{k:"chewWhy",t:"single"},{k:"chinRest",t:"single"},{k:"sleepPos",t:"single"},{k:"bruxism",t:"single"}]},
  {sec:4, fields:[
-   {k:"ortho",t:"single"},{k:"surgery",t:"area"},{k:"trauma",t:"single"},{k:"health",t:"multi"},{k:"healthEtc",t:"area"}]},
+   {k:"ortho",t:"single"},{k:"surgery",t:"area"},{k:"trauma",t:"single"},{k:"neckPain",t:"single"},{k:"neckTurn",t:"single"},{k:"snore",t:"single"},{k:"apnea",t:"single"},{k:"sleepQual",t:"single"},{k:"health",t:"multi"},{k:"healthEtc",t:"area"}]},
  {sec:5, fields:[
    {k:"goal",t:"multi"},{k:"stay",t:"single"},{k:"wish",t:"area"}]},
  {sec:6, fields:[
@@ -853,8 +922,8 @@ var SURVEY_DEF = [
 ];
 
 var cur = {lang:"ko", tab:"survey"};
-var TABS = ["survey","explain","price","consent1","consent2","after"];
-var PANE = {survey:"pane-survey",explain:"pane-explain",price:"pane-price",consent1:"pane-consent1",consent2:"pane-consent2",after:"pane-after"};
+var TABS = ["survey","revisit","explain","price","consent1","consent2","after"];
+var PANE = {survey:"pane-survey",revisit:"pane-revisit",explain:"pane-explain",price:"pane-price",consent1:"pane-consent1",consent2:"pane-consent2",after:"pane-after"};
 
 function T(){ return I18N[cur.lang]; }
 
@@ -868,7 +937,7 @@ function renderChrome(){
   });
   var tb = document.getElementById("tabBar"); tb.innerHTML="";
   TABS.forEach(function(t){
-    var b=document.createElement("button"); b.textContent=T().tabs[t];
+    var b=document.createElement("button"); b.textContent=T().tabs[t]||I18N.en.tabs[t];
     if(t===cur.tab) b.className="on";
     b.onclick=function(){cur.tab=t; renderAll(); window.scrollTo(0,0);};
     tb.appendChild(b);
@@ -916,7 +985,7 @@ function renderStatic(){
   var er=document.getElementById("explainRoot"), pr=document.getElementById("priceRoot"), ar=document.getElementById("afterRoot");
   er.innerHTML = T().explain; pr.innerHTML = T().price; ar.innerHTML = T().after;
   if(cur.lang!=="ko"){ glossRoot_(er,I18N.ko.explain); glossRoot_(pr,I18N.ko.price); glossRoot_(ar,I18N.ko.after); }
-  fillConsentNotes_(); injectConsentTrans_();
+  renderExplainAdd_(); fillConsentNotes_(); injectConsentTrans_();
 }
 
 var surveyState = {};
@@ -927,9 +996,14 @@ function renderSurvey(){
     html+='<div class="f-sec"><h3><span class="fn">'+String(si+1).padStart(2,"0")+'</span>'+s.sec[sec.sec]+'</h3>';
     sec.fields.forEach(function(f){
       if(f.showIf){ var sv=surveyState[f.showIf[0]]; var on=Array.isArray(sv)?sv.indexOf(f.showIf[1])>=0:sv===f.showIf[1]; if(!on) return; }
-      var d=s.f[f.k], req=f.req?' <span class="req">*</span>':'';
+      var d=s.f[f.k]||I18N.en.survey.f[f.k]||I18N.ko.survey.f[f.k], req=f.req?' <span class="req">*</span>':'';
       html+='<div class="fld" data-k="'+f.k+'">';
-      if(f.t==="check"){
+      if(f.t==="range"){
+        var rv0 = (typeof surveyState[f.k]==="number") ? surveyState[f.k] : 5;
+        html+='<label class="lb">'+d.lb+req+'</label>'+
+              '<div class="rng"><input type="range" min="0" max="10" step="1" value="'+rv0+'" oninput="setRangeS(\''+f.k+'\',this)"><b id="sv_'+f.k+'">'+rv0+'</b></div>'+
+              '<div class="rng-cap"><span>'+d.lo+'</span><span>'+d.hi+'</span></div>';
+      } else if(f.t==="check"){
         var ck = surveyState[f.k]===true?" checked":"";
         html+='<label class="lb">'+d.lb+req+'</label><div class="chk"><input type="checkbox" id="ck_'+f.k+'"'+ck+' onchange="surveyState[\''+f.k+'\']=this.checked"> <span>'+d.tx+'</span></div>';
       } else if(f.t==="single"||f.t==="multi"){
@@ -974,7 +1048,8 @@ function buildSummary(){
     sec.fields.forEach(function(f){
       if(f.showIf){ var sv=surveyState[f.showIf[0]]; var on=Array.isArray(sv)?sv.indexOf(f.showIf[1])>=0:sv===f.showIf[1]; if(!on) return; }
       var d=ko.f[f.k], v=surveyState[f.k], out="-";
-      if(f.t==="check"){ out = v===true ? "동의함" : "미동의"; }
+      if(f.t==="range"){ out = (typeof v==="number"? v : 5) + " / 10"; }
+      else if(f.t==="check"){ out = v===true ? "동의함" : "미동의"; }
       else if(f.t==="single"){ if(typeof v==="number") out=d.op[v]; }
       else if(f.t==="multi"){ if(Array.isArray(v)&&v.length) out=v.map(function(i){return d.op[i];}).join(", "); }
       else { if(v) out=v; }
@@ -991,7 +1066,7 @@ function validateSurvey(){
     if(!f.req) return;
     var v=surveyState[f.k];
     var ok = f.t==="check"? v===true : (f.t==="single"? typeof v==="number" : (f.t==="multi"? Array.isArray(v)&&v.length : v&&String(v).trim()));
-    if(!ok) miss.push(T().survey.f[f.k].lb);
+    if(!ok) miss.push((T().survey.f[f.k]||I18N.en.survey.f[f.k]).lb);
   });});
   return miss;
 }
@@ -1050,7 +1125,169 @@ function printPane(id){
   window.print();
 }
 
-function renderAll(){ renderChrome(); renderStatic(); renderSurvey(); }
+
+/* ===== [ADD v2] 재진 추적 설문 + 설명 보강 카드 — 2026-07-26 ===================
+   기존 초진 설문(SURVEY_DEF/renderSurvey/buildSummary/validateSurvey)은 건드리지 않고
+   병렬로 추가한다. 전송은 기존 ENDPOINT_URL(GAS) 재사용 — GAS 수정 없이 동작.
+   ko/en만 정의. 나머지 언어는 en으로 폴백(추측 번역 금지 원칙). =================== */
+
+var REVISIT_DEF = [
+ {sec:0, fields:[{k:"rChart",t:"text",req:1},{k:"rName",t:"text"},{k:"rVisitNo",t:"text",req:1}]},
+ {sec:1, fields:[{k:"rSelfScore",t:"range"},{k:"rOthers",t:"single"}]},
+ {sec:2, fields:[{k:"rTmj",t:"single"},{k:"rStiff",t:"single"},{k:"rNeck",t:"single"},{k:"rHeadache",t:"single"},{k:"rSnore",t:"single"}]},
+ {sec:3, fields:[{k:"rSplint",t:"single"},{k:"rHabit",t:"single"}]},
+ {sec:4, fields:[{k:"rUnderstood",t:"single"},{k:"rNewKnow",t:"single"},{k:"rNote",t:"area"}]}
+];
+
+var revisitState = {};
+function RT_(){ return (T() && T().revisit) ? T().revisit : I18N.en.revisit; }
+function rf_(k){ var r=RT_(); return (r.f && r.f[k]) ? r.f[k] : I18N.en.revisit.f[k]; }
+
+function renderRevisit(){
+  var root=document.getElementById("revisitRoot"); if(!root) return;
+  var s=RT_(), html="";
+  html+='<h1>'+s.title+'</h1><p class="lead">'+s.lead+'</p>';
+  if(cur.lang!=="ko" && cur.lang!=="en"){
+    html+='<div class="c-note">'+I18N.en.revisit.langNote+'<span class="ko-gloss">'+I18N.ko.revisit.langNote+'</span></div>';
+  }
+  REVISIT_DEF.forEach(function(sec,si){
+    html+='<div class="f-sec"><h3><span class="fn">'+String(si+1).padStart(2,"0")+'</span>'+s.sec[sec.sec]+'</h3>';
+    sec.fields.forEach(function(f){
+      var d=rf_(f.k), req=f.req?' <span class="req">*</span>':'';
+      html+='<div class="fld" data-k="'+f.k+'">';
+      if(f.t==="range"){
+        var rv = (typeof revisitState[f.k]==="number") ? revisitState[f.k] : 5;
+        html+='<label class="lb">'+d.lb+req+'</label>'+
+              '<div class="rng"><input type="range" min="0" max="10" step="1" value="'+rv+'" oninput="setRangeR(\''+f.k+'\',this)">'+
+              '<b id="rv_'+f.k+'">'+rv+'</b></div>'+
+              '<div class="rng-cap"><span>'+d.lo+'</span><span>'+d.hi+'</span></div>';
+      } else if(f.t==="single"){
+        html+='<label class="lb">'+d.lb+req+'</label><div class="opts">';
+        d.op.forEach(function(o,oi){
+          var sel = revisitState[f.k]===oi;
+          html+='<label class="'+(sel?"sel":"")+'" onclick="pickOptR(\''+f.k+'\','+oi+')">'+o+'</label>';
+        });
+        html+='</div>';
+      } else if(f.t==="area"){
+        html+='<label class="lb">'+d.lb+req+'</label><textarea placeholder="'+(d.ph||"")+'" oninput="revisitState[\''+f.k+'\']=this.value">'+(revisitState[f.k]||"")+'</textarea>';
+      } else {
+        html+='<label class="lb">'+d.lb+req+'</label><input type="text" placeholder="'+(d.ph||"")+'" value="'+String(revisitState[f.k]||"").replace(/"/g,"&quot;")+'" oninput="revisitState[\''+f.k+'\']=this.value">';
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  html+='<div class="submit-row"><button class="btn" onclick="submitRevisit()">'+T().ui.submit+'</button>'+
+        '<button class="btn ghost" onclick="copyRevisit()">'+T().ui.copy+'</button>'+
+        '<span id="sendStateR" style="font-size:14px"></span></div>'+
+        '<div id="revisitResult"><pre id="summaryPreR"></pre></div>';
+  root.innerHTML=html;
+}
+
+function setRangeR(k,el){
+  revisitState[k]=Number(el.value);
+  var b=document.getElementById("rv_"+k); if(b) b.textContent=el.value;
+}
+function pickOptR(k,oi){
+  revisitState[k] = (revisitState[k]===oi ? undefined : oi);
+  renderRevisit();
+}
+
+function buildSummaryR(){
+  var ko=I18N.ko.revisit, langName=LANGS.filter(function(l){return l.code===cur.lang;})[0].label;
+  var lines=["[안면 밸런스 재진 설문] ("+langName+")","제출 시각: "+new Date().toLocaleString("ko-KR"),""];
+  REVISIT_DEF.forEach(function(sec){
+    lines.push("■ "+ko.sec[sec.sec]);
+    sec.fields.forEach(function(f){
+      var d=ko.f[f.k], v=revisitState[f.k], out="-";
+      if(f.t==="range"){ out = (typeof v==="number"? v : 5) + " / 10"; }
+      else if(f.t==="single"){ if(typeof v==="number") out=d.op[v]; }
+      else { if(v) out=v; }
+      lines.push("· "+d.lb+": "+out);
+    });
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
+function validateRevisit(){
+  var miss=[];
+  REVISIT_DEF.forEach(function(sec){sec.fields.forEach(function(f){
+    if(!f.req) return;
+    var v=revisitState[f.k];
+    var ok = f.t==="single" ? typeof v==="number" : (v && String(v).trim());
+    if(!ok) miss.push(rf_(f.k).lb);
+  });});
+  return miss;
+}
+
+function submitRevisit(){
+  var st=document.getElementById("sendStateR");
+  var miss=validateRevisit();
+  if(miss.length){ st.innerHTML='<span class="err-msg">'+T().ui.required+miss.join(", ")+'</span>'; return; }
+  var summary=buildSummaryR();
+  document.getElementById("summaryPreR").textContent=summary;
+  document.getElementById("revisitResult").style.display="block";
+  if(!ENDPOINT_URL){ st.innerHTML='<span class="err-msg">'+T().ui.noHook+'</span>'; return; }
+  if(ENDPOINT_URL.indexOf("script.google")>=0){
+    fetch(ENDPOINT_URL,{method:"POST",body:JSON.stringify({token:SHARED_TOKEN,lang:cur.lang,text:summary})})
+      .then(function(r){return r.json();})
+      .then(function(j){ st.innerHTML = j&&j.ok ? '<span class="ok-msg">'+T().ui.sentOk+'</span>' : '<span class="err-msg">'+T().ui.sentFail+'</span>'; })
+      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
+  } else {
+    fetch(ENDPOINT_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({text:summary})})
+      .then(function(){ st.innerHTML='<span class="ok-msg">'+T().ui.sentOk+'</span>'; })
+      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
+  }
+}
+
+function copyRevisit(){
+  var summary=buildSummaryR();
+  document.getElementById("summaryPreR").textContent=summary;
+  document.getElementById("revisitResult").style.display="block";
+  var ta=document.createElement("textarea"); ta.value=summary; document.body.appendChild(ta);
+  ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+  document.getElementById("sendStateR").innerHTML='<span class="ok-msg">'+T().ui.copied+'</span>';
+}
+
+/* ---- 설명 탭 상단 보강 카드 (gloss 인덱스 정렬에 영향 없도록 별도 root) ---- */
+var EXPLAIN_ADD = {};
+EXPLAIN_ADD.ko =
+'<div class="card"><span class="tag">먼저 알아두실 것</span><h3>비대칭은 대부분이 가지고 있습니다</h3>'+
+'<p style="font-size:14.5px">건강한 성인의 얼굴을 3D로 정밀 측정한 연구에서 <b>절반 이상이 2mm를 넘는 좌우 차이</b>를 가지고 있었습니다. 완벽한 대칭은 사실상 없습니다.<br>그래서 저희가 보는 것은 "비대칭이 있느냐"가 아니라 <b>어떤 유형이고, 어느 정도이고, 되돌릴 수 있는 종류인가</b>입니다.</p></div>'+
+'<div class="card"><span class="tag">구조 이해</span><h3>머리뼈는 하나의 단단한 공이 아닙니다</h3>'+
+'<p style="font-size:14.5px">머리뼈는 여러 개의 뼈가 봉합선으로 이어진 <b>구조물</b>입니다. 일부 봉합선은 성장이 끝난 뒤에도 완전히 붙지 않고 남아 있습니다.<br>그 구조물 <b>아래에 턱이 관절로 매달려 있고, 목뼈가 그 구조물을 받치고</b> 있습니다.<br>얼굴의 좌우 인상을 실제로 바꾸는 것은 뼈를 움직이는 일이 아니라 — <b>그 구조물에 매달린 턱과, 그것을 받치는 목의 정렬</b>입니다. 저희가 저작근·턱관절·경추를 다루는 이유가 여기 있습니다.</p></div>'+
+'<div class="card"><span class="tag gold">숫자로 보여드립니다</span><h3>어디서부터 "보이기" 시작하는가</h3>'+
+'<p style="font-size:14.5px">사람 눈이 좌우 차이를 인지하기 시작하는 기준선은 연구로 확인되어 있습니다.</p>'+
+'<ul class="cln"><li><b>치아 정중선 어긋남 — 2mm</b></li><li><b>앞니 평면 기울기 — 3°</b></li><li><b>정중선 기울기 — 5°</b></li><li><b>코 편차 — 4mm</b></li></ul>'+
+'<p style="font-size:14.5px;margin-top:10px">이미 비대칭이 있는 얼굴에서는 이보다 더 작은 차이도 인지됩니다.<br>오늘 촬영한 사진 위에 <b>이 기준선과 환자분의 실제 수치를 나란히</b> 올려 보여드립니다. 감으로 말씀드리지 않습니다.</p></div>'+
+'<div class="callout"><div class="ct">사진이 남들이 보는 얼굴입니다</div>거울은 좌우가 뒤집혀 보입니다. 그래서 거울에서는 괜찮아 보이던 것이 사진에서 유독 신경 쓰이는 경우가 많습니다. 저희는 <b>같은 조건에서 촬영한 사진</b>으로 기록하고 비교합니다.</div>';
+
+EXPLAIN_ADD.en =
+'<div class="card"><span class="tag">First, some context</span><h3>Most people have facial asymmetry</h3>'+
+'<p style="font-size:14.5px">In a study that measured healthy adult faces in 3D, <b>more than half had a left-right difference greater than 2&nbsp;mm</b>. Perfect symmetry essentially does not exist.<br>So the question we ask is not "is there asymmetry" but <b>what type, how much, and is it the kind that can be changed</b>.</p></div>'+
+'<div class="card"><span class="tag">Understanding the structure</span><h3>The skull is not one solid ball</h3>'+
+'<p style="font-size:14.5px">The skull is a <b>structure</b> of several bones joined by sutures. Some of those sutures do not fully close even after growth is complete.<br>Beneath that structure, <b>the jaw hangs from a joint, and the neck vertebrae support the whole thing</b>.<br>What actually changes the left-right impression of a face is not moving bone — it is <b>the alignment of the jaw that hangs from that structure, and of the neck that supports it</b>. That is why we work on the chewing muscles, the jaw joint and the cervical spine.</p></div>'+
+'<div class="card"><span class="tag gold">We show you the numbers</span><h3>Where asymmetry starts to become visible</h3>'+
+'<p style="font-size:14.5px">Research has established the thresholds at which the human eye begins to notice a left-right difference.</p>'+
+'<ul class="cln"><li><b>Dental midline shift — 2&nbsp;mm</b></li><li><b>Incisal plane cant — 3°</b></li><li><b>Midline cant — 5°</b></li><li><b>Nose deviation — 4&nbsp;mm</b></li></ul>'+
+'<p style="font-size:14.5px;margin-top:10px">In a face that is already asymmetric, even smaller differences are noticed.<br>On the photographs taken today we place <b>these thresholds and your own measurements side by side</b>. We do not rely on impressions.</p></div>'+
+'<div class="callout"><div class="ct">The photograph is the face other people see</div>A mirror shows you flipped left to right. That is why something that looked fine in the mirror can stand out in a photo. We record and compare using <b>photographs taken under identical conditions</b>.</div>';
+
+function renderExplainAdd_(){
+  var r=document.getElementById("explainAddRoot"); if(!r) return;
+  var h = (cur.lang==="ko") ? EXPLAIN_ADD.ko : EXPLAIN_ADD.en;
+  r.innerHTML = h;
+  if(cur.lang!=="ko"){ glossRoot_(r, EXPLAIN_ADD.ko); }
+}
+/* ===== [/ADD v2] ============================================================ */
+
+function setRangeS(k,el){
+  surveyState[k]=Number(el.value);
+  var b=document.getElementById("sv_"+k); if(b) b.textContent=el.value;
+}
+
+function renderAll(){ renderChrome(); renderStatic(); renderSurvey(); renderRevisit(); }
 renderAll(); initSigs();
 </script>
 </body>
