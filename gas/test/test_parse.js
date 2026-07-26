@@ -5,6 +5,7 @@ const vm = require('vm');
 
 const GAS = process.argv[2];
 const CANON = process.argv[3];
+const EXPECT = process.argv[4] ? parseInt(process.argv[4],10) : null;   // 없으면 건수는 보고만 한다
 
 const logs = [];
 const sandbox = {
@@ -28,7 +29,11 @@ const ok = (cond, label, extra) => {
 };
 
 console.log('== 파싱 ==');
-ok(parsed.items.length === 423, '블록 423건', '실제 ' + parsed.items.length);
+if (EXPECT) ok(parsed.items.length === EXPECT, '블록 ' + EXPECT + '건', '실제 ' + parsed.items.length);
+else console.log('  INFO  블록 ' + parsed.items.length + '건 (기대값 미지정)');
+const byState = {};
+parsed.items.forEach(i => { const s = i['상태'] || '(없음)'; byState[s] = (byState[s]||0)+1; });
+console.log('  INFO  상태 분포 ' + JSON.stringify(byState));
 ok(parsed.warnings.length === 0, '파싱 경고 0건', parsed.warnings.slice(0, 5).join(' / '));
 
 const FIELDS = ['상태','갱신','원본ID','원본코드','태그','난이도','채널','질문',

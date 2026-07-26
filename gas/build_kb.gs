@@ -26,6 +26,10 @@ var ACD_CFG = {
   SHEET_TAB: '답변KB',
   GH_PATH: 'qa374.json',
 
+  // 정본은 초안도 담는다. 이 상태인 것만 말단으로 내린다.
+  // 덕분에 원장 승인 전 문안을 정본에 올려둬도 환자에게 나가지 않는다.
+  PUBLISH_STATE: '확정',
+
   // ─ 안전장치 ─ 정본이 잘려서 읽히면 시트를 비워버릴 수 있다. 그걸 막는다.
   MIN_ITEMS: 380,                   // 이보다 적게 파싱되면 중단
   MAX_SHRINK: 5,                    // 시트 기존 행보다 이 개수 이상 줄어들면 중단
@@ -150,17 +154,30 @@ function acdRun_(dry) {
     });
     if (dups.length) throw new Error('원본ID 중복 ' + dups.length + '건: ' + dups.join(', '));
 
-    var norm = acdNormalizeAll_(parsed.items);
+    // 상태 필터 — 정본은 초안도 담는다. 그러나 **`확정`이 아닌 것은 말단으로 내리지 않는다.**
+    // 이게 있어야 원장 승인 전 문안을 정본에 안전하게 올려둘 수 있다.
+    var all = parsed.items;
+    var held = all.filter(function (it) { return it['상태'] !== ACD_CFG.PUBLISH_STATE; });
+    var items = all.filter(function (it) { return it['상태'] === ACD_CFG.PUBLISH_STATE; });
+    if (held.length) {
+      log.push('말단 제외 ' + held.length + '건 (상태≠' + ACD_CFG.PUBLISH_STATE + '): ' +
+        held.map(function (it) { return it['KB'] + '(' + (it['상태'] || '상태없음') + ')'; }).join(', '));
+    }
+    if (items.length < ACD_CFG.MIN_ITEMS) {
+      throw new Error('말단에 내릴 확정 항목이 ' + items.length + '건뿐이다(최소 ' + ACD_CFG.MIN_ITEMS + '). 중단한다.');
+    }
+
+    var norm = acdNormalizeAll_(items);
     if (norm.changed) log.push('이모지 숏코드 정규화 ' + norm.changed + '곳');
 
-    var sheetRes = acdWriteSheet_(parsed.items, dry);
+    var sheetRes = acdWriteSheet_(items, held, dry);
     log.push(sheetRes.msg);
 
-    var jsonRes = acdWriteJson_(parsed.items, dry);
+    var jsonRes = acdWriteJson_(items, dry);
     log.push(jsonRes.msg);
 
     var head = (dry ? '🧪 빌드 리허설(쓰기 없음)' : '✅ 빌드 완료') +
-      ' — 정본 ' + parsed.items.length + '건 · ' +
+      ' — 정본 ' + all.length + '건 중 확정 ' + items.length + '건 · ' +
       Math.round((new Date().getTime() - t0) / 1000) + '초';
 
     var body = head + '\n' + log.map(function (l) { return '• ' + l; }).join('\n');
@@ -186,9 +203,8 @@ function acdRun_(dry) {
 
 function acdSelfCheck_() {
   var props = PropertiesService.getScriptProperties();
-  ['KB_SPREADSHEET_ID', 'SLACK_WEBHOOK_URL'].forEach(function (k) {
-    if (!props.getProperty(k)) throw new Error('스크립트 속성 `' + k + '`가 없다.');
-  });
+  // 슬랙 설정은 acdCheckSlack_ 이 따로 본다(토큰 방식이면 SLACK_WEBHOOK_URL이 없어도 된다).
+  if (!props.getProperty('KB_SPREADSHEET_ID')) throw new Error('스크립트 속성 `KB_SPREADSHEET_ID`가 없다.');
 
   var it = DriveApp.getFoldersByName(ACD_CFG.CANON_FOLDER);
   if (!it.hasNext()) {
@@ -332,7 +348,7 @@ function acdNormalizeAll_(items) {
 //   (클로드→슬랙 경로가 시트에 직접 쓰기 때문에 이 행들이 생긴다)
 // ══════════════════════════════════════════════════════════════
 
-function acdWriteSheet_(items, dry) {
+function acdWriteSheet_(items, held, dry) {
   var props = PropertiesService.getScriptProperties();
   var sh = SpreadsheetApp.openById(props.getProperty('KB_SPREADSHEET_ID')).getSheetByName(ACD_CFG.SHEET_TAB);
 
@@ -351,15 +367,25 @@ function acdWriteSheet_(items, dry) {
     });
   });
 
-  // 정본에 없는 기존 행 보존
-  var sheetOnly = [], keep = [];
+  // 보류 항목(상태≠확정)의 원본ID
+  var heldIds = {};
+  (held || []).forEach(function (it) { if (it['원본ID']) heldIds[it['원본ID']] = true; });
+
+  // 기존 시트 행을 세 갈래로 나눈다. **어느 쪽도 지우지 않는다.**
+  //   ① 확정 → 정본 값으로 다시 쓴다
+  //   ② 보류(검토중·검수대기) → 시트에 있던 값을 그대로 둔다. 승인 안 된 문안을 정본에서 밀어넣지 않는다
+  //   ③ 정본에 아예 없음 → 그대로 두고 슬랙에 보고 (클로드→슬랙 경로가 직접 쓴 행)
+  var sheetOnly = [], keep = [], heldRows = [], heldKept = [];
   for (var r = 1; r < old.length; r++) {
     var id = String(old[r][idCol] || '').replace(/^\s+|\s+$/g, '');
     if (!id) continue;
-    if (!canonIds[id]) { sheetOnly.push(id); keep.push(old[r].slice(0, ACD_CFG.SHEET_COLS.length)); }
+    var row = old[r].slice(0, ACD_CFG.SHEET_COLS.length);
+    if (canonIds[id]) continue;                                  // ①
+    if (heldIds[id]) { heldRows.push(row); heldKept.push(id); }   // ②
+    else { sheetOnly.push(id); keep.push(row); }                  // ③
   }
 
-  var total = rows.length + keep.length;
+  var total = rows.length + heldRows.length + keep.length;
   var oldCount = Math.max(0, old.length - 1);
   if (oldCount - total > ACD_CFG.MAX_SHRINK) {
     throw new Error('시트 행이 ' + oldCount + ' → ' + total + '로 ' + (oldCount - total) +
@@ -367,11 +393,12 @@ function acdWriteSheet_(items, dry) {
   }
 
   var msg = '시트 ' + oldCount + '행 → ' + total + '행' +
+    (heldRows.length ? ' (보류 ' + heldRows.length + '건은 시트 값 유지: ' + heldKept.join(',') + ')' : '') +
     (keep.length ? ' (정본 없는 행 ' + keep.length + '건 보존)' : '') +
     (dry ? ' [리허설 — 쓰지 않음]' : '');
   if (dry) return { msg: msg, sheetOnly: sheetOnly };
 
-  var out = [ACD_CFG.SHEET_COLS].concat(rows).concat(keep);
+  var out = [ACD_CFG.SHEET_COLS].concat(rows).concat(heldRows).concat(keep);
   sh.clearContents();
   sh.getRange(1, 1, out.length, ACD_CFG.SHEET_COLS.length).setValues(out);
   return { msg: msg, sheetOnly: sheetOnly };
