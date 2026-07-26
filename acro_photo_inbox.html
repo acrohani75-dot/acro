@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>아크로 포토인박스 v1_8</title>
+<title>아크로 포토인박스 v1_9</title>
 <style>
   :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -59,7 +59,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>아크로 포토인박스 <small>v1_8 · 전후사진 업로더 (순정 화질)</small></h1>
+  <h1>아크로 포토인박스 <small>v1_9 · 전후사진 업로더 (고화질·안정)</small></h1>
 
   <div class="card">
     <div class="row2" style="margin-top:0">
@@ -126,7 +126,7 @@ var GAS_URL = "https://script.google.com/macros/s/AKfycbypKSEXsX0IzNm-GvPPBtK4b7
 var TREATMENTS = ["온다", "웨이브", "컷"];
 var BODY_PARTS = ["안면", "복부", "위팔", "허벅지", "종아리", "전신", "직접입력"];
 var TIMINGS = ["시술전", "시술후", "직접입력"];
-var MAX_EDGE = 5000, JPEG_Q = 0.98;
+var MAX_EDGE = 3200, JPEG_Q = 0.85;
 
 var photos = []; // {b64, mime, status, el}
 var selTreats = {}, selPart = null;
@@ -376,7 +376,7 @@ function uploadAll(chart, name, ymd, meta) {
 
 function post(payload, timeoutMs) {
   var ctl = (typeof AbortController !== "undefined") ? new AbortController() : null;
-  var timer = ctl ? setTimeout(function () { ctl.abort(); }, timeoutMs || 30000) : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, timeoutMs || 60000) : null;
   return fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload), signal: ctl ? ctl.signal : undefined })
     .then(function (r) {
       if (timer) clearTimeout(timer);
@@ -385,7 +385,7 @@ function post(payload, timeoutMs) {
     })
     .catch(function (e) {
       if (timer) clearTimeout(timer);
-      throw (e && e.name === "AbortError") ? "시간 초과(30초)" : e;
+      throw (e && e.name === "AbortError") ? "시간 초과(60초·사진이 너무 큼)" : e;
     });
 }
 
