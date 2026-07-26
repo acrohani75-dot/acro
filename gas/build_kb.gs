@@ -67,12 +67,60 @@ var ACD_CFG = {
 function acdBuildDryRun() { return acdRun_(true); }
 function acdBuildAll() { return acdRun_(false); }
 
+/** 슬랙만 따로 시험한다. 빌드 전에 이걸 먼저 통과시키면 경보가 죽어 있는 상태를 피할 수 있다. */
+function acdTestSlack() {
+  acdCheckSlack_();
+  var r = acdSlack_('✅ 아크로드 빌드 — 슬랙 연결 확인. 이 메시지가 보이면 경보가 살아 있다.');
+  if (!r.ok) throw new Error('슬랙 발송 실패: ' + r.err);
+  return '슬랙 정상';
+}
+
+/**
+ * 슬랙 발송 방식을 정한다. 두 가지를 지원하고, **봇 토큰을 우선**한다.
+ *
+ *   ① 봇 토큰 (권장) — `SLACK_TOKEN`(xoxb-…) + 채널 ID.
+ *      라인브릿지가 이미 쓰는 값이라 새로 만들 게 없다.
+ *      채널 ID는 `ACD_SLACK_CHANNEL` → `SLACK_CHANNEL` → `SLACK_WEBHOOK_URL` 순으로 찾는다
+ *      (마지막은 이름과 달리 채널 ID가 들어 있는 경우가 있어서다).
+ *   ② 웹훅 — `SLACK_WEBHOOK_URL`이 `https://hooks.slack.com/…` 인 경우.
+ *
+ * 발송 시점이 아니라 **일 시작 전에** 검사한다. 나중에 터지면 실패 경보 자체가 못 나간다.
+ */
+function acdSlackTarget_() {
+  var p = PropertiesService.getScriptProperties();
+  var token = p.getProperty('SLACK_TOKEN');
+  var hook = p.getProperty('SLACK_WEBHOOK_URL');
+
+  if (token && token.indexOf('xox') === 0) {
+    var ch = p.getProperty('ACD_SLACK_CHANNEL') || p.getProperty('SLACK_CHANNEL') || '';
+    if (!ch && hook && /^[CGD][A-Z0-9]{6,}$/.test(hook)) ch = hook;   // 채널 ID가 여기 들어 있는 경우
+    if (!ch) {
+      throw new Error('`SLACK_TOKEN`은 있는데 보낼 채널을 모른다. 스크립트 속성에 ' +
+        '`ACD_SLACK_CHANNEL` = 채널 ID(예: C로 시작하는 문자열)를 넣을 것.');
+    }
+    return { mode: 'token', token: token, channel: ch };
+  }
+
+  if (hook && hook.indexOf('https://hooks.slack.com/') === 0) return { mode: 'hook', url: hook };
+
+  if (hook) {
+    throw new Error('슬랙 설정이 잘못됐다. `SLACK_WEBHOOK_URL`에 `' + hook + '`가 들어 있는데 ' +
+      '이건 웹훅 URL이 아니다(웹훅은 `https://hooks.slack.com/…`).\n' +
+      '봇 토큰을 쓰려면 `SLACK_TOKEN`(xoxb-…)을, 웹훅을 쓰려면 웹훅 URL을 넣을 것.');
+  }
+  throw new Error('슬랙 설정이 없다. `SLACK_TOKEN`(+`ACD_SLACK_CHANNEL`) 또는 `SLACK_WEBHOOK_URL`을 넣을 것.');
+}
+
+function acdCheckSlack_() { acdSlackTarget_(); }
+
 function acdRun_(dry) {
   var log = [];
   var t0 = new Date().getTime();
   try {
+    acdCheckSlack_();          // 경보가 살아 있는지 **먼저** 본다. 죽어 있으면 실패도 알릴 수 없다.
     var chk = acdSelfCheck_();
-    log.push('자가진단 통과 — 정본 `' + chk.fileName + '` (' + chk.bytes + ' bytes)');
+    log.push('자가진단 통과 — 정본 `' + chk.fileName + '` (' + chk.bytes + '바이트 / ' +
+      chk.chars + '자, Drive 파일 크기와 일치)');
 
     var parsed = acdParseCanon_(chk.text);
     log.push('파싱 ' + parsed.items.length + '건');
@@ -180,10 +228,20 @@ function acdSelfCheck_() {
   var text = best.getBlob().getDataAsString('UTF-8');
   if (text.indexOf('### [KB-') < 0) throw new Error('정본 파일에 KB 블록이 없다. 파일을 잘못 집었다.');
 
+  // 정본을 **끝까지** 읽었는지 확인한다.
+  // 주의: `text.length`는 바이트가 아니라 UTF-16 코드 유닛 수다. 한글은 1유닛·3바이트라
+  // 둘이 2배 가까이 벌어진다(260726: 185,362유닛 = 354,296바이트). 바이트끼리 비교해야 한다.
+  var readBytes = Utilities.newBlob(text).getBytes().length;
+  var driveBytes = best.getSize();
+  if (driveBytes && readBytes !== driveBytes) {
+    throw new Error('정본을 끝까지 읽지 못했다. Drive 파일 ' + driveBytes +
+      ' 바이트인데 읽은 것은 ' + readBytes + ' 바이트다. 잘린 정본으로 빌드하면 지식이 사라진다.');
+  }
+
   var ss = SpreadsheetApp.openById(props.getProperty('KB_SPREADSHEET_ID'));
   if (!ss.getSheetByName(ACD_CFG.SHEET_TAB)) throw new Error('시트 탭 `' + ACD_CFG.SHEET_TAB + '`이 없다.');
 
-  return { fileName: best.getName(), bytes: text.length, text: text, ss: ss };
+  return { fileName: best.getName(), bytes: readBytes, chars: text.length, text: text, ss: ss };
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -421,16 +479,43 @@ function acdGhPut_(path, content, message) {
 // ══════════════════════════════════════════════════════════════
 
 function acdSlack_(text) {
-  var url = PropertiesService.getScriptProperties().getProperty('SLACK_WEBHOOK_URL');
-  if (!url) { Logger.log(text); return; }
+  Logger.log(text);                       // 슬랙이 죽어도 실행 로그에는 남는다
+  var t;
+  try { t = acdSlackTarget_(); }
+  catch (e) { Logger.log('슬랙 설정 문제: ' + e.message); return { ok: false, err: e.message }; }
+
   try {
-    UrlFetchApp.fetch(url, {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify({ text: text }),
-      muteHttpExceptions: true
+    var res;
+    if (t.mode === 'token') {
+      res = UrlFetchApp.fetch('https://slack.com/api/chat.postMessage', {
+        method: 'post',
+        contentType: 'application/json; charset=utf-8',
+        headers: { Authorization: 'Bearer ' + t.token },
+        payload: JSON.stringify({ channel: t.channel, text: text }),
+        muteHttpExceptions: true
+      });
+      var j = JSON.parse(res.getContentText());
+      if (!j.ok) {
+        // not_in_channel = 봇을 채널에 초대해야 한다 (`/invite @봇이름`)
+        var hint = j.error === 'not_in_channel' ? ' — 채널에서 `/invite` 로 봇을 초대할 것'
+          : j.error === 'channel_not_found' ? ' — 채널 ID가 틀렸다'
+            : j.error === 'invalid_auth' ? ' — SLACK_TOKEN이 만료·오타'
+              : '';
+        Logger.log('슬랙 거절: ' + j.error + hint);
+        return { ok: false, err: j.error + hint };
+      }
+      return { ok: true };
+    }
+
+    res = UrlFetchApp.fetch(t.url, {
+      method: 'post', contentType: 'application/json',
+      payload: JSON.stringify({ text: text }), muteHttpExceptions: true
     });
+    if (res.getResponseCode() !== 200) return { ok: false, err: 'HTTP ' + res.getResponseCode() };
+    return { ok: true };
+
   } catch (e) {
-    Logger.log('슬랙 발송 실패: ' + e.message + '\n' + text);
+    Logger.log('슬랙 발송 실패: ' + e.message);
+    return { ok: false, err: e.message };
   }
 }
