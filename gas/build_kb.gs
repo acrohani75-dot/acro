@@ -150,14 +150,32 @@ function selfCheck_() {
   var folder = it.next();
   if (it.hasNext()) throw new Error('`' + CFG.CANON_FOLDER + '` 이름의 폴더가 둘 이상이다. 어느 것이 정본인지 알 수 없어 중단한다.');
 
+  // 정본 후보를 모아 **버전을 숫자로** 비교한다.
+  // 사전순으로 고르면 v1_10 < v1_7 이 되어 옛 파일을 정본으로 집는다.
+  var cands = [];
   var files = folder.getFiles();
-  var best = null;
   while (files.hasNext()) {
     var f = files.next();
-    if (f.getName().indexOf(CFG.CANON_PREFIX) !== 0) continue;
-    if (!best || f.getName() > best.getName()) best = f;   // 파일명에 버전이 들어 있어 사전순 = 버전순
+    var name = f.getName();
+    if (name.indexOf(CFG.CANON_PREFIX) !== 0) continue;
+    cands.push({ file: f, name: name, ver: parseVer_(name), mtime: f.getLastUpdated().getTime() });
   }
-  if (!best) throw new Error('`' + CFG.CANON_FOLDER + '`에 `' + CFG.CANON_PREFIX + '…` 파일이 없다.');
+  if (!cands.length) throw new Error('`' + CFG.CANON_FOLDER + '`에 `' + CFG.CANON_PREFIX + '…` 파일이 없다.');
+
+  cands.sort(function (a, b) {
+    if (a.ver[0] !== b.ver[0]) return b.ver[0] - a.ver[0];
+    if (a.ver[1] !== b.ver[1]) return b.ver[1] - a.ver[1];
+    return b.mtime - a.mtime;                              // 버전 같으면 나중에 고친 것
+  });
+  var best = cands[0].file;
+
+  // 정본 폴더에 정본이 여러 개 있으면 "정본은 하나"라는 전제가 깨진다.
+  // 막지는 않되(옛 버전을 참고로 두는 경우가 있다) 반드시 알린다.
+  if (cands.length > 1) {
+    slack_('⚠ 정본 폴더에 정본 후보가 ' + cands.length + '개 있다. 이번 빌드는 `' + cands[0].name + '`을 썼다.\n' +
+      '나머지: `' + cands.slice(1).map(function (c) { return c.name; }).join('`, `') + '`\n' +
+      '옛 버전은 `02_아카이브`로 옮기는 게 좋다. 정본 폴더에 둘 이상 있으면 어느 게 정본인지 사람이 헷갈린다.');
+  }
 
   var text = best.getBlob().getDataAsString('UTF-8');
   if (text.indexOf('### [KB-') < 0) throw new Error('정본 파일에 KB 블록이 없다. 파일을 잘못 집었다.');
@@ -215,6 +233,12 @@ function parseCanon_(text) {
 }
 
 function trimEnd_(s) { return String(s).replace(/[\s﻿\xA0]+$/g, ''); }
+
+/** `L2_응대KB_v1_7_260726.md` → [1, 7]. 버전을 못 읽으면 [-1,-1] (수정시각으로만 비교됨). */
+function parseVer_(name) {
+  var m = name.match(/_v(\d+)_(\d+)/);
+  return m ? [parseInt(m[1], 10), parseInt(m[2], 10)] : [-1, -1];
+}
 
 // ══════════════════════════════════════════════════════════════
 // 2단계 · 정규화 (슬랙 숏코드 → 실제 이모지)
@@ -328,11 +352,68 @@ function writeJson_(items, dry) {
     ' (번역 있는 항목 ' + langCount + '건)' + (dry ? ' [리허설 — 쓰지 않음]' : '');
   if (dry) return { msg: msg };
 
-  if (typeof lwGitPutTo_ !== 'function') {
-    throw new Error('`lwGitPutTo_`가 이 프로젝트에 없다. 배포 GAS에 붙여야 GitHub 푸시가 된다.');
+  var commitMsg = '정본 빌드 — 응대KB ' + items.length + '건';
+
+  // 기존 배포 GAS에 붙였으면 그쪽 함수를 재사용한다. 아니면 자체 푸시.
+  // 자체 푸시가 되므로 **이 스크립트는 새 독립 프로젝트에 둘 수 있다.**
+  // 기존 17개 프로젝트를 건드리지 않아도 되고, 웹앱 배포가 필요 없으니 /exec URL이 걸릴 일도 없다.
+  if (typeof lwGitPutTo_ === 'function') {
+    lwGitPutTo_(CFG.GH_PATH, body, commitMsg);
+  } else {
+    ghPut_(CFG.GH_PATH, body, commitMsg);
   }
-  lwGitPutTo_(CFG.GH_PATH, body, '정본 빌드 — 응대KB ' + items.length + '건');
   return { msg: msg };
+}
+
+/**
+ * GitHub Contents API로 파일 하나를 덮어쓴다.
+ * 스크립트 속성: GH_TOKEN (contents:write 권한) · GH_REPO (`owner/repo`) · GH_BRANCH (없으면 main)
+ */
+function ghPut_(path, content, message) {
+  var p = PropertiesService.getScriptProperties();
+  var token = p.getProperty('GH_TOKEN');
+  var repo = p.getProperty('GH_REPO');
+  var branch = p.getProperty('GH_BRANCH') || 'main';
+  if (!token || !repo) {
+    throw new Error('GitHub 푸시 설정이 없다. 스크립트 속성에 `GH_TOKEN`과 `GH_REPO`(owner/repo)를 넣을 것. ' +
+      '또는 이 스크립트를 `lwGitPutTo_`가 있는 배포 GAS에 붙일 것.');
+  }
+
+  var base = 'https://api.github.com/repos/' + repo + '/contents/' + encodeURI(path);
+  var headers = {
+    Authorization: 'Bearer ' + token,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+
+  // 덮어쓰려면 현재 파일의 sha가 필요하다. 없으면(404) 신규 생성.
+  var sha = null;
+  var got = UrlFetchApp.fetch(base + '?ref=' + encodeURIComponent(branch),
+    { method: 'get', headers: headers, muteHttpExceptions: true });
+  if (got.getResponseCode() === 200) {
+    sha = JSON.parse(got.getContentText()).sha;
+  } else if (got.getResponseCode() !== 404) {
+    throw new Error('GitHub 조회 실패 ' + got.getResponseCode() + ' — ' + got.getContentText().slice(0, 300));
+  }
+
+  var payload = {
+    message: message,
+    content: Utilities.base64Encode(content, Utilities.Charset.UTF_8),
+    branch: branch
+  };
+  if (sha) payload.sha = sha;
+
+  var put = UrlFetchApp.fetch(base, {
+    method: 'put', headers: headers, contentType: 'application/json',
+    payload: JSON.stringify(payload), muteHttpExceptions: true
+  });
+  var code = put.getResponseCode();
+  if (code !== 200 && code !== 201) {
+    // 409 = sha 충돌. 다른 경로가 같은 파일을 방금 밀었다는 뜻이다(§3 두 경로 충돌).
+    throw new Error('GitHub 푸시 실패 ' + code +
+      (code === 409 ? ' (sha 충돌 — 다른 경로가 같은 파일을 밀었다. 다시 실행할 것)' : '') +
+      ' — ' + put.getContentText().slice(0, 300));
+  }
 }
 
 // ══════════════════════════════════════════════════════════════
