@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>아크로 포토인박스 v1_9</title>
+<title>아크로 포토인박스 v2_0</title>
 <style>
   :root { --bg:#0f1115; --card:#1a1e26; --acc:#4fc3f7; --ok:#66bb6a; --warn:#ffa726; --bad:#ef5350; --tx:#e8eaf0; --dim:#8b93a3; }
   * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -59,7 +59,7 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>아크로 포토인박스 <small>v1_9 · 전후사진 업로더 (고화질·안정)</small></h1>
+  <h1>아크로 포토인박스 <small>v2_0 · 전후사진 업로더 (고화질·안정)</small></h1>
 
   <div class="card">
     <div class="row2" style="margin-top:0">
@@ -179,16 +179,17 @@ function getTiming() {
   return v === "직접입력" ? $("fTimingCustom").value.trim() : v;
 }
 
-/** 차트+시술+부위가 갖춰지면 서버에서 회차 자동 제안 */
+/** (v2_0) 회차는 입력값이 정본. 서버 조회는 안내만 하고 입력칸을 덮어쓰지 않는다. */
 function refreshRound() {
   var chart = $("fChart").value.trim(), tr = getTreatment(), pt = getPart();
   if (!/^\d{1,8}$/.test(chart) || !tr || !pt || GAS_URL.indexOf("http") !== 0) return;
   post({ action: "suggest", chart: chart, name: $("fName").value.trim(), treatment: tr, part: pt, consent: $("fConsent").checked })
     .then(function (j) {
-      if (j.ok) {
-        $("fRound").value = j.round;
-        $("roundHint").textContent = j.prevRound ? "이전 " + j.prevRound + "회차 확인됨 → " + j.round + "회차 제안 (수정 가능)" : "첫 회차";
-      }
+      if (!j.ok) return;
+      var cur = $("fRound").value.trim();
+      $("roundHint").textContent = j.prevRound
+        ? "이전 " + j.prevRound + "회차 기록 있음 · 저장은 입력한 " + (cur || "-") + "회차로 진행"
+        : "이 시술·부위 첫 기록 · 저장은 입력한 " + (cur || "-") + "회차로 진행";
     }).catch(function () {});
 }
 
