@@ -6,8 +6,8 @@ const sb={PropertiesService:{getScriptProperties:()=>({getProperty:()=>null})},L
  JSON,Object,String,Array,Math,Date,RegExp,Error,console};
 vm.createContext(sb); vm.runInContext(fs.readFileSync(process.argv[2],'utf8'),sb);
 
-const items=sb.kbParseCanon_(fs.readFileSync(process.argv[3],'utf8')).items;
-sb.kbNormalizeAll_(items);
+const items=sb.acdParseCanon_(fs.readFileSync(process.argv[3],'utf8')).items;
+sb.acdNormalizeAll_(items);
 const built={}; items.forEach(it=>{ built[it['원본ID']]={
   id:it['원본ID'],code:it['원본코드']||'',cat:it['태그']||'',q:it['질문']||'',a:it['답변_KO']||'',diff:it['난이도']||'',KB:it['KB']}; });
 

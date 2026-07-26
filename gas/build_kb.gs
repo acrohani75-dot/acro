@@ -12,15 +12,15 @@
  * 폴더·파일은 ID가 아니라 **이름으로 찾는다.**
  *
  * ─── 실행 순서 ────────────────────────────────────────────────
- *   1) kbBuildDryRun()   아무것도 쓰지 않는다. 리포트만 낸다. **먼저 이걸 통과시킨다.**
- *   2) kbBuildAll()      실제 반영.
+ *   1) acdBuildDryRun()   아무것도 쓰지 않는다. 리포트만 낸다. **먼저 이걸 통과시킨다.**
+ *   2) acdBuildAll()      실제 반영.
  *
  * ─── 절대 규칙 ────────────────────────────────────────────────
  *   배포는 `clasp deploy -i <배포ID>`. `-i` 없이 deploy 하면 /exec URL이 새로 생겨
  *   라인 리치메뉴·QR·카톡 저장링크가 전부 끊긴다.
  */
 
-var KB_CFG = {
+var ACD_CFG = {
   CANON_FOLDER: 'L2_확정지식',      // Drive 폴더 이름 (ID 아님)
   CANON_PREFIX: 'L2_응대KB_v',      // 이 접두어로 시작하는 파일 중 최신본
   SHEET_TAB: '답변KB',
@@ -64,24 +64,24 @@ var KB_CFG = {
 // 진입점
 // ══════════════════════════════════════════════════════════════
 
-function kbBuildDryRun() { return kbRun_(true); }
-function kbBuildAll() { return kbRun_(false); }
+function acdBuildDryRun() { return acdRun_(true); }
+function acdBuildAll() { return acdRun_(false); }
 
-function kbRun_(dry) {
+function acdRun_(dry) {
   var log = [];
   var t0 = new Date().getTime();
   try {
-    var chk = kbSelfCheck_();
+    var chk = acdSelfCheck_();
     log.push('자가진단 통과 — 정본 `' + chk.fileName + '` (' + chk.bytes + ' bytes)');
 
-    var parsed = kbParseCanon_(chk.text);
+    var parsed = acdParseCanon_(chk.text);
     log.push('파싱 ' + parsed.items.length + '건');
     if (parsed.warnings.length) {
       log.push('⚠ 파싱 경고 ' + parsed.warnings.length + '건: ' + parsed.warnings.slice(0, 5).join(' / '));
     }
 
-    if (parsed.items.length < KB_CFG.MIN_ITEMS) {
-      throw new Error('정본이 ' + parsed.items.length + '건뿐이다(최소 ' + KB_CFG.MIN_ITEMS +
+    if (parsed.items.length < ACD_CFG.MIN_ITEMS) {
+      throw new Error('정본이 ' + parsed.items.length + '건뿐이다(최소 ' + ACD_CFG.MIN_ITEMS +
         '). 정본이 잘려 읽혔을 수 있어 중단한다. 말단은 건드리지 않았다.');
     }
 
@@ -102,13 +102,13 @@ function kbRun_(dry) {
     });
     if (dups.length) throw new Error('원본ID 중복 ' + dups.length + '건: ' + dups.join(', '));
 
-    var norm = kbNormalizeAll_(parsed.items);
+    var norm = acdNormalizeAll_(parsed.items);
     if (norm.changed) log.push('이모지 숏코드 정규화 ' + norm.changed + '곳');
 
-    var sheetRes = kbWriteSheet_(parsed.items, dry);
+    var sheetRes = acdWriteSheet_(parsed.items, dry);
     log.push(sheetRes.msg);
 
-    var jsonRes = kbWriteJson_(parsed.items, dry);
+    var jsonRes = acdWriteJson_(parsed.items, dry);
     log.push(jsonRes.msg);
 
     var head = (dry ? '🧪 빌드 리허설(쓰기 없음)' : '✅ 빌드 완료') +
@@ -121,12 +121,12 @@ function kbRun_(dry) {
         '`' + sheetRes.sheetOnly.join('`, `') + '`\n' +
         '클로드→슬랙 경로로 시트에 직접 들어온 행이다. 정본에 올려야 다음 빌드에서 제자리를 잡는다.';
     }
-    kbSlack_(body);
+    acdSlack_(body);
     return body;
 
   } catch (e) {
     var err = '🛑 빌드 중단 — ' + e.message + '\n' + log.map(function (l) { return '• ' + l; }).join('\n');
-    kbSlack_(err);
+    acdSlack_(err);
     throw e;
   }
 }
@@ -136,19 +136,19 @@ function kbRun_(dry) {
 //   권한이 끊겨도 조용히 실패하지 않게 한다. 실패는 반드시 슬랙으로 나간다.
 // ══════════════════════════════════════════════════════════════
 
-function kbSelfCheck_() {
+function acdSelfCheck_() {
   var props = PropertiesService.getScriptProperties();
   ['KB_SPREADSHEET_ID', 'SLACK_WEBHOOK_URL'].forEach(function (k) {
     if (!props.getProperty(k)) throw new Error('스크립트 속성 `' + k + '`가 없다.');
   });
 
-  var it = DriveApp.getFoldersByName(KB_CFG.CANON_FOLDER);
+  var it = DriveApp.getFoldersByName(ACD_CFG.CANON_FOLDER);
   if (!it.hasNext()) {
-    throw new Error('Drive 폴더 `' + KB_CFG.CANON_FOLDER + '`를 읽을 수 없다. ' +
+    throw new Error('Drive 폴더 `' + ACD_CFG.CANON_FOLDER + '`를 읽을 수 없다. ' +
       '실행 계정에 정본 폴더 접근 권한이 있는지 확인할 것.');
   }
   var folder = it.next();
-  if (it.hasNext()) throw new Error('`' + KB_CFG.CANON_FOLDER + '` 이름의 폴더가 둘 이상이다. 어느 것이 정본인지 알 수 없어 중단한다.');
+  if (it.hasNext()) throw new Error('`' + ACD_CFG.CANON_FOLDER + '` 이름의 폴더가 둘 이상이다. 어느 것이 정본인지 알 수 없어 중단한다.');
 
   // 정본 후보를 모아 **버전을 숫자로** 비교한다.
   // 사전순으로 고르면 v1_10 < v1_7 이 되어 옛 파일을 정본으로 집는다.
@@ -157,10 +157,10 @@ function kbSelfCheck_() {
   while (files.hasNext()) {
     var f = files.next();
     var name = f.getName();
-    if (name.indexOf(KB_CFG.CANON_PREFIX) !== 0) continue;
-    cands.push({ file: f, name: name, ver: kbParseVer_(name), mtime: f.getLastUpdated().getTime() });
+    if (name.indexOf(ACD_CFG.CANON_PREFIX) !== 0) continue;
+    cands.push({ file: f, name: name, ver: acdParseVer_(name), mtime: f.getLastUpdated().getTime() });
   }
-  if (!cands.length) throw new Error('`' + KB_CFG.CANON_FOLDER + '`에 `' + KB_CFG.CANON_PREFIX + '…` 파일이 없다.');
+  if (!cands.length) throw new Error('`' + ACD_CFG.CANON_FOLDER + '`에 `' + ACD_CFG.CANON_PREFIX + '…` 파일이 없다.');
 
   cands.sort(function (a, b) {
     if (a.ver[0] !== b.ver[0]) return b.ver[0] - a.ver[0];
@@ -172,7 +172,7 @@ function kbSelfCheck_() {
   // 정본 폴더에 정본이 여러 개 있으면 "정본은 하나"라는 전제가 깨진다.
   // 막지는 않되(옛 버전을 참고로 두는 경우가 있다) 반드시 알린다.
   if (cands.length > 1) {
-    kbSlack_('⚠ 정본 폴더에 정본 후보가 ' + cands.length + '개 있다. 이번 빌드는 `' + cands[0].name + '`을 썼다.\n' +
+    acdSlack_('⚠ 정본 폴더에 정본 후보가 ' + cands.length + '개 있다. 이번 빌드는 `' + cands[0].name + '`을 썼다.\n' +
       '나머지: `' + cands.slice(1).map(function (c) { return c.name; }).join('`, `') + '`\n' +
       '옛 버전은 `02_아카이브`로 옮기는 게 좋다. 정본 폴더에 둘 이상 있으면 어느 게 정본인지 사람이 헷갈린다.');
   }
@@ -181,7 +181,7 @@ function kbSelfCheck_() {
   if (text.indexOf('### [KB-') < 0) throw new Error('정본 파일에 KB 블록이 없다. 파일을 잘못 집었다.');
 
   var ss = SpreadsheetApp.openById(props.getProperty('KB_SPREADSHEET_ID'));
-  if (!ss.getSheetByName(KB_CFG.SHEET_TAB)) throw new Error('시트 탭 `' + KB_CFG.SHEET_TAB + '`이 없다.');
+  if (!ss.getSheetByName(ACD_CFG.SHEET_TAB)) throw new Error('시트 탭 `' + ACD_CFG.SHEET_TAB + '`이 없다.');
 
   return { fileName: best.getName(), bytes: text.length, text: text, ss: ss };
 }
@@ -190,7 +190,7 @@ function kbSelfCheck_() {
 // 1단계 · 파싱
 // ══════════════════════════════════════════════════════════════
 
-function kbParseCanon_(text) {
+function acdParseCanon_(text) {
   var blocks = text.split(/\r?\n(?=### \[KB-)/);
   var items = [];
   var warnings = [];
@@ -214,7 +214,7 @@ function kbParseCanon_(text) {
       var line = lines[i];
       var m = line.match(/^- ([^:]+):[ \t]?([\s\S]*)$/);
       if (m) {
-        if (cur !== null) { obj[cur] = kbTrimEnd_(buf.join('\n')); buf = []; cur = null; }
+        if (cur !== null) { obj[cur] = acdTrimEnd_(buf.join('\n')); buf = []; cur = null; }
         var name = m[1].replace(/^\s+|\s+$/g, '');
         var val = m[2];
         if (val === '|') cur = name;                  // 여러 줄 값 시작
@@ -223,7 +223,7 @@ function kbParseCanon_(text) {
         buf.push(line.replace(/^ {4}/, ''));          // 4칸 들여쓰기 해제
       }
     }
-    if (cur !== null) obj[cur] = kbTrimEnd_(buf.join('\n'));
+    if (cur !== null) obj[cur] = acdTrimEnd_(buf.join('\n'));
 
     if (!obj['원본ID']) warnings.push(kbId + ' 원본ID 없음');
     if (!obj['질문']) warnings.push(kbId + ' 질문 없음');
@@ -232,10 +232,10 @@ function kbParseCanon_(text) {
   return { items: items, warnings: warnings };
 }
 
-function kbTrimEnd_(s) { return String(s).replace(/[\s﻿\xA0]+$/g, ''); }
+function acdTrimEnd_(s) { return String(s).replace(/[\s﻿\xA0]+$/g, ''); }
 
 /** `L2_응대KB_v1_7_260726.md` → [1, 7]. 버전을 못 읽으면 [-1,-1] (수정시각으로만 비교됨). */
-function kbParseVer_(name) {
+function acdParseVer_(name) {
   var m = name.match(/_v(\d+)_(\d+)/);
   return m ? [parseInt(m[1], 10), parseInt(m[2], 10)] : [-1, -1];
 }
@@ -244,15 +244,15 @@ function kbParseVer_(name) {
 // 2단계 · 정규화 (슬랙 숏코드 → 실제 이모지)
 // ══════════════════════════════════════════════════════════════
 
-function kbNormalizeAll_(items) {
+function acdNormalizeAll_(items) {
   var changed = 0, leftover = {};
   for (var i = 0; i < items.length; i++) {
     var it = items[i];
     for (var k in it) {
       if (typeof it[k] !== 'string') continue;
       var v = it[k], before = v;
-      for (var code in KB_CFG.EMOJI) {
-        while (v.indexOf(code) >= 0) { v = v.replace(code, KB_CFG.EMOJI[code]); changed++; }
+      for (var code in ACD_CFG.EMOJI) {
+        while (v.indexOf(code) >= 0) { v = v.replace(code, ACD_CFG.EMOJI[code]); changed++; }
       }
       if (v !== before) it[k] = v;
       // 매핑에 없는 숏코드가 남았는지 본다 — 새 숏코드가 유입되면 알아야 한다
@@ -262,8 +262,8 @@ function kbNormalizeAll_(items) {
   }
   var keys = Object.keys(leftover);
   if (keys.length) {
-    kbSlack_('⚠ 매핑에 없는 이모지 숏코드가 정본에 있다 — `' + keys.join('`, `') +
-      '`\n`KB_CFG.EMOJI`에 추가하지 않으면 환자 화면에 그대로 찍힌다.');
+    acdSlack_('⚠ 매핑에 없는 이모지 숏코드가 정본에 있다 — `' + keys.join('`, `') +
+      '`\n`ACD_CFG.EMOJI`에 추가하지 않으면 환자 화면에 그대로 찍힌다.');
   }
   return { changed: changed, leftover: keys };
 }
@@ -274,9 +274,9 @@ function kbNormalizeAll_(items) {
 //   (클로드→슬랙 경로가 시트에 직접 쓰기 때문에 이 행들이 생긴다)
 // ══════════════════════════════════════════════════════════════
 
-function kbWriteSheet_(items, dry) {
+function acdWriteSheet_(items, dry) {
   var props = PropertiesService.getScriptProperties();
-  var sh = SpreadsheetApp.openById(props.getProperty('KB_SPREADSHEET_ID')).getSheetByName(KB_CFG.SHEET_TAB);
+  var sh = SpreadsheetApp.openById(props.getProperty('KB_SPREADSHEET_ID')).getSheetByName(ACD_CFG.SHEET_TAB);
 
   var old = sh.getDataRange().getValues();
   var oldHeader = old.length ? old[0] : [];
@@ -287,8 +287,8 @@ function kbWriteSheet_(items, dry) {
   var rows = items.map(function (it) {
     var id = it['원본ID'];
     canonIds[id] = true;
-    return KB_CFG.SHEET_COLS.map(function (col) {
-      for (var f in KB_CFG.FIELD_MAP) if (KB_CFG.FIELD_MAP[f] === col) return it[f] || '';
+    return ACD_CFG.SHEET_COLS.map(function (col) {
+      for (var f in ACD_CFG.FIELD_MAP) if (ACD_CFG.FIELD_MAP[f] === col) return it[f] || '';
       return '';
     });
   });
@@ -298,14 +298,14 @@ function kbWriteSheet_(items, dry) {
   for (var r = 1; r < old.length; r++) {
     var id = String(old[r][idCol] || '').replace(/^\s+|\s+$/g, '');
     if (!id) continue;
-    if (!canonIds[id]) { sheetOnly.push(id); keep.push(old[r].slice(0, KB_CFG.SHEET_COLS.length)); }
+    if (!canonIds[id]) { sheetOnly.push(id); keep.push(old[r].slice(0, ACD_CFG.SHEET_COLS.length)); }
   }
 
   var total = rows.length + keep.length;
   var oldCount = Math.max(0, old.length - 1);
-  if (oldCount - total > KB_CFG.MAX_SHRINK) {
+  if (oldCount - total > ACD_CFG.MAX_SHRINK) {
     throw new Error('시트 행이 ' + oldCount + ' → ' + total + '로 ' + (oldCount - total) +
-      '건 줄어든다(허용 ' + KB_CFG.MAX_SHRINK + '). 정본 누락이 의심되어 중단한다.');
+      '건 줄어든다(허용 ' + ACD_CFG.MAX_SHRINK + '). 정본 누락이 의심되어 중단한다.');
   }
 
   var msg = '시트 ' + oldCount + '행 → ' + total + '행' +
@@ -313,9 +313,9 @@ function kbWriteSheet_(items, dry) {
     (dry ? ' [리허설 — 쓰지 않음]' : '');
   if (dry) return { msg: msg, sheetOnly: sheetOnly };
 
-  var out = [KB_CFG.SHEET_COLS].concat(rows).concat(keep);
+  var out = [ACD_CFG.SHEET_COLS].concat(rows).concat(keep);
   sh.clearContents();
-  sh.getRange(1, 1, out.length, KB_CFG.SHEET_COLS.length).setValues(out);
+  sh.getRange(1, 1, out.length, ACD_CFG.SHEET_COLS.length).setValues(out);
   return { msg: msg, sheetOnly: sheetOnly };
 }
 
@@ -325,18 +325,18 @@ function kbWriteSheet_(items, dry) {
 //   외국인 응대에 못 쓰이던 문제(260726 확인)를 여기서 푼다.
 // ══════════════════════════════════════════════════════════════
 
-function kbWriteJson_(items, dry) {
+function acdWriteJson_(items, dry) {
   var payload = {
     version: 'build-' + Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyMMdd-HHmm'),
     updated: Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyMMdd'),
-    source: '정본 L2_응대KB (Drive ' + KB_CFG.CANON_FOLDER + ') 에서 자동 빌드. 이 파일을 직접 고치지 말 것 — 다음 빌드에서 덮인다.',
+    source: '정본 L2_응대KB (Drive ' + ACD_CFG.CANON_FOLDER + ') 에서 자동 빌드. 이 파일을 직접 고치지 말 것 — 다음 빌드에서 덮인다.',
     count: items.length,
     items: items.map(function (it) {
       var o = {};
-      KB_CFG.SHEET_COLS.forEach(function (col) {
-        for (var f in KB_CFG.FIELD_MAP) if (KB_CFG.FIELD_MAP[f] === col) o[col] = it[f] || '';
+      ACD_CFG.SHEET_COLS.forEach(function (col) {
+        for (var f in ACD_CFG.FIELD_MAP) if (ACD_CFG.FIELD_MAP[f] === col) o[col] = it[f] || '';
       });
-      KB_CFG.LANGS.forEach(function (lg) {
+      ACD_CFG.LANGS.forEach(function (lg) {
         if (lg === 'KO') return;                       // KO는 이미 a
         var v = it['답변_' + lg];
         if (v) o['a_' + lg] = v;                       // 번역 있는 것만 — 빈 필드로 파일 부풀리지 않는다
@@ -358,9 +358,9 @@ function kbWriteJson_(items, dry) {
   // 자체 푸시가 되므로 **이 스크립트는 새 독립 프로젝트에 둘 수 있다.**
   // 기존 17개 프로젝트를 건드리지 않아도 되고, 웹앱 배포가 필요 없으니 /exec URL이 걸릴 일도 없다.
   if (typeof lwGitPutTo_ === 'function') {
-    lwGitPutTo_(KB_CFG.GH_PATH, body, commitMsg);
+    lwGitPutTo_(ACD_CFG.GH_PATH, body, commitMsg);
   } else {
-    kbGhPut_(KB_CFG.GH_PATH, body, commitMsg);
+    acdGhPut_(ACD_CFG.GH_PATH, body, commitMsg);
   }
   return { msg: msg };
 }
@@ -369,7 +369,7 @@ function kbWriteJson_(items, dry) {
  * GitHub Contents API로 파일 하나를 덮어쓴다.
  * 스크립트 속성: GH_TOKEN (contents:write 권한) · GH_REPO (`owner/repo`) · GH_BRANCH (없으면 main)
  */
-function kbGhPut_(path, content, message) {
+function acdGhPut_(path, content, message) {
   var p = PropertiesService.getScriptProperties();
   var token = p.getProperty('GH_TOKEN');
   var repo = p.getProperty('GH_REPO');
@@ -420,7 +420,7 @@ function kbGhPut_(path, content, message) {
 // 슬랙
 // ══════════════════════════════════════════════════════════════
 
-function kbSlack_(text) {
+function acdSlack_(text) {
   var url = PropertiesService.getScriptProperties().getProperty('SLACK_WEBHOOK_URL');
   if (!url) { Logger.log(text); return; }
   try {
