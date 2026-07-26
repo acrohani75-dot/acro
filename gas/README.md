@@ -22,7 +22,9 @@ Apps Script 편집기 → 프로젝트 설정 → 스크립트 속성에 두 개
 | 키 | 필수 | 값 |
 |---|:---:|---|
 | `KB_SPREADSHEET_ID` | ✅ | `답변KB` 탭이 있는 스프레드시트 — **아크로_인입원장**. ID는 그 시트를 열었을 때 주소창 `/spreadsheets/d/` 와 `/edit` 사이 문자열 |
-| `SLACK_WEBHOOK_URL` | ✅ | 알림 받을 채널의 Incoming Webhook (#회의_프로그램) |
+| `SLACK_TOKEN` | ✅ | 봇 토큰 `xoxb-…`. **라인브릿지에 이미 있다** — 새로 만들 필요 없음 |
+| `ACD_SLACK_CHANNEL` | | 알림 받을 채널 ID. 없으면 `SLACK_CHANNEL` → `SLACK_WEBHOOK_URL` 값을 채널 ID로 해석 |
+| `SLACK_WEBHOOK_URL` | | 봇 토큰이 없을 때만. `https://hooks.slack.com/…` 형식이어야 함 |
 | `GH_TOKEN` | △ | GitHub 토큰(contents:write). `lwGitPutTo_`를 쓰는 경우 불필요 |
 | `GH_REPO` | △ | `owner/repo` |
 | `GH_BRANCH` | | 없으면 `main` |
@@ -66,7 +68,26 @@ Select-String -Path C:\acro-gas\linebridge\Code.js -Pattern 'ACD_CFG|acd[A-Z]' -
 `lwKbBuild_`는 라인브릿지가 `?action=kb`로 내보낼 KB 페이로드를 만드는 함수이고,
 `acdBuildAll`은 정본에서 시트·json을 찍는 함수다. 헷갈리지 말 것.
 
-### 4. ⚠ `clasp push` 하기 전에 `clasp pull`
+### 4. 슬랙 — 봇 토큰이 우선이다
+
+발송 방식이 두 가지고 **봇 토큰을 먼저 쓴다.**
+
+1. `SLACK_TOKEN`(`xoxb-…`) + 채널 ID → `chat.postMessage`
+2. 없으면 `SLACK_WEBHOOK_URL`이 진짜 웹훅일 때 그걸로
+
+라인브릿지에 `SLACK_TOKEN`이 이미 있으므로 **웹훅을 새로 만들 필요가 없다.**
+채널 ID는 슬랙에서 채널 이름 클릭 → 맨 아래 "채널 ID"에 있다.
+
+⚠ `SLACK_WEBHOOK_URL`이라는 이름 칸에 **채널 ID가 들어 있는 경우가 있다.**
+그 상태로 웹훅인 줄 알고 POST하면 `DNS error: http://C0…`로 터진다(260726에 발생).
+그래서 채널 ID 형태면 채널 ID로 해석하고, 아니면 시작 전에 중단한다.
+
+**슬랙 점검은 빌드 맨 앞에서 한다.** 경보가 죽어 있으면 빌드 실패도 알릴 수 없기 때문이다.
+따로 시험하려면 `acdTestSlack()` 하나만 실행하면 된다.
+
+`not_in_channel` 오류가 나면 그 채널에서 `/invite` 로 봇을 초대해야 한다.
+
+### 5. ⚠ `clasp push` 하기 전에 `clasp pull`
 
 로컬 clone이 원격보다 오래됐으면 `clasp push`가 **원격의 새 코드를 옛 코드로 덮는다.**
 브라우저 편집기에서 누가 고쳤을 수 있으니 항상 `clasp pull` 먼저.
@@ -80,6 +101,14 @@ acdBuildAll()      ← 실제 반영.
 ```
 
 `acdBuildDryRun()`이 슬랙에 뭘 몇 건 바꿀지 보고한다. 그 숫자가 납득되면 `acdBuildAll()`.
+
+### 정본을 끝까지 읽었는지 — 바이트로 확인한다
+
+`acdSelfCheck_`가 읽은 UTF-8 바이트 수를 Drive 파일 크기와 비교한다. 다르면 중단한다.
+
+⚠ `text.length`는 바이트가 아니라 **UTF-16 코드 유닛 수**다. 한글은 1유닛인데 3바이트라
+둘이 2배 가까이 벌어진다(260726 정본: 185,362유닛 = 354,296바이트).
+이걸 바이트로 착각하면 "정본이 반쯤 잘렸다"고 오해하게 된다. 실제로 한 번 그랬다.
 
 ### 빌드 후 반드시 확인할 것 — 라인브릿지 캐시
 
@@ -131,6 +160,9 @@ node gas/test/reverse_verify.js gas/build_kb.gs <정본.md> <시트스냅샷.jso
 
 # 버전 비교가 v1_10 > v1_7 로 나오는지
 node gas/test/test_version.js
+
+# 슬랙 설정 해석 (봇 토큰 / 웹훅 / 잘못된 조합)
+node gas/test/test_slack.js
 ```
 
 `reverse_verify.js`의 통과 조건은 "차이 0"이 아니라 **"설명 안 되는 차이 0"** 이다.
