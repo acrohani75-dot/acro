@@ -19,7 +19,7 @@ vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(GAS, 'utf8'), sandbox);
 
 const text = fs.readFileSync(CANON, 'utf8');
-const parsed = sandbox.parseCanon_(text);
+const parsed = sandbox.kbParseCanon_(text);
 
 let fail = 0;
 const ok = (cond, label, extra) => {
@@ -55,18 +55,18 @@ ok(a92 && !/^\s/.test(a92['답변_KO']), '들여쓰기 4칸 해제됨');
 ok(a92 && a92['답변_KO'].indexOf('발렛비 4,000원에 2시간 지원') >= 0, '주차 확정값 파싱');
 
 console.log('\n== 이모지 정규화 ==');
-const norm = sandbox.normalizeAll_(parsed.items);
+const norm = sandbox.kbNormalizeAll_(parsed.items);
 ok(norm.changed === 0, 'v1.6 정본에 남은 숏코드 0곳', '치환 ' + norm.changed);
 ok(norm.leftover.length === 0, '매핑 밖 숏코드 0종', norm.leftover.join(','));
 
 console.log('\n== json 산출물 ==');
-const res = sandbox.writeJson_(parsed.items, true);
+const res = sandbox.kbWriteJson_(parsed.items, true);
 console.log('  ' + res.msg);
 
 console.log('\n== 시트 열 매핑 ==');
 const first = parsed.items[0];
-const row = sandbox.CFG.SHEET_COLS.map(col => {
-  for (const f in sandbox.CFG.FIELD_MAP) if (sandbox.CFG.FIELD_MAP[f] === col) return first[f] || '';
+const row = sandbox.KB_CFG.SHEET_COLS.map(col => {
+  for (const f in sandbox.KB_CFG.FIELD_MAP) if (sandbox.KB_CFG.FIELD_MAP[f] === col) return first[f] || '';
   return '';
 });
 console.log('  ' + JSON.stringify(row).slice(0, 200));
