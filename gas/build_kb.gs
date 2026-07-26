@@ -31,6 +31,37 @@ var ACD_CFG = {
   PUBLISH_STATE: '확정',
   SLACK_MAX: 3000,                  // 슬랙 한 메시지 최대 길이. 이 이상은 자른다
 
+  // ─ 공개 대상 가림막 ─
+  // 답변KB 시트는 비공개(소유자 전용)지만 qa374.json은 **public 리포**에 올라가
+  // GitHub Pages로 전세계에 서빙된다. 정본에는 계좌번호처럼 내부에만 있어야 할 값이 있다.
+  // 시트에는 실제 값을 그대로 쓰고, **공개 대상에만** 아래 문안으로 갈아끼운다.
+  // (260727 발견: Q302 계좌번호·예금주·기업은행이 public 리포에 그대로 있었다)
+  PUBLIC_REDACT: {
+    'KB-0302': {
+      '답변_KO':
+        '계좌번호 안내드리겠습니다 ^^\n' +
+        '▶아크로한의원 계좌번호◀\n\n' +
+        '입금액 : 만원\n' +
+        '※ 예금주·은행·계좌번호는 답변KB 시트(실시간 1차 소스)에서 확인해주세요.\n' +
+        '   이 폴백 사본은 공개 저장소에 있어 계좌 정보를 담지 않습니다.\n\n' +
+        '입금 후 연락 주시면 접수가 완료되며,\n' +
+        '입금 확인이 되지 않을 경우 접수가 취소될 수 있습니다. 양해부탁드립니다.\n\n' +
+        '📢 입금자명이 예약자명과 다를 경우 반드시 한의원으로 연락 부탁드립니다.'
+    }
+  },
+
+  // 가림막을 거친 뒤에도 남아 있으면 **새로 유입된 민감정보**다. 막지 않고 알린다.
+  // (막아버리면 어느 항목인지 모른 채 문안이 조용히 뭉개진다)
+  SENSITIVE: [
+    { name: '은행명', re: /(기업은행|국민은행|신한은행|우리은행|하나은행|농협|카카오뱅크|토스뱅크)/ },
+    { name: '예금주 실명', re: /예금주\s*[:：]\s*[가-힣]{2,4}/ },
+    // 날짜(2026-07-26)가 계좌번호로 오인된다. 숫자 총 10자리 이상만 계좌로 본다.
+    // (실제 오탐 발생 260727 — 검사기를 안 만들었으면 이 규칙도 못 얻었다)
+    { name: '계좌번호', re: /\b\d{2,4}-\d{2,6}-\d{2,6}(-\d{1,3})?\b/, minDigits: 10 },
+    { name: '휴대폰번호', re: /01[016789]-?\d{3,4}-?\d{4}/ },
+    { name: '주민등록번호', re: /\b\d{6}-[1-4]\d{6}\b/ }
+  ],
+
   // ─ 안전장치 ─ 정본이 잘려서 읽히면 시트를 비워버릴 수 있다. 그걸 막는다.
   MIN_ITEMS: 380,                   // 이보다 적게 파싱되면 중단
   MAX_SHRINK: 5,                    // 시트 기존 행보다 이 개수 이상 줄어들면 중단
@@ -317,6 +348,9 @@ function acdParseCanon_(text) {
 
 function acdTrimEnd_(s) { return String(s).replace(/[\s﻿\xA0]+$/g, ''); }
 
+/** 가림막을 적용할 때 원본 항목(시트로 갈 값)을 건드리지 않기 위한 얕은 복사. */
+function acdShallowCopy_(o) { var c = {}; for (var k in o) c[k] = o[k]; return c; }
+
 /** `L2_응대KB_v1_7_260726.md` → [1, 7]. 버전을 못 읽으면 [-1,-1] (수정시각으로만 비교됨). */
 function acdParseVer_(name) {
   var m = name.match(/_v(\d+)_(\d+)/);
@@ -426,6 +460,8 @@ function acdWriteJson_(items, dry) {
     source: '정본 L2_응대KB (Drive ' + ACD_CFG.CANON_FOLDER + ') 에서 자동 빌드. 이 파일을 직접 고치지 말 것 — 다음 빌드에서 덮인다.',
     count: items.length,
     items: items.map(function (it) {
+      var red = ACD_CFG.PUBLIC_REDACT[it['KB']];
+      if (red) { it = acdShallowCopy_(it); for (var f in red) it[f] = red[f]; }
       var o = {};
       ACD_CFG.SHEET_COLS.forEach(function (col) {
         for (var f in ACD_CFG.FIELD_MAP) if (ACD_CFG.FIELD_MAP[f] === col) o[col] = it[f] || '';
@@ -441,6 +477,24 @@ function acdWriteJson_(items, dry) {
   };
 
   var body = JSON.stringify(payload, null, 2);
+
+  // 공개 대상에 민감정보가 남았는지 본다. 있으면 **푸시하지 않고 중단**한다.
+  // 한 번 public 리포에 올라가면 커밋 이력에 영원히 남는다. 되돌려도 남는다.
+  var leaks = [];
+  payload.items.forEach(function (o) {
+    var text = JSON.stringify(o);
+    ACD_CFG.SENSITIVE.forEach(function (s) {
+      var m = text.match(s.re);
+      if (!m) return;
+      if (s.minDigits && m[0].replace(/\D/g, '').length < s.minDigits) return;   // 날짜 등 오탐 제외
+      leaks.push(o.KB + '/' + o.id + ' — ' + s.name + ' (' + m[0].slice(0, 6) + '…)');
+    });
+  });
+  if (leaks.length) {
+    throw new Error('공개 대상(qa374.json)에 민감정보가 있어 푸시를 중단한다:\n' + leaks.slice(0, 10).join('\n') +
+      '\n→ `ACD_CFG.PUBLIC_REDACT`에 해당 KB-ID의 대체 문안을 넣을 것. ' +
+      'public 리포에 한 번 올라가면 커밋 이력에 영원히 남는다.');
+  }
   var langCount = payload.items.filter(function (o) { return o.a_JA || o.a_EN; }).length;
   var msg = 'qa374.json ' + items.length + '건 · ' + Math.round(body.length / 1024) + 'KB' +
     ' (번역 있는 항목 ' + langCount + '건)' + (dry ? ' [리허설 — 쓰지 않음]' : '');
