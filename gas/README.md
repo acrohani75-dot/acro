@@ -19,17 +19,27 @@ Drive  L2_확정지식/L2_응대KB_v*.md   ← 사람이 고치는 유일한 곳
 `build_kb.gs`는 **public 리포**에 있다. ID·토큰·웹훅은 코드에 없고 스크립트 속성에서 읽는다.
 Apps Script 편집기 → 프로젝트 설정 → 스크립트 속성에 두 개를 넣는다.
 
-| 키 | 값 |
-|---|---|
-| `KB_SPREADSHEET_ID` | 답변KB 탭이 있는 스프레드시트 ID |
-| `SLACK_WEBHOOK_URL` | 알림 받을 채널의 Incoming Webhook (#회의_프로그램) |
+| 키 | 필수 | 값 |
+|---|:---:|---|
+| `KB_SPREADSHEET_ID` | ✅ | 답변KB 탭이 있는 스프레드시트 ID |
+| `SLACK_WEBHOOK_URL` | ✅ | 알림 받을 채널의 Incoming Webhook (#회의_프로그램) |
+| `GH_TOKEN` | △ | GitHub 토큰(contents:write). `lwGitPutTo_`를 쓰는 경우 불필요 |
+| `GH_REPO` | △ | `owner/repo` |
+| `GH_BRANCH` | | 없으면 `main` |
 
 Drive 폴더는 ID가 아니라 **이름(`L2_확정지식`)으로 찾는다.** 폴더 ID를 코드에 적지 않기 위한 것이다.
 
-### 2. `lwGitPutTo_`가 같은 프로젝트에 있어야 한다
+### 2. 어느 프로젝트에 둘 것인가 — 새 독립 프로젝트를 권한다
 
-GitHub 푸시는 기존 배포 GAS의 `lwGitPutTo_`를 재사용한다. 없으면 `writeJson_`에서 중단된다.
-어느 프로젝트에 있는지 찾는 법은 아래 "찾기" 참고.
+이 스크립트는 GitHub 푸시를 자체적으로 한다(`ghPut_`). 그래서 **기존 17개 프로젝트를 건드릴
+필요가 없다.** 새 Apps Script 프로젝트(예: `아크로드_빌드`)를 만들어 넣으면 된다.
+
+새 프로젝트를 만드는 건 금지 규칙에 걸리지 않는다. 금지된 것은 **새 웹앱 배포**(`/exec` URL)를
+만드는 일이고, 빌드는 웹앱이 아니라 수동 실행·트리거로 도는 스크립트라 배포가 아예 필요 없다.
+그래서 환자 대면 링크가 걸릴 여지가 없다 — 이게 이 배치의 핵심 장점이다.
+
+기존 배포 GAS에 붙이는 것도 된다. 그 경우 `lwGitPutTo_`가 자동으로 감지되어 재사용되고
+`GH_TOKEN`·`GH_REPO`는 필요 없다.
 
 ## 실행
 
@@ -48,6 +58,7 @@ buildAll()      ← 실제 반영.
 |---|---|
 | 정본 폴더를 못 읽음 | 중단 + 슬랙 경보 (조용히 실패하지 않는다) |
 | `L2_확정지식` 이름의 폴더가 둘 이상 | 중단 — 어느 게 정본인지 알 수 없다 |
+| 정본 폴더에 정본 파일이 둘 이상 | 진행하되 **어느 것을 썼는지 슬랙에 보고** |
 | 파싱 결과가 `MIN_ITEMS`(380) 미달 | 중단 — 정본이 잘려 읽힌 것으로 본다 |
 | 시트 행이 `MAX_SHRINK`(5) 넘게 줄어듦 | 중단 |
 | `원본ID`가 빈 항목이 있음 | 중단 + 어느 KB-ID인지 보고 |
@@ -63,6 +74,12 @@ buildAll()      ← 실제 반영.
 그대로 발송되면 환자 화면에 `:blush:`가 찍힌다(260726에 13곳 발견).
 빌드가 매번 `CFG.EMOJI`로 치환하고, **매핑에 없는 새 숏코드가 보이면 슬랙으로 알린다.**
 
+## 정본 버전 고르기 — 사전순으로 하면 안 된다
+
+폴더에 정본이 여러 개일 때 `parseVer_`로 **버전을 숫자로** 비교한다.
+파일명 사전순으로 고르면 `v1_10 < v1_7`이 되어(`1 < 7`) 옛 파일을 정본으로 집는다.
+버전이 같으면 수정시각이 늦은 것, 버전을 못 읽는 이름은 맨 뒤로 보낸다.
+
 ## 검증
 
 ```bash
@@ -71,6 +88,9 @@ node gas/test/test_parse.js gas/build_kb.gs <정본.md>
 
 # 역빌드 검증 — 빌드 결과 vs 현행 시트
 node gas/test/reverse_verify.js gas/build_kb.gs <정본.md> <시트스냅샷.json>
+
+# 버전 비교가 v1_10 > v1_7 로 나오는지
+node gas/test/test_version.js
 ```
 
 `reverse_verify.js`의 통과 조건은 "차이 0"이 아니라 **"설명 안 되는 차이 0"** 이다.
@@ -90,13 +110,16 @@ clasp deploy -i <배포ID>
 
 ## 찾기
 
+clone 폴더는 `C:\acro-gas` 아래에 있다(예: `C:\acro-gas\linebridge`).
+
 ```powershell
-# lwGitPutTo_ 가 어느 프로젝트에 있나 (clone 해둔 폴더에서)
-Get-ChildItem -Recurse -Include *.js,*.gs -File | Select-String 'lwGitPutTo_' | Select-Object Path -Unique
+# lwGitPutTo_ 가 어느 프로젝트에 있나
+Get-ChildItem C:\acro-gas -Recurse -Include *.js,*.gs -File | Select-String 'lwGitPutTo_' | Select-Object Path -Unique
 
 # 배포 목록 (clone 없이 scriptId만으로)
 clasp list-deployments <scriptId>
 ```
 
-`Get-ChildItem -Recurse`를 OneDrive 동기 폴더에서 돌리면 클라우드 전용 파일이 전부
-내려받아진다. **clone 폴더 안에서만** 돌릴 것.
+⚠ `Get-ChildItem -Recurse`를 **경로 없이** 돌리면 현재 폴더 기준으로 재귀한다.
+그 위치가 OneDrive 동기 폴더면 클라우드 전용 파일이 전부 실제로 내려받아진다(디스크가 찬다).
+**항상 `C:\acro-gas` 처럼 경로를 명시**할 것.
