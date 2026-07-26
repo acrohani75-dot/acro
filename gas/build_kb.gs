@@ -29,6 +29,7 @@ var ACD_CFG = {
   // 정본은 초안도 담는다. 이 상태인 것만 말단으로 내린다.
   // 덕분에 원장 승인 전 문안을 정본에 올려둬도 환자에게 나가지 않는다.
   PUBLISH_STATE: '확정',
+  SLACK_MAX: 3000,                  // 슬랙 한 메시지 최대 길이. 이 이상은 자른다
 
   // ─ 안전장치 ─ 정본이 잘려서 읽히면 시트를 비워버릴 수 있다. 그걸 막는다.
   MIN_ITEMS: 380,                   // 이보다 적게 파싱되면 중단
@@ -173,14 +174,22 @@ function acdRun_(dry) {
     var sheetRes = acdWriteSheet_(items, held, dry);
     log.push(sheetRes.msg);
 
-    var jsonRes = acdWriteJson_(items, dry);
-    log.push(jsonRes.msg);
+    // 시트는 이미 썼다. 여기서 던지면 "시트는 반영됐는데 실패로 보이는" 상태가 된다.
+    // 그래서 GitHub 실패는 잡아서 결과에 적는다. 무엇이 되고 무엇이 안 됐는지 분명해진다.
+    var jsonRes;
+    try { jsonRes = acdWriteJson_(items, dry); log.push(jsonRes.msg); }
+    catch (je) { log.push('🔺 qa374.json 실패 — ' + acdClip_(je.message, 300) + ' (시트 반영은 위에 적힌 대로 끝났다)'); }
 
     var head = (dry ? '🧪 빌드 리허설(쓰기 없음)' : '✅ 빌드 완료') +
       ' — 정본 ' + all.length + '건 중 확정 ' + items.length + '건 · ' +
       Math.round((new Date().getTime() - t0) / 1000) + '초';
 
     var body = head + '\n' + log.map(function (l) { return '• ' + l; }).join('\n');
+    if (sheetRes.heldKept && sheetRes.heldKept.length) {
+      body += '\n\n⚠ *승인 전(상태≠확정) 항목이 시트에 들어 있다: `' + sheetRes.heldKept.join('`, `') + '`*\n' +
+        '빌드가 넣은 게 아니라 이미 시트에 있던 것이고, 지우지 않고 값을 그대로 뒀다.\n' +
+        '→ 내보내도 되는 내용이면 정본에서 `상태: 확정`으로 바꾸고, 아니면 시트에서 그 행을 지울 것.';
+    }
     if (sheetRes.sheetOnly && sheetRes.sheetOnly.length) {
       body += '\n\n🔸 *정본에 없는 시트 행 ' + sheetRes.sheetOnly.length + '건* — 지우지 않고 맨 아래 남겼다.\n' +
         '`' + sheetRes.sheetOnly.join('`, `') + '`\n' +
@@ -190,7 +199,7 @@ function acdRun_(dry) {
     return body;
 
   } catch (e) {
-    var err = '🛑 빌드 중단 — ' + e.message + '\n' + log.map(function (l) { return '• ' + l; }).join('\n');
+    var err = '🛑 빌드 중단 — ' + acdClip_(e.message, 800) + '\n' + log.map(function (l) { return '• ' + l; }).join('\n');
     acdSlack_(err);
     throw e;
   }
@@ -393,15 +402,15 @@ function acdWriteSheet_(items, held, dry) {
   }
 
   var msg = '시트 ' + oldCount + '행 → ' + total + '행' +
-    (heldRows.length ? ' (보류 ' + heldRows.length + '건은 시트 값 유지: ' + heldKept.join(',') + ')' : '') +
+    (heldRows.length ? ' (⚠ 승인 전 항목 ' + heldRows.length + '건이 시트에 노출 중, 값은 유지: ' + heldKept.join(',') + ')' : '') +
     (keep.length ? ' (정본 없는 행 ' + keep.length + '건 보존)' : '') +
     (dry ? ' [리허설 — 쓰지 않음]' : '');
-  if (dry) return { msg: msg, sheetOnly: sheetOnly };
+  if (dry) return { msg: msg, sheetOnly: sheetOnly, heldKept: heldKept };
 
   var out = [ACD_CFG.SHEET_COLS].concat(rows).concat(heldRows).concat(keep);
   sh.clearContents();
   sh.getRange(1, 1, out.length, ACD_CFG.SHEET_COLS.length).setValues(out);
-  return { msg: msg, sheetOnly: sheetOnly };
+  return { msg: msg, sheetOnly: sheetOnly, heldKept: heldKept };
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -439,14 +448,12 @@ function acdWriteJson_(items, dry) {
 
   var commitMsg = '정본 빌드 — 응대KB ' + items.length + '건';
 
-  // 기존 배포 GAS에 붙였으면 그쪽 함수를 재사용한다. 아니면 자체 푸시.
-  // 자체 푸시가 되므로 **이 스크립트는 새 독립 프로젝트에 둘 수 있다.**
-  // 기존 17개 프로젝트를 건드리지 않아도 되고, 웹앱 배포가 필요 없으니 /exec URL이 걸릴 일도 없다.
-  if (typeof lwGitPutTo_ === 'function') {
-    lwGitPutTo_(ACD_CFG.GH_PATH, body, commitMsg);
-  } else {
-    acdGhPut_(ACD_CFG.GH_PATH, body, commitMsg);
-  }
+  // ⚠ 다른 파일의 `lwGitPutTo_`를 부르지 않는다.
+  //   260727 사고: 인자 순서를 확인하지 않고 `lwGitPutTo_(경로, 본문, 메시지)`로 불렀는데
+  //   실제 순서가 달라 155KB 본문이 URL 자리로 들어갔다. encodeURI가 그걸 %20 범벅으로 만들고,
+  //   오류 메시지에 본문이 통째로 실려 슬랙이 폭주했다.
+  //   남의 함수 시그니처에 의존하지 않고 항상 자체 푸시를 쓴다.
+  acdGhPut_(ACD_CFG.GH_PATH, body, commitMsg);
   return { msg: msg };
 }
 
@@ -460,8 +467,8 @@ function acdGhPut_(path, content, message) {
   var repo = p.getProperty('GH_REPO');
   var branch = p.getProperty('GH_BRANCH') || 'main';
   if (!token || !repo) {
-    throw new Error('GitHub 푸시 설정이 없다. 스크립트 속성에 `GH_TOKEN`과 `GH_REPO`(owner/repo)를 넣을 것. ' +
-      '또는 이 스크립트를 `lwGitPutTo_`가 있는 배포 GAS에 붙일 것.');
+    throw new Error('GitHub 푸시 설정이 없다. 스크립트 속성에 `GH_REPO`(owner/repo 형식)를 넣을 것. ' +
+      '`GH_TOKEN`은 라인브릿지 프로젝트에 이미 있다.');
   }
 
   var base = 'https://api.github.com/repos/' + repo + '/contents/' + encodeURI(path);
@@ -478,7 +485,7 @@ function acdGhPut_(path, content, message) {
   if (got.getResponseCode() === 200) {
     sha = JSON.parse(got.getContentText()).sha;
   } else if (got.getResponseCode() !== 404) {
-    throw new Error('GitHub 조회 실패 ' + got.getResponseCode() + ' — ' + got.getContentText().slice(0, 300));
+    throw new Error('GitHub 조회 실패 ' + got.getResponseCode() + ' — ' + acdClip_(got.getContentText(), 200));
   }
 
   var payload = {
@@ -497,7 +504,7 @@ function acdGhPut_(path, content, message) {
     // 409 = sha 충돌. 다른 경로가 같은 파일을 방금 밀었다는 뜻이다(§3 두 경로 충돌).
     throw new Error('GitHub 푸시 실패 ' + code +
       (code === 409 ? ' (sha 충돌 — 다른 경로가 같은 파일을 밀었다. 다시 실행할 것)' : '') +
-      ' — ' + put.getContentText().slice(0, 300));
+      ' — ' + acdClip_(put.getContentText(), 200));
   }
 }
 
@@ -505,8 +512,15 @@ function acdGhPut_(path, content, message) {
 // 슬랙
 // ══════════════════════════════════════════════════════════════
 
+/** 슬랙·오류 문자열을 자른다. 260727에 155KB 본문이 오류 메시지에 실려 나갔다. */
+function acdClip_(s, n) {
+  s = String(s == null ? '' : s);
+  return s.length <= n ? s : s.slice(0, n) + '\n…(' + (s.length - n) + '자 생략)';
+}
+
 function acdSlack_(text) {
-  Logger.log(text);                       // 슬랙이 죽어도 실행 로그에는 남는다
+  Logger.log(text);                       // 슬랙이 죽어도 실행 로그에는 남는다 (여기는 자르지 않는다)
+  text = acdClip_(text, ACD_CFG.SLACK_MAX);
   var t;
   try { t = acdSlackTarget_(); }
   catch (e) { Logger.log('슬랙 설정 문제: ' + e.message); return { ok: false, err: e.message }; }
