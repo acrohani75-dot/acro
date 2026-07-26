@@ -39,7 +39,32 @@ Drive 폴더는 ID가 아니라 **이름(`L2_확정지식`)으로 찾는다.** �
 그래서 환자 대면 링크가 걸릴 여지가 없다 — 이게 이 배치의 핵심 장점이다.
 
 기존 배포 GAS에 붙이는 것도 된다. 그 경우 `lwGitPutTo_`가 자동으로 감지되어 재사용되고
-`GH_TOKEN`·`GH_REPO`는 필요 없다.
+`GH_TOKEN`·`GH_REPO`는 필요 없다. `lwGitPutTo_`는 `C:\acro-gas\linebridge\Code.js`에 있다(260726 확인).
+
+### 3. ⚠ 이름 충돌 — Apps Script는 프로젝트 안 모든 파일이 전역을 공유한다
+
+라인브릿지처럼 **이미 코드가 있는 프로젝트**에 이 파일을 추가하면, 같은 이름의 함수·변수가
+있을 때 나중에 로드된 쪽이 이깁니다. 라인브릿지의 `slack_`이 빌드의 것으로 덮이면
+환자 응대가 조용히 망가진다.
+
+그래서 이 파일의 전역 심볼은 전부 `kb` 접두어를 붙였다. 그래도 붙이기 전에 한 번 확인할 것.
+
+```powershell
+# 이 목록 중 하나라도 Code.js에 있으면 이름을 더 바꿔야 한다
+Select-String -Path C:\acro-gas\linebridge\Code.js -Pattern 'KB_CFG|kbBuild|kbRun_|kbSelfCheck_|kbParse|kbTrimEnd_|kbNormalizeAll_|kbWrite|kbGhPut_|kbSlack_'
+```
+
+아무것도 안 나오면 안전하다. 나오면 알려줄 것.
+
+전역 심볼 전체: `KB_CFG` · `kbBuildDryRun` · `kbBuildAll` · `kbRun_` · `kbSelfCheck_` ·
+`kbParseCanon_` · `kbTrimEnd_` · `kbParseVer_` · `kbNormalizeAll_` · `kbWriteSheet_` ·
+`kbWriteJson_` · `kbGhPut_` · `kbSlack_`
+
+### 4. ⚠ `clasp push` 하기 전에 `clasp pull`
+
+로컬 clone이 원격보다 오래됐으면 `clasp push`가 **원격의 새 코드를 옛 코드로 덮는다.**
+브라우저 편집기에서 누가 고쳤을 수 있으니 항상 `clasp pull` 먼저.
+가장 안전한 방법은 clasp를 안 쓰고 **브라우저 편집기에 새 파일로 붙여넣는 것**이다.
 
 ## 실행
 
