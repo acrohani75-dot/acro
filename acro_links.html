@@ -443,6 +443,16 @@
         <div class="card-arrow">›</div>
       </div>
     </a>
+    <a class="card staff" id="cardConsent" href="https://acrohani75-dot.github.io/acro/consent.html" target="_blank" data-kw="동의서 서명 스테이션 개인정보 수집 이용 아크로컷 지방분해약침 시술동의서 바디리프팅 온다 아크로웨이브 환불 규정서 다이어트 한약 사진 후기제공 미성년자 진료 처방 보호자 법정대리인 안면 밸런스 프로그램 패키지 데스크 태블릿 차트번호 성명 생년월일 연락처 자동저장 드라이브 PDF 인쇄 체크 선택 필요한 동의서만 골라 서명 완료본 저장 직원 확인 PIN">
+      <div class="card-inner">
+        <div class="card-icon">✍️</div>
+        <div class="card-text">
+          <div class="card-name">동의서 스테이션</div>
+          <div class="card-desc">필요한 동의서만 체크 → 데스크 서명 → 드라이브 자동저장</div>
+        </div>
+        <div class="card-arrow">›</div>
+      </div>
+    </a>
   </div>
   <div class="section-label">
     <div class="pill doctor" id="sec-doctor">의료진</div><hr>
@@ -731,6 +741,20 @@ function copyKey() {
     setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 2000);
   });
 }
+/* 동의서 스테이션 웹훅 해시 전파.
+   이 리포는 public이라 GAS 배포 ID를 소스에 넣지 않는다(CLAUDE.md §1).
+   데스크 북마크를 acro_links.html#w=<배포ID> 로 저장해두면
+   여기서 동의서 카드 주소에 해시를 옮겨 붙여 자동저장이 ON 상태로 열린다.
+   해시 없이 열면 동의서는 자동저장 OFF로 뜨고, 그 사실이 배지에 표시된다. */
+(function(){
+  var m = String(location.hash || "").match(/[#&]w=([A-Za-z0-9_-]+)/);
+  if (!m) return;
+  var a = document.getElementById("cardConsent");
+  if (!a) return;
+  a.href = a.href.split("#")[0] + "#w=" + m[1];
+  var d = a.querySelector(".card-desc");
+  if (d) d.textContent = "필요한 동의서만 체크 → 데스크 서명 → 드라이브 자동저장 ON";
+})();
 </script>
 </body>
 </html>
