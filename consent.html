@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>아크로한의원 동의서 스테이션</title>
+<style>
+:root{
+  --ink:#1a2233; --sub:#5b6474; --line:#e3e7ee; --bg:#f4f6f9; --card:#ffffff;
+  --accent:#1f6f5c; --accent2:#eaf4f1; --warn:#b45309; --warnbg:#fef3e2;
+  --danger:#b91c1c; --ok:#15803d;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65}
+.wrap{max-width:860px;margin:0 auto;padding:20px 18px 60px}
+h1{font-size:1.5rem;letter-spacing:-.02em}
+h2{font-size:1.15rem;letter-spacing:-.01em}
+.lead{color:var(--sub);font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:12px;
+  padding:14px 22px;font-size:1rem;font-weight:700;cursor:pointer;background:var(--accent);color:#fff}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+.btn.sm{padding:8px 14px;font-size:.85rem;border-radius:10px}
+.btn.warn{background:var(--warn)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.field{flex:1;min-width:150px}
+.field label{display:block;font-size:.8rem;font-weight:700;color:var(--sub);margin-bottom:4px}
+.field input{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;font-size:1rem;background:#fff}
+.field input:focus{outline:none;border-color:var(--accent)}
+.badge{display:inline-block;font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:99px;vertical-align:middle}
+.badge.v{background:var(--accent2);color:var(--accent)}
+.badge.d{background:var(--warnbg);color:var(--warn)}
+.formpick{display:flex;align-items:flex-start;gap:12px;padding:13px 12px;border:1.5px solid var(--line);
+  border-radius:12px;margin-top:8px;cursor:pointer;background:#fff}
+.formpick.on{border-color:var(--accent);background:var(--accent2)}
+.formpick input{width:22px;height:22px;margin-top:3px;accent-color:var(--accent);flex:none}
+.formpick .t{font-weight:700}
+.formpick .s{font-size:.8rem;color:var(--sub)}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font-size:.85rem;font-weight:700;cursor:pointer}
+.chip:active{background:var(--accent2)}
+/* ---------- patient mode ---------- */
+#patientMode{display:none}
+.pm-head{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;
+  display:flex;justify-content:space-between;align-items:center}
+.pm-head .who{font-weight:800}
+.pm-head .prog{font-size:.85rem;color:var(--sub)}
+.dots{display:flex;gap:6px;justify-content:center;margin:14px 0 4px}
+.dot{width:10px;height:10px;border-radius:99px;background:var(--line)}
+.dot.done{background:var(--ok)}
+.dot.cur{background:var(--accent);transform:scale(1.25)}
+.draftbar{background:var(--warnbg);color:var(--warn);font-size:.8rem;font-weight:800;
+  border:1px solid #f3d9b0;border-radius:10px;padding:8px 12px;margin-bottom:12px}
+.c-block{border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:12px;font-size:.95rem}
+.c-block .tt{display:block;font-size:1rem;margin-bottom:8px;color:var(--accent)}
+.c-block ul{padding-left:20px;margin-top:6px}
+.c-block li{margin-top:4px}
+.c-block table{width:100%;border-collapse:collapse;margin-top:8px;font-size:.88rem}
+.c-block th,.c-block td{border:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+.c-block th{background:var(--bg)}
+.c-block td.r{text-align:right}
+.chk{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+.chk input{width:21px;height:21px;margin-top:3px;accent-color:var(--accent);flex:none}
+.agreeRow{display:flex;gap:20px;margin-top:10px;font-weight:700}
+.agreeRow label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.agreeRow input{width:21px;height:21px;accent-color:var(--accent)}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:6px 10px;font-size:.9rem;margin-top:8px}
+.kv b{color:var(--sub);font-weight:700}
+.sigwrap{margin-top:14px}
+.sigwrap label{display:block;font-size:.85rem;font-weight:800;margin-bottom:6px}
+canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;border-radius:12px;background:#fff;touch-action:none;display:block}
+.signed canvas.sig{border-style:solid;border-color:var(--ok)}
+.pm-foot{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 18px;
+  display:flex;justify-content:space-between;gap:10px}
+.note{font-size:.82rem;color:var(--sub);margin-top:8px}
+.doneList{margin-top:10px}
+.doneList div{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line);font-weight:600}
+.doneList div::before{content:"✓";color:var(--ok);font-weight:900}
+#staffCall{position:fixed;right:10px;top:10px;opacity:.25;z-index:9}
+/* ---------- print ---------- */
+#printArea{display:none}
+@media print{
+  body *{visibility:hidden}
+  #printArea,#printArea *{visibility:visible}
+  #printArea{display:block;position:absolute;left:0;top:0;width:100%}
+  .p-page{page-break-after:always;padding:10mm 6mm;font-size:10.5pt}
+  .p-page h1{font-size:15pt;margin-bottom:2mm}
+  .p-page .c-block{page-break-inside:avoid}
+  .p-sig img{height:70px;border-bottom:1px solid #000}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 직원 화면 ================= -->
+<div id="staffMode" class="wrap">
+  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.3</span></h1>
+  <p class="lead">필요한 동의서만 체크하고 [환자 모드 시작]을 누르면, 선택한 문서만 순서대로 서명받습니다.</p>
+
+  <div class="card">
+    <h2>1. 환자 정보</h2>
+    <div class="row" style="margin-top:10px">
+      <div class="field"><label>성명 *</label><input id="pName" placeholder="홍길동"></div>
+      <div class="field"><label>차트번호</label><input id="pChart" placeholder="12345" inputmode="numeric"></div>
+      <div class="field"><label>생년월일</label><input id="pBirth" placeholder="1994.01.01"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. 동의서 선택</h2>
+    <div class="presets" id="presetRow"></div>
+    <div id="formList"></div>
+    <p class="note">배지: <span class="badge v">정본</span> 기존 확정 문구 이식 · <span class="badge d">검수 전</span> 원장 검수 후 사용</p>
+  </div>
+
+  <div class="card row" style="justify-content:space-between">
+    <div class="note" id="pickSummary">선택된 동의서: 0건</div>
+    <button class="btn" id="startBtn" onclick="startPatient()" disabled>환자 모드 시작 →</button>
+  </div>
+</div>
+
+<!-- ================= 환자 모드 ================= -->
+<div id="patientMode">
+  <div class="pm-head">
+    <div><div class="who" id="pmWho"></div><div class="prog" id="pmProg"></div></div>
+    <img src="" alt="" style="display:none">
+    <div style="font-weight:800;color:var(--accent)">ACRO</div>
+  </div>
+  <button id="staffCall" class="btn ghost sm" onclick="staffExit()">직원</button>
+  <div class="wrap">
+    <div class="dots" id="pmDots"></div>
+    <div class="card" id="pmBody"></div>
+  </div>
+  <div class="pm-foot">
+    <button class="btn ghost" id="prevBtn" onclick="nav(-1)">← 이전</button>
+    <button class="btn" id="nextBtn" onclick="nav(1)">동의하고 다음 →</button>
+  </div>
+</div>
+
+<!-- ================= 완료 화면 ================= -->
+<div id="doneMode" class="wrap" style="display:none">
+  <div class="card" style="text-align:center;padding:34px">
+    <div style="font-size:2.2rem">✅</div>
+    <h1 style="margin-top:8px">작성이 완료되었습니다</h1>
+    <p class="lead" id="doneWho"></p>
+    <div class="doneList" id="doneList" style="text-align:left;max-width:420px;margin:14px auto"></div>
+    <div class="row" style="justify-content:center;margin-top:18px">
+      <button class="btn ghost" onclick="printAll()">🖨 인쇄 / PDF 저장</button>
+      <button class="btn" onclick="resetAll()">새 환자 시작</button>
+    </div>
+    <p class="note" id="sendStatus"></p>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+/* ================================================================
+   CONFIG — GAS 웹훅 URL을 넣으면 완료 시 자동 전송(슬랙/드라이브 연동은 GAS에서 처리).
+   비워두면 인쇄/PDF 저장만 사용. STAFF_PIN: 환자 모드 중도 이탈용.
+================================================================ */
+/* 웹훅 URL은 소스에 박지 않는다 (acro 리포 CLAUDE.md §1 — public 리포에 GAS 배포 ID 금지).
+   데스크 북마크 주소의 해시로 주입한다:  consent.html#w=<배포ID>
+   해시가 없으면 webhookUrl 은 빈 문자열이 되고, 기존 안전망대로 "자동 전송 미설정" 안내가 뜬다. */
+var CONFIG = { webhookUrl: (function(){
+  var m = String(location.hash || "").match(/[#&]w=([A-Za-z0-9_-]+)/);
+  return m ? "https://script.google.com/macros/s/" + m[1] + "/exec" : "";
+})(), staffPin: "1175" };
+
+/* ================================================================
+   동의서 정의부 — html 안의 문구가 정본.
+   verified:true  → 기존 확정 문구 이식 (정본)
+   verified:false → 초안. 원장 검수 후 verified를 true로 바꾸면 배너가 사라짐.
+================================================================ */
+var FORMS = [
+
+/* ---------- 1. 개인정보 수집·이용 동의서 (정본 이식: 초진설문지2026 GAS P12 — 실사용 디지털 정본) ---------- */
+{ id:"privacy", title:"개인정보 수집·이용 동의서", short:"신환 필수. CCTV 고지 포함", verified:true,
+  html: '<h1>개인정보 수집·이용 동의서</h1><p class="lead">ACRO KOREAN MEDICINE CLINIC</p><div class="c-block">본원은 개인정보 보호법 등 관련 법령상의 개인정보 보호 규정을 준수하며 귀하의 개인정보 보호에 최선을 다하고 있습니다. 본원은 개인정보 보호법 제15조 및 제22조에 근거하여, 다음과 같이 개인정보를 수집·이용하는 데 동의를 받고자 합니다. <p><b>· 수집하는 개인정보의 항목</b><br>필수정보: 환자 이름, 주민등록번호, 주소, 일반 전화번호, 휴대폰 번호, 진료과목 (의료법에 근거하여, 방문에 의한 진료 신청 시 동의 없이 수집할 수 있는 개인정보)<br>선택정보: 가족관계, 유입경로, 직업, 소개자, 이메일, 영상장비 촬영 자료</p> <p><b>· 개인정보의 수집·이용 목적</b><br>환자의 진단·치료·질병 예방 및 건강 증진을 위한 제반 진료 업무, 진료비 청구·수납·환불 등 원무 서비스, 진료 예약 및 조회·검사 결과 안내·한약(약품) 발송 안내, 원외 탕전실로의 처방 전송(탕전 업무), 교육·연구·통계·외부 수탁검사·협력 병의원 진료 의뢰, 병원 운영을 위한 법적/행정적 대응, 민원 처리, 가족 등에게 병의 증세·환자 상태 설명, 의학 관련 건강정보 및 병원 이용 안내, 정보통신망법 제50조에 의한 전자적 전송매체를 이용한 광고성 정보 전송, <b>개인을 알아볼 수 없는 형태의 인바디 등 데이터를 통계·연구·성과 홍보에 활용</b> 등.</p> <p><b>· 개인정보의 보유 및 이용 기간</b><br>본원에서 수집한 개인정보는 법정 보관기간 동안만 보유하며 그 이후에는 삭제합니다. 정보제공자가 삭제를 요청할 경우 즉시 삭제합니다. 단, 타 법령의 규정에 의해 보유하도록 한 기간 동안은 보관할 수 있습니다.</p> <p><b>· 동의 거부권 및 불이익</b><br>귀하는 개인정보 수집·이용 동의를 거부할 권리가 있습니다. 다만 거부 시 진료 관련 안내 서비스를 받을 수 없음을 참고하시기 바랍니다. 동의 거부에 따른 진료상 불이익은 없습니다.</p> <p><b>· CCTV 촬영 영상정보</b><br>설치장소: 대기실·데스크, 검사실, 상담실, 추나치료실, 침구치료실 일부 / 목적: 범죄 예방·수사, 시설 안전·화재 예방, 환자와의 분쟁 발생 자료 확보 등.</p> <p style="color:#888;">※ 본원은 동의한 내용 외의 다른 목적으로 활용하지 않으며, 의료법·개인정보 보호법·정보통신망법을 준수합니다. (만 14세 미만 아동은 법정대리인 동의 필요)</p></div><div class="c-block"><b class="tt">동의 확인</b><div class="agreeRow"><label><input type="radio" name="ag_privacy" value="Y" data-req="1"> 위 내용을 충분히 읽고 이해하였으며, 개인정보 수집·이용에 동의합니다</label><label><input type="radio" name="ag_privacy" value="N"> 동의하지 않습니다</label></div></div>' },
+
+/* ---------- 2a. 아크로컷 시술동의서 (정본 이식: 시술초진설문지 GAS SRC — 원본 설문지 verbatim) ---------- */
+{ id:"procCut", title:"아크로컷 지방분해약침 시술동의서", short:"아크로컷 시술 환자", verified:true,
+  html: '\
+<h1>아크로컷 지방분해약침 시술동의서</h1>\
+<p class="lead">아크로한의원</p>\
+<div class="c-block"><b class="tt">1. 문진</b>\
+<div style="margin-top:4px">1) 평소에 음식이나 곤충, 금속 등에 대한 알러지가 있습니까?</div>\
+<div class="agreeRow"><label><input type="radio" name="cutq1" value="N" data-req="0"> 없음</label>\
+<label><input type="radio" name="cutq1" value="Y"> 있음</label></div>\
+<div class="kv"><b>있음 (내용)</b><input class="fv" data-k="알러지내용" placeholder="있는 경우 기재"></div>\
+<div style="margin-top:10px">2) 과거에 약침/주사 치료 등으로 알레르기 반응이 일어난 적이 있습니까?</div>\
+<div class="agreeRow"><label><input type="radio" name="cutq2" value="N"> 없음</label>\
+<label><input type="radio" name="cutq2" value="Y"> 있음</label></div>\
+<div class="kv"><b>있음 (상세)</b><input class="fv" data-k="약침반응상세" placeholder="년도 / 시술 / 증상"></div>\
+<div style="margin-top:10px">3) 평소 아래의 질환/증상을 갖고 있거나 과거력이 있으신 분의 해당하는 질환/증상에 체크해주세요.</div>\
+<div class="chk"><input type="checkbox"> <span>결핵</span></div>\
+<div class="chk"><input type="checkbox"> <span>매독</span></div>\
+<div class="chk"><input type="checkbox"> <span>간염</span></div>\
+<div class="chk"><input type="checkbox"> <span>천식</span></div>\
+<div class="chk"><input type="checkbox"> <span>뇌혈관질환</span></div>\
+<div class="chk"><input type="checkbox"> <span>심질환</span></div>\
+<div class="chk"><input type="checkbox"> <span>신질환</span></div>\
+<div class="chk"><input type="checkbox"> <span>당뇨</span></div>\
+<div class="chk"><input type="checkbox"> <span>아토피 등 알레르기 질환</span></div>\
+<div class="chk"><input type="checkbox"> <span>와파린 등 항응고제 복용중</span></div></div>\
+<div class="c-block"><b class="tt">2. 시술 안내</b>\
+아크로컷 지방분해 약침은 상백피, 후박의 생약 추출물을 동결건조한 국소 지방분해 약침을 피하지방층에 자입시켜 지방 분해를 촉진하는 한방 비수술 요법으로, 시술 시간은 5~10분 이내입니다.</div>\
+<div class="c-block"><b class="tt">3. 시술 후 반응</b>\
+시술 후, 시술 부위에 일시적인 멍, 붓기, 열감, 멍울, 뻐근한 통증, 소양감 등의 불편함이 발생할 수 있으며, 짧게는 2~3일, 길게는 7~10일 이후 소실됩니다.<br><br>\
+흔치는 않으나, 환자분의 상태에 따라 일시적인 어지러움, 무력감, 체력저하가 발생할 수 있으며 매우 드물게 알러지 반응에 의한 쇼크가 발생할 수도 있습니다.<br><br>\
+본 원에서는 이러한 반응에 대처할 수 있는 약물 및 의학적 처치를 구비하여, 안전한 약침 시술을 위해 준비하고 있습니다.</div>\
+<div class="c-block"><b class="tt">4. 환불 규정</b>\
+시술 받은 약침은 환불이 불가하며, 패키지 결제 후 차액 환불할 경우, 패키지 변경가격 기준으로 환불합니다.<br><br>\
+환불 예시 : 20cc 패키지를 결제하여 12cc 진행 후 나머지 8cc를 환불 할 경우, 처음부터 12cc 패키지를 진행했다 가정한 뒤 그 차액을 환불합니다. 단, 이벤트 패키지는 이벤트 가격을 기준으로 환불합니다.</div>\
+<div class="c-block"><b class="tt">5. 확인</b>\
+<div class="chk"><input type="checkbox" data-req="1"> <span>본인은 위 내용에 관하여 충분히 설명을 듣고, 정확하게 이해한 상태에서 이 시술동의서를 작성하였습니다.</span></div>\
+<div class="chk"><input type="checkbox" data-req="1"> <span>시술 후 반응에 대한 의학적 처치를 담당 의사에게 위임하며 동의합니다.</span></div>\
+<div class="chk"><input type="checkbox" data-req="1"> <span>기재한 정보를 아크로 한의원에 제공함을 동의합니다.</span></div>\
+<div class="agreeRow"><label><input type="radio" name="ag_procCut" value="Y" data-req="1"> 동의함</label>\
+<label><input type="radio" name="ag_procCut" value="N"> 동의하지 않음</label></div></div>' },
+
+/* ---------- 2b. 바디리프팅(ONDA·아크로웨이브) 시술동의서 (정본 이식: 시술초진설문지 GAS SRC — 원본 설문지 verbatim) ---------- */
+{ id:"procWave", title:"바디리프팅(ONDA·아크로웨이브) 시술동의서", short:"ONDA·웨이브 시술 환자", verified:true,
+  html: '\
+<h1>바디리프팅(ONDA·아크로웨이브) 시술동의서</h1>\
+<p class="lead">아크로한의원</p>\
+<div class="c-block"><b class="tt">1. 시술 안내</b>\
+본시술은 2.45GHz의 극초단파를 이용하여 피부 및 피하지방층에 작용하는 비침습적 체형 개선 시술로 시술 부위의 국소 지방, 셀룰라이트, 피부 탄력 저하를 개선하는 효과가 있습니다.</div>\
+<div class="c-block"><b class="tt">2. 시술 중·후 반응</b>\
+시술 중 피부가 붉게 변하는 홍반, 열감, 통증이 발생될 수 있으며, 의료진이 실시간으로 모니터링하며 이상 반응 발생 시 즉시 출력을 조절하거나 시술을 중단할 수 있습니다.<br><br>\
+시술 후 일시적으로 발적, 열감, 부종, 멍, 압통, 결절감 등의 반응이 나타날 수 있으며, 이는 대개 일주일 내 자연 호전됩니다.<br><br>\
+드물게 화상, 수포, 감각 이상, 피부염 등의 이상 반응이 발생할 수 있으며, 이 경우 냉찜질, 진정치료, 필요 시 추가 약물치료 또는 타 의료기관 연계를 통해 적절한 처치를 시행합니다.</div>\
+<div class="c-block"><b class="tt">3. 환불 규정</b>\
+이미 받은 시술은 환불이 불가하며, 패키지 결제 후 차액 환불할 경우, 패키지 변경가격 기준으로 환불합니다.<br><br>\
+환불 예시 : 3회 패키지를 결제하여 1회 진행 후 나머지 2회를 환불 할 경우, 처음부터 1회 패키지를 진행했다 가정한 뒤 그 차액을 환불합니다. 단, 이벤트 패키지는 이벤트 가격을 기준으로 환불합니다.</div>\
+<div class="c-block"><b class="tt">4. 확인</b>\
+<div class="chk"><input type="checkbox" data-req="1"> <span>본인은 위 내용에 관하여 충분히 설명을 듣고, 정확하게 이해한 상태에서 이 시술동의서를 작성하였습니다.</span></div>\
+<div class="chk"><input type="checkbox" data-req="1"> <span>시술 후 반응에 대한 의학적 처치를 담당 의사에게 위임하며 동의합니다.</span></div>\
+<div class="chk"><input type="checkbox" data-req="1"> <span>기재한 정보를 아크로 한의원에 제공함을 동의합니다.</span></div>\
+<div class="agreeRow"><label><input type="radio" name="ag_procWave" value="Y" data-req="1"> 동의함</label>\
+<label><input type="radio" name="ag_procWave" value="N"> 동의하지 않음</label></div></div>' },
+
+/* ---------- 3. 환불 규정서 (정본 이식: 다이어트 초진 설문지 내 환불 규정서) ---------- */
+{ id:"refund", title:"환불 규정서 (다이어트 한약)", short:"다이어트 프로그램 접수 시", verified:true,
+  html: '\
+<h1>아크로한의원 환불 규정서</h1>\
+<p class="lead">본원의 다이어트 한약에 대해 환불 요청하실 경우 조건은 아래와 같습니다.</p>\
+<div class="c-block"><b class="tt">1. S캡슐 : 처방 및 탕전 되기 전일 경우, 접수일 기준 1년 이내 환불 가능</b>\
+S캡슐은 맞춤 처방으로, 이미 탕전되어 받으신 약은 교환 및 환불이 불가능합니다.<br>\
+Ex. 3개월 패키지 접수 후 환불요청 시, 첫날 처방 받으신 1개월 분 제외한 나머지 2개월 분 중 아직 탕전이 되지 아니한 약만 환불이 가능합니다.</div>\
+<div class="c-block"><b class="tt">2. 환불금액 : 패키지 수가에 맞춰 차액 환불 가능</b>\
+3개월 접수하신 뒤 2개월 분을 환불하실 경우, 3개월 패키지를 1개월 패키지로 변경한 것으로 본 뒤 그 차액을 환불합니다. 재접수에도 이 기준을 적용합니다.<br>\
+(결제수단으로 환불이 원칙이나 카드 수납 후 계좌 환불 원하실 경우 카드 수수료 1.4% 제외한 금액으로 환불)\
+<ul><li>3개월 접수 후 2개월 환불 : 1개월 패키지 수가 27만원을 제외한 31만원 환불</li>\
+<li>3개월 접수 후 1개월 환불 : 2개월 패키지 수가 42만원을 제외한 16만원 환불</li></ul></div>\
+<div class="c-block"><b class="tt">3. 다이어트 패키지 : 접수일로부터 1년이 넘으면 처방 불가능</b>\
+1년이 지난 경우 수령하지 않은 약이 있더라도 접수가 어려운 점 참고바랍니다.</div>\
+<div class="c-block"><b class="tt">4. 양도 : 개월수 양도가 아닌 \'금액양도\'만 가능</b>\
+양도는 직계가족에 한해서만 가능하며, 양도 시 패키지 구성품은 소멸됩니다.<br>\
+Ex. 3개월 패키지 접수 후 1개월분만 처방받고 양도하는 경우 2개월분의 약 양도가 아닌 31만원만 금액양도가 됩니다.</div>\
+<div class="c-block"><b class="tt">공통 사항</b>\
+환불 방법은 결제 방법과 동일하게 적용됩니다.<br>\
+(카드결제 시 결제 취소를 위해 환불신청서에 카드정보를 작성해 주시면 취소 가능하며, 현금결제 시 발급된 현금영수증은 해당금액만큼 취소됩니다.)<br><br>\
+패키지에 포함된 구성품환 (D캡슐, 비움환, 편안환, 수면환 등)의 경우 환불이 불가합니다.<br>\
+(패키지 환불 시 일반쓰레기로 자체 폐기 부탁드립니다)<br><br>\
+경옥고 패키지 진행 시, 처방받은 경옥고는 환불이 불가능합니다. 처방받지 않은 경옥고에 대한 금액은, 경옥고 패키지가 아닌 일반 패키지로 변경한 것으로 본 뒤, 그 차액을 환불합니다.</div>\
+<div class="c-block"><b class="tt">확인</b>\
+본인은 한약 복용 중 준수해야 할 사항에 대해 충분한 설명을 들었습니다. 이를 본인이 준수하지 않아 발생한 일에 대해서는 본원의 책임이 없음을 인지하고 있습니다.\
+<div class="agreeRow"><label><input type="radio" name="ag_refund" value="Y" data-req="1"> 동의함</label>\
+<label><input type="radio" name="ag_refund" value="N"> 동의하지 않음</label></div></div>' },
+
+/* ---------- 4. 사진 및 후기제공 동의서 (정본 이식: 실물 스캔 전사 260724) ---------- */
+{ id:"photo", title:"아크로한의원 사진 및 후기제공 동의서", short:"감량 경과 사진·후기 활용 (선택)", verified:true,
+  html: '\
+<h1>아크로한의원 사진 및 후기제공 동의서</h1>\
+<p class="lead">본인은 아크로한의원에서 학술적 목적 및 홍보 목적으로 본인이 제공한 촬영 사진 및 영상(이하 감량 경과 사진 및 영상)을 사용함에 있어서 아래의 내용을 확인하고 선택동의합니다.</p>\
+<div class="c-block"><b class="tt">[주요 내용] 활동 내용 (얼굴 공개 없음)</b>\
+<ul><li>셀프모니터링 및 경과 상담 사진 및 영상 제공 (원내 촬영, 개인 촬영 등)<br><b>*사진: 동일한 자세, 위치, 복장의 전후사진 / *영상: 5초 이내의 짧은 동영상</b></li>\
+<li>인바디 데이터</li></ul></div>\
+<div class="c-block"><b class="tt">동의 내용</b>\
+① <b>사용기간은 3년까지</b>이며, 계약기간내 작성한 모든 콘텐츠는 계약만료 후 삭제하지 않습니다.<br><br>\
+· 모든 내용은 본인의 감량 경과 사진 및 영상을 아크로한의원에서 학술적 및 홍보목적으로 활용하는 것에 동의합니다.<br><br>\
+② 제공 동의한 감량 경과 사진 및 영상은 아크로한의원의 <b>홈페이지 감량후기, 인스타그램 게시물 및 오프라인 원내 책자, 원내 포스터 및 팜플렛, 원내 영상광고물(DID), 원내 현수막 및 배너</b>로 사용될 수 있습니다.<br><br>\
+· 제공해주신 감량 경과 사진 및 영상은 아크로한의원 측에서 가공, 편집하여 사용하는 것에 동의합니다.<br>\
+· 동의서의 효력으로 콘텐츠 자발적인 동의로서 어떠한 외부의 영향 없이 스스로 결정한 것임에 모두 동의합니다.<br>\
+· 본 동의서와 관련된 직간접적인 내용에 대해서는 <b>비밀유지가 필요합니다.</b></div>\
+<div class="c-block"><b class="tt">◆ 개인정보수집 동의 ◆</b>\
+본인은 홍보마케팅 목적에 따른 개인정보 수집 및 이용관련 동의서를 확인하였으며, 이에 관한 설명을 듣고 이해하였습니다.\
+<table><tr><th>수집목적</th><th>수집항목</th><th>보유기간</th></tr>\
+<tr><td>아크로한의원 광고 및 홍보, 마케팅</td><td>성명, 생년월일, 연락처, 이메일</td><td>계약 파기 시, 30일 보관</td></tr></table>\
+<div style="margin-top:8px">위 개인정보 수집 및 이용에 동의합니다.</div>\
+<div class="agreeRow"><label><input type="radio" name="ag_photo" value="Y" data-req="1"> 동의합니다</label>\
+<label><input type="radio" name="ag_photo" value="N"> 동의하지 않습니다</label></div></div>\
+<div class="c-block"><b class="tt">체크사항</b>\
+<div class="chk"><input type="checkbox"> <span><b>사용 범위 추가 확인</b> : 온/오프라인 홍보매체, 모바일 어플, 인쇄매체, 특수매체(극장, 기타 옥외광고물, 포스터 외 POP광고물, 영상광고, 버스/지하철광고 등), 해외 마케팅, 그 외 아크로한의원의 광고성&amp;학술적 목적 관련 매체에 대한 광고와 홍보물로 사용 가능</span></div></div>\
+<div class="c-block"><b class="tt">작성자 정보</b>\
+<div class="kv"><b>연락처</b><input class="fv" data-k="연락처" placeholder="010-0000-0000"></div></div>' },
+
+/* ---------- 5. 미성년자 진료 및 처방 동의서 (정본 이식: 실물 스캔 전사 260724) ---------- */
+{ id:"minor", title:"미성년자 진료 및 처방 동의서", short:"미성년 환자 · 법정대리인 서명", verified:true, guardian:true,
+  html: '\
+<h1>미성년자 진료 및 처방 동의서</h1>\
+<p class="lead">아크로한의원</p>\
+<div class="c-block"><b class="tt">법정대리인 정보</b>\
+<div class="kv"><b>성명</b><input class="fv" data-k="법정대리인성명" placeholder="성명">\
+<b>생년월일</b><input class="fv" data-k="법정대리인생년월일" placeholder="YYYY.MM.DD">\
+<b>연락처</b><input class="fv" data-k="법정대리인연락처" placeholder="010-0000-0000">\
+<b>주소</b><input class="fv" data-k="법정대리인주소" placeholder="주소">\
+<b>환자와의 관계</b><input class="fv" data-k="환자와의관계" placeholder="예: 모"></div></div>\
+<div class="c-block"><b class="tt">동의 내용</b>\
+상기 본인은 환자의 법정대리인으로 \'아크로한의원\'에서의 진료, 시술, 처방에 동의합니다.<br><br>\
+환자 본인에게 부작용과 주의사항에 대해 충분히 안내 드렸으며, 이에 따른 모든 책임은 법적 대리인 본인에게 있음을 확인 합니다.\
+<div class="agreeRow"><label><input type="radio" name="ag_minor" value="Y" data-req="1"> 동의함</label>\
+<label><input type="radio" name="ag_minor" value="N"> 동의하지 않음</label></div>\
+<p class="note">아래 서명란: 첫 번째 = 환자 본인 서명, 두 번째 = 법정대리인 서명</p></div>' },
+
+/* ---------- 6. 안면 밸런스 시술 동의서 (asym/index.html 초안 v1.0 이식) ---------- */
+{ id:"asymProc", title:"안면 밸런스 프로그램 시술 동의서", short:"안면비대칭 프로그램", verified:true,
+  html: '\
+<h1>안면 밸런스 프로그램 시술 동의서</h1>\
+<p class="lead">아크로한의원 · 본 동의서는 설명을 듣고 충분히 이해한 뒤 서명해 주십시오.</p>\
+<div class="c-block"><b class="tt">1. 시술의 내용</b>\
+본인은 안면비대칭(기능성 · 근육 및 턱관절성) 개선을 목적으로 아래 시술을 받는 것에 동의합니다.\
+<div class="chk"><input type="checkbox" checked> <span>추나요법 — 턱관절·경추 교정 및 저작근(교근·익상근)·후두하근 등 이완</span></div>\
+<div class="chk"><input type="checkbox" checked> <span>약침 치료</span></div>\
+<div class="chk"><input type="checkbox" checked> <span>침 치료</span></div>\
+<div class="chk"><input type="checkbox"> <span>턱관절 교정장치(구강 스플린트) 처방 및 착용 교육</span></div>\
+<div class="chk"><input type="checkbox"> <span>온다(ONDA) 리프팅 시술</span></div></div>\
+<div class="c-block"><b class="tt">2. 기대 효과와 한계</b>\
+본 시술은 근육·턱관절 요인에 의한 기능성 비대칭의 개선을 목적으로 하며, 효과와 유지 기간은 개인의 상태와 생활 습관에 따라 차이가 있음을 설명받았습니다. 턱뼈 자체의 형태 차이로 인한 골격성 비대칭은 본 시술의 대상이 아니며, 해당 소견이 확인되는 경우 적합한 진료과로 안내받을 수 있음을 이해합니다. 치료로 이완된 근육은 저작·자세 습관에 따라 다시 원래 상태로 돌아갈 수 있으며, 유지를 위해 교정장치 착용과 습관 교정이 병행되어야 함을 설명받았습니다.</div>\
+<div class="c-block"><b class="tt">3. 발생 가능한 부작용</b>\
+시술 부위의 일시적 통증·멍·부종·뻐근함, 침 치료 중 어지럼(침훈), 드물게 출혈·감염이 발생할 수 있습니다. 교정장치를 지시와 다르게 장시간·부적절하게 착용할 경우 치아 맞물림(교합)의 변화가 생길 수 있으며, 착용 중 통증이나 교합 이상감이 지속되면 착용을 중단하고 내원해야 함을 설명받았습니다. 온다 시술 부위에는 일시적 홍반·열감·부종이 발생할 수 있습니다.</div>\
+<div class="c-block"><b class="tt">4. 환자 고지 사항</b>\
+본인은 임신(가능성 포함), 출혈성 질환 및 항응고제 복용, 진행 중인 치아교정, 안면 부위 수술·시술 이력, 기타 질환을 의료진에게 사실대로 알렸습니다.</div>\
+<div class="c-block"><b class="tt">5. 사진 촬영</b>\
+<div class="chk"><input type="checkbox" checked> <span>(필수) 치료 경과 확인을 위한 동일 조건 전후사진 촬영 및 진료기록 보관에 동의합니다.</span></div>\
+<div class="chk"><input type="checkbox"> <span>(선택) 개인을 식별할 수 없도록 처리한 사진의 학술·홍보 자료 활용에 동의합니다. 동의하지 않아도 진료에 불이익이 없습니다.</span></div></div>\
+<div class="c-block"><b class="tt">6. 확인</b>\
+본인은 위 내용과 시술의 목적·방법·부작용·대안에 대해 설명을 들었으며, 질문할 기회를 가졌고, 자유로운 의사에 따라 시술에 동의합니다.\
+<div class="agreeRow"><label><input type="radio" name="ag_asymProc" value="Y" data-req="1"> 동의함</label>\
+<label><input type="radio" name="ag_asymProc" value="N"> 동의하지 않음</label></div>\
+<div class="kv" style="margin-top:10px"><b>설명 의료인 성명</b><input class="fv" data-k="설명의료인" placeholder="설명한 의료인 성명"></div></div>' },
+
+/* ---------- 7. 안면 밸런스 패키지 환불 동의서 (asym/index.html 초안 v1.0 이식) ---------- */
+{ id:"asymRefund", title:"안면 밸런스 패키지 이용 및 환불 규정 동의서", short:"안면비대칭 패키지 결제 시", verified:true,
+  html: '\
+<h1>패키지 이용 및 환불 규정 동의서</h1>\
+<p class="lead">아크로한의원 · 안면 밸런스 프로그램 패키지 결제 시 작성합니다.</p>\
+<div class="c-block"><b class="tt">1. 환불 원칙 — "이용한 만큼 단품 정가로 되돌림"</b>\
+패키지 가격은 전체 회차 이용을 전제로 한 할인가입니다. 중도 환불 시에는 환불 시점까지 이용한 항목을 <b>할인 전 단품 정가 기준으로 다시 계산</b>하고, 결제 금액에서 이를 공제한 잔액을 환불합니다.\
+<ul><li>통합시술(추나+약침+침) 이용분: 회당 정가 120,000원으로 공제</li>\
+<li>교정장치: 지급(개봉) 후에는 구강 위생용품 특성상 반환이 불가하며 정가 150,000원으로 공제</li>\
+<li>온다(ONDA) 진행분: 정가 198,000원(6만 줄) / 297,000원(9만 줄)으로 공제</li>\
+<li>시술을 시작하지 않은 경우(장치 미지급 포함) 전액 환불</li></ul></div>\
+<div class="c-block"><b class="tt">2. 계산 예시</b>\
+<table><tr><th>예시</th><th>계산</th><th style="text-align:right">환불액</th></tr>\
+<tr><td>스탠다드 8회(990,000원) 결제 후<br>3회 이용 + 장치 지급 상태에서 환불</td><td>990,000 − (120,000×3회 + 150,000)<br>= 990,000 − 510,000</td><td class="r"><b>480,000원</b></td></tr>\
+<tr><td>프리미엄 8회(1,190,000원) 결제 후<br>3회 이용 + 장치 지급 + 온다 1회 진행</td><td>1,190,000 − (360,000 + 150,000 + 198,000)</td><td class="r"><b>482,000원</b></td></tr></table></div>\
+<div class="c-block"><b class="tt">3. 기타</b>\
+<ul><li>환불은 결제 수단 기준으로 처리되며, 영업일 기준 3~7일이 소요될 수 있습니다.</li>\
+<li>패키지 유효기간은 결제일로부터 6개월이며, 의료진과 협의된 사유(질병·출산·장기 출국 등)로 연장할 수 있습니다.</li>\
+<li>예약 변경·취소는 하루 전까지 연락 주시기 바랍니다. 통보 없는 미내원(No-show)이 반복되는 경우 회차가 차감될 수 있습니다.</li>\
+<li>본 규정은 「소비자분쟁해결기준」 등 관계 법령을 준용합니다.</li></ul></div>\
+<div class="c-block"><b class="tt">4. 확인</b>\
+본인은 위 환불 규정에 대한 설명을 듣고 충분히 이해하였으며 이에 동의합니다.\
+<div class="kv"><b>결제 프로그램</b><input class="fv" data-k="결제프로그램" placeholder="예: 스탠다드 8회"></div>\
+<div class="agreeRow"><label><input type="radio" name="ag_asymRefund" value="Y" data-req="1"> 동의함</label>\
+<label><input type="radio" name="ag_asymRefund" value="N"> 동의하지 않음</label></div></div>' }
+];
+
+/* 조합 프리셋 — 회의(260723) 요청 반영: 컷/웨이브 시술+마케팅 조합 포함 */
+var PRESETS = [
+  { name:"다이어트 신환", ids:["privacy","refund"] },
+  { name:"시술 신환", ids:["privacy","procCut","procWave","photo"] },
+  { name:"다초+시술", ids:["privacy","refund","procCut","procWave","photo"] },
+  { name:"시술+마케팅만", ids:["procCut","procWave","photo"] },
+  { name:"안면비대칭", ids:["privacy","asymProc","asymRefund"] },
+  { name:"미성년자 추가", ids:["minor"], add:true },
+  { name:"전체 해제", ids:[] }
+];
+
+/* ================================================================ 이하 로직 ================================================================ */
+var picked = [], cur = 0, results = {};
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+function renderStaff(){
+  var list = document.getElementById("formList"); list.innerHTML = "";
+  FORMS.forEach(function(f){
+    var d = document.createElement("label");
+    d.className = "formpick"; d.id = "pick_" + f.id;
+    d.innerHTML = '<input type="checkbox" value="' + f.id + '" onchange="togglePick(this)">' +
+      '<div><div class="t">' + esc(f.title) + ' ' +
+      (f.verified ? '<span class="badge v">정본</span>' : '<span class="badge d">검수 전</span>') +
+      '</div><div class="s">' + esc(f.short) + '</div></div>';
+    list.appendChild(d);
+  });
+  var pr = document.getElementById("presetRow"); pr.innerHTML = "";
+  PRESETS.forEach(function(p){
+    var b = document.createElement("button");
+    b.className = "chip"; b.textContent = p.name;
+    b.onclick = function(){ applyPreset(p); };
+    pr.appendChild(b);
+  });
+}
+function applyPreset(p){
+  document.querySelectorAll("#formList input").forEach(function(cb){
+    if (p.add){ if (p.ids.indexOf(cb.value) >= 0) cb.checked = true; }
+    else cb.checked = p.ids.indexOf(cb.value) >= 0;
+    cb.parentElement.classList.toggle("on", cb.checked);
+  });
+  syncPick();
+}
+function togglePick(cb){ cb.parentElement.classList.toggle("on", cb.checked); syncPick(); }
+function syncPick(){
+  picked = [];
+  document.querySelectorAll("#formList input:checked").forEach(function(cb){ picked.push(cb.value); });
+  document.getElementById("pickSummary").textContent = "선택된 동의서: " + picked.length + "건";
+  document.getElementById("startBtn").disabled = picked.length === 0 || !document.getElementById("pName").value.trim();
+}
+document.addEventListener("input", function(e){ if (e.target.id === "pName") syncPick(); });
+
+function fmtDate(){
+  var d = new Date();
+  return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,"0") + "." + String(d.getDate()).padStart(2,"0");
+}
+function patient(){
+  return { name: document.getElementById("pName").value.trim(),
+           chart: document.getElementById("pChart").value.trim(),
+           birth: document.getElementById("pBirth").value.trim(), date: fmtDate() };
+}
+
+function startPatient(){
+  cur = 0; results = {};
+  document.getElementById("staffMode").style.display = "none";
+  document.getElementById("doneMode").style.display = "none";
+  document.getElementById("patientMode").style.display = "block";
+  renderForm();
+  window.scrollTo(0,0);
+}
+
+function formById(id){ for (var i=0;i<FORMS.length;i++) if (FORMS[i].id===id) return FORMS[i]; return null; }
+
+function renderForm(){
+  var p = patient(), f = formById(picked[cur]);
+  document.getElementById("pmWho").textContent = p.name + " 님" + (p.chart ? " · " + p.chart : "");
+  document.getElementById("pmProg").textContent = "동의서 " + (cur+1) + " / " + picked.length + " — " + f.title;
+  var dots = document.getElementById("pmDots"); dots.innerHTML = "";
+  picked.forEach(function(id,i){
+    var s = document.createElement("span");
+    s.className = "dot" + (i<cur ? " done" : i===cur ? " cur" : "");
+    dots.appendChild(s);
+  });
+  var saved = results[f.id];
+  var body = document.getElementById("pmBody");
+  body.innerHTML =
+    (f.verified ? "" : '<div class="draftbar">⚠ ' + esc(f.draftNote || "초안 — 원장 검수 전") + '</div>') +
+    f.html +
+    '<div class="c-block sigwrap" id="sigBlock">' +
+    '<div class="kv"><b>성명</b><span>' + esc(p.name) + '</span>' +
+    (p.birth ? '<b>생년월일</b><span>' + esc(p.birth) + '</span>' : '') +
+    '<b>작성일</b><span>' + p.date + '</span></div>' +
+    '<label style="margin-top:12px">서명 (손가락 또는 펜으로 서명해 주세요)</label>' +
+    '<canvas class="sig" id="sigPad"></canvas>' +
+    '<div class="row" style="margin-top:8px"><button class="btn ghost sm" onclick="sigClear()">서명 지우기</button></div>' +
+    (f.guardian ? '<label style="margin-top:14px">법정대리인 서명</label><canvas class="sig" id="sigPad2"></canvas>' +
+      '<div class="row" style="margin-top:8px"><button class="btn ghost sm" onclick="sigClear(2)">서명 지우기</button></div>' : '') +
+    '</div>';
+  if (saved){
+    body.querySelectorAll("input").forEach(function(inp){
+      var st = saved.inputs[inpKey(inp)];
+      if (st === undefined) return;
+      if (inp.type === "checkbox" || inp.type === "radio") inp.checked = st; else inp.value = st;
+    });
+  }
+  initSig("sigPad", saved && saved.sig);
+  if (f.guardian) initSig("sigPad2", saved && saved.sig2);
+  document.getElementById("prevBtn").style.visibility = cur === 0 ? "hidden" : "visible";
+  document.getElementById("nextBtn").textContent = cur === picked.length-1 ? "동의 완료 ✓" : "동의하고 다음 →";
+  window.scrollTo(0,0);
+}
+
+function inpKey(inp){
+  var idx = Array.prototype.indexOf.call(document.getElementById("pmBody").querySelectorAll("input"), inp);
+  return (inp.name || inp.dataset.k || "i") + "#" + idx;
+}
+
+/* ---------- 서명 패드 ---------- */
+var sigDirty = {};
+function initSig(id, dataUrl){
+  var c = document.getElementById(id); if (!c) return;
+  var dpr = window.devicePixelRatio || 1, r = c.getBoundingClientRect();
+  c.width = r.width * dpr; c.height = r.height * dpr;
+  var ctx = c.getContext("2d");
+  ctx.scale(dpr, dpr); ctx.lineWidth = 2.4; ctx.lineCap = "round"; ctx.strokeStyle = "#111";
+  sigDirty[id] = false;
+  if (dataUrl){
+    var img = new Image();
+    img.onload = function(){ ctx.drawImage(img, 0, 0, r.width, r.height); };
+    img.src = dataUrl; sigDirty[id] = true;
+  }
+  var drawing = false, last = null;
+  function pos(e){ var b = c.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; }
+  c.onpointerdown = function(e){ drawing = true; last = pos(e); c.setPointerCapture(e.pointerId); e.preventDefault(); };
+  c.onpointermove = function(e){
+    if (!drawing) return;
+    var pt = pos(e);
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+    last = pt; sigDirty[id] = true; e.preventDefault();
+  };
+  c.onpointerup = c.onpointercancel = function(){ drawing = false; };
+}
+function sigClear(n){
+  var id = n === 2 ? "sigPad2" : "sigPad";
+  var c = document.getElementById(id);
+  c.getContext("2d").clearRect(0, 0, c.width, c.height);
+  sigDirty[id] = false;
+}
+
+/* ---------- 진행 ---------- */
+function collectCurrent(){
+  var f = formById(picked[cur]), body = document.getElementById("pmBody");
+  var reqOk = true, agreeNo = false, inputs = {};
+  body.querySelectorAll("input").forEach(function(inp){
+    inputs[inpKey(inp)] = (inp.type === "checkbox" || inp.type === "radio") ? inp.checked : inp.value;
+    if (inp.dataset.req === "1"){
+      if (inp.type === "radio"){
+        var g = body.querySelectorAll('input[name="' + inp.name + '"]'), any = false;
+        g.forEach(function(x){ if (x.checked){ any = true; if (x.value === "N") agreeNo = true; } });
+        if (!any) reqOk = false;
+      } else if (inp.type === "checkbox" && !inp.checked) reqOk = false;
+    }
+  });
+  if (!reqOk) return { err: "필수 동의 항목을 선택해 주세요." };
+  if (agreeNo) return { err: "'동의하지 않음'이 선택되어 있습니다. 데스크 직원에게 문의해 주세요." };
+  if (!sigDirty["sigPad"]) return { err: "서명을 입력해 주세요." };
+  if (f.guardian && !sigDirty["sigPad2"]) return { err: "법정대리인 서명을 입력해 주세요." };
+  var r = { inputs: inputs, sig: document.getElementById("sigPad").toDataURL("image/png"),
+            bodyHtml: null };
+  if (f.guardian) r.sig2 = document.getElementById("sigPad2").toDataURL("image/png");
+  var clone = body.cloneNode(true);
+  var sb = clone.querySelector("#sigBlock"); if (sb) sb.remove();
+  var db = clone.querySelector(".draftbar"); if (db) db.remove();
+  syncCloneState(body, clone);
+  r.bodyHtml = clone.innerHTML;
+  results[f.id] = r;
+  return r;
+}
+function syncCloneState(orig, clone){
+  var oi = orig.querySelectorAll("input"), ci = clone.querySelectorAll("input");
+  for (var i = 0; i < ci.length && i < oi.length; i++){
+    if (oi[i].type === "checkbox" || oi[i].type === "radio"){
+      if (oi[i].checked) ci[i].setAttribute("checked", "checked"); else ci[i].removeAttribute("checked");
+    } else ci[i].setAttribute("value", oi[i].value);
+  }
+}
+function nav(dir){
+  if (dir < 0){ if (cur > 0){ cur--; renderForm(); } return; }
+  var r = collectCurrent();
+  if (r.err){ alert(r.err); return; }
+  if (cur < picked.length - 1){ cur++; renderForm(); }
+  else finish();
+}
+function staffExit(){
+  var pin = prompt("직원 확인 번호를 입력하세요");
+  if (pin === CONFIG.staffPin){ resetAll(); }
+  else if (pin !== null) alert("번호가 일치하지 않습니다.");
+}
+
+/* ---------- 완료 ---------- */
+function finish(){
+  var p = patient();
+  document.getElementById("patientMode").style.display = "none";
+  document.getElementById("doneMode").style.display = "block";
+  document.getElementById("doneWho").textContent = p.name + " 님 · " + p.date + " · 총 " + picked.length + "건 서명 완료";
+  var dl = document.getElementById("doneList"); dl.innerHTML = "";
+  picked.forEach(function(id){
+    var d = document.createElement("div"); d.textContent = formById(id).title; dl.appendChild(d);
+  });
+  buildPrint();
+  sendWebhook();
+  window.scrollTo(0,0);
+}
+function buildPrint(){
+  var p = patient(), area = document.getElementById("printArea"); area.innerHTML = "";
+  picked.forEach(function(id){
+    var f = formById(id), r = results[id]; if (!r) return;
+    var pg = document.createElement("div"); pg.className = "p-page";
+    pg.innerHTML = r.bodyHtml +
+      '<div class="c-block"><b class="tt">서명</b><div class="kv">' +
+      '<b>성명</b><span>' + esc(p.name) + '</span>' +
+      (p.chart ? '<b>차트번호</b><span>' + esc(p.chart) + '</span>' : '') +
+      (p.birth ? '<b>생년월일</b><span>' + esc(p.birth) + '</span>' : '') +
+      '<b>작성일</b><span>' + p.date + '</span></div>' +
+      '<div class="p-sig" style="margin-top:8px"><img src="' + r.sig + '" alt="서명">' +
+      (r.sig2 ? ' <img src="' + r.sig2 + '" alt="법정대리인 서명">' : '') + '</div></div>';
+    area.appendChild(pg);
+  });
+}
+function printAll(){ window.print(); }
+function sendWebhook(){
+  var el = document.getElementById("sendStatus");
+  if (!CONFIG.webhookUrl){ el.textContent = "자동 전송 미설정 — 인쇄/PDF로 보관해 주세요."; return; }
+  el.textContent = "전송 중...";
+  var p = patient();
+  var payload = { type: "consent", patient: p, forms: picked.map(function(id){
+    var r = results[id] || {};
+    return { id: id, title: formById(id).title, inputs: r.inputs, bodyHtml: r.bodyHtml, sig: r.sig, sig2: r.sig2 || null };
+  }) };
+  var body = JSON.stringify(payload);
+  fetch(CONFIG.webhookUrl, { method: "POST", body: body })
+    .then(function(res){ el.textContent = res.ok ? "✓ 전송 완료" : "전송 실패 — 인쇄/PDF로 보관해 주세요."; })
+    .catch(function(){
+      /* file:// 등 CORS 차단 환경 폴백 — 응답은 못 읽지만 전송은 도달함 */
+      fetch(CONFIG.webhookUrl, { method: "POST", mode: "no-cors", body: body })
+        .then(function(){ el.textContent = "✓ 전송됨 (수신 확인 불가 — Drive 폴더에서 확인)"; })
+        .catch(function(){ el.textContent = "전송 실패 — 인쇄/PDF로 보관해 주세요."; });
+    });
+}
+function resetAll(){
+  picked = []; cur = 0; results = {};
+  document.getElementById("patientMode").style.display = "none";
+  document.getElementById("doneMode").style.display = "none";
+  document.getElementById("staffMode").style.display = "block";
+  document.getElementById("pName").value = ""; document.getElementById("pChart").value = ""; document.getElementById("pBirth").value = "";
+  document.getElementById("printArea").innerHTML = "";
+  renderStaff(); syncPick();
+  window.scrollTo(0,0);
+}
+
+renderStaff(); syncPick();
+
+/* 자동저장 ON/OFF 를 헤더에 실제 상태로 표시 — 직원이 주소를 잘못 열면 즉시 보이게 */
+(function(){
+  var b = document.getElementById("verBadge");
+  if (b) b.textContent = "v1.3 · 자동저장 " + (CONFIG.webhookUrl ? "ON" : "OFF");
+})();
+</script>
+</body>
+</html>
