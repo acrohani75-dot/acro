@@ -151,7 +151,7 @@ function demoLoad(){
   S.refCardToday="today"; S.refBankOut="done";
   S.bankInManual=1428000;                                       // 통장회수 1,420,000 + 택배 2건(8,000)
   S.expenses=[{item:"생수 구입",amt:10000}];
-  S.denom={50000:8,10000:2,5000:0,1000:0}; S.denomEtc=0;        // 300,000+150,000−10,000−현금환불20,000 = 420,000
+  S.denom={50000:8,10000:2,5000:0,1000:0}; S.denomEtc=0; S.denomSeeded=false;  // 300,000+150,000−10,000−현금환불20,000 = 420,000 (샘플은 이월 권종을 덮어씀)
   S.staff="샘플";
   go(1);
 }
@@ -166,8 +166,10 @@ var S = {
   emsAmt: "",              // (역산 파생) 스마트로 EMS = round(표시액/(1+수수료)) − 진료비 — 카드 대조·매출에서 제외
   bankInManual: "",        // GAS 미연결 시 통장 실측 수동 입력
   seoulpayToday: "",       // 불일치 해소용: 오늘 서울페이 결제액 (정산대기)
+  zeropayToday: "",        // 불일치 해소용: 오늘 제로페이 결제액 (정산대기)
   appPayToday: "",         // 불일치 해소용: 오늘 앱결제(여신티켓·강남언니 등) — 정산은 다른 통장
   denom: {}, denomEtc: "",
+  denomSeeded: false,      // 어제 권종을 기본값으로 채웠는지 (배너 표시용)
   refCardToday: null,      // 카드환불: 오늘 단말에서 취소했나 ('today'|'other')
   refBankOut: null,        // 통장환불: 이체 나갔나 ('done'|'later')
   prevSafeIn: null,        // 전일 금고 마감액 수동 입력 (null=자동 이월값 사용)
@@ -185,6 +187,7 @@ function computeChecks(){
   var okCard=num(s["카드수납"]), okBank=num(s["통장회수"]), okCash=num(s["현금수납"]),
       okTotal=num(s["수납총액"]), okRefund=num(s["환불총액"]), okMisu=num(s["미수금"]);
   var refCash=num(s["현금환불"]), refCard=num(s["카드환불"]), refBank=num(s["통장환불"]);
+  var recovCash=num(s["현금회수"]), recovCard=num(s["카드회수"]);   // 미수금 회수 — 수납총액 밖. 판정식에는 넣지 않고 감지만 한다(드문 케이스)
   var allthat=num(S.allthat), smartro=num(S.smartro);
   var delivCard = S.delivCardCnt * CFG.DELIVERY_UNIT;
   var expenseSum = S.expenses.reduce(function(a,b){return a+num(b.amt);},0);
@@ -213,11 +216,13 @@ function computeChecks(){
       if(!grossOk && netOk){cardMode="net";cardDiff=netDiff;}
     }
   }
-  // ② 통장 레일: 실측 입금 = 통장회수 + 통장택배비(4,000×n) − 서울페이(정산대기)
+  // ② 통장 레일: 실측 입금 = 통장회수 + 통장택배비(4,000×n) − 정산대기(서울페이·제로페이·앱결제)
   var bankReal = (bankAuto!==null) ? bankAuto.sum : num(S.bankInManual);
   var seoul = num(S.seoulpayToday);
+  var zero = num(S.zeropayToday);                     // 제로페이: 차트는 통장, 실입금은 T+1~2
   var appPay = num(S.appPayToday);                    // 앱결제: 차트는 통장, 실입금은 다른 통장 → 이 레일에서 제외
-  var rawBankDiff = bankReal - (okBank - seoul - appPay);
+  var pending = seoul + zero + appPay;                // 정산대기 합계
+  var rawBankDiff = bankReal - (okBank - pending);
   var delivBankCnt = (rawBankDiff>0 && rawBankDiff % CFG.DELIVERY_UNIT===0) ? rawBankDiff/CFG.DELIVERY_UNIT : 0;
   var bankDiff = rawBankDiff - delivBankCnt*CFG.DELIVERY_UNIT;
   // ③ 현금(금고) 폐쇄회계: 전일금고 + 현금수납 − 현금지출 − 현금환불 = 실측
@@ -229,7 +234,8 @@ function computeChecks(){
     ok:{card:okCard,bank:okBank,cash:okCash,total:okTotal,refund:okRefund,misu:okMisu},
     refund:{cash:refCash,card:refCard,bank:refBank}, cardMode:cardMode, cardModeNote:cardModeNote,
     termCard:termCard, cardDiff:cardDiff, delivCard:delivCard, ems:ems, fee:smFee, smartroRev:smartroRev, smBase:smBase, smartroShown:smartro,
-    bankReal:bankReal, bankDiff:bankDiff, delivBankCnt:delivBankCnt, seoul:seoul, appPay:appPay,
+    bankReal:bankReal, bankDiff:bankDiff, delivBankCnt:delivBankCnt, seoul:seoul, zero:zero, appPay:appPay, pending:pending,
+    recov:{cash:recovCash, card:recovCard, total:recovCash+recovCard},
     expenseSum:expenseSum, expectSafe:expectSafe, denomTotal:denomTotal, safeDiff:safeDiff,
     prevSafeUsed:prevSafeEff, prevSafeSource:(S.prevSafeIn!==null && S.prevSafeIn!=="")?"수동":"자동이월",
     pass:{
@@ -243,6 +249,23 @@ function computeChecks(){
 function effPrevSafe(){
   if(S.prevSafeIn!==null && S.prevSafeIn!=="") return num(S.prevSafeIn);
   return carry.prevSafe;
+}
+/* ===== 정산대기 3종 입력 그룹 (서울페이 · 제로페이 · 앱결제) — 통장 단계와 불일치 화면 공용 ===== */
+function pendingBox(idPrefix){
+  var apps = String(CFG.APP_PAY_PLATFORMS||"여신티켓,강남언니").split(",").join("·");
+  function row(label,note,key){
+    return '<div class="den" style="margin-bottom:8px"><label style="width:96px">'+label+'</label>'+
+      '<input type="tel" id="'+idPrefix+'_'+key+'" value="'+(num(S[key])?fmt(S[key]):"")+'" placeholder="0" oninput="S.'+key+'=num(this.value)">'+
+      '<span style="width:118px">'+note+'</span></div>';
+  }
+  return '<div class="suggest" style="background:#eff6ff;border-color:#bfdbfe">'+
+    '<b>📱 오늘 정산대기 결제가 있었나요?</b><br>'+
+    '<span style="color:var(--gray);font-size:12.5px">셋 다 <b>OK차트에는 통장으로</b> 키인되지만, 실제 기업은행 입금은 오늘이 아닙니다. 있으면 결제금액 그대로 넣어주세요.</span>'+
+    '<div style="margin-top:10px">'+
+    row("서울페이","T+1~2 정산","seoulpayToday")+
+    row("제로페이","T+1~2 정산","zeropayToday")+
+    row("앱결제","다른 통장","appPayToday")+
+    '</div><span style="color:var(--gray);font-size:12px">앱결제 = '+esc(apps)+'</span></div>';
 }
 /* ================= 화면 ================= */
 var STEPS = 9; // 0붙여넣기 1확인 2환불확인(조건부) 3올댓 4스마트로 5지출 6택배 7금고 8판정/완료
@@ -334,7 +357,7 @@ function(){
   prev+
   '<div class="btn-row"><button class="btn btn-s" onclick="go(3)">←</button><button class="btn btn-p" onclick="S.smartro=num(document.getElementById(\'qIn\').value);S.smartroRev=num(document.getElementById(\'revIn\').value);go(5)">다음 →</button></div></div>';
 },
-/* 4. 현금 지출 */
+/* 5. 현금 지출 */
 function(){
   var list=S.expenses.map(function(e,i){
     return '<div class="exrow"><input type="text" placeholder="내용 (예: 생수 구입)" value="'+esc(e.item)+'" onchange="S.expenses['+i+'].item=this.value">'+
@@ -346,7 +369,7 @@ function(){
   '<button class="linkish" onclick="S.expenses.push({item:\'\',amt:\'\'});render()">+ 지출 추가</button>'+
   '<div class="btn-row"><button class="btn btn-s" onclick="go(4)">←</button><button class="btn btn-p" onclick="go(6)">'+(S.expenses.length?'다음':'지출 없음')+' →</button></div></div>';
 },
-/* 5. 택배비(카드) */
+/* 6. 택배비(카드) */
 function(){
   var s=S.parsed.summary;
   var smRev=num(S.smartroRev);
@@ -360,7 +383,7 @@ function(){
   '<input type="tel" id="delivIn" value="'+S.delivCardCnt+'" onchange="S.delivCardCnt=num(this.value)">'+
   '<div class="btn-row"><button class="btn btn-s" onclick="go(5)">←</button><button class="btn btn-p" onclick="S.delivCardCnt=num(document.getElementById(\'delivIn\').value);goBank()">다음 →</button></div></div>';
 },
-/* 6. 금고 권종 실측 */
+/* 7. 통장 정산대기 + 금고 권종 실측 */
 function(){
   var s=S.parsed.summary;
   var expenseSum=S.expenses.reduce(function(a,b){return a+num(b.amt);},0);
@@ -373,19 +396,24 @@ function(){
   var bankCard = bankAuto===null? '<div class="card"><div class="q">통장(기업은행) 입금 합계</div>'+
     '<div class="hint">자동 조회 연결 전이라 이번만 직접: Slack 봇 채널의 오늘 😎💰 입금 합계를 입력해 주세요.</div>'+
     '<input type="tel" value="'+(S.bankInManual!==""?fmt(S.bankInManual):"")+'" placeholder="0" onchange="S.bankInManual=num(this.value)"></div>' : '';
-  var prevCard = '<div class="card"><div class="q">7-0. 어제 금고 마감액 확인</div>'+
+  var pendCard = '<div class="card"><div class="q">7-0. 정산대기 결제 확인</div>'+
+    '<div class="hint">차트에는 통장으로 잡혔지만 <b>오늘 기업은행에 안 들어온</b> 결제입니다. 없으면 비워두고 넘어가세요.</div>'+
+    pendingBox("pend")+'</div>';
+  var prevCard = '<div class="card"><div class="q">7-1. 어제 금고 마감액 확인</div>'+
     '<div class="hint">'+(carry.prevSafe!==null? '어제 결산에서 자동으로 이어받은 값입니다. 실제 어제 마감과 다르면 고쳐 주세요.' : '자동 이월값이 없습니다 (첫 결산이거나 어제 기록 없음). <b>어제 금고 마감액을 직접 입력</b>해 주세요 — 비워두면 이번 실측이 내일부터의 기준이 됩니다.')+'</div>'+
     '<input type="tel" value="'+(S.prevSafeIn!==null && S.prevSafeIn!==""? fmt(S.prevSafeIn) : (carry.prevSafe!==null? fmt(carry.prevSafe) : ""))+'" placeholder="어제 금고 마감액 (원)" onchange="S.prevSafeIn=String(num(this.value));render()">'+
     (S.prevSafeIn!==null && S.prevSafeIn!=="" && carry.prevSafe!==null && num(S.prevSafeIn)!==num(carry.prevSafe)? '<div class="hint" style="color:#b3452e">수동 수정됨 (자동 이월값 '+won(carry.prevSafe)+' → '+won(num(S.prevSafeIn))+') — 결산 기록에 남습니다.</div>' : '')+
     '</div>';
-  return bankCard+prevCard+'<div class="card"><div class="q">7. 금고 현금을 세어 주세요</div>'+
+  var seedBox = S.denomSeeded? '<div class="carrybox">💵 <b>어제 마감 권종을 기본값으로 채워뒀어요</b>'+(carry.prevDate?' ('+carry.prevDate+' 기준)':'')+' — <b>달라진 칸만</b> 고치면 됩니다. 처음부터 세고 싶으면 아래 [0으로 초기화].</div>' : '';
+  return bankCard+pendCard+prevCard+'<div class="card"><div class="q">7-2. 금고 현금을 세어 주세요</div>'+
   '<div class="hint">'+(expect!==null? '어제 금고 '+won(pvs)+' + 오늘 현금수납 '+won(s["현금수납"])+' − 현금지출 '+won(expenseSum)+(refCash6>0?' − 현금환불 '+won(refCash6):'')+' = <b>'+won(expect)+'</b>이 있어야 정상입니다.' : '기준(전일 시재)이 없어 이번 실측이 <b>내일부터의 기준</b>이 됩니다.')+'</div>'+
+  seedBox+
   '<div class="denoms">'+dens+'</div>'+
   '<div class="den" style="margin-top:10px"><label>기타(동전 등)</label><input type="tel" value="'+(S.denomEtc?fmt(S.denomEtc):"")+'" placeholder="금액" onchange="S.denomEtc=num(this.value);updDenomSum()"><span></span></div>'+
   '<div class="big" id="denomSum"></div>'+
-  '<div class="btn-row"><button class="btn btn-s" onclick="go(6)">←</button><button class="btn btn-p" onclick="go(8)">결산하기 →</button></div></div>';
+  '<div class="btn-row"><button class="btn btn-s" onclick="denomReset()">0으로 초기화</button><button class="btn btn-s" onclick="go(6)">←</button><button class="btn btn-p" onclick="go(8)">결산하기 →</button></div></div>';
 },
-/* 7. 판정 + 완료 */
+/* 8. 판정 + 완료 */
 function(){ return renderJudge(); }
 ];
 function qNum(q,hint,key,next,prev){
@@ -410,6 +438,15 @@ function updDenomSum(){
   document.getElementById("denomSum").textContent="실측 합계 "+won(t);
   CFG.DENOMS.forEach(function(d){ var e=document.getElementById("den"+d); if(e) e.textContent=won(d*num(S.denom[d])); });
 }
+/* 권종 기본값 초기화 (어제 값 대신 처음부터 세기) */
+function denomReset(){ S.denom={}; S.denomEtc=""; S.denomSeeded=false; render(); }
+/* 권종 요약 문자열 — Slack 기록용 (이 기록이 다음날 기본값의 근거가 됩니다) */
+function denomText(){
+  var parts=CFG.DENOMS.filter(function(d){return num(S.denom[d])>0;})
+    .map(function(d){ return (d>=10000? (d/10000)+"만":(d/1000)+"천")+"×"+num(S.denom[d]); });
+  if(num(S.denomEtc)) parts.push("기타 "+fmt(S.denomEtc));
+  return parts.join(" ");
+}
 /* 통장: GAS 자동 조회 → 미연결 시 금고 화면 위에 인라인 입력 (팝업 없음) */
 function goBank(){ go(7); }
 /* ================= 판정 화면 ================= */
@@ -420,18 +457,18 @@ function renderJudge(){
     return '<div class="kv"><span>'+name+'</span><span>'+tag+'</span></div><div class="hint" style="margin:4px 0 10px">'+detail+'</div>';
   }
   var cardD='단말 올댓 '+won(num(S.allthat))+' + 스마트로표시 '+won(c.smartroShown)+' − 택배 '+won(c.delivCard)+(c.fee?' − 수수료 '+won(c.fee):'')+(c.ems?' − EMS '+won(c.ems):'')+' = '+won(c.termCard)+' ↔ OK카드 '+won(c.ok.card)+(c.cardMode==='net'?' − 카드취소 '+won(c.refund.card)+' <b>(단말=취소반영 순액)</b>':'')+(c.cardModeNote?' · 🔍 <b>'+c.cardModeNote+'</b>':'')+(c.pass.card?'':' · 차이 <b>'+won(c.cardDiff)+'</b>');
-  var bankD='실측입금 '+won(c.bankReal)+(bankAuto?' (봇 '+bankAuto.count+'건 · '+(bootDate||'오늘')+' 기준 자동조회)':' (수동)')+' ↔ OK통장 '+won(c.ok.bank)+(c.delivBankCnt?' · 통장택배 '+c.delivBankCnt+'건 자동인정':'')+(c.seoul?' · 서울페이 '+won(c.seoul)+' ⏳정산대기':'')+(c.appPay?' · 앱결제 '+won(c.appPay)+' 📱제외':'')+(c.pass.bank?'':' · 차이 <b>'+won(c.bankDiff)+'</b>');
+  var bankD='실측입금 '+won(c.bankReal)+(bankAuto?' (봇 '+bankAuto.count+'건 · '+(bootDate||'오늘')+' 기준 자동조회)':' (수동)')+' ↔ OK통장 '+won(c.ok.bank)+(c.delivBankCnt?' · 통장택배 '+c.delivBankCnt+'건 자동인정':'')+(c.seoul?' · 서울페이 '+won(c.seoul)+' ⏳정산대기':'')+(c.zero?' · 제로페이 '+won(c.zero)+' ⏳정산대기':'')+(c.appPay?' · 앱결제 '+won(c.appPay)+' 📱제외':'')+(c.pass.bank?'':' · 차이 <b>'+won(c.bankDiff)+'</b>');
   var safeD= c.expectSafe===null? '실측 '+won(c.denomTotal)+' — 오늘부터 기준 저장'
     : '기대 '+won(c.expectSafe)+' ↔ 실측 '+won(c.denomTotal)+(c.pass.safe?'':' · 차이 <b>'+won(c.safeDiff)+'</b>'+(c.safeDiff<0?' (현금 부족 — 증발 신호)':' (현금 초과)'));
   var mism=[];
   if(!c.pass.card) mism.push({rail:'카드',qs:['스마트로(외국인) 결제 1건이 빠지지 않았나요?','카드취소(환불 '+won(c.refund.card)+')가 오늘 단말이 아니라 다른 날 단말에서 취소됐나요?','OK차트 차팅 실수 가능 — 환자별 카드수납 행을 훑어보세요']});
-  if(!c.pass.bank) mism.push({rail:'통장',qs:['<b>혹시 이 차이가 앱결제('+String(CFG.APP_PAY_PLATFORMS||'여신티켓,강남언니').split(',').join('·')+') 건인가요?</b> 맞으면 아래에 <b>실제 결제금액</b>을 넣어주세요 — 정산이 다른 통장으로 들어와 이 레일에는 안 잡힙니다','통장 환불 이체('+won(c.refund.bank)+')가 아직 안 나갔거나 내일 나가나요?','입금이 밤 늦게 온 건(±1일)이 있나요?','봇 두절 시간대(빈 카드) 여부 — 채널에서 깨진 😎💰 카드 확인']});
-  if(c.pass.safe===false) mism.push({rail:'금고',qs:['기록 안 된 현금 지출이 있지 않나요? (4단계로 돌아가 추가)','현금 환불('+won(c.refund.cash)+')을 금고가 아닌 다른 데서 내주지 않았나요?','거스름돈 교환·이동이 있었나요?','어제 실측이 잘못됐을 수도 있습니다 — 오늘 실측을 기준으로 리셋 가능']});
+  if(!c.pass.bank) mism.push({rail:'통장',qs:['<b>먼저 아래 정산대기 3종을 확인하세요</b> — 서울페이·제로페이·앱결제는 차트에 통장으로 잡히지만 오늘 입금엔 안 뜹니다','통장 환불 이체('+won(c.refund.bank)+')가 아직 안 나갔거나 내일 나가나요?','입금이 밤 늦게 온 건(±1일)이 있나요?','봇 두절 시간대(빈 카드) 여부 — 채널에서 깨진 😎💰 카드 확인']});
+  if(c.pass.safe===false) mism.push({rail:'금고',qs:['기록 안 된 현금 지출이 있지 않나요? (5단계로 돌아가 추가)','현금 환불('+won(c.refund.cash)+')을 금고가 아닌 다른 데서 내주지 않았나요?','거스름돈 교환·이동이 있었나요?','어제 실측이 잘못됐을 수도 있습니다 — 오늘 실측을 기준으로 리셋 가능']});
   var mismHtml = mism.length? '<div class="card"><div class="q">🔍 맞지 않는 곳을 하나씩 볼게요</div>'+
     mism.map(function(m,i){
       return '<div class="suggest"><b>['+m.rail+' 레일]</b><br>'+m.qs.map(function(q){return '· '+q;}).join('<br>')+
-      (m.rail==='통장'? '<br><input type="tel" placeholder="앱결제 금액 (여신티켓·강남언니 등, 있으면)" style="margin-top:8px" value="'+(num(S.appPayToday)?fmt(S.appPayToday):"")+'" oninput="S.appPayToday=num(this.value)">':'')+
-      '<br><input type="text" placeholder="확인 메모 남기기 (예: 스마트로 누락 1건 확인)" style="margin-top:8px;text-align:left;font-size:14px" value="'+esc(S.memoDraft[m.rail]||"")+'" oninput="S.memoDraft[\''+m.rail+'\']=this.value"></div>';
+      '<br><input type="text" placeholder="확인 메모 남기기 (예: 스마트로 누락 1건 확인)" style="margin-top:8px;text-align:left;font-size:14px" value="'+esc(S.memoDraft[m.rail]||"")+'" oninput="S.memoDraft[\''+m.rail+'\']=this.value"></div>'+
+      (m.rail==='통장'? pendingBox("mism") : '');
     }).join("")+
     '<div class="btn-row" style="justify-content:flex-start"><button class="btn btn-s" onclick="go(8)">↻ 입력 반영해서 다시 판정</button></div>'+
     '<div class="hint">원인을 못 찾으면 그대로 제출해도 됩니다 — ⚠ 요확인으로 기록되고, 단정하지 않습니다 (1차 용의자: 차팅).</div></div>' : '';
@@ -442,17 +479,23 @@ function renderJudge(){
     }).join("")+'</div>'+
     '<div id="aiMsg" style="font-size:13px;color:var(--gray);margin:4px 0"></div>'+
     '<div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="aiIn" placeholder="예: 카드가 4만원 남는데 외국인 결제는 없었어요" style="text-align:left;font-size:14px;flex:1" onkeydown="if(event.key===\'Enter\')aiAsk()"><button class="btn btn-p" onclick="aiAsk()">질문</button></div></div>';
+  var recovHtml = c.recov.total>0 ? '<div class="card" style="border-color:#fde68a;background:#fffbeb"><div class="q">⚠ 오늘 미수금 회수가 있습니다 — 판정에 반영 안 됨</div>'+
+    '<div class="hint">현금회수 <b>'+won(c.recov.cash)+'</b> · 카드회수 <b>'+won(c.recov.card)+'</b> · 합계 <b>'+won(c.recov.total)+'</b><br>'+
+    '회수는 OK차트 <b>수납총액에 포함되지 않습니다</b>. 이 위저드의 카드·금고 판정은 수납분만 대조하므로, 오늘은 <b>손으로 한 번 더 맞춰보세요</b>.<br>'+
+    '(자주 있는 일이 아니라 공식은 그대로 두고, 있는 날만 알려드립니다)</div></div>' : '';
+  var dt=denomText();
   var line='📊 [일일결산 '+(S.parsed.date||todayStr())+'] 수납 '+fmt(c.ok.total)+' (카드 '+fmt(c.ok.card)+' · 통장 '+fmt(c.ok.bank)+' · 현금 '+fmt(c.ok.cash)+')'
     +' · 카드'+(c.pass.card?'✅':'⚠')+' 통장'+(c.pass.bank?'✅':'⚠')+' 금고'+(c.pass.safe===null?'🆕':(c.pass.safe?'✅':'⚠'))
-    +(c.ok.refund?' · 환불 '+fmt(c.ok.refund):'')+(c.seoul?' · 서울페이 '+fmt(c.seoul)+'⏳':'')+(c.appPay?' · 앱결제 '+fmt(c.appPay)+'📱':'')+' · 금고마감 '+fmt(c.denomTotal);
+    +(c.ok.refund?' · 환불 '+fmt(c.ok.refund):'')+(c.seoul?' · 서울페이 '+fmt(c.seoul)+'⏳':'')+(c.zero?' · 제로페이 '+fmt(c.zero)+'⏳':'')+(c.appPay?' · 앱결제 '+fmt(c.appPay)+'📱':'')
+    +' · 금고마감 '+fmt(c.denomTotal)+(dt?' ('+dt+')':'');
   return '<div class="card"><div class="q">결산 결과</div>'+
     rail('① 카드 (올댓+스마트로)',c.pass.card,cardD)+
     rail('② 통장 (기업은행)',c.pass.bank,bankD)+
     rail('③ 현금 (금고)',c.pass.safe,safeD)+
     '<div class="kv"><span>환불총액 / 미수금</span><b>'+won(c.ok.refund)+(c.ok.refund>0?' (현 '+fmt(c.refund.cash)+'·카 '+fmt(c.refund.card)+'·통 '+fmt(c.refund.bank)+')':'')+' / '+won(c.ok.misu)+'</b></div>'+
-    '</div>'+ mismHtml + aiHtml +
+    '</div>'+ recovHtml + mismHtml + aiHtml +
     '<div class="card"><div class="q">제출</div>'+
-    '<div class="hint">담당자 이름을 쓰고 제출하면 Slack #결산 채널에 자동 게시되고, 오늘 금고 실측('+won(c.denomTotal)+')이 내일 기준으로 저장됩니다.</div>'+
+    '<div class="hint">담당자 이름을 쓰고 제출하면 Slack #결산 채널에 자동 게시되고, 오늘 금고 실측('+won(c.denomTotal)+')과 권종이 내일 기본값으로 저장됩니다.</div>'+
     '<input type="text" id="staffIn" placeholder="담당자 이름" style="text-align:left" value="'+esc(S.staff)+'">'+
     '<div class="summary-line" id="lineOut">'+esc(line)+'</div>'+
     '<div id="subMsg" style="font-size:13px;margin-top:4px;"></div>'+
@@ -585,8 +628,8 @@ function histXls(i){
 function payload(){
   var c=computeChecks();
   return { ver:CFG.RULE_VER, date:S.parsed.date||todayStr(), staff:document.getElementById("staffIn")?document.getElementById("staffIn").value:S.staff,
-    ok:c.ok, refund:c.refund, cardMode:c.cardMode,
-    inputs:{allthat:num(S.allthat),smartro:num(S.smartro),smartroRev:c.smartroRev,smartroFee:c.fee,emsAmt:c.ems,delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),appPay:num(S.appPayToday),bankReal:c.bankReal,denomTotal:c.denomTotal,prevSafeUsed:c.prevSafeUsed,prevSafeSource:c.prevSafeSource},
+    ok:c.ok, refund:c.refund, recov:c.recov, cardMode:c.cardMode,
+    inputs:{allthat:num(S.allthat),smartro:num(S.smartro),smartroRev:c.smartroRev,smartroFee:c.fee,emsAmt:c.ems,delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),zeropay:num(S.zeropayToday),appPay:num(S.appPayToday),pending:c.pending,bankReal:c.bankReal,denomTotal:c.denomTotal,denom:S.denom,denomEtc:num(S.denomEtc),denomText:denomText(),prevSafeUsed:c.prevSafeUsed,prevSafeSource:c.prevSafeSource},
     judge:{card:c.pass.card,bank:c.pass.bank,safe:c.pass.safe,cardDiff:c.cardDiff,bankDiff:c.bankDiff,safeDiff:c.safeDiff,delivBankCnt:c.delivBankCnt},
     refundAnswers:{cardToday:S.refCardToday,bankOut:S.refBankOut},
     report:buildReport(c),
@@ -605,7 +648,7 @@ function aiAsk(){
   var ctx="[오늘 결산 상황] 날짜:"+(S.parsed&&S.parsed.date||todayStr())
     +" / OK차트: 수납총액 "+c.ok.total+", 현금 "+c.ok.cash+", 카드 "+c.ok.card+", 통장 "+c.ok.bank+", 환불 "+c.ok.refund+"(현"+c.refund.cash+"/카"+c.refund.card+"/통"+c.refund.bank+"), 미수 "+c.ok.misu
     +" / 입력: 올댓 "+num(S.allthat)+", 스마트로표시 "+num(S.smartro)+"(진료비 "+c.smartroRev+"·수수료 "+c.fee+"·EMS "+c.ems+"), 카드택배 "+S.delivCardCnt+"건, 현금지출 "+c.expenseSum+", 전일금고 "+(c.prevSafeUsed===null?"없음":c.prevSafeUsed+"("+c.prevSafeSource+")")+", 금고실측 "+c.denomTotal
-    +" / 판정: 카드 "+(c.pass.card?"일치":"차이 "+c.cardDiff)+"("+c.cardMode+"), 통장 "+(c.pass.bank?"일치":"차이 "+c.bankDiff)+"(실측 "+c.bankReal+", 통장택배 "+c.delivBankCnt+"건, 서울페이 "+c.seoul+"), 금고 "+(c.pass.safe===null?"기준설정":(c.pass.safe?"일치":"차이 "+c.safeDiff))+(c.expectSafe!==null?"(기대 "+c.expectSafe+")":"");
+    +" / 판정: 카드 "+(c.pass.card?"일치":"차이 "+c.cardDiff)+"("+c.cardMode+"), 통장 "+(c.pass.bank?"일치":"차이 "+c.bankDiff)+"(실측 "+c.bankReal+", 통장택배 "+c.delivBankCnt+"건, 정산대기 서울"+c.seoul+"/제로"+c.zero+"/앱"+c.appPay+"), 금고 "+(c.pass.safe===null?"기준설정":(c.pass.safe?"일치":"차이 "+c.safeDiff))+(c.expectSafe!==null?"(기대 "+c.expectSafe+")":"");
   fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"ai",k:CFG.APP_KEY,data:{context:ctx,messages:S.aiChat}})})
     .then(function(r){return r.json();})
     .then(function(j){
@@ -635,16 +678,17 @@ function printReport(){
   '<table><tr><th>수납총액</th><th>현금수납</th><th>카드수납</th><th>통장회수</th><th>환불총액</th><th>미수금</th><th>내원환자</th></tr>'+
   '<tr><td style="text-align:right">'+won(c.ok.total)+'</td><td>'+won(c.ok.cash)+'</td><td>'+won(c.ok.card)+'</td><td>'+won(c.ok.bank)+'</td><td>'+won(c.ok.refund)+'</td><td>'+won(c.ok.misu)+'</td><td>'+fmt(s["내원환자수"])+'명</td></tr></table>'+
   (c.ok.refund>0?'<div class="sec">1-1. 환불 내역</div><table><tr><th>현금환불(금고)</th><th>카드환불(단말)</th><th>통장환불(이체)</th><th>확인 답변</th></tr><tr><td style="text-align:right">'+won(c.refund.cash)+'</td><td>'+won(c.refund.card)+'</td><td>'+won(c.refund.bank)+'</td><td style="text-align:left">'+esc(refA.join(" / ")||"—")+'</td></tr></table>':"")+
+  (c.pending>0?'<div class="sec">1-2. 정산대기 (통장 대조 제외)</div><table><tr><th>서울페이</th><th>제로페이</th><th>앱결제</th><th>합계</th></tr><tr><td style="text-align:right">'+won(c.seoul)+'</td><td>'+won(c.zero)+'</td><td>'+won(c.appPay)+'</td><td>'+won(c.pending)+'</td></tr></table>':"")+
   '<div class="sec">2. 3레일 대조</div>'+
   '<table><tr><th>레일</th><th>기대(근거)</th><th>실측</th><th>차이</th><th>판정</th></tr>'+
   '<tr><td>카드 (올댓+스마트로'+(c.cardMode==="net"?" · 취소반영 순액":"")+(c.fee?' · 수수료제외 '+won(c.fee):'')+(c.ems?' · EMS제외 '+won(c.ems):'')+')</td><td>'+won(c.ok.card-(c.cardMode==="net"?c.refund.card:0))+'</td><td>'+won(c.termCard)+'</td><td>'+won(c.cardDiff)+'</td><td>'+tag(c.pass.card)+'</td></tr>'+
-  '<tr><td>통장 (기업은행'+(bankAuto?" · 봇 "+bankAuto.count+"건":" · 수동")+(c.delivBankCnt?" · 택배"+c.delivBankCnt+"건":"")+(c.seoul?" · 서울페이⏳"+won(c.seoul):"")+(c.appPay?" · 앱결제📱"+won(c.appPay):"")+')</td><td>'+won(c.ok.bank-c.seoul-c.appPay+c.delivBankCnt*CFG.DELIVERY_UNIT)+'</td><td>'+won(c.bankReal)+'</td><td>'+won(c.bankDiff)+'</td><td>'+tag(c.pass.bank)+'</td></tr>'+
+  '<tr><td>통장 (기업은행'+(bankAuto?" · 봇 "+bankAuto.count+"건":" · 수동")+(c.delivBankCnt?" · 택배"+c.delivBankCnt+"건":"")+(c.pending?" · 정산대기 "+won(c.pending):"")+')</td><td>'+won(c.ok.bank-c.pending+c.delivBankCnt*CFG.DELIVERY_UNIT)+'</td><td>'+won(c.bankReal)+'</td><td>'+won(c.bankDiff)+'</td><td>'+tag(c.pass.bank)+'</td></tr>'+
   '<tr><td>현금·금고 (폐쇄회계)</td><td>'+(c.expectSafe===null?"—":won(c.expectSafe))+'</td><td>'+won(c.denomTotal)+'</td><td>'+(c.safeDiff===null?"—":won(c.safeDiff))+'</td><td>'+tag(c.pass.safe)+'</td></tr></table>'+
   (expRows?'<div class="sec">3. 현금 지출 (금고 차감)</div><table><tr><th>내용</th><th>금액</th></tr>'+expRows+'<tr><td><b>합계</b></td><td><b>'+won(c.expenseSum)+'</b></td></tr></table>':"")+
   '<div class="sec">'+(expRows?'4':'3')+'. 금고 권종 실측</div><table><tr><th>권종</th><th>수량</th><th>금액</th></tr>'+denRows+'<tr><td><b>합계 (익일 이월 기준)</b></td><td>—</td><td><b>'+won(c.denomTotal)+'</b></td></tr></table>'+
   (memoRows?'<div class="sec">확인 메모</div><table><tr><th style="width:60px">레일</th><th>내용</th></tr>'+memoRows+'</table>':"")+
   '<div class="signs"><div class="sign">담당자 확인:  '+esc(S.staff||"")+'  (서명)</div><div class="sign">원장 확인:  (서명)</div></div>'+
-  '<div class="pfoot">아크로한의원 일일결산 위저드 v2 · 규칙 '+CFG.RULE_VER+' · 카드/통장/현금 3레일 분리 원칙 · 서울페이는 정산(T+1~2) 도착 시 소거</div>';
+  '<div class="pfoot">아크로한의원 일일결산 위저드 v2 · 규칙 '+CFG.RULE_VER+' · 카드/통장/현금 3레일 분리 원칙 · 서울페이·제로페이는 정산(T+1~2) 도착 시 소거</div>';
   document.getElementById("printSheet").innerHTML=html;
   window.print();
 }
@@ -652,18 +696,18 @@ function submitAll(){
   S.staff=document.getElementById("staffIn").value;
   if(!S.staff){ var e0=document.getElementById("subMsg"); if(e0){ e0.style.color="var(--red)"; e0.textContent="⚠ 담당자 이름을 써 주세요."; } return; }
   var p=payload();
-  try{ localStorage.setItem("acro_settle_carry", JSON.stringify({prevSafe:p.inputs.denomTotal, prevDate:p.date})); }catch(e){}
+  try{ localStorage.setItem("acro_settle_carry", JSON.stringify({prevSafe:p.inputs.denomTotal, prevDate:p.date, prevDenom:S.denom, prevDenomEtc:num(S.denomEtc)})); }catch(e){}
   if(CFG.GAS_URL===""){
     copyLineFallback(p); return;
   }
   fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"submit",k:CFG.APP_KEY,data:p})})
     .then(function(r){return r.json();})
-    .then(function(j){ document.getElementById("stage").innerHTML='<div class="card"><div class="q">✅ 결산 완료!</div><div class="hint">Slack에 게시됐고 오늘 금고 시재가 내일 기준으로 저장됐어요. 수고하셨습니다.</div></div>'; })
+    .then(function(j){ document.getElementById("stage").innerHTML='<div class="card"><div class="q">✅ 결산 완료!</div><div class="hint">Slack에 게시됐고 오늘 금고 시재·권종이 내일 기본값으로 저장됐어요. 수고하셨습니다.</div></div>'; })
     .catch(function(e){ copyLineFallback(p); });
 }
 function copyLineFallback(p){
   navigator.clipboard.writeText(p.line);
-  document.getElementById("stage").innerHTML='<div class="card"><div class="q">✅ 결산 완료 (수동 게시 모드)</div><div class="hint">요약 한 줄이 복사됐어요 — Slack #결산_입금및키인에 붙여넣어 주세요.<br>오늘 금고 시재('+won(p.inputs.denomTotal)+')는 이 컴퓨터에 저장돼 내일 기준값이 됩니다.</div><div class="summary-line">'+esc(p.line)+'</div></div>';
+  document.getElementById("stage").innerHTML='<div class="card"><div class="q">✅ 결산 완료 (수동 게시 모드)</div><div class="hint">요약 한 줄이 복사됐어요 — Slack #결산_입금및키인에 붙여넣어 주세요.<br>오늘 금고 시재('+won(p.inputs.denomTotal)+')와 권종은 이 컴퓨터에 저장돼 내일 기본값이 됩니다.</div><div class="summary-line">'+esc(p.line)+'</div></div>';
 }
 /* ================= v3.3 결산 점검 허브 (첫 화면 진입점) ================= */
 /* 붙여넣기 없이 최근 결산 훑기(결산원장 직독) → OK차트 월 대조(미제출 잡기)로 승격 */
@@ -740,7 +784,7 @@ function histDetail(i){
    +kv("수납총액")+kv("현금")+kv("카드")+kv("통장")+kv("환불")+kv("미수")+kv("올댓")+kv("스마트로")
    +'<div class="kv"><span>택배 (카드/통장)</span><b>'+fmt(r["택배카드건"])+'건 / '+fmt(r["택배통장건"])+'건</b></div>'
    +(r["EMS비용"]!==undefined&&r["EMS비용"]!==""&&num(r["EMS비용"])?'<div class="kv"><span>EMS비용(제외)</span><b>'+won(r["EMS비용"])+'</b></div>':'')
-   +kv("현금지출합")+kv("서울페이")+(num(r["앱결제"])?kv("앱결제"):"")+kv("금고실측")+memos
+   +kv("현금지출합")+kv("서울페이")+(num(r["제로페이"])?kv("제로페이"):"")+(num(r["앱결제"])?kv("앱결제"):"")+kv("금고실측")+memos
    +'<div class="btn-row"><button class="btn btn-s" onclick="histList()">← 목록</button><button class="btn btn-s" onclick="histPrint('+i+')">🖨 A4 인쇄</button><button class="btn btn-s" onclick="histXls('+i+')">📊 엑셀</button><button class="btn btn-p" onclick="render()">결산으로</button></div></div>';
   document.getElementById("stage").innerHTML=h;
 }
@@ -772,13 +816,26 @@ function histPrint(i){
 }
 /* ================= 초기화: 이월값·봇입금 로드 ================= */
 var bootDate = ""; // 마지막으로 통장 조회한 기준일
+/* 어제 권종을 기본값으로 (직원이 처음부터 세지 않도록) — 이미 입력했으면 건드리지 않음 */
+function seedDenom(){
+  if(S.denomSeeded) return;
+  var hasInput = CFG.DENOMS.some(function(d){return num(S.denom[d])>0;}) || num(S.denomEtc)>0;
+  if(hasInput) return;
+  var pd = carry.prevDenom;
+  if(!pd || typeof pd!=="object") return;
+  var any=false;
+  CFG.DENOMS.forEach(function(d){ if(num(pd[d])>0){ S.denom[d]=num(pd[d]); any=true; } });
+  if(num(carry.prevDenomEtc)>0){ S.denomEtc=num(carry.prevDenomEtc); any=true; }
+  if(any) S.denomSeeded=true;
+}
 function fetchBoot(dateStr, rerender){
   if(CFG.GAS_URL==="") return;
   bootDate = dateStr;
   fetch(CFG.GAS_URL+"?action=boot&k="+encodeURIComponent(CFG.APP_KEY)+"&date="+dateStr).then(function(r){return r.json();}).then(function(j){
     if(j.config) Object.keys(j.config).forEach(function(k){ CFG[k]=j.config[k]; });
-    if(j.carry && j.carry.prevSafe!==undefined) carry=j.carry;
+    if(j.carry && j.carry.prevSafe!==undefined){ Object.keys(j.carry).forEach(function(k){ carry[k]=j.carry[k]; }); } // 병합 — localStorage 권종 보존
     if(j.bank) bankAuto=j.bank; // {sum,count} — dateStr 기준일의 입금 합계
+    seedDenom();
     if(rerender) render();
   }).catch(function(e){ /* 폴백 모드 유지 */ });
 }
@@ -792,14 +849,14 @@ var MONTH = null;
 function monthlyShow(){
   var st=document.getElementById("stage");
   var acc=(MONTH&&MONTH.days&&MONTH.days.length)?MONTH.days.length:0;
-  var accBox = acc ? '<div class="carrybox" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534">\U0001F4E5 현재 <b>'+acc+'일</b> 누적됨 ('+esc(MONTH.range||"—")+') · 이어서 붙여넣으면 <b>합쳐집니다</b>. 같은 날짜는 나중 것으로 덮어쓰기.</div>' : '';
-  st.innerHTML='<div class="card"><div class="q">\U0001F4C5 OK차트 월결산 — 붙여넣기</div>'
+  var accBox = acc ? '<div class="carrybox" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534">\u{1F4E5} 현재 <b>'+acc+'일</b> 누적됨 ('+esc(MONTH.range||"—")+') · 이어서 붙여넣으면 <b>합쳐집니다</b>. 같은 날짜는 나중 것으로 덮어쓰기.</div>' : '';
+  st.innerHTML='<div class="card"><div class="q">\u{1F4C5} OK차트 월결산 — 붙여넣기</div>'
    +'<div class="hint">OK차트 <b>월말결산</b> 또는 <b>일자별</b> 표를 복사→붙여넣기. <b>한 번에 다 안 돼도 됩니다</b> — 나눠서 여러 번 넣으면 누적됩니다. (탭 또는 2칸 이상 공백 구분, 날짜는 2026-07-01 / 2026.07.01 / 07-01 모두 인식)</div>'
    +accBox
    +'<textarea id="monRaw" placeholder="여기에 OK차트 표 붙여넣기... (여러 번 나눠 넣어도 됩니다)"></textarea>'
    +'<div id="monErr" style="color:var(--red);font-size:13px;margin-top:8px;"></div>'
    +'<div class="btn-row" style="flex-wrap:wrap"><button class="btn btn-s" onclick="render()">← 돌아가기</button>'
-   +(acc?'<button class="btn btn-s" onclick="monthlyReset()">\U0001F5D1 누적 초기화</button><button class="btn btn-s" onclick="monthlyResult()">\U0001F4CA 현재 결과</button>':'')
+   +(acc?'<button class="btn btn-s" onclick="monthlyReset()">\u{1F5D1} 누적 초기화</button><button class="btn btn-s" onclick="monthlyResult()">\u{1F4CA} 현재 결과</button>':'')
    +'<button class="btn btn-p" onclick="monthlyParse()">'+(acc?'추가 분석 →':'분석 →')+'</button></div></div>';
   var f=st.querySelector("textarea"); if(f) f.focus();
 }
@@ -980,8 +1037,9 @@ function init(){
   document.getElementById("todayLabel").textContent=todayStr();
   try{
     var c=JSON.parse(localStorage.getItem("acro_settle_carry")||"null");
-    if(c && c.prevSafe!==undefined){ carry.prevSafe=c.prevSafe; carry.prevDate=c.prevDate; }
+    if(c && c.prevSafe!==undefined){ carry.prevSafe=c.prevSafe; carry.prevDate=c.prevDate; carry.prevDenom=c.prevDenom; carry.prevDenomEtc=c.prevDenomEtc; }
   }catch(e){}
+  seedDenom();
   fetchBoot(todayStr(), false);
   render();
 }
