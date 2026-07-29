@@ -1199,7 +1199,7 @@ label.mon[for^="ext-"],label.mon[for^="rext-"]{min-width:62px;padding:0 16px}
   function waveVal(g){var m=document.getElementById(g+'-man'); if(m&&m.value&&parseInt(m.value,10)>0) return parseInt(m.value,10); return pval(g);}
   function ondaVal(g,noFallback){var m=document.getElementById(g+'-man'); if(m&&m.value&&parseInt(m.value,10)>0) return parseInt(m.value,10); if(noFallback) return pval(g); return pval(g);}
   function calcProc(){
-    var pccMan=document.getElementById('pcc-man'); var pccVal=pccMan&&pccMan.value?parseInt(pccMan.value)||0:0; var cut=cutPrice(pccVal), onda=ondaVal('ponf',true)*33000*pval('ponf-n')+ondaVal('ponb',true)*44000*pval('ponb-n'), wave=waveVal('pwl')*26400*pval('pwn');
+    var pccMan=document.getElementById('pcc-man'); var pccVal=pccMan&&pccMan.value?parseInt(pccMan.value)||0:0; var cut=cutPrice(pccVal), onda=ondaVal('ponf',true)*33000*pval('ponf-n')+ondaVal('ponb',true)*38500*pval('ponb-n'), wave=waveVal('pwl')*26400*pval('pwn');
     document.querySelectorAll('.proc-cut').forEach(function(e){e.textContent=cut.toLocaleString();});
     document.querySelectorAll('.proc-onda').forEach(function(e){e.textContent=onda.toLocaleString();});
     document.querySelectorAll('.proc-wave').forEach(function(e){e.textContent=wave.toLocaleString();});

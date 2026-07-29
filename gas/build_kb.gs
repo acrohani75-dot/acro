@@ -241,7 +241,7 @@ function acdRun_(dry) {
 //   권한이 끊겨도 조용히 실패하지 않게 한다. 실패는 반드시 슬랙으로 나간다.
 // ══════════════════════════════════════════════════════════════
 
-function acdSelfCheck_() {
+function acdSelfCheck_(quiet) {   // quiet=true(야간 감사): 읽기 검증만, 슬랙 경고 없음
   var props = PropertiesService.getScriptProperties();
   // 슬랙 설정은 acdCheckSlack_ 이 따로 본다(토큰 방식이면 SLACK_WEBHOOK_URL이 없어도 된다).
   if (!props.getProperty('KB_SPREADSHEET_ID')) throw new Error('스크립트 속성 `KB_SPREADSHEET_ID`가 없다.');
@@ -275,7 +275,7 @@ function acdSelfCheck_() {
 
   // 정본 폴더에 정본이 여러 개 있으면 "정본은 하나"라는 전제가 깨진다.
   // 막지는 않되(옛 버전을 참고로 두는 경우가 있다) 반드시 알린다.
-  if (cands.length > 1) {
+  if (cands.length > 1 && !quiet) {
     acdSlack_('⚠ 정본 폴더에 정본 후보가 ' + cands.length + '개 있다. 이번 빌드는 `' + cands[0].name + '`을 썼다.\n' +
       '나머지: `' + cands.slice(1).map(function (c) { return c.name; }).join('`, `') + '`\n' +
       '옛 버전은 `02_아카이브`로 옮기는 게 좋다. 정본 폴더에 둘 이상 있으면 어느 게 정본인지 사람이 헷갈린다.');
