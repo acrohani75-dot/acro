@@ -42,8 +42,10 @@ function acdRainyExport() {
       if (q.indexOf('[내부') >= 0) continue;
       var diff = it['난이도'] || '';
       if (diff.indexOf('의료진') >= 0 || diff.indexOf('연결') >= 0) continue;
+      if ((it['태그'] || '').indexOf('챗봇제외') >= 0) continue;         // 원장 검수: 챗봇 부적합 판정
 
-      var a = acdRainyStrip_(it['답변_KO'] || '');
+      // 원장 검수로 챗봇용 변형문(답변_챗봇)이 있으면 그걸 쓴다. 없으면 답변_KO.
+      var a = acdRainyStrip_(it['답변_챗봇'] || it['답변_KO'] || '');
       if (!a) continue;
 
       var cat = (it['태그'] || '기타').split(',')[0].replace(/^\s+|\s+$/g, '') || '기타';
