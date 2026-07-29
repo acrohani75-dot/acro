@@ -1,7 +1,7 @@
 // 정본 동기화 검증 — 새 버전 반영·기존 침묵·깨진 파일 거부·오류 1회 알림
 const fs=require('fs'), vm=require('vm');
 const canon=fs.readFileSync(process.argv[3],'utf8');
-let driveFiles=['L2_응대KB_v2_4_260729.md'], created=[], slack=[], props={CANON_REPO:'o/r',GH_TOKEN:'t'};
+let driveFiles=['L2_응대KB_v2_4_260729.md'], created=[], archived=[], slack=[], props={CANON_REPO:'o/r',GH_TOKEN:'t'};
 let repoList=[{name:'L2_응대KB_v2_4_260729.md',size:1,download_url:'u4'},
               {name:'L2_응대KB_v2_5_260729.md',size:Buffer.byteLength(canon),download_url:'u5'}];
 let rawBody=canon;
@@ -10,9 +10,14 @@ const sb={
  UrlFetchApp:{fetch:u=>String(u).includes('/contents/')
    ?{getResponseCode:()=>200,getContentText:()=>JSON.stringify(repoList)}
    :{getResponseCode:()=>200,getContentText:()=>rawBody}},
- DriveApp:{getFoldersByName:()=>({next:()=>({
+ DriveApp:{getFoldersByName:()=>({hasNext:()=>true,next:()=>({
    getFilesByName:n=>({hasNext:()=>driveFiles.includes(n)}),
-   createFile:(n,t)=>{created.push(n);driveFiles.push(n)}})})},
+   createFile:(n,t)=>{created.push(n);driveFiles.push(n)},
+   getFoldersByName:()=>({hasNext:()=>false}),
+   createFolder:()=>({}),
+   getFiles:()=>{let i=0;const snap=driveFiles.slice();return{hasNext:()=>i<snap.length,
+     next:()=>{const n=snap[i++];return{getName:()=>n,moveTo:()=>{archived.push(n);
+       driveFiles=driveFiles.filter(x=>x!==n)}}}}}})})},
  Utilities:{newBlob:t=>({getBytes:()=>Buffer.from(t,'utf8')})},
  ScriptApp:{getProjectTriggers:()=>[],newTrigger:()=>({timeBased:()=>({everyHours:()=>({create:()=>{}})})})},
  Logger:{log(){}},Date,JSON,String,Number,Math,Object,Array,RegExp,Error,console,Buffer};
@@ -25,6 +30,7 @@ let fail=0; const ok=(c,l,x)=>{console.log((c?'  PASS  ':'  FAIL  ')+l+(x?'   '+
 
 sb.acdCanonSync();
 ok(created.includes('L2_응대KB_v2_5_260729.md'),'새 버전 → Drive 생성');
+ok(archived.includes('L2_응대KB_v2_4_260729.md') && !archived.includes('L2_응대KB_v2_5_260729.md'),'옛 버전만 _아카이브로 이동',archived.join(','));
 ok(slack.length===1 && /정본 동기화/.test(slack[0]),'반영 알림 1건');
 
 slack=[];created=[];
