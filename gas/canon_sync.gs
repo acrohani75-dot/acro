@@ -58,7 +58,26 @@ function acdCanonSync() {
     }
 
     folder.createFile(best.f.name, text, 'text/markdown');
-    acdSlack_('📥 정본 동기화 — `' + best.f.name + '` (' + bytes + '바이트) Drive 반영. 다음 빌드가 이 버전을 집는다.');
+
+    // 옛 버전은 정본 폴더 안 `_아카이브` 하위폴더로 옮긴다 (삭제 아님 — 이동).
+    // 정본 폴더에 후보가 둘 이상 남으면 빌드가 매번 경고하고 사람이 헷갈린다.
+    var archived = [];
+    try {
+      var arcIt = folder.getFoldersByName('_아카이브');
+      var arc = arcIt.hasNext() ? arcIt.next() : folder.createFolder('_아카이브');
+      var fit = folder.getFiles();
+      while (fit.hasNext()) {
+        var old = fit.next();
+        var on = old.getName();
+        if (on.indexOf(ACD_CFG.CANON_PREFIX) !== 0 || on === best.f.name) continue;
+        old.moveTo(arc);
+        archived.push(on);
+      }
+    } catch (ax) { /* 아카이브 실패는 치명 아님 — 다음 빌드 경고가 알려준다 */ }
+
+    acdSlack_('📥 정본 동기화 — `' + best.f.name + '` (' + bytes + '바이트) Drive 반영.' +
+      (archived.length ? ' 옛 버전 ' + archived.length + '개는 `_아카이브`로 이동.' : '') +
+      ' 다음 빌드가 이 버전을 집는다.');
   } catch (e) {
     // 같은 오류로 매시간 울리지 않기
     var msg = String(e && e.message || e);
