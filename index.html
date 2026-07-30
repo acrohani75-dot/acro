@@ -60,6 +60,12 @@
   @media(max-width:640px){.ph-grid{grid-template-columns:1fr 1fr}}
   .ph{aspect-ratio:3/4;border:2px dashed #c4ced6;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9aa7b1;font-size:12.5px;background:#fff;text-align:center;padding:8px}
   .ph b{font-size:20px;display:block;margin-bottom:4px;color:#c4ced6}
+  .ko-gloss{display:block;font-size:11.5px;font-weight:600;color:#9aa7b1;margin-top:2px;letter-spacing:0}
+  .c-note{background:var(--accent-soft);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:12px 16px;margin:14px 0 4px;font-size:14px;color:#2c4f4a}
+  .c-trans{margin-top:12px;padding-top:10px;border-top:1px dashed #cdd6dd;font-size:13.5px;color:#3d4c56;line-height:1.65}
+  .c-trans b.tt{font-size:14px;color:var(--accent)}
+  .c-trans ul{margin:5px 0 0 18px}
+  .c-trans li{margin-bottom:3px}
   .qa .q{font-weight:700;margin-top:16px;font-size:15px}
   .qa .q::before{content:"Q. ";color:var(--gold)}
   .qa .a{color:#3d4c56;font-size:14.5px;margin-top:3px}
@@ -67,6 +73,10 @@
   .fine{font-size:12px;color:#8a97a1;line-height:1.7;margin-top:34px;padding-top:14px;border-top:1px solid var(--line)}
   .vid{display:block;background:#fff;border:2px solid var(--accent);border-radius:12px;padding:13px 17px;margin-top:12px;font-size:14.5px;text-decoration:none;color:var(--ink);font-weight:600}
   .vid span{color:var(--accent)}
+  .rng{display:flex;align-items:center;gap:12px;margin-top:4px}
+  .rng input[type=range]{flex:1;accent-color:var(--accent)}
+  .rng b{min-width:36px;text-align:center;font-size:18px;font-weight:800;color:var(--accent)}
+  .rng-cap{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-top:3px}
   /* form */
   .f-sec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-top:16px}
   .f-sec h3{font-size:15.5px;font-weight:800;margin-bottom:14px;color:var(--ink)}
@@ -125,7 +135,8 @@
 
 <div class="wrap">
   <div class="pane" id="pane-survey"><div id="surveyRoot"></div></div>
-  <div class="pane" id="pane-explain"><div id="explainRoot"></div></div>
+  <div class="pane" id="pane-revisit"><div id="revisitRoot"></div></div>
+  <div class="pane" id="pane-explain"><div id="explainAddRoot"></div><div id="explainRoot"></div></div>
   <div class="pane" id="pane-price"><div id="priceRoot"></div></div>
 
   <!-- ================= 시술 동의서 (한국어 정본) ================= -->
@@ -133,6 +144,7 @@
     <span class="draft">초안 v1.0 — 시행 전 원장 최종 검토 필요</span>
     <h1>안면 밸런스 프로그램 시술 동의서</h1>
     <p class="lead">아크로한의원 · 본 동의서는 설명을 듣고 충분히 이해한 뒤 서명해 주십시오.</p>
+    <div class="c-note" id="consentNote1"></div>
 
     <div class="c-block">
       <b class="tt">1. 시술의 내용</b>
@@ -186,55 +198,48 @@
 
   <!-- ================= 환불 동의서 (한국어 정본) ================= -->
   <div class="pane consent" id="pane-consent2">
-    <span class="draft">초안 v1.0 — 시행 전 원장 최종 검토 필요</span>
-    <h1>패키지 이용 및 환불 규정 동의서</h1>
-    <p class="lead">아크로한의원 · 안면 밸런스 프로그램 패키지 결제 시 작성합니다.</p>
+    <span class="draft">초안 v2.0 — 시행 전 원장 최종 검토 필요</span>
+    <h1>회차 할인 및 환불 규정 동의서</h1>
+    <p class="lead">아크로한의원 · 안면비대칭 교정 회차 할인을 적용받으실 때 작성합니다.</p>
+    <div class="c-note" id="consentNote2"></div>
 
     <div class="c-block">
-      <b class="tt">1. 환불 원칙 — "이용한 만큼 단품 정가로 되돌림"</b>
-      패키지 가격은 전체 회차 이용을 전제로 한 할인가입니다. 중도 환불 시에는 환불 시점까지 이용한 항목을
-      <b>할인 전 단품 정가 기준으로 다시 계산</b>하고, 결제 금액에서 이를 공제한 잔액을 환불합니다.
+      <b class="tt">1. 할인의 원칙 — 되돌림</b>
+      회차 할인(4회 5% · 8회 10%)은 <b>약속하신 회차를 끝까지 이용하시는 것</b>을 전제로 한 가격입니다.
+      중간에 중단하시면, 이미 받으신 시술은 <b>할인 없는 단품 정가로 다시 계산</b>합니다.
+      되돌아가는 것은 할인뿐입니다. 받지 않으신 회차의 값은 청구하지 않습니다.
       <ul class="cln" style="margin-top:10px">
-        <li>통합시술(추나+약침+침) 이용분: 회당 정가 120,000원으로 공제</li>
-        <li>교정장치: 지급(개봉) 후에는 구강 위생용품 특성상 반환이 불가하며 정가 150,000원으로 공제</li>
-        <li>온다(ONDA) 진행분: 정가 198,000원(6만 줄) / 297,000원(9만 줄)으로 공제</li>
-        <li>시술을 시작하지 않은 경우(장치 미지급 포함) 전액 환불</li>
+        <li>선결제는 필요하지 않습니다. 회차마다 결제하실 수 있습니다.</li>
+        <li>공제·정산에 적용되는 단품 정가는 <b>수가표에 고지된 금액</b>을 따릅니다.</li>
       </ul>
     </div>
 
     <div class="c-block">
-      <b class="tt">2. 계산 예시</b>
-      <table>
-        <tr><th>예시</th><th>계산</th><th style="text-align:right">환불액</th></tr>
-        <tr>
-          <td>스탠다드 8회(990,000원) 결제 후<br>3회 이용 + 장치 지급 상태에서 환불</td>
-          <td>990,000 − (120,000×3회 + 150,000)<br>= 990,000 − 510,000</td>
-          <td class="r"><b>480,000원</b></td>
-        </tr>
-        <tr>
-          <td>프리미엄 8회(1,190,000원) 결제 후<br>3회 이용 + 장치 지급 + 온다 1회 진행</td>
-          <td>1,190,000 − (360,000 + 150,000 + 198,000)</td>
-          <td class="r"><b>482,000원</b></td>
-        </tr>
-      </table>
+      <b class="tt">2. 중단하실 때</b>
+      <ul class="cln">
+        <li><b>회차마다 결제하신 경우</b> — 할인은 약속하신 회차에 도달한 시점에 적용되므로, 중단하셔도 정산할 금액이 없습니다.</li>
+        <li><b>미리 결제하신 경우</b> — 이미 받으신 시술을 단품 정가로 공제하고, 남은 금액을 환불해 드립니다.</li>
+        <li><b>교정장치</b> — 회차 할인과 무관한 별도 항목입니다. 구강에 직접 착용하는 위생용품이므로 <b>지급(개봉) 후에는 반환·환불이 되지 않습니다.</b> 지급 전이라면 전액 환불됩니다.</li>
+        <li><b>시술을 한 번도 받지 않으신 경우</b> — 전액 환불됩니다.</li>
+      </ul>
     </div>
 
     <div class="c-block">
       <b class="tt">3. 기타</b>
       <ul class="cln">
         <li>환불은 결제 수단 기준으로 처리되며, 영업일 기준 3~7일이 소요될 수 있습니다.</li>
-        <li>패키지 유효기간은 결제일로부터 6개월이며, 의료진과 협의된 사유(질병·출산·장기 출국 등)로 연장할 수 있습니다.</li>
-        <li>예약 변경·취소는 하루 전까지 연락 주시기 바랍니다. 통보 없는 미내원(No-show)이 반복되는 경우 회차가 차감될 수 있습니다.</li>
+        <li>회차 할인의 유효기간은 첫 시술일로부터 6개월이며, 의료진과 협의된 사유(질병·출산·장기 출국 등)로 연장할 수 있습니다.</li>
+        <li>예약 변경·취소는 하루 전까지 연락 주시기 바랍니다.</li>
         <li>본 규정은 「소비자분쟁해결기준」 등 관계 법령을 준용합니다.</li>
       </ul>
     </div>
 
     <div class="c-block">
       <b class="tt">4. 확인</b>
-      본인은 위 환불 규정에 대한 설명을 듣고 충분히 이해하였으며 이에 동의합니다.
+      본인은 위 할인 조건과 환불 규정에 대한 설명을 듣고 충분히 이해하였으며 이에 동의합니다.
       <div class="sig-row">
         <div class="sig-box"><label>환자 성명</label><input type="text" placeholder="성명"></div>
-        <div class="sig-box"><label>결제 프로그램</label><input type="text" placeholder="예: 스탠다드 8회"></div>
+        <div class="sig-box"><label>적용 할인</label><input type="text" placeholder="예: 8회 10%"></div>
         <div class="sig-box"><label>날짜</label><input type="text" placeholder="2026.  .  ."></div>
         <div class="sig-box"><label>서명</label><canvas class="sig" data-sig="1"></canvas><button class="btn ghost sm" onclick="clearSig(this)" style="margin-top:6px">서명 지우기</button></div>
       </div>
@@ -257,7 +262,7 @@
 /* ================================================================
    CONFIG — 여기만 수정하면 됩니다
    ================================================================ */
-var ENDPOINT_URL = "";  // ★ GAS 웹앱 URL 붙여넣기 (권장, 공개 배포용 — 웹훅을 서버에 숨김. 대상 채널: C0BF7AMBEPK)
+var ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwusK1BIrQi483kQa-xhlx4pPxGYd445BkQUKoYf78K0wItVyvypNNdz5KYutd8C6zE9A/exec";  // ★ GAS 웹앱 URL 붙여넣기 (권장, 공개 배포용 — 웹훅을 서버에 숨김. 대상 채널: C0BF7AMBEPK)
                          //   원내 전용 파일이라면 Slack Incoming Webhook URL을 직접 넣어도 동작합니다.
                          //   비워두면 '복사해서 데스크 전달' 모드로 동작합니다.
 var SHARED_TOKEN = "acro-asym-2607"; // GAS와 맞추는 간이 토큰 (스팸 필터용)
@@ -277,7 +282,7 @@ var LANGS = [
 <script>
 /* ================= 한국어 ================= */
 I18N.ko = {
-tabs:{survey:"초진 설문지",explain:"치료 안내",price:"수가표",consent1:"시술 동의서",consent2:"환불 동의서",after:"관리법·주의사항"},
+tabs:{survey:"초진 설문지",revisit:"재진 설문",explain:"치료 안내",price:"수가표",consent1:"시술 동의서",consent2:"환불 동의서",after:"관리법·주의사항"},
 ui:{submit:"설문 제출",copy:"내용 복사",copied:"복사되었습니다",sentOk:"제출되었습니다. 감사합니다!",sentFail:"전송에 실패했습니다. 아래 내용을 복사해 데스크에 보여주세요.",noHook:"(웹훅 미설정) 아래 내용을 복사해 데스크에 전달해 주세요.",required:"필수 항목을 입력해 주세요: ",print:"인쇄 / PDF 저장"},
 survey:{
 title:"안면 밸런스 초진 설문지",
@@ -288,8 +293,9 @@ name:{lb:"성명",ph:"성명"},
 birth:{lb:"출생 연도",ph:"예: 1994"},
 gender:{lb:"성별",op:["여성","남성"]},
 phone:{lb:"연락처 (전화번호)",ph:"010-0000-0000"},
-contact:{lb:"카카오톡 / LINE ID (선택)",ph:"ID"},
-source:{lb:"어떻게 알고 오셨나요?",op:["인스타그램","유튜브","블로그","지인 소개","강남언니","기타"]},
+contact:{lb:"카카오톡 / LINE / WhatsApp / WeChat ID (선택)",ph:"ID"},
+source:{lb:"어떻게 알고 오셨나요? (복수 선택)",op:["인스타그램","유튜브","블로그","지인 소개","강남언니","기타"]},
+sourceEtc:{lb:"기타 경로를 적어주세요",ph:"예: 네이버 검색, 지도 앱"},
 areas:{lb:"비대칭이 신경 쓰이는 부위 (복수 선택)",op:["턱끝 치우침","광대 높이 차이","입꼬리 기울기","눈 높이 차이","얼굴 좌우 길이 차이","기타"]},
 since:{lb:"언제부터 느끼셨나요?",op:["6개월 미만","6개월~2년","2년 이상","잘 모름"]},
 concern:{lb:"가장 신경 쓰이는 점을 적어주세요",ph:"예: 사진 찍을 때 입꼬리가 한쪽만 올라가요"},
@@ -306,10 +312,42 @@ surgery:{lb:"안면 부위 수술·시술 이력 (있다면)",ph:"예: 2023년 �
 trauma:{lb:"턱·얼굴 외상(다친 적)이 있나요?",op:["있음","없음"]},
 health:{lb:"해당되는 항목 (복수 선택)",op:["임신 중이거나 가능성 있음","항응고제 복용 · 출혈성향","최근 6개월 내 안면 수술·시술","심한 급성 턱 통증·입이 잘 안 벌어짐","해당 없음"]},
 healthEtc:{lb:"기타 질환·복용 약 (있다면)",ph:""},
-goal:{lb:"치료로 기대하는 것 (복수 선택)",op:["비대칭 개선","턱관절 통증·소리 개선","얼굴 라인 (리프팅)","전신 자세 교정"]},
+goal:{lb:"치료로 기대하는 것 (복수 선택)",op:["비대칭 개선","턱관절 통증·소리 개선","얼굴 라인 (리프팅)","목·어깨 뻐근함 개선"]},
 stay:{lb:"한국 체류 일정 (해외 거주 시)",op:["당일만","2~3일","1주 이상","한국 거주"]},
 wish:{lb:"기타 요청사항",ph:""},
+selfScore:{lb:"지금 내 얼굴 비대칭이 얼마나 신경 쓰이나요?",lo:"전혀 신경 안 씀",hi:"매우 신경 쓰임"},
+mirrorPhoto:{lb:"거울로 볼 때와 사진으로 볼 때, 어느 쪽이 더 신경 쓰이나요?",op:["거울","사진","비슷함"]},
+headache:{lb:"두통이 있나요? (있다면 주로 어디)",op:["없음","관자놀이","뒤통수","이마","정수리","여러 곳"]},
+earSx:{lb:"귀가 먹먹하거나 이명이 있나요?",op:["있음","가끔","없음"]},
+chewWhy:{lb:"한쪽으로 씹으신다면, 이유가 있나요?",op:["양쪽 골고루 씹음","그쪽이 편해서","반대쪽 치아가 아파서","반대쪽 치아가 없거나 치료 중","이유 모름"]},
+neckPain:{lb:"목·어깨가 자주 뻐근하거나 아픈가요?",op:["자주","가끔","없음"]},
+neckTurn:{lb:"목을 좌우로 돌릴 때 한쪽이 더 안 돌아가나요?",op:["왼쪽이 덜 돌아감","오른쪽이 덜 돌아감","차이 없음","모름"]},
+snore:{lb:"코골이가 있다고 들으신 적 있나요?",op:["자주 있음","가끔","없음","모름"]},
+apnea:{lb:"수면무호흡 진단을 받거나 검사한 적 있나요?",op:["진단받음","검사만 함","없음"]},
+sleepQual:{lb:"아침에 일어날 때 개운한가요?",op:["개운함","보통","개운하지 않음"]},
 privacy:{lb:"개인정보 수집·이용 동의 (필수)",tx:"작성하신 정보는 진료 및 상담 목적으로만 수집·이용되며, 관계 법령에 따라 보관 후 파기됩니다. 동의합니다."}
+}},
+revisit:{
+title:"안면 밸런스 재진 설문",
+lead:"치료 경과를 확인합니다. 30초면 됩니다.",
+langNote:"재진 설문은 현재 한국어·영어로만 제공됩니다.",
+sec:["기본 정보","지금 상태","증상 변화","관리 실행","오늘 설명"],
+f:{
+rChart:{lb:"차트번호",ph:"차트번호"},
+rName:{lb:"성명",ph:"성명"},
+rVisitNo:{lb:"오늘이 몇 회차인가요?",ph:"예: 3"},
+rSelfScore:{lb:"지금 내 얼굴 비대칭이 얼마나 신경 쓰이나요?",lo:"전혀 신경 안 씀",hi:"매우 신경 쓰임"},
+rOthers:{lb:"주변에서 \"달라졌다\"는 말을 들으셨나요?",op:["들었음","못 들었음","아직 안 물어봄"]},
+rTmj:{lb:"턱 소리·통증은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rStiff:{lb:"아침에 턱이 뻐근한 것은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rNeck:{lb:"목·어깨 뻐근함은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rHeadache:{lb:"두통은 어떤가요?",op:["좋아짐","같음","나빠짐","원래 없었음"]},
+rSnore:{lb:"코골이·수면은 어떤가요?",op:["좋아짐","같음","나빠짐","모름","원래 없었음"]},
+rSplint:{lb:"장치를 실제로 하루 몇 시간 착용하셨나요?",op:["8시간 이상","5~8시간","3~5시간","3시간 미만","거의 못 씀","장치 미처방"]},
+rHabit:{lb:"습관 교정은 어느 정도 하셨나요? (양쪽으로 씹기 · 턱 안 괴기)",op:["잘 지킴","절반쯤","거의 못 함"]},
+rUnderstood:{lb:"오늘 설명으로 내 비대칭 유형을 이해하셨나요?",op:["전혀 아니다","아니다","보통","그렇다","매우 그렇다"]},
+rNewKnow:{lb:"전에는 몰랐던 것을 알게 되셨나요?",op:["예","아니오"]},
+rNote:{lb:"하시고 싶은 말씀 (선택)",ph:""}
 }},
 explain:'<h1>안면 밸런스 프로그램</h1><p class="lead">오늘 풀고, 장치로 지킵니다 — 얼굴 비대칭의 상당수는 뼈가 아니라 근육과 턱관절의 문제입니다.</p>'+
 '<h2><span class="num">01</span>내 얼굴은 왜 비대칭일까요?</h2><div class="two">'+
@@ -322,24 +360,15 @@ explain:'<h1>안면 밸런스 프로그램</h1><p class="lead">오늘 풀고, �
 '<h2><span class="num">04</span>프로그램 — 총 8회 · 약 6주</h2><table><tr><th>기간</th><th>내원</th><th>내용</th></tr><tr><td><b>1~2주차</b></td><td>주 2회</td><td>집중 이완기 — 근육 패턴을 바꾸는 시기. 1회차에 교정장치 지급</td></tr><tr><td><b>3~6주차</b></td><td>주 1회</td><td>안정기 — 균형을 다지고 습관·장치 점검</td></tr><tr><td><b>종료 시</b></td><td>—</td><td>최종 전후사진 비교 · 유지관리 플랜 안내</td></tr></table>'+
 '<h2><span class="num">05</span>해외 거주 · 단기 방문이신가요?</h2><ul class="cln"><li><b>1회 치료로도 당일 변화를 체감</b>할 수 있습니다. 다만 습관에 따라 며칠~몇 주에 걸쳐 서서히 되돌아가기 시작합니다.</li><li>그래서 <b>교정장치를 함께 가져가시길 강력히 권합니다.</b> 귀국 후 수면 착용 + 주간 스트레칭 착용으로 효과를 스스로 연장할 수 있습니다.</li><li>재방문 시 유지관리 회차로 이어집니다.</li><li>교정장치는 추후 <b>EMS 국제배송</b>으로도 받아보실 수 있습니다.</li></ul>'+
 '<h2><span class="num">06</span>온다(ONDA) 리프팅과 함께하면 더 좋습니다</h2><p>비대칭 교정이 <b>구조(근육·관절)</b>의 균형이라면, 온다는 <b>얼굴 라인(연부조직)</b>을 정리합니다. 균형 잡힌 얼굴 위에 온다를 더하면 좌우 라인의 대칭감이 더 선명해집니다. 같은 날 이어서 받을 수 있습니다.</p>'+
-'<h2><span class="num">07</span>치료 사례</h2><div class="ph-grid"><div class="ph"><b>+</b>사례 1</div><div class="ph"><b>+</b>사례 2</div><div class="ph"><b>+</b>사례 3</div><div class="ph"><b>+</b>사례 4</div><div class="ph"><b>+</b>사례 5</div><div class="ph"><b>+</b>사례 6</div></div>'+
-'<h2><span class="num">08</span>자주 묻는 질문</h2><div class="qa"><div class="q">아프지 않나요?</div><div class="a">시원한 압통 수준이며, 강한 통증을 참는 치료가 아닙니다.</div><div class="q">한 번만 받아도 효과가 있나요?</div><div class="a">당일 변화는 대부분 체감하시지만 습관에 따라 서서히 되돌아갑니다. 유지를 원하시면 8회 프로그램 또는 장치 병행을 권합니다.</div><div class="q">장치는 얼마나 착용하나요?</div><div class="a">오래 착용할수록 좋습니다. 수면 중 착용이 기본, 낮에는 물고 스트레칭도 좋습니다.</div><div class="q">양악수술을 권유받았는데 가능한가요?</div><div class="a">골격성은 저희 대상이 아닙니다. 감별해 솔직하게 말씀드립니다.</div></div>'+
+''+
+'<h2><span class="num">07</span>자주 묻는 질문</h2><div class="qa"><div class="q">아프지 않나요?</div><div class="a">시원한 압통 수준이며, 강한 통증을 참는 치료가 아닙니다.</div><div class="q">한 번만 받아도 효과가 있나요?</div><div class="a">당일 변화는 대부분 체감하시지만 습관에 따라 서서히 되돌아갑니다. 유지를 원하시면 8회 프로그램 또는 장치 병행을 권합니다.</div><div class="q">장치는 얼마나 착용하나요?</div><div class="a">오래 착용할수록 좋습니다. 수면 중 착용이 기본, 낮에는 물고 스트레칭도 좋습니다.</div><div class="q">양악수술을 권유받았는데 가능한가요?</div><div class="a">골격성은 저희 대상이 아닙니다. 감별해 솔직하게 말씀드립니다.</div></div>'+
 '<p class="fine">치료 효과는 개인의 상태·습관에 따라 차이가 있으며, 치료 방법과 횟수는 진찰 결과에 따라 달라질 수 있습니다. 부작용: 시술 부위 일시적 통증·멍·불편감이 발생할 수 있습니다.</p>',
 price:'<h1>수가표</h1><p class="lead">비급여 · 시행일 2026.7. 기준</p>'+
 '<h2><span class="num">01</span>단품 수가</h2><table><tr><th>항목</th><th>구성</th><th style="text-align:right">수가</th></tr>'+
-'<tr><td><b>밸런스 통합시술 1회</b></td><td>안면·턱관절 추나 + 약침 + 침</td><td class="r"><span class="price">120,000원</span></td></tr>'+
+'<tr><td><b>안면비대칭 교정 1회</b></td><td>안면·턱관절 추나 + 약침 + 침</td><td class="r"><span class="price">200,000원</span></td></tr>'+
 '<tr><td><b>턱관절 교정장치</b></td><td>구강 스플린트 + 착용 교육 + 관리 안내</td><td class="r"><span class="price">150,000원</span></td></tr>'+
-'<tr><td><b>온다(ONDA) 1회</b></td><td>6만 줄 / 9만 줄</td><td class="r"><span class="price">198,000 / 297,000원</span></td></tr></table>'+
-'<h2><span class="num">02</span>프로그램 패키지 — 최대 8회</h2><table><tr><th>프로그램</th><th>구성</th><th style="text-align:right">수가</th></tr>'+
-'<tr><td><b>첫 방문 진단·체험</b></td><td>진단 + 전후사진 + 통합시술 1회</td><td class="r"><span class="strike">120,000</span><span class="price g">90,000원</span></td></tr>'+
-'<tr><td><b>원데이 밸런스</b><br><span style="font-size:12px;color:#5b6b76">단기 방문·해외 거주</span></td><td>통합시술 1회 + 교정장치 + 홈케어 안내</td><td class="r"><span class="strike">270,000</span><span class="price g">250,000원</span></td></tr>'+
-'<tr><td><b>원데이 밸런스 플러스</b></td><td>통합시술 1회 + 교정장치 + 온다 1회</td><td class="r"><span class="strike">468,000</span><span class="price g">450,000원</span></td></tr>'+
-'<tr class="hl"><td><b>스탠다드 8회</b><span class="badge">대표</span></td><td>통합시술 8회 + 교정장치<br><span style="font-size:12px;color:#5b6b76">주2회×2주 → 주1회×4주 · 약 6주</span></td><td class="r"><span class="strike">1,110,000</span><span class="price g">990,000원</span></td></tr>'+
-'<tr class="hl"><td><b>프리미엄 8회</b><span class="badge">온다 결합</span></td><td>통합시술 8회 + 교정장치 + 온다 1회</td><td class="r"><span class="strike">1,308,000</span><span class="price g">1,190,000원</span></td></tr></table>'+
-'<h2><span class="num">03</span>종료 후 유지관리</h2><table><tr><th>항목</th><th></th><th style="text-align:right">수가</th></tr>'+
-'<tr><td><b>유지관리 1회</b></td><td>월 1~2회 권장</td><td class="r"><span class="price">80,000원</span></td></tr>'+
-'<tr><td><b>유지관리 4회</b></td><td></td><td class="r"><span class="strike">320,000</span><span class="price g">280,000원</span></td></tr>'+
-'<tr><td><b>장치 추가·재제작</b></td><td></td><td class="r"><span class="price">150,000원</span></td></tr></table>'+
+'<tr><td><b>온다(ONDA) 페이스 1회</b></td><td>6만 줄 / 9만 줄</td><td class="r"><span class="price">198,000 / 297,000원</span></td></tr></table>'+
+'<p style="font-size:14.5px;margin-top:16px"><b>4회 패키지 진행 시 5% · 8회 패키지 진행 시 10% 할인</b> — 선결제는 필요하지 않습니다.</p>'+
 '<p class="fine">본 수가는 사전 고지 후 변경될 수 있습니다. 효과와 필요 횟수는 개인차가 있습니다. 환불은 환불 동의서의 규정을 따릅니다.</p>',
 after:'<h1>교정장치 관리법과 주의사항</h1><p class="lead">오늘 받으신 치료의 효과를 오래 지키는 방법입니다.</p>'+
 '<h2><span class="num">01</span>착용법</h2><div class="card"><ul class="cln"><li><b>오래 착용할수록 좋습니다.</b> 기본은 <b>주무실 때 착용</b>입니다.</li><li>낮에도 장치를 물고 <b>스트레칭·가벼운 운동</b>을 하시면 더 좋습니다.</li><li>초기 며칠은 침 분비·이물감이 있을 수 있습니다 — 자연스러운 적응 과정입니다.</li><li>아기 젖병과 같은 성분의 안전한 소재입니다.</li></ul></div>'+
@@ -354,7 +383,7 @@ after:'<h1>교정장치 관리법과 주의사항</h1><p class="lead">오늘 받
 
 /* ================= English ================= */
 I18N.en = {
-tabs:{survey:"Intake Form",explain:"Treatment Guide",price:"Price List",consent1:"Consent (Korean)",consent2:"Refund Policy (Korean)",after:"Aftercare"},
+tabs:{survey:"Intake Form",revisit:"Follow-up Form",explain:"Treatment Guide",price:"Price List",consent1:"Consent (Korean)",consent2:"Refund Policy (Korean)",after:"Aftercare"},
 ui:{submit:"Submit",copy:"Copy",copied:"Copied",sentOk:"Submitted. Thank you!",sentFail:"Sending failed. Please copy the text below and show it to our front desk.",noHook:"(Webhook not set) Please copy the text below and show it to our front desk.",required:"Please fill in the required fields: ",print:"Print / Save as PDF"},
 survey:{
 title:"Facial Balance — New Patient Intake Form",
@@ -365,8 +394,9 @@ name:{lb:"Full name",ph:"Name"},
 birth:{lb:"Year of birth",ph:"e.g. 1994"},
 gender:{lb:"Gender",op:["Female","Male"]},
 phone:{lb:"Phone number",ph:"+82 10-0000-0000"},
-contact:{lb:"KakaoTalk / LINE ID (optional)",ph:"ID"},
-source:{lb:"How did you find us?",op:["Instagram","YouTube","Blog","Friend / referral","Gangnam Unni","Other"]},
+contact:{lb:"KakaoTalk / LINE / WhatsApp / WeChat ID (optional)",ph:"ID"},
+source:{lb:"How did you find us? (multiple)",op:["Instagram","YouTube","Blog","Friend / referral","Gangnam Unni","Other"]},
+sourceEtc:{lb:"Please specify (Other)",ph:"e.g. Google search"},
 areas:{lb:"Which areas feel asymmetric? (multiple)",op:["Chin deviation","Cheekbone height difference","Tilted mouth corners","Eye level difference","Left–right face length","Other"]},
 since:{lb:"Since when have you noticed it?",op:["Less than 6 months","6 months–2 years","Over 2 years","Not sure"]},
 concern:{lb:"What bothers you the most?",ph:"e.g. One corner of my mouth lifts higher in photos"},
@@ -383,10 +413,42 @@ surgery:{lb:"Facial surgery / procedures (if any)",ph:"e.g. cheekbone reduction 
 trauma:{lb:"Any jaw/face injury history?",op:["Yes","No"]},
 health:{lb:"Check all that apply",op:["Pregnant or possibly pregnant","Blood thinners / bleeding tendency","Facial surgery/procedure within 6 months","Severe acute jaw pain / limited mouth opening","None of these"]},
 healthEtc:{lb:"Other conditions / medications (if any)",ph:""},
-goal:{lb:"What do you hope for? (multiple)",op:["Improve asymmetry","Relieve TMJ pain/sounds","Facial line (lifting)","Whole-body posture"]},
+goal:{lb:"What do you hope for? (multiple)",op:["Improve asymmetry","Relieve TMJ pain/sounds","Facial line (lifting)","Neck & shoulder tension relief"]},
 stay:{lb:"Your schedule in Korea (if visiting)",op:["Today only","2–3 days","1 week or more","I live in Korea"]},
 wish:{lb:"Anything else you'd like us to know",ph:""},
+selfScore:{lb:"How much does your facial asymmetry bother you right now?",lo:"Not at all",hi:"Very much"},
+mirrorPhoto:{lb:"Which bothers you more — the mirror, or photographs?",op:["Mirror","Photographs","About the same"]},
+headache:{lb:"Do you get headaches? (if so, mainly where)",op:["None","Temples","Back of head","Forehead","Top of head","Several areas"]},
+earSx:{lb:"Do your ears feel blocked, or do you have ringing?",op:["Yes","Sometimes","No"]},
+chewWhy:{lb:"If you chew on one side, is there a reason?",op:["I chew evenly on both sides","That side is more comfortable","A tooth on the other side hurts","A tooth on the other side is missing or under treatment","I do not know"]},
+neckPain:{lb:"Do your neck and shoulders often feel stiff or painful?",op:["Often","Sometimes","No"]},
+neckTurn:{lb:"When you turn your head, does one side turn less than the other?",op:["Left turns less","Right turns less","No difference","Not sure"]},
+snore:{lb:"Have you been told that you snore?",op:["Often","Sometimes","No","Not sure"]},
+apnea:{lb:"Have you been diagnosed with, or tested for, sleep apnea?",op:["Diagnosed","Tested only","No"]},
+sleepQual:{lb:"Do you feel refreshed when you wake up?",op:["Refreshed","So-so","Not refreshed"]},
 privacy:{lb:"Privacy consent (required)",tx:"I agree that my information is collected and used only for medical consultation and treatment, and stored/discarded according to the law."}
+}},
+revisit:{
+title:"Facial Balance — Follow-up Form",
+lead:"A quick check on your progress. Takes about 30 seconds.",
+langNote:"This follow-up form is currently available in Korean and English only.",
+sec:["Basic Information","Right Now","Change in Symptoms","Home Care","Today's Explanation"],
+f:{
+rChart:{lb:"Chart number",ph:"Chart number"},
+rName:{lb:"Full name",ph:"Name"},
+rVisitNo:{lb:"Which visit is today?",ph:"e.g. 3"},
+rSelfScore:{lb:"How much does your facial asymmetry bother you right now?",lo:"Not at all",hi:"Very much"},
+rOthers:{lb:"Has anyone around you said you look different?",op:["Yes, I have been told","No","I have not asked yet"]},
+rTmj:{lb:"How are the jaw sounds and pain?",op:["Better","Same","Worse","Did not have it before"]},
+rStiff:{lb:"How is the morning jaw stiffness?",op:["Better","Same","Worse","Did not have it before"]},
+rNeck:{lb:"How is the neck and shoulder tension?",op:["Better","Same","Worse","Did not have it before"]},
+rHeadache:{lb:"How are the headaches?",op:["Better","Same","Worse","Did not have it before"]},
+rSnore:{lb:"How is your snoring and sleep?",op:["Better","Same","Worse","Not sure","Did not have it before"]},
+rSplint:{lb:"How many hours a day did you actually wear the appliance?",op:["8 hours or more","5-8 hours","3-5 hours","Under 3 hours","Barely wore it","No appliance prescribed"]},
+rHabit:{lb:"How well did you keep the habit changes? (chewing on both sides, not resting your chin)",op:["Kept them well","About half","Barely kept them"]},
+rUnderstood:{lb:"Did today's explanation help you understand your type of asymmetry?",op:["Not at all","No","Neutral","Yes","Very much"]},
+rNewKnow:{lb:"Did you learn something you did not know before?",op:["Yes","No"]},
+rNote:{lb:"Anything you would like to tell us (optional)",ph:""}
 }},
 explain:'<h1>Facial Balance Program</h1><p class="lead">Release today, hold with the appliance — most facial asymmetry comes from muscles and the jaw joint, not from bone.</p>'+
 '<h2><span class="num">01</span>Why is my face asymmetric?</h2><div class="two">'+
@@ -399,24 +461,15 @@ explain:'<h1>Facial Balance Program</h1><p class="lead">Release today, hold with
 '<h2><span class="num">04</span>Program — 8 sessions · about 6 weeks</h2><table><tr><th>Period</th><th>Visits</th><th>Content</th></tr><tr><td><b>Weeks 1–2</b></td><td>2×/week</td><td>Intensive phase — re-patterning the muscles. Appliance provided at session 1</td></tr><tr><td><b>Weeks 3–6</b></td><td>1×/week</td><td>Stabilizing phase — consolidating balance, habit & appliance check</td></tr><tr><td><b>End</b></td><td>—</td><td>Final before/after review · maintenance plan</td></tr></table>'+
 '<h2><span class="num">05</span>Visiting Korea short-term?</h2><ul class="cln"><li><b>Even one session gives a visible same-day change.</b> It will gradually drift back over days to weeks depending on your habits.</li><li>So we strongly recommend <b>taking the appliance home</b> — night wear plus daytime stretching wear lets you extend the effect yourself. We provide a care guide and video.</li><li>On your next visit, you can continue with maintenance sessions.</li><li>The appliance can also be <b>shipped to you later via EMS international delivery</b>.</li></ul>'+
 '<h2><span class="num">06</span>Even better with ONDA lifting</h2><p>Balance correction works on <b>structure (muscle & joint)</b>; ONDA works on the <b>facial line (soft tissue)</b>. Adding ONDA on a balanced face makes the symmetry of your line more visible. It can be done the same day.</p>'+
-'<h2><span class="num">07</span>Cases</h2><div class="ph-grid"><div class="ph"><b>+</b>Case 1</div><div class="ph"><b>+</b>Case 2</div><div class="ph"><b>+</b>Case 3</div><div class="ph"><b>+</b>Case 4</div><div class="ph"><b>+</b>Case 5</div><div class="ph"><b>+</b>Case 6</div></div>'+
-'<h2><span class="num">08</span>FAQ</h2><div class="qa"><div class="q">Does it hurt?</div><div class="a">It feels like a firm, releasing pressure — not a painful procedure. Needling is standard acupuncture level.</div><div class="q">Is one session enough?</div><div class="a">You will likely see a same-day change, but it drifts back with habit. For lasting results we recommend the 8-session program or at least the appliance.</div><div class="q">How long should I wear the appliance?</div><div class="a">The longer, the better. Night wear is the baseline; daytime wear with stretching also helps.</div><div class="q">I was told I need jaw surgery.</div><div class="a">Skeletal asymmetry is not our target. We screen honestly and refer when appropriate.</div></div>'+
+''+
+'<h2><span class="num">07</span>FAQ</h2><div class="qa"><div class="q">Does it hurt?</div><div class="a">It feels like a firm, releasing pressure — not a painful procedure. Needling is standard acupuncture level.</div><div class="q">Is one session enough?</div><div class="a">You will likely see a same-day change, but it drifts back with habit. For lasting results we recommend the 8-session program or at least the appliance.</div><div class="q">How long should I wear the appliance?</div><div class="a">The longer, the better. Night wear is the baseline; daytime wear with stretching also helps.</div><div class="q">I was told I need jaw surgery.</div><div class="a">Skeletal asymmetry is not our target. We screen honestly and refer when appropriate.</div></div>'+
 '<p class="fine">Results and duration vary by individual condition and habits. Possible side effects: temporary soreness, bruising, or discomfort at treatment sites.</p>',
 price:'<h1>Price List</h1><p class="lead">Non-covered services · as of July 2026 · KRW</p>'+
 '<h2><span class="num">01</span>Single items</h2><table><tr><th>Item</th><th>Includes</th><th style="text-align:right">Price</th></tr>'+
-'<tr><td><b>Balance Treatment ×1</b></td><td>Facial/TMJ Chuna + pharmacopuncture + acupuncture</td><td class="r"><span class="price">₩120,000</span></td></tr>'+
+'<tr><td><b>Facial Asymmetry Correction ×1</b></td><td>Facial/TMJ Chuna + pharmacopuncture + acupuncture</td><td class="r"><span class="price">₩200,000</span></td></tr>'+
 '<tr><td><b>TMJ appliance</b></td><td>Oral splint + fitting & care guide</td><td class="r"><span class="price">₩150,000</span></td></tr>'+
-'<tr><td><b>ONDA lifting ×1</b></td><td>60k / 90k joules</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
-'<h2><span class="num">02</span>Programs — up to 8 sessions</h2><table><tr><th>Program</th><th>Includes</th><th style="text-align:right">Price</th></tr>'+
-'<tr><td><b>First-visit trial</b></td><td>Exam + photos + 1 treatment</td><td class="r"><span class="strike">120,000</span><span class="price g">₩90,000</span></td></tr>'+
-'<tr><td><b>One-Day Balance</b><br><span style="font-size:12px;color:#5b6b76">short-stay / overseas</span></td><td>1 treatment + appliance + home-care guide</td><td class="r"><span class="strike">270,000</span><span class="price g">₩250,000</span></td></tr>'+
-'<tr><td><b>One-Day Balance Plus</b></td><td>1 treatment + appliance + ONDA ×1</td><td class="r"><span class="strike">468,000</span><span class="price g">₩450,000</span></td></tr>'+
-'<tr class="hl"><td><b>Standard 8</b><span class="badge">Best</span></td><td>8 treatments + appliance<br><span style="font-size:12px;color:#5b6b76">2×/wk ×2wks → 1×/wk ×4wks · ~6 weeks</span></td><td class="r"><span class="strike">1,110,000</span><span class="price g">₩990,000</span></td></tr>'+
-'<tr class="hl"><td><b>Premium 8</b><span class="badge">+ONDA</span></td><td>8 treatments + appliance + ONDA ×1</td><td class="r"><span class="strike">1,308,000</span><span class="price g">₩1,190,000</span></td></tr></table>'+
-'<h2><span class="num">03</span>Maintenance (after program)</h2><table><tr><th>Item</th><th></th><th style="text-align:right">Price</th></tr>'+
-'<tr><td><b>Maintenance ×1</b></td><td>1–2 visits/month recommended</td><td class="r"><span class="price">₩80,000</span></td></tr>'+
-'<tr><td><b>Maintenance ×4</b></td><td></td><td class="r"><span class="strike">320,000</span><span class="price g">₩280,000</span></td></tr>'+
-'<tr><td><b>Appliance replacement</b></td><td></td><td class="r"><span class="price">₩150,000</span></td></tr></table>'+
+'<tr><td><b>ONDA Face ×1</b></td><td>60k / 90k joules</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
+'<p style="font-size:14.5px;margin-top:16px"><b>5% off for a 4-session course · 10% off for an 8-session course</b> — no prepayment required.</p>'+
 '<p class="fine">Prices may change with prior notice. Results vary by individual. Refunds follow the refund agreement.</p>',
 after:'<h1>Appliance Care & Aftercare</h1><p class="lead">How to keep today\'s result for longer.</p>'+
 '<h2><span class="num">01</span>How to wear</h2><div class="card"><ul class="cln"><li><b>The longer you wear it, the better.</b> Baseline: <b>wear it while sleeping.</b></li><li>In the daytime, bite the appliance during <b>stretching or light exercise</b> — this also helps.</li><li>Extra saliva or a foreign-body feeling in the first days is a normal adaptation.</li><li>It is made of the same safe material as baby bottles.</li></ul></div>'+
@@ -432,7 +485,7 @@ after:'<h1>Appliance Care & Aftercare</h1><p class="lead">How to keep today\'s r
 <script>
 /* ================= Italiano ================= */
 I18N.it = {
-tabs:{survey:"Questionario",explain:"Guida al trattamento",price:"Listino prezzi",consent1:"Consenso (coreano)",consent2:"Rimborsi (coreano)",after:"Cura post-trattamento"},
+tabs:{survey:"Questionario",revisit:"Questionario di controllo",explain:"Guida al trattamento",price:"Listino prezzi",consent1:"Consenso (coreano)",consent2:"Rimborsi (coreano)",after:"Cura post-trattamento"},
 ui:{submit:"Invia",copy:"Copia",copied:"Copiato",sentOk:"Inviato. Grazie!",sentFail:"Invio non riuscito. Copi il testo qui sotto e lo mostri alla reception.",noHook:"(Webhook non impostato) Copi il testo qui sotto e lo mostri alla reception.",required:"Compili i campi obbligatori: ",print:"Stampa / Salva PDF"},
 survey:{
 title:"Equilibrio del Viso — Questionario iniziale",
@@ -443,8 +496,9 @@ name:{lb:"Nome e cognome",ph:"Nome"},
 birth:{lb:"Anno di nascita",ph:"es. 1994"},
 gender:{lb:"Sesso",op:["Donna","Uomo"]},
 phone:{lb:"Telefono",ph:"+39 ..."},
-contact:{lb:"KakaoTalk / LINE ID (facoltativo)",ph:"ID"},
-source:{lb:"Come ci ha conosciuti?",op:["Instagram","YouTube","Blog","Passaparola","Gangnam Unni","Altro"]},
+contact:{lb:"KakaoTalk / LINE / WhatsApp / WeChat ID (facoltativo)",ph:"ID"},
+source:{lb:"Come ci ha conosciuti? (più risposte)",op:["Instagram","YouTube","Blog","Passaparola","Gangnam Unni","Altro"]},
+sourceEtc:{lb:"Specifichi (Altro)",ph:"es. ricerca Google"},
 areas:{lb:"Quali zone sente asimmetriche? (più risposte)",op:["Mento deviato","Zigomi ad altezza diversa","Angoli della bocca inclinati","Occhi ad altezza diversa","Lunghezza del viso destra–sinistra","Altro"]},
 since:{lb:"Da quando lo nota?",op:["Meno di 6 mesi","6 mesi–2 anni","Oltre 2 anni","Non saprei"]},
 concern:{lb:"Cosa La disturba di più?",ph:"es. Nelle foto un angolo della bocca si alza di più"},
@@ -461,7 +515,7 @@ surgery:{lb:"Interventi/procedure al viso (se presenti)",ph:"es. riduzione zigom
 trauma:{lb:"Traumi a mandibola/viso?",op:["Sì","No"]},
 health:{lb:"Selezioni ciò che La riguarda",op:["Gravidanza (anche possibile)","Anticoagulanti / tendenza al sanguinamento","Chirurgia/procedura al viso negli ultimi 6 mesi","Dolore acuto intenso alla mandibola / apertura limitata","Nessuna delle precedenti"]},
 healthEtc:{lb:"Altre patologie / farmaci (se presenti)",ph:""},
-goal:{lb:"Cosa desidera dal trattamento? (più risposte)",op:["Migliorare l'asimmetria","Ridurre dolore/rumori ATM","Linea del viso (lifting)","Postura del corpo"]},
+goal:{lb:"Cosa desidera dal trattamento? (più risposte)",op:["Migliorare l'asimmetria","Ridurre dolore/rumori ATM","Linea del viso (lifting)","Sollievo da tensione a collo e spalle"]},
 stay:{lb:"Permanenza in Corea (se in visita)",op:["Solo oggi","2–3 giorni","1 settimana o più","Vivo in Corea"]},
 wish:{lb:"Altre richieste",ph:""},
 privacy:{lb:"Consenso privacy (obbligatorio)",tx:"Acconsento alla raccolta e all'uso dei miei dati esclusivamente a fini di consulenza e trattamento medico, conservati ed eliminati secondo la legge."}
@@ -477,24 +531,15 @@ explain:'<h1>Programma Facial Balance</h1><p class="lead">Rilasciare oggi, mante
 '<h2><span class="num">04</span>Programma — 8 sedute · circa 6 settimane</h2><table><tr><th>Periodo</th><th>Visite</th><th>Contenuto</th></tr><tr><td><b>Settimane 1–2</b></td><td>2×/sett.</td><td>Fase intensiva — rieducazione muscolare. Bite consegnato alla 1ª seduta</td></tr><tr><td><b>Settimane 3–6</b></td><td>1×/sett.</td><td>Fase di stabilizzazione — consolidamento, controllo abitudini e bite</td></tr><tr><td><b>Fine</b></td><td>—</td><td>Confronto finale prima/dopo · piano di mantenimento</td></tr></table>'+
 '<h2><span class="num">05</span>In Corea per poco tempo?</h2><ul class="cln"><li><b>Anche una sola seduta dà un cambiamento visibile in giornata.</b> Con il tempo tende a regredire, in giorni o settimane, a seconda delle abitudini.</li><li>Consigliamo vivamente di <b>portare il bite a casa</b>: uso notturno più stretching diurno per prolungare l\'effetto da soli. Forniamo guida e video.</li><li>Alla visita successiva si prosegue con le sedute di mantenimento.</li><li>Il bite può anche esserLe <b>spedito in seguito tramite EMS internazionale</b>.</li></ul>'+
 '<h2><span class="num">06</span>Ancora meglio con il lifting ONDA</h2><p>La correzione dell\'equilibrio agisce sulla <b>struttura (muscoli e articolazione)</b>; ONDA agisce sulla <b>linea del viso (tessuti molli)</b>. Su un viso riequilibrato, ONDA rende la simmetria della linea più evidente. Si può fare lo stesso giorno.</p>'+
-'<h2><span class="num">07</span>Casi clinici</h2><div class="ph-grid"><div class="ph"><b>+</b>Caso 1</div><div class="ph"><b>+</b>Caso 2</div><div class="ph"><b>+</b>Caso 3</div><div class="ph"><b>+</b>Caso 4</div><div class="ph"><b>+</b>Caso 5</div><div class="ph"><b>+</b>Caso 6</div></div>'+
-'<h2><span class="num">08</span>Domande frequenti</h2><div class="qa"><div class="q">Fa male?</div><div class="a">Si sente una pressione decisa ma liberatoria, non è un trattamento doloroso. Gli aghi sono a livello di agopuntura standard.</div><div class="q">Basta una sola seduta?</div><div class="a">Il cambiamento in giornata è probabile, ma regredisce con le abitudini. Per risultati duraturi consigliamo il programma di 8 sedute o almeno il bite.</div><div class="q">Quanto devo indossare il bite?</div><div class="a">Più a lungo, meglio è. La notte è la base; di giorno anche durante lo stretching.</div><div class="q">Mi hanno proposto la chirurgia maxillo-facciale.</div><div class="a">L\'asimmetria scheletrica non è il nostro campo: la individuiamo con onestà e indirizziamo dove serve.</div></div>'+
+''+
+'<h2><span class="num">07</span>Domande frequenti</h2><div class="qa"><div class="q">Fa male?</div><div class="a">Si sente una pressione decisa ma liberatoria, non è un trattamento doloroso. Gli aghi sono a livello di agopuntura standard.</div><div class="q">Basta una sola seduta?</div><div class="a">Il cambiamento in giornata è probabile, ma regredisce con le abitudini. Per risultati duraturi consigliamo il programma di 8 sedute o almeno il bite.</div><div class="q">Quanto devo indossare il bite?</div><div class="a">Più a lungo, meglio è. La notte è la base; di giorno anche durante lo stretching.</div><div class="q">Mi hanno proposto la chirurgia maxillo-facciale.</div><div class="a">L\'asimmetria scheletrica non è il nostro campo: la individuiamo con onestà e indirizziamo dove serve.</div></div>'+
 '<p class="fine">Risultati e durata variano secondo condizioni e abitudini individuali. Possibili effetti collaterali: dolore, lividi o fastidio temporanei nelle zone trattate.</p>',
 price:'<h1>Listino prezzi</h1><p class="lead">Prestazioni non convenzionate · luglio 2026 · KRW (won coreani)</p>'+
 '<h2><span class="num">01</span>Prestazioni singole</h2><table><tr><th>Voce</th><th>Include</th><th style="text-align:right">Prezzo</th></tr>'+
-'<tr><td><b>Trattamento Balance ×1</b></td><td>Chuna viso/ATM + farmacopuntura + agopuntura</td><td class="r"><span class="price">₩120.000</span></td></tr>'+
+'<tr><td><b>Correzione dell\'asimmetria facciale ×1</b></td><td>Chuna viso/ATM + farmacopuntura + agopuntura</td><td class="r"><span class="price">₩200.000</span></td></tr>'+
 '<tr><td><b>Bite ATM</b></td><td>Splint orale + istruzioni d\'uso e cura</td><td class="r"><span class="price">₩150.000</span></td></tr>'+
-'<tr><td><b>Lifting ONDA ×1</b></td><td>60k / 90k joule</td><td class="r"><span class="price">₩198.000 / 297.000</span></td></tr></table>'+
-'<h2><span class="num">02</span>Programmi — fino a 8 sedute</h2><table><tr><th>Programma</th><th>Include</th><th style="text-align:right">Prezzo</th></tr>'+
-'<tr><td><b>Prima visita di prova</b></td><td>Visita + foto + 1 trattamento</td><td class="r"><span class="strike">120.000</span><span class="price g">₩90.000</span></td></tr>'+
-'<tr><td><b>One-Day Balance</b><br><span style="font-size:12px;color:#5b6b76">soggiorni brevi / estero</span></td><td>1 trattamento + bite + guida per casa</td><td class="r"><span class="strike">270.000</span><span class="price g">₩250.000</span></td></tr>'+
-'<tr><td><b>One-Day Balance Plus</b></td><td>1 trattamento + bite + ONDA ×1</td><td class="r"><span class="strike">468.000</span><span class="price g">₩450.000</span></td></tr>'+
-'<tr class="hl"><td><b>Standard 8</b><span class="badge">Top</span></td><td>8 trattamenti + bite<br><span style="font-size:12px;color:#5b6b76">2×/sett. ×2 sett. → 1×/sett. ×4 sett. · ~6 settimane</span></td><td class="r"><span class="strike">1.110.000</span><span class="price g">₩990.000</span></td></tr>'+
-'<tr class="hl"><td><b>Premium 8</b><span class="badge">+ONDA</span></td><td>8 trattamenti + bite + ONDA ×1</td><td class="r"><span class="strike">1.308.000</span><span class="price g">₩1.190.000</span></td></tr></table>'+
-'<h2><span class="num">03</span>Mantenimento (dopo il programma)</h2><table><tr><th>Voce</th><th></th><th style="text-align:right">Prezzo</th></tr>'+
-'<tr><td><b>Mantenimento ×1</b></td><td>1–2 visite/mese consigliate</td><td class="r"><span class="price">₩80.000</span></td></tr>'+
-'<tr><td><b>Mantenimento ×4</b></td><td></td><td class="r"><span class="strike">320.000</span><span class="price g">₩280.000</span></td></tr>'+
-'<tr><td><b>Sostituzione bite</b></td><td></td><td class="r"><span class="price">₩150.000</span></td></tr></table>'+
+'<tr><td><b>ONDA Viso ×1</b></td><td>60k / 90k joule</td><td class="r"><span class="price">₩198.000 / 297.000</span></td></tr></table>'+
+'<p style="font-size:14.5px;margin-top:16px"><b>5% di sconto per un ciclo da 4 sedute · 10% per un ciclo da 8 sedute</b> — nessun pagamento anticipato richiesto.</p>'+
 '<p class="fine">I prezzi possono variare con preavviso. I risultati variano da persona a persona. I rimborsi seguono l\'accordo di rimborso.</p>',
 after:'<h1>Cura del bite e indicazioni post-trattamento</h1><p class="lead">Come conservare più a lungo il risultato di oggi.</p>'+
 '<h2><span class="num">01</span>Come indossarlo</h2><div class="card"><ul class="cln"><li><b>Più a lungo lo indossa, meglio è.</b> Base: <b>durante il sonno.</b></li><li>Di giorno, lo tenga in bocca durante <b>stretching o attività leggera</b>: aiuta.</li><li>Nei primi giorni salivazione o sensazione di corpo estraneo sono un normale adattamento.</li><li>È fatto dello stesso materiale sicuro dei biberon.</li></ul></div>'+
@@ -509,7 +554,7 @@ after:'<h1>Cura del bite e indicazioni post-trattamento</h1><p class="lead">Come
 
 /* ================= 日本語 ================= */
 I18N.ja = {
-tabs:{survey:"初診問診票",explain:"治療のご案内",price:"料金表",consent1:"施術同意書(韓国語)",consent2:"返金同意書(韓国語)",after:"管理方法・注意事項"},
+tabs:{survey:"初診問診票",revisit:"再診問診票",explain:"治療のご案内",price:"料金表",consent1:"施術同意書(韓国語)",consent2:"返金同意書(韓国語)",after:"管理方法・注意事項"},
 ui:{submit:"送信",copy:"コピー",copied:"コピーしました",sentOk:"送信されました。ありがとうございます!",sentFail:"送信に失敗しました。下記の内容をコピーして受付にお見せください。",noHook:"(Webhook未設定) 下記の内容をコピーして受付にお見せください。",required:"必須項目をご記入ください: ",print:"印刷 / PDF保存"},
 survey:{
 title:"フェイシャルバランス 初診問診票",
@@ -520,8 +565,9 @@ name:{lb:"お名前",ph:"氏名"},
 birth:{lb:"生まれ年",ph:"例: 1994"},
 gender:{lb:"性別",op:["女性","男性"]},
 phone:{lb:"電話番号",ph:"+81 ..."},
-contact:{lb:"LINE / カカオトーク ID (任意)",ph:"ID"},
-source:{lb:"当院を何で知りましたか?",op:["Instagram","YouTube","ブログ","知人の紹介","カンナムオンニ","その他"]},
+contact:{lb:"LINE / カカオトーク / WhatsApp / WeChat ID (任意)",ph:"ID"},
+source:{lb:"当院を何で知りましたか? (複数選択可)",op:["Instagram","YouTube","ブログ","知人の紹介","カンナムオンニ","その他"]},
+sourceEtc:{lb:"その他の場合はご記入ください",ph:"例: Google検索"},
 areas:{lb:"非対称が気になる部位 (複数選択可)",op:["顎先のゆがみ","頬骨の高さの差","口角の傾き","目の高さの差","顔の左右の長さの差","その他"]},
 since:{lb:"いつ頃から感じていますか?",op:["6ヶ月未満","6ヶ月~2年","2年以上","わからない"]},
 concern:{lb:"一番気になる点をお書きください",ph:"例: 写真を撮ると口角が片方だけ上がる"},
@@ -538,7 +584,7 @@ surgery:{lb:"顔の手術・施術歴 (あれば)",ph:"例: 2023年 頬骨縮小
 trauma:{lb:"顎・顔のケガの経験は?",op:["ある","ない"]},
 health:{lb:"該当する項目 (複数選択可)",op:["妊娠中または可能性あり","抗凝固薬の服用・出血傾向","6ヶ月以内の顔・顎の手術や施術","強い急性の顎の痛み・口が開きにくい","該当なし"]},
 healthEtc:{lb:"その他の疾患・服用中の薬 (あれば)",ph:""},
-goal:{lb:"治療に期待すること (複数選択可)",op:["非対称の改善","顎関節の痛み・音の改善","フェイスライン (リフティング)","全身の姿勢"]},
+goal:{lb:"治療に期待すること (複数選択可)",op:["非対称の改善","顎関節の痛み・音の改善","フェイスライン (リフティング)","首・肩のこり改善"]},
 stay:{lb:"韓国滞在日程 (海外在住の方)",op:["本日のみ","2~3日","1週間以上","韓国在住"]},
 wish:{lb:"その他のご要望",ph:""},
 privacy:{lb:"個人情報の収集・利用同意 (必須)",tx:"ご記入いただいた情報は診療・相談の目的にのみ収集・利用され、関係法令に従い保管後、破棄されます。同意します。"}
@@ -554,24 +600,15 @@ explain:'<h1>フェイシャルバランス プログラム</h1><p class="lead">
 '<h2><span class="num">04</span>プログラム — 全8回・約6週間</h2><table><tr><th>期間</th><th>通院</th><th>内容</th></tr><tr><td><b>1~2週目</b></td><td>週2回</td><td>集中期 — 筋肉のパターンを変える時期。初回に装置お渡し</td></tr><tr><td><b>3~6週目</b></td><td>週1回</td><td>安定期 — バランスの定着、習慣・装置チェック</td></tr><tr><td><b>終了時</b></td><td>—</td><td>最終ビフォーアフター比較・メンテナンスプランのご案内</td></tr></table>'+
 '<h2><span class="num">05</span>短期滞在・海外にお住まいの方へ</h2><ul class="cln"><li><b>1回の治療でも当日の変化を実感</b>いただけます。ただし習慣によって数日~数週間かけて徐々に戻り始めます。</li><li>そのため<b>矯正装置のお持ち帰りを強くおすすめします。</b>帰国後も就寝時装着+日中のストレッチ装着で、ご自身で効果を延ばせます。ケア動画と案内をお渡しします。</li><li>再訪時はメンテナンス回として続けられます。</li><li>矯正装置は後日<b>EMS国際配送</b>でお届けすることも可能です。</li></ul>'+
 '<h2><span class="num">06</span>ONDAリフティングとの併用がおすすめ</h2><p>バランス矯正が<b>構造(筋肉・関節)</b>を整えるなら、ONDAは<b>フェイスライン(軟部組織)</b>を整えます。整った顔にONDAを加えると、ラインの対称感がより際立ちます。同日に続けて受けられます。</p>'+
-'<h2><span class="num">07</span>症例</h2><div class="ph-grid"><div class="ph"><b>+</b>症例 1</div><div class="ph"><b>+</b>症例 2</div><div class="ph"><b>+</b>症例 3</div><div class="ph"><b>+</b>症例 4</div><div class="ph"><b>+</b>症例 5</div><div class="ph"><b>+</b>症例 6</div></div>'+
-'<h2><span class="num">08</span>よくあるご質問</h2><div class="qa"><div class="q">痛くないですか?</div><div class="a">イタ気持ちいい程度の圧で、強い痛みを我慢する治療ではありません。鍼は一般的な鍼治療のレベルです。</div><div class="q">1回だけでも効果はありますか?</div><div class="a">当日の変化はほとんどの方が実感されますが、習慣により徐々に戻ります。維持をご希望なら8回プログラム、少なくとも装置の併用をおすすめします。</div><div class="q">装置はどれくらい着けますか?</div><div class="a">長いほど良いです。就寝時が基本で、日中は噛みながらストレッチも◎。</div><div class="q">両顎手術を勧められたのですが。</div><div class="a">骨格性は当院の対象外です。鑑別して正直にお伝えします。</div></div>'+
+''+
+'<h2><span class="num">07</span>よくあるご質問</h2><div class="qa"><div class="q">痛くないですか?</div><div class="a">イタ気持ちいい程度の圧で、強い痛みを我慢する治療ではありません。鍼は一般的な鍼治療のレベルです。</div><div class="q">1回だけでも効果はありますか?</div><div class="a">当日の変化はほとんどの方が実感されますが、習慣により徐々に戻ります。維持をご希望なら8回プログラム、少なくとも装置の併用をおすすめします。</div><div class="q">装置はどれくらい着けますか?</div><div class="a">長いほど良いです。就寝時が基本で、日中は噛みながらストレッチも◎。</div><div class="q">両顎手術を勧められたのですが。</div><div class="a">骨格性は当院の対象外です。鑑別して正直にお伝えします。</div></div>'+
 '<p class="fine">治療効果は個人の状態・習慣により差があります。副作用: 施術部位の一時的な痛み・あざ・違和感が生じることがあります。</p>',
 price:'<h1>料金表</h1><p class="lead">自由診療 · 2026年7月現在 · 韓国ウォン(KRW)</p>'+
 '<h2><span class="num">01</span>単品料金</h2><table><tr><th>項目</th><th>内容</th><th style="text-align:right">料金</th></tr>'+
-'<tr><td><b>バランス統合施術 1回</b></td><td>顔面・顎関節推拿 + 薬鍼 + 鍼</td><td class="r"><span class="price">₩120,000</span></td></tr>'+
+'<tr><td><b>顔面非対称矯正 1回</b></td><td>顔面・顎関節推拿 + 薬鍼 + 鍼</td><td class="r"><span class="price">₩200,000</span></td></tr>'+
 '<tr><td><b>顎関節矯正装置</b></td><td>スプリント + 装着指導 + ケア案内</td><td class="r"><span class="price">₩150,000</span></td></tr>'+
-'<tr><td><b>ONDAリフティング 1回</b></td><td>6万J / 9万J</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
-'<h2><span class="num">02</span>プログラム — 最大8回</h2><table><tr><th>プログラム</th><th>内容</th><th style="text-align:right">料金</th></tr>'+
-'<tr><td><b>初回 診断・体験</b></td><td>診断 + 写真 + 統合施術1回</td><td class="r"><span class="strike">120,000</span><span class="price g">₩90,000</span></td></tr>'+
-'<tr><td><b>ワンデーバランス</b><br><span style="font-size:12px;color:#5b6b76">短期滞在・海外在住</span></td><td>統合施術1回 + 装置 + ホームケア案内</td><td class="r"><span class="strike">270,000</span><span class="price g">₩250,000</span></td></tr>'+
-'<tr><td><b>ワンデーバランス プラス</b></td><td>統合施術1回 + 装置 + ONDA 1回</td><td class="r"><span class="strike">468,000</span><span class="price g">₩450,000</span></td></tr>'+
-'<tr class="hl"><td><b>スタンダード 8回</b><span class="badge">人気</span></td><td>統合施術8回 + 装置<br><span style="font-size:12px;color:#5b6b76">週2回×2週 → 週1回×4週 · 約6週間</span></td><td class="r"><span class="strike">1,110,000</span><span class="price g">₩990,000</span></td></tr>'+
-'<tr class="hl"><td><b>プレミアム 8回</b><span class="badge">+ONDA</span></td><td>統合施術8回 + 装置 + ONDA 1回</td><td class="r"><span class="strike">1,308,000</span><span class="price g">₩1,190,000</span></td></tr></table>'+
-'<h2><span class="num">03</span>プログラム終了後のメンテナンス</h2><table><tr><th>項目</th><th></th><th style="text-align:right">料金</th></tr>'+
-'<tr><td><b>メンテナンス 1回</b></td><td>月1~2回推奨</td><td class="r"><span class="price">₩80,000</span></td></tr>'+
-'<tr><td><b>メンテナンス 4回</b></td><td></td><td class="r"><span class="strike">320,000</span><span class="price g">₩280,000</span></td></tr>'+
-'<tr><td><b>装置の追加・再作製</b></td><td></td><td class="r"><span class="price">₩150,000</span></td></tr></table>'+
+'<tr><td><b>ONDAフェイス 1回</b></td><td>6万J / 9万J</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
+'<p style="font-size:14.5px;margin-top:16px"><b>4回コース 5%割引 · 8回コース 10%割引</b> — 前払いは不要です。</p>'+
 '<p class="fine">料金は事前告知のうえ変更される場合があります。効果と必要回数には個人差があります。返金は返金同意書の規定に従います。</p>',
 after:'<h1>矯正装置の管理方法と注意事項</h1><p class="lead">本日の治療効果を長く保つ方法です。</p>'+
 '<h2><span class="num">01</span>装着方法</h2><div class="card"><ul class="cln"><li><b>長く着けるほど良いです。</b>基本は<b>就寝時の装着</b>です。</li><li>日中も装置を噛みながら<b>ストレッチや軽い運動</b>をするとさらに効果的です。</li><li>初めの数日は唾液が増えたり違和感があったりしますが、自然な適応過程です。</li><li>哺乳瓶と同じ成分の安全な素材です。</li></ul></div>'+
@@ -587,7 +624,7 @@ after:'<h1>矯正装置の管理方法と注意事項</h1><p class="lead">本日
 <script>
 /* ================= 简体中文 ================= */
 I18N.zhCN = {
-tabs:{survey:"初诊问卷",explain:"治疗指南",price:"价格表",consent1:"手术同意书(韩文)",consent2:"退款同意书(韩文)",after:"护理与注意事项"},
+tabs:{survey:"初诊问卷",revisit:"复诊问卷",explain:"治疗指南",price:"价格表",consent1:"手术同意书(韩文)",consent2:"退款同意书(韩文)",after:"护理与注意事项"},
 ui:{submit:"提交",copy:"复制",copied:"已复制",sentOk:"已提交,谢谢!",sentFail:"发送失败。请复制下方内容并出示给前台。",noHook:"(未设置Webhook) 请复制下方内容并出示给前台。",required:"请填写必填项目: ",print:"打印 / 保存PDF"},
 survey:{
 title:"面部平衡 初诊问卷",
@@ -598,8 +635,9 @@ name:{lb:"姓名",ph:"姓名"},
 birth:{lb:"出生年份",ph:"例: 1994"},
 gender:{lb:"性别",op:["女","男"]},
 phone:{lb:"电话号码",ph:"+86 ..."},
-contact:{lb:"微信 / KakaoTalk / LINE ID (选填)",ph:"ID"},
-source:{lb:"您是怎么知道我们的?",op:["Instagram","YouTube","博客","朋友介绍","江南姐姐","其他"]},
+contact:{lb:"微信 / KakaoTalk / LINE / WhatsApp ID (选填)",ph:"ID"},
+source:{lb:"您是怎么知道我们的? (可多选)",op:["Instagram","YouTube","博客","朋友介绍","江南姐姐","其他"]},
+sourceEtc:{lb:"其他渠道请注明",ph:"例: 谷歌搜索"},
 areas:{lb:"觉得不对称的部位 (可多选)",op:["下巴偏斜","颧骨高低不同","嘴角倾斜","眼睛高低不同","脸左右长度不同","其他"]},
 since:{lb:"从什么时候开始注意到?",op:["不到6个月","6个月~2年","2年以上","不清楚"]},
 concern:{lb:"最困扰您的是什么?",ph:"例: 拍照时一边嘴角翘得更高"},
@@ -616,7 +654,7 @@ surgery:{lb:"面部手术/医美经历 (如有)",ph:"例: 2023年颧骨缩小、
 trauma:{lb:"下颌/面部受过伤吗?",op:["有","没有"]},
 health:{lb:"符合的项目 (可多选)",op:["怀孕中或有可能","服用抗凝药/易出血体质","6个月内做过面部/下颌手术或医美","急性严重下颌疼痛/张口困难","以上都没有"]},
 healthEtc:{lb:"其他疾病/正在服用的药物 (如有)",ph:""},
-goal:{lb:"希望通过治疗获得什么? (可多选)",op:["改善不对称","改善关节疼痛/弹响","面部线条 (提升)","全身姿态"]},
+goal:{lb:"希望通过治疗获得什么? (可多选)",op:["改善不对称","改善关节疼痛/弹响","面部线条 (提升)","颈肩酸痛改善"]},
 stay:{lb:"在韩行程 (海外居住者)",op:["仅今天","2~3天","1周以上","居住在韩国"]},
 wish:{lb:"其他需求",ph:""},
 privacy:{lb:"个人信息收集使用同意 (必选)",tx:"所填信息仅用于诊疗与咨询目的,并依相关法律保管后销毁。本人同意。"}
@@ -632,24 +670,15 @@ explain:'<h1>面部平衡项目</h1><p class="lead">今天松解,用矫正器守
 '<h2><span class="num">04</span>项目安排 — 共8次·约6周</h2><table><tr><th>期间</th><th>到院</th><th>内容</th></tr><tr><td><b>第1~2周</b></td><td>每周2次</td><td>集中松解期 — 改变肌肉模式。第1次发放矫正器</td></tr><tr><td><b>第3~6周</b></td><td>每周1次</td><td>稳定期 — 巩固平衡,检查习惯和矫正器</td></tr><tr><td><b>结束时</b></td><td>—</td><td>最终前后对比·维护方案说明</td></tr></table>'+
 '<h2><span class="num">05</span>短期来韩·海外居住?</h2><ul class="cln"><li><b>1次治疗当天就能感受到变化。</b>但会随习惯在几天到几周内逐渐回退。</li><li>因此强烈建议<b>把矫正器带回家</b> — 回国后夜间佩戴+白天拉伸佩戴,自己延长效果。我们提供护理视频和说明。</li><li>再次来韩时可接续维护疗程。</li><li>矫正器之后也可通过<b>EMS国际快递</b>寄送给您。</li></ul>'+
 '<h2><span class="num">06</span>搭配ONDA提升效果更好</h2><p>平衡矫正调整的是<b>结构(肌肉·关节)</b>,ONDA调整的是<b>面部线条(软组织)</b>。在平衡的脸上加做ONDA,线条的对称感更明显。可当天连续进行。</p>'+
-'<h2><span class="num">07</span>治疗案例</h2><div class="ph-grid"><div class="ph"><b>+</b>案例 1</div><div class="ph"><b>+</b>案例 2</div><div class="ph"><b>+</b>案例 3</div><div class="ph"><b>+</b>案例 4</div><div class="ph"><b>+</b>案例 5</div><div class="ph"><b>+</b>案例 6</div></div>'+
-'<h2><span class="num">08</span>常见问题</h2><div class="qa"><div class="q">疼吗?</div><div class="a">是"酸爽"程度的按压感,不是忍痛的治疗。针灸为一般针灸水平。</div><div class="q">只做一次有效吗?</div><div class="a">当天变化大多能感受到,但会随习惯逐渐回退。想维持建议8次项目,或至少配合矫正器。</div><div class="q">矫正器要戴多久?</div><div class="a">越久越好。睡觉时佩戴是基础,白天咬着做拉伸也很好。</div><div class="q">有医生建议我做正颌手术。</div><div class="a">骨骼性不是我们的治疗对象。我们会如实鉴别并告知。</div></div>'+
+''+
+'<h2><span class="num">07</span>常见问题</h2><div class="qa"><div class="q">疼吗?</div><div class="a">是"酸爽"程度的按压感,不是忍痛的治疗。针灸为一般针灸水平。</div><div class="q">只做一次有效吗?</div><div class="a">当天变化大多能感受到,但会随习惯逐渐回退。想维持建议8次项目,或至少配合矫正器。</div><div class="q">矫正器要戴多久?</div><div class="a">越久越好。睡觉时佩戴是基础,白天咬着做拉伸也很好。</div><div class="q">有医生建议我做正颌手术。</div><div class="a">骨骼性不是我们的治疗对象。我们会如实鉴别并告知。</div></div>'+
 '<p class="fine">治疗效果因个人状态和习惯而异,治疗方法和次数可能根据诊察结果调整。副作用: 治疗部位可能出现暂时性疼痛、瘀青、不适。</p>',
 price:'<h1>价格表</h1><p class="lead">非医保项目 · 2026年7月 · 韩元(KRW)</p>'+
 '<h2><span class="num">01</span>单项价格</h2><table><tr><th>项目</th><th>内容</th><th style="text-align:right">价格</th></tr>'+
-'<tr><td><b>平衡综合治疗 1次</b></td><td>面部·颞下颌关节推拿 + 药针 + 针灸</td><td class="r"><span class="price">₩120,000</span></td></tr>'+
+'<tr><td><b>面部不对称矫正 1次</b></td><td>面部·颞下颌关节推拿 + 药针 + 针灸</td><td class="r"><span class="price">₩200,000</span></td></tr>'+
 '<tr><td><b>颞下颌关节矫正器</b></td><td>口腔矫正器 + 佩戴指导 + 护理说明</td><td class="r"><span class="price">₩150,000</span></td></tr>'+
-'<tr><td><b>ONDA提升 1次</b></td><td>6万焦 / 9万焦</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
-'<h2><span class="num">02</span>套餐 — 最多8次</h2><table><tr><th>套餐</th><th>内容</th><th style="text-align:right">价格</th></tr>'+
-'<tr><td><b>首诊 诊断·体验</b></td><td>诊断 + 照片 + 综合治疗1次</td><td class="r"><span class="strike">120,000</span><span class="price g">₩90,000</span></td></tr>'+
-'<tr><td><b>一日平衡</b><br><span style="font-size:12px;color:#5b6b76">短期访问·海外居住</span></td><td>综合治疗1次 + 矫正器 + 居家护理指南</td><td class="r"><span class="strike">270,000</span><span class="price g">₩250,000</span></td></tr>'+
-'<tr><td><b>一日平衡 Plus</b></td><td>综合治疗1次 + 矫正器 + ONDA 1次</td><td class="r"><span class="strike">468,000</span><span class="price g">₩450,000</span></td></tr>'+
-'<tr class="hl"><td><b>标准 8次</b><span class="badge">推荐</span></td><td>综合治疗8次 + 矫正器<br><span style="font-size:12px;color:#5b6b76">每周2次×2周 → 每周1次×4周 · 约6周</span></td><td class="r"><span class="strike">1,110,000</span><span class="price g">₩990,000</span></td></tr>'+
-'<tr class="hl"><td><b>高级 8次</b><span class="badge">+ONDA</span></td><td>综合治疗8次 + 矫正器 + ONDA 1次</td><td class="r"><span class="strike">1,308,000</span><span class="price g">₩1,190,000</span></td></tr></table>'+
-'<h2><span class="num">03</span>结束后的维护</h2><table><tr><th>项目</th><th></th><th style="text-align:right">价格</th></tr>'+
-'<tr><td><b>维护 1次</b></td><td>建议每月1~2次</td><td class="r"><span class="price">₩80,000</span></td></tr>'+
-'<tr><td><b>维护 4次</b></td><td></td><td class="r"><span class="strike">320,000</span><span class="price g">₩280,000</span></td></tr>'+
-'<tr><td><b>矫正器补做/重做</b></td><td></td><td class="r"><span class="price">₩150,000</span></td></tr></table>'+
+'<tr><td><b>ONDA面部提升 1次</b></td><td>6万焦 / 9万焦</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
+'<p style="font-size:14.5px;margin-top:16px"><b>4次疗程 5% 优惠 · 8次疗程 10% 优惠</b> — 无需预付。</p>'+
 '<p class="fine">价格如有变动将提前告知。效果和所需次数因人而异。退款按退款同意书的规定执行。</p>',
 after:'<h1>矫正器护理方法与注意事项</h1><p class="lead">让今天的治疗效果保持更久的方法。</p>'+
 '<h2><span class="num">01</span>佩戴方法</h2><div class="card"><ul class="cln"><li><b>戴得越久越好。</b>基础是<b>睡觉时佩戴</b>。</li><li>白天也可以咬着矫正器做<b>拉伸或轻度运动</b>,效果更好。</li><li>最初几天口水增多、有异物感是正常的适应过程。</li><li>材质与婴儿奶瓶相同,安全放心。</li></ul></div>'+
@@ -664,7 +693,7 @@ after:'<h1>矫正器护理方法与注意事项</h1><p class="lead">让今天的
 
 /* ================= 繁體中文 ================= */
 I18N.zhTW = {
-tabs:{survey:"初診問卷",explain:"治療指南",price:"價格表",consent1:"施術同意書(韓文)",consent2:"退費同意書(韓文)",after:"照護與注意事項"},
+tabs:{survey:"初診問卷",revisit:"複診問卷",explain:"治療指南",price:"價格表",consent1:"施術同意書(韓文)",consent2:"退費同意書(韓文)",after:"照護與注意事項"},
 ui:{submit:"送出",copy:"複製",copied:"已複製",sentOk:"已送出,謝謝!",sentFail:"傳送失敗。請複製下方內容並出示給櫃檯。",noHook:"(未設定Webhook) 請複製下方內容並出示給櫃檯。",required:"請填寫必填項目: ",print:"列印 / 儲存PDF"},
 survey:{
 title:"臉部平衡 初診問卷",
@@ -675,8 +704,9 @@ name:{lb:"姓名",ph:"姓名"},
 birth:{lb:"出生年份",ph:"例: 1994"},
 gender:{lb:"性別",op:["女","男"]},
 phone:{lb:"電話號碼",ph:"+886 ..."},
-contact:{lb:"LINE / KakaoTalk ID (選填)",ph:"ID"},
-source:{lb:"您是如何得知我們的?",op:["Instagram","YouTube","部落格","朋友介紹","江南姊姊","其他"]},
+contact:{lb:"LINE / KakaoTalk / WhatsApp / WeChat ID (選填)",ph:"ID"},
+source:{lb:"您是如何得知我們的? (可複選)",op:["Instagram","YouTube","部落格","朋友介紹","江南姊姊","其他"]},
+sourceEtc:{lb:"其他管道請註明",ph:"例: Google搜尋"},
 areas:{lb:"覺得不對稱的部位 (可複選)",op:["下巴歪斜","顴骨高低不同","嘴角傾斜","眼睛高低不同","臉左右長度不同","其他"]},
 since:{lb:"從什麼時候開始注意到?",op:["不到6個月","6個月~2年","2年以上","不清楚"]},
 concern:{lb:"最困擾您的是什麼?",ph:"例: 拍照時一邊嘴角翹得比較高"},
@@ -693,7 +723,7 @@ surgery:{lb:"臉部手術/醫美經歷 (如有)",ph:"例: 2023年顴骨縮小、
 trauma:{lb:"下顎/臉部曾受過傷嗎?",op:["有","沒有"]},
 health:{lb:"符合的項目 (可複選)",op:["懷孕中或有可能","服用抗凝血劑/易出血體質","6個月內做過臉部/下顎手術或醫美","急性嚴重下顎疼痛/張口困難","以上皆無"]},
 healthEtc:{lb:"其他疾病/服用中的藥物 (如有)",ph:""},
-goal:{lb:"希望透過治療獲得什麼? (可複選)",op:["改善不對稱","改善關節疼痛/聲響","臉部線條 (拉提)","全身姿勢"]},
+goal:{lb:"希望透過治療獲得什麼? (可複選)",op:["改善不對稱","改善關節疼痛/聲響","臉部線條 (拉提)","頸肩痠痛改善"]},
 stay:{lb:"在韓行程 (海外居住者)",op:["只有今天","2~3天","1週以上","居住在韓國"]},
 wish:{lb:"其他需求",ph:""},
 privacy:{lb:"個人資料蒐集利用同意 (必選)",tx:"所填資料僅用於診療與諮詢目的,並依相關法令保管後銷毀。本人同意。"}
@@ -709,24 +739,15 @@ explain:'<h1>臉部平衡療程</h1><p class="lead">今天鬆開,用矯正器守
 '<h2><span class="num">04</span>療程安排 — 共8次·約6週</h2><table><tr><th>期間</th><th>到院</th><th>內容</th></tr><tr><td><b>第1~2週</b></td><td>每週2次</td><td>集中鬆解期 — 改變肌肉模式。第1次發給矯正器</td></tr><tr><td><b>第3~6週</b></td><td>每週1次</td><td>穩定期 — 鞏固平衡,檢查習慣與矯正器</td></tr><tr><td><b>結束時</b></td><td>—</td><td>最終前後比對·維持方案說明</td></tr></table>'+
 '<h2><span class="num">05</span>短期來韓·海外居住?</h2><ul class="cln"><li><b>1次治療當天就能感受到變化。</b>但會隨習慣在幾天到幾週內逐漸回復。</li><li>因此強烈建議<b>把矯正器帶回家</b> — 回國後夜間配戴+白天伸展配戴,自己延長效果。我們提供照護影片與說明。</li><li>再次來韓時可接續維持療程。</li><li>矯正器之後也可透過<b>EMS國際快遞</b>寄送給您。</li></ul>'+
 '<h2><span class="num">06</span>搭配ONDA拉提效果更好</h2><p>平衡矯正調整的是<b>結構(肌肉·關節)</b>,ONDA調整的是<b>臉部線條(軟組織)</b>。在平衡的臉上加做ONDA,線條的對稱感更明顯。可當天接續進行。</p>'+
-'<h2><span class="num">07</span>治療案例</h2><div class="ph-grid"><div class="ph"><b>+</b>案例 1</div><div class="ph"><b>+</b>案例 2</div><div class="ph"><b>+</b>案例 3</div><div class="ph"><b>+</b>案例 4</div><div class="ph"><b>+</b>案例 5</div><div class="ph"><b>+</b>案例 6</div></div>'+
-'<h2><span class="num">08</span>常見問題</h2><div class="qa"><div class="q">會痛嗎?</div><div class="a">是「痠爽」程度的按壓感,不是忍痛的治療。針灸為一般針灸程度。</div><div class="q">只做一次有效嗎?</div><div class="a">當天變化大多能感受到,但會隨習慣逐漸回復。想維持建議8次療程,或至少搭配矯正器。</div><div class="q">矯正器要戴多久?</div><div class="a">越久越好。睡覺時配戴是基礎,白天咬著做伸展也很好。</div><div class="q">有醫師建議我做正顎手術。</div><div class="a">骨骼性不是我們的治療對象。我們會如實鑑別並告知。</div></div>'+
+''+
+'<h2><span class="num">07</span>常見問題</h2><div class="qa"><div class="q">會痛嗎?</div><div class="a">是「痠爽」程度的按壓感,不是忍痛的治療。針灸為一般針灸程度。</div><div class="q">只做一次有效嗎?</div><div class="a">當天變化大多能感受到,但會隨習慣逐漸回復。想維持建議8次療程,或至少搭配矯正器。</div><div class="q">矯正器要戴多久?</div><div class="a">越久越好。睡覺時配戴是基礎,白天咬著做伸展也很好。</div><div class="q">有醫師建議我做正顎手術。</div><div class="a">骨骼性不是我們的治療對象。我們會如實鑑別並告知。</div></div>'+
 '<p class="fine">治療效果因個人狀態與習慣而異,治療方式與次數可能依診察結果調整。副作用: 治療部位可能出現暫時性疼痛、瘀青、不適。</p>',
 price:'<h1>價格表</h1><p class="lead">自費項目 · 2026年7月 · 韓元(KRW)</p>'+
 '<h2><span class="num">01</span>單項價格</h2><table><tr><th>項目</th><th>內容</th><th style="text-align:right">價格</th></tr>'+
-'<tr><td><b>平衡整合治療 1次</b></td><td>臉部·顳顎關節推拿 + 藥針 + 針灸</td><td class="r"><span class="price">₩120,000</span></td></tr>'+
+'<tr><td><b>臉部不對稱矯正 1次</b></td><td>臉部·顳顎關節推拿 + 藥針 + 針灸</td><td class="r"><span class="price">₩200,000</span></td></tr>'+
 '<tr><td><b>顳顎關節矯正器</b></td><td>口腔矯正器 + 配戴指導 + 照護說明</td><td class="r"><span class="price">₩150,000</span></td></tr>'+
-'<tr><td><b>ONDA拉提 1次</b></td><td>6萬焦 / 9萬焦</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
-'<h2><span class="num">02</span>療程方案 — 最多8次</h2><table><tr><th>方案</th><th>內容</th><th style="text-align:right">價格</th></tr>'+
-'<tr><td><b>首診 診斷·體驗</b></td><td>診斷 + 照片 + 整合治療1次</td><td class="r"><span class="strike">120,000</span><span class="price g">₩90,000</span></td></tr>'+
-'<tr><td><b>一日平衡</b><br><span style="font-size:12px;color:#5b6b76">短期訪問·海外居住</span></td><td>整合治療1次 + 矯正器 + 居家照護指南</td><td class="r"><span class="strike">270,000</span><span class="price g">₩250,000</span></td></tr>'+
-'<tr><td><b>一日平衡 Plus</b></td><td>整合治療1次 + 矯正器 + ONDA 1次</td><td class="r"><span class="strike">468,000</span><span class="price g">₩450,000</span></td></tr>'+
-'<tr class="hl"><td><b>標準 8次</b><span class="badge">推薦</span></td><td>整合治療8次 + 矯正器<br><span style="font-size:12px;color:#5b6b76">每週2次×2週 → 每週1次×4週 · 約6週</span></td><td class="r"><span class="strike">1,110,000</span><span class="price g">₩990,000</span></td></tr>'+
-'<tr class="hl"><td><b>頂級 8次</b><span class="badge">+ONDA</span></td><td>整合治療8次 + 矯正器 + ONDA 1次</td><td class="r"><span class="strike">1,308,000</span><span class="price g">₩1,190,000</span></td></tr></table>'+
-'<h2><span class="num">03</span>結束後的維持</h2><table><tr><th>項目</th><th></th><th style="text-align:right">價格</th></tr>'+
-'<tr><td><b>維持 1次</b></td><td>建議每月1~2次</td><td class="r"><span class="price">₩80,000</span></td></tr>'+
-'<tr><td><b>維持 4次</b></td><td></td><td class="r"><span class="strike">320,000</span><span class="price g">₩280,000</span></td></tr>'+
-'<tr><td><b>矯正器補做/重做</b></td><td></td><td class="r"><span class="price">₩150,000</span></td></tr></table>'+
+'<tr><td><b>ONDA臉部拉提 1次</b></td><td>6萬焦 / 9萬焦</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
+'<p style="font-size:14.5px;margin-top:16px"><b>4次療程 5% 優惠 · 8次療程 10% 優惠</b> — 無需預付。</p>'+
 '<p class="fine">價格如有變動將事先告知。效果與所需次數因人而異。退費依退費同意書之規定辦理。</p>',
 after:'<h1>矯正器照護方法與注意事項</h1><p class="lead">讓今天的治療效果維持更久的方法。</p>'+
 '<h2><span class="num">01</span>配戴方法</h2><div class="card"><ul class="cln"><li><b>戴得越久越好。</b>基礎是<b>睡覺時配戴</b>。</li><li>白天也可以咬著矯正器做<b>伸展或輕度運動</b>,效果更好。</li><li>最初幾天口水變多、有異物感是正常的適應過程。</li><li>材質與嬰兒奶瓶相同,安全安心。</li></ul></div>'+
@@ -741,7 +762,7 @@ after:'<h1>矯正器照護方法與注意事項</h1><p class="lead">讓今天的
 
 /* ================= ไทย ================= */
 I18N.th = {
-tabs:{survey:"แบบสอบถามผู้ป่วยใหม่",explain:"คู่มือการรักษา",price:"อัตราค่าบริการ",consent1:"หนังสือยินยอม (เกาหลี)",consent2:"นโยบายคืนเงิน (เกาหลี)",after:"การดูแลหลังการรักษา"},
+tabs:{survey:"แบบสอบถามผู้ป่วยใหม่",revisit:"แบบสอบถามติดตามผล",explain:"คู่มือการรักษา",price:"อัตราค่าบริการ",consent1:"หนังสือยินยอม (เกาหลี)",consent2:"นโยบายคืนเงิน (เกาหลี)",after:"การดูแลหลังการรักษา"},
 ui:{submit:"ส่งแบบสอบถาม",copy:"คัดลอก",copied:"คัดลอกแล้ว",sentOk:"ส่งเรียบร้อยแล้ว ขอบคุณค่ะ!",sentFail:"ส่งไม่สำเร็จ กรุณาคัดลอกข้อความด้านล่างและแสดงให้เจ้าหน้าที่",noHook:"(ยังไม่ได้ตั้งค่า Webhook) กรุณาคัดลอกข้อความด้านล่างและแสดงให้เจ้าหน้าที่",required:"กรุณากรอกข้อมูลที่จำเป็น: ",print:"พิมพ์ / บันทึก PDF"},
 survey:{
 title:"แบบสอบถามผู้ป่วยใหม่ — Facial Balance",
@@ -752,8 +773,9 @@ name:{lb:"ชื่อ-นามสกุล",ph:"ชื่อ"},
 birth:{lb:"ปีเกิด (ค.ศ.)",ph:"เช่น 1994"},
 gender:{lb:"เพศ",op:["หญิง","ชาย"]},
 phone:{lb:"เบอร์โทรศัพท์",ph:"+66 ..."},
-contact:{lb:"LINE / KakaoTalk ID (ไม่บังคับ)",ph:"ID"},
-source:{lb:"รู้จักเราจากช่องทางใด?",op:["Instagram","YouTube","บล็อก","เพื่อนแนะนำ","Gangnam Unni","อื่น ๆ"]},
+contact:{lb:"LINE / KakaoTalk / WhatsApp / WeChat ID (ไม่บังคับ)",ph:"ID"},
+source:{lb:"รู้จักเราจากช่องทางใด? (เลือกได้หลายข้อ)",op:["Instagram","YouTube","บล็อก","เพื่อนแนะนำ","Gangnam Unni","อื่น ๆ"]},
+sourceEtc:{lb:"หากเลือกอื่น ๆ โปรดระบุ",ph:"เช่น ค้นหาใน Google"},
 areas:{lb:"บริเวณที่รู้สึกว่าไม่สมมาตร (เลือกได้หลายข้อ)",op:["คางเบี้ยว","โหนกแก้มสูงต่ำไม่เท่ากัน","มุมปากเอียง","ระดับตาไม่เท่ากัน","ความยาวใบหน้าซ้าย-ขวาต่างกัน","อื่น ๆ"]},
 since:{lb:"สังเกตเห็นตั้งแต่เมื่อไร?",op:["ไม่ถึง 6 เดือน","6 เดือน–2 ปี","มากกว่า 2 ปี","ไม่แน่ใจ"]},
 concern:{lb:"สิ่งที่กังวลมากที่สุด",ph:"เช่น เวลาถ่ายรูปมุมปากข้างหนึ่งยกสูงกว่า"},
@@ -770,7 +792,7 @@ surgery:{lb:"ประวัติศัลยกรรม/หัตถการ
 trauma:{lb:"เคยบาดเจ็บที่ขากรรไกร/ใบหน้าไหม?",op:["เคย","ไม่เคย"]},
 health:{lb:"ข้อที่ตรงกับคุณ (เลือกได้หลายข้อ)",op:["ตั้งครรภ์หรืออาจตั้งครรภ์","ทานยาละลายลิ่มเลือด / เลือดออกง่าย","ผ่าตัด/หัตถการบนใบหน้าใน 6 เดือน","ปวดขากรรไกรเฉียบพลันรุนแรง/อ้าปากลำบาก","ไม่มีข้อใดตรง"]},
 healthEtc:{lb:"โรคประจำตัว/ยาที่ทานอยู่ (ถ้ามี)",ph:""},
-goal:{lb:"สิ่งที่คาดหวังจากการรักษา (เลือกได้หลายข้อ)",op:["ปรับความไม่สมมาตร","ลดอาการปวด/เสียงข้อต่อ","กรอบหน้า (ลิฟติ้ง)","ท่าทางของร่างกาย"]},
+goal:{lb:"สิ่งที่คาดหวังจากการรักษา (เลือกได้หลายข้อ)",op:["ปรับความไม่สมมาตร","ลดอาการปวด/เสียงข้อต่อ","กรอบหน้า (ลิฟติ้ง)","บรรเทาอาการตึงคอและบ่า"]},
 stay:{lb:"กำหนดการอยู่เกาหลี (สำหรับผู้อาศัยต่างประเทศ)",op:["วันนี้วันเดียว","2–3 วัน","1 สัปดาห์ขึ้นไป","อาศัยอยู่ในเกาหลี"]},
 wish:{lb:"ความต้องการอื่น ๆ",ph:""},
 privacy:{lb:"ความยินยอมให้เก็บและใช้ข้อมูลส่วนบุคคล (จำเป็น)",tx:"ข้าพเจ้ายินยอมให้เก็บและใช้ข้อมูลเพื่อการตรวจรักษาและให้คำปรึกษาเท่านั้น โดยจัดเก็บและทำลายตามกฎหมายที่เกี่ยวข้อง"}
@@ -786,24 +808,15 @@ explain:'<h1>โปรแกรม Facial Balance</h1><p class="lead">คลา�
 '<h2><span class="num">04</span>โปรแกรม — 8 ครั้ง · ประมาณ 6 สัปดาห์</h2><table><tr><th>ช่วง</th><th>มาคลินิก</th><th>เนื้อหา</th></tr><tr><td><b>สัปดาห์ 1–2</b></td><td>สัปดาห์ละ 2 ครั้ง</td><td>ช่วงเข้มข้น — ปรับรูปแบบกล้ามเนื้อ รับเครื่องมือครั้งแรก</td></tr><tr><td><b>สัปดาห์ 3–6</b></td><td>สัปดาห์ละ 1 ครั้ง</td><td>ช่วงคงสภาพ — เช็คสมดุล นิสัย และเครื่องมือ</td></tr><tr><td><b>จบโปรแกรม</b></td><td>—</td><td>เปรียบเทียบรูปก่อน-หลังครั้งสุดท้าย · แผนการดูแลต่อเนื่อง</td></tr></table>'+
 '<h2><span class="num">05</span>มาเกาหลีระยะสั้น?</h2><ul class="cln"><li><b>แม้ทำครั้งเดียวก็เห็นการเปลี่ยนแปลงในวันนั้น</b> แต่จะค่อย ๆ กลับในไม่กี่วันถึงไม่กี่สัปดาห์ตามนิสัย</li><li>เราจึงแนะนำอย่างยิ่งให้<b>นำเครื่องมือกลับบ้านด้วย</b> — ใส่ตอนนอน + ใส่ตอนยืดเหยียดกลางวัน เพื่อยืดผลลัพธ์ด้วยตัวเอง เรามีวิดีโอและคู่มือการดูแลให้</li><li>เมื่อกลับมาเกาหลีอีกครั้ง ต่อด้วยคอร์สดูแลต่อเนื่องได้</li><li>สามารถ<b>จัดส่งเครื่องมือทาง EMS ระหว่างประเทศ</b>ให้ภายหลังได้</li></ul>'+
 '<h2><span class="num">06</span>ทำคู่กับ ONDA Lifting ยิ่งดี</h2><p>การจัดสมดุลดูแล<b>โครงสร้าง (กล้ามเนื้อ·ข้อต่อ)</b> ส่วน ONDA ดูแล<b>กรอบหน้า (เนื้อเยื่ออ่อน)</b> เมื่อเพิ่ม ONDA บนใบหน้าที่สมดุลแล้ว ความสมมาตรของกรอบหน้าจะชัดขึ้น ทำต่อเนื่องในวันเดียวกันได้</p>'+
-'<h2><span class="num">07</span>เคสตัวอย่าง</h2><div class="ph-grid"><div class="ph"><b>+</b>เคส 1</div><div class="ph"><b>+</b>เคส 2</div><div class="ph"><b>+</b>เคส 3</div><div class="ph"><b>+</b>เคส 4</div><div class="ph"><b>+</b>เคส 5</div><div class="ph"><b>+</b>เคส 6</div></div>'+
-'<h2><span class="num">08</span>คำถามที่พบบ่อย</h2><div class="qa"><div class="q">เจ็บไหม?</div><div class="a">เป็นความรู้สึกกดคลายแบบ "เจ็บแต่สบาย" ไม่ใช่การรักษาที่ต้องทนเจ็บ การฝังเข็มอยู่ในระดับทั่วไป</div><div class="q">ทำครั้งเดียวได้ผลไหม?</div><div class="a">ส่วนใหญ่เห็นการเปลี่ยนแปลงในวันนั้น แต่จะค่อย ๆ กลับตามนิสัย ถ้าต้องการคงผลแนะนำโปรแกรม 8 ครั้ง หรืออย่างน้อยใช้เครื่องมือร่วม</div><div class="q">ต้องใส่เครื่องมือนานแค่ไหน?</div><div class="a">ยิ่งนานยิ่งดี ใส่ตอนนอนเป็นหลัก กลางวันกัดขณะยืดเหยียดก็ดี</div><div class="q">เคยถูกแนะนำให้ผ่าตัดขากรรไกร</div><div class="a">แบบโครงกระดูกไม่ใช่เป้าหมายของเรา เราจะตรวจแยกและแจ้งตามจริง</div></div>'+
+''+
+'<h2><span class="num">07</span>คำถามที่พบบ่อย</h2><div class="qa"><div class="q">เจ็บไหม?</div><div class="a">เป็นความรู้สึกกดคลายแบบ "เจ็บแต่สบาย" ไม่ใช่การรักษาที่ต้องทนเจ็บ การฝังเข็มอยู่ในระดับทั่วไป</div><div class="q">ทำครั้งเดียวได้ผลไหม?</div><div class="a">ส่วนใหญ่เห็นการเปลี่ยนแปลงในวันนั้น แต่จะค่อย ๆ กลับตามนิสัย ถ้าต้องการคงผลแนะนำโปรแกรม 8 ครั้ง หรืออย่างน้อยใช้เครื่องมือร่วม</div><div class="q">ต้องใส่เครื่องมือนานแค่ไหน?</div><div class="a">ยิ่งนานยิ่งดี ใส่ตอนนอนเป็นหลัก กลางวันกัดขณะยืดเหยียดก็ดี</div><div class="q">เคยถูกแนะนำให้ผ่าตัดขากรรไกร</div><div class="a">แบบโครงกระดูกไม่ใช่เป้าหมายของเรา เราจะตรวจแยกและแจ้งตามจริง</div></div>'+
 '<p class="fine">ผลการรักษาแตกต่างตามสภาพร่างกายและนิสัยของแต่ละบุคคล ผลข้างเคียง: อาจมีอาการปวด รอยช้ำ หรือไม่สบายชั่วคราวบริเวณที่รักษา</p>',
 price:'<h1>อัตราค่าบริการ</h1><p class="lead">บริการนอกประกัน · กรกฎาคม 2026 · วอนเกาหลี (KRW)</p>'+
 '<h2><span class="num">01</span>รายการเดี่ยว</h2><table><tr><th>รายการ</th><th>ประกอบด้วย</th><th style="text-align:right">ราคา</th></tr>'+
-'<tr><td><b>ทรีตเมนต์ Balance ×1</b></td><td>ชูนาใบหน้า/TMJ + ฝังเข็มสมุนไพร + ฝังเข็ม</td><td class="r"><span class="price">₩120,000</span></td></tr>'+
+'<tr><td><b>แก้ไขความไม่สมมาตรของใบหน้า ×1</b></td><td>ชูนาใบหน้า/TMJ + ฝังเข็มสมุนไพร + ฝังเข็ม</td><td class="r"><span class="price">₩200,000</span></td></tr>'+
 '<tr><td><b>เครื่องมือจัด TMJ</b></td><td>สปลินท์ + สอนวิธีใส่ + คู่มือดูแล</td><td class="r"><span class="price">₩150,000</span></td></tr>'+
-'<tr><td><b>ONDA Lifting ×1</b></td><td>60k / 90k จูล</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
-'<h2><span class="num">02</span>โปรแกรม — สูงสุด 8 ครั้ง</h2><table><tr><th>โปรแกรม</th><th>ประกอบด้วย</th><th style="text-align:right">ราคา</th></tr>'+
-'<tr><td><b>ครั้งแรก ตรวจ·ทดลอง</b></td><td>ตรวจ + ถ่ายรูป + ทรีตเมนต์ 1 ครั้ง</td><td class="r"><span class="strike">120,000</span><span class="price g">₩90,000</span></td></tr>'+
-'<tr><td><b>One-Day Balance</b><br><span style="font-size:12px;color:#5b6b76">มาระยะสั้น/อยู่ต่างประเทศ</span></td><td>ทรีตเมนต์ 1 ครั้ง + เครื่องมือ + คู่มือดูแลที่บ้าน</td><td class="r"><span class="strike">270,000</span><span class="price g">₩250,000</span></td></tr>'+
-'<tr><td><b>One-Day Balance Plus</b></td><td>ทรีตเมนต์ 1 ครั้ง + เครื่องมือ + ONDA ×1</td><td class="r"><span class="strike">468,000</span><span class="price g">₩450,000</span></td></tr>'+
-'<tr class="hl"><td><b>Standard 8</b><span class="badge">แนะนำ</span></td><td>ทรีตเมนต์ 8 ครั้ง + เครื่องมือ<br><span style="font-size:12px;color:#5b6b76">สัปดาห์ละ2×2สัปดาห์ → สัปดาห์ละ1×4สัปดาห์ · ~6 สัปดาห์</span></td><td class="r"><span class="strike">1,110,000</span><span class="price g">₩990,000</span></td></tr>'+
-'<tr class="hl"><td><b>Premium 8</b><span class="badge">+ONDA</span></td><td>ทรีตเมนต์ 8 ครั้ง + เครื่องมือ + ONDA ×1</td><td class="r"><span class="strike">1,308,000</span><span class="price g">₩1,190,000</span></td></tr></table>'+
-'<h2><span class="num">03</span>การดูแลต่อเนื่อง (หลังจบโปรแกรม)</h2><table><tr><th>รายการ</th><th></th><th style="text-align:right">ราคา</th></tr>'+
-'<tr><td><b>ดูแลต่อเนื่อง ×1</b></td><td>แนะนำเดือนละ 1–2 ครั้ง</td><td class="r"><span class="price">₩80,000</span></td></tr>'+
-'<tr><td><b>ดูแลต่อเนื่อง ×4</b></td><td></td><td class="r"><span class="strike">320,000</span><span class="price g">₩280,000</span></td></tr>'+
-'<tr><td><b>ทำเครื่องมือใหม่</b></td><td></td><td class="r"><span class="price">₩150,000</span></td></tr></table>'+
+'<tr><td><b>ONDA ใบหน้า ×1</b></td><td>60k / 90k จูล</td><td class="r"><span class="price">₩198,000 / 297,000</span></td></tr></table>'+
+'<p style="font-size:14.5px;margin-top:16px"><b>คอร์ส 4 ครั้ง ลด 5% · คอร์ส 8 ครั้ง ลด 10%</b> — ไม่ต้องชำระล่วงหน้า</p>'+
 '<p class="fine">ราคาอาจเปลี่ยนแปลงโดยแจ้งล่วงหน้า ผลลัพธ์แตกต่างในแต่ละบุคคล การคืนเงินเป็นไปตามข้อตกลงการคืนเงิน</p>',
 after:'<h1>วิธีดูแลเครื่องมือและข้อควรระวัง</h1><p class="lead">วิธีรักษาผลของการรักษาวันนี้ให้อยู่นานขึ้น</p>'+
 '<h2><span class="num">01</span>วิธีใส่</h2><div class="card"><ul class="cln"><li><b>ยิ่งใส่นานยิ่งดี</b> พื้นฐานคือ<b>ใส่ตอนนอน</b></li><li>กลางวันกัดเครื่องมือขณะ<b>ยืดเหยียดหรือออกกำลังเบา ๆ</b> ก็ช่วยเพิ่มผล</li><li>ช่วงแรกอาจมีน้ำลายมากหรือรู้สึกแปลก ๆ เป็นการปรับตัวตามปกติ</li><li>ทำจากวัสดุปลอดภัยชนิดเดียวกับขวดนมเด็ก</li></ul></div>'+
@@ -822,15 +835,15 @@ after:'<h1>วิธีดูแลเครื่องมือและข้
 var SURVEY_DEF = [
  {sec:0, fields:[
    {k:"name",t:"text",req:1},{k:"birth",t:"text"},{k:"gender",t:"single"},
-   {k:"phone",t:"text",req:1},{k:"contact",t:"text"},{k:"source",t:"single"}]},
+   {k:"phone",t:"text",req:1},{k:"contact",t:"text"},{k:"source",t:"multi"},{k:"sourceEtc",t:"text",showIf:["source",5]}]},
  {sec:1, fields:[
-   {k:"areas",t:"multi"},{k:"since",t:"single"},{k:"concern",t:"area"}]},
+   {k:"areas",t:"multi"},{k:"since",t:"single"},{k:"selfScore",t:"range"},{k:"mirrorPhoto",t:"single"},{k:"concern",t:"area"}]},
  {sec:2, fields:[
-   {k:"tmjSound",t:"single"},{k:"tmjPain",t:"single"},{k:"mouthOpen",t:"single"},{k:"morningStiff",t:"single"}]},
+   {k:"tmjSound",t:"single"},{k:"tmjPain",t:"single"},{k:"mouthOpen",t:"single"},{k:"morningStiff",t:"single"},{k:"headache",t:"single"},{k:"earSx",t:"single"}]},
  {sec:3, fields:[
-   {k:"chewSide",t:"single"},{k:"chinRest",t:"single"},{k:"sleepPos",t:"single"},{k:"bruxism",t:"single"}]},
+   {k:"chewSide",t:"single"},{k:"chewWhy",t:"single"},{k:"chinRest",t:"single"},{k:"sleepPos",t:"single"},{k:"bruxism",t:"single"}]},
  {sec:4, fields:[
-   {k:"ortho",t:"single"},{k:"surgery",t:"area"},{k:"trauma",t:"single"},{k:"health",t:"multi"},{k:"healthEtc",t:"area"}]},
+   {k:"ortho",t:"single"},{k:"surgery",t:"area"},{k:"trauma",t:"single"},{k:"neckPain",t:"single"},{k:"neckTurn",t:"single"},{k:"snore",t:"single"},{k:"apnea",t:"single"},{k:"sleepQual",t:"single"},{k:"health",t:"multi"},{k:"healthEtc",t:"area"}]},
  {sec:5, fields:[
    {k:"goal",t:"multi"},{k:"stay",t:"single"},{k:"wish",t:"area"}]},
  {sec:6, fields:[
@@ -838,8 +851,8 @@ var SURVEY_DEF = [
 ];
 
 var cur = {lang:"ko", tab:"survey"};
-var TABS = ["survey","explain","price","consent1","consent2","after"];
-var PANE = {survey:"pane-survey",explain:"pane-explain",price:"pane-price",consent1:"pane-consent1",consent2:"pane-consent2",after:"pane-after"};
+var TABS = ["survey","revisit","explain","price","consent1","consent2","after"];
+var PANE = {survey:"pane-survey",revisit:"pane-revisit",explain:"pane-explain",price:"pane-price",consent1:"pane-consent1",consent2:"pane-consent2",after:"pane-after"};
 
 function T(){ return I18N[cur.lang]; }
 
@@ -853,7 +866,7 @@ function renderChrome(){
   });
   var tb = document.getElementById("tabBar"); tb.innerHTML="";
   TABS.forEach(function(t){
-    var b=document.createElement("button"); b.textContent=T().tabs[t];
+    var b=document.createElement("button"); b.textContent=T().tabs[t]||I18N.en.tabs[t];
     if(t===cur.tab) b.className="on";
     b.onclick=function(){cur.tab=t; renderAll(); window.scrollTo(0,0);};
     tb.appendChild(b);
@@ -862,10 +875,46 @@ function renderChrome(){
   document.getElementById(PANE[cur.tab]).classList.add("on");
 }
 
+var CONSENT_NOTE={
+en:"The form below is the official Korean version. Our medical staff will go through each item with you before you sign.",
+it:"Il modulo qui sotto è la versione ufficiale in coreano. Il personale medico esaminerà ogni punto con Lei prima della firma.",
+ja:"以下は韓国語の正本です。署名の前に、医療スタッフが各項目を一緒にご説明します。",
+zhCN:"以下为韩文正本。签署前，我们的医疗人员会与您逐条说明。",
+zhTW:"以下為韓文正本。簽署前，我們的醫療人員會與您逐條說明。",
+th:"แบบฟอร์มด้านล่างเป็นฉบับภาษาเกาหลี เจ้าหน้าที่จะอธิบายแต่ละข้อกับคุณก่อนลงนาม"
+};
+var CONSENT_TR = {"consent1": {"en": ["<b class=\"tt\">1. Procedure content</b> I consent to the following treatments to improve facial asymmetry (functional — muscle & TMJ type):<ul><li>Chuna manual therapy — TMJ/cervical correction and release of chewing muscles (masseter, pterygoid) and suboccipital muscles</li><li>Pharmacopuncture</li><li>Acupuncture</li><li>TMJ appliance (oral splint) prescription and wearing instruction</li><li>ONDA lifting</li></ul>", "<b class=\"tt\">2. Expected effect & limits</b> This treatment aims to improve functional asymmetry from muscle/TMJ factors. The effect and its duration vary with individual condition and habits. Skeletal asymmetry from the jawbone itself is not a target; if found, I may be referred to an appropriate department. Released muscles may return depending on chewing/posture habits, so appliance wear and habit correction are needed to maintain the result.", "<b class=\"tt\">3. Possible side effects</b> Temporary pain, bruising, swelling or soreness at the site, dizziness during acupuncture, and rarely bleeding or infection may occur. Improper or prolonged appliance wear may change the bite; if pain or bite abnormality persists, stop wearing it and visit the clinic. Temporary redness, warmth or swelling may occur at ONDA sites.", "<b class=\"tt\">4. Patient disclosure</b> I have truthfully informed the staff of pregnancy (including possibility), bleeding disorders or anticoagulant use, ongoing orthodontic treatment, any facial surgery/procedure history, and other conditions.", "<b class=\"tt\">5. Photography</b><ul><li>(Required) I consent to standardized before/after photos for progress tracking and to keeping them in my record.</li><li>(Optional) I consent to use of de-identified photos for academic/promotional materials. Declining does not affect my care.</li></ul>", "<b class=\"tt\">6. Confirmation</b> I have been informed of the purpose, method, side effects and alternatives, had the chance to ask questions, and consent of my own free will."], "it": ["<b class=\"tt\">1. Contenuto del trattamento</b> Acconsento ai seguenti trattamenti per migliorare l'asimmetria del viso (funzionale — muscoli e ATM):<ul><li>Terapia manuale Chuna — correzione ATM/cervicale e rilascio dei muscoli masticatori (massetere, pterigoidei) e suboccipitali</li><li>Farmacopuntura</li><li>Agopuntura</li><li>Bite ATM (splint orale): prescrizione e istruzioni d'uso</li><li>Lifting ONDA</li></ul>", "<b class=\"tt\">2. Effetto atteso e limiti</b> Il trattamento mira a migliorare l'asimmetria funzionale da fattori muscolari/ATM. L'effetto e la sua durata variano secondo condizioni e abitudini. L'asimmetria scheletrica dell'osso mandibolare non è un obiettivo; se rilevata, posso essere indirizzato allo specialista adeguato. I muscoli rilasciati possono tornare indietro secondo le abitudini, perciò servono l'uso del bite e la correzione delle abitudini per mantenere il risultato.", "<b class=\"tt\">3. Possibili effetti collaterali</b> Dolore, lividi, gonfiore o indolenzimento temporanei, vertigini durante l'agopuntura e raramente sanguinamento o infezione. Un uso improprio o prolungato del bite può alterare l'occlusione; se dolore o anomalia dell'occlusione persistono, sospendere e recarsi in clinica. Nelle zone ONDA possono comparire rossore, calore o gonfiore temporanei.", "<b class=\"tt\">4. Dichiarazione del paziente</b> Ho informato veritieramente il personale di gravidanza (anche possibile), disturbi emorragici o uso di anticoagulanti, trattamento ortodontico in corso, precedenti interventi/procedure al viso e altre patologie.", "<b class=\"tt\">5. Fotografie</b><ul><li>(Obbligatorio) Acconsento a foto prima/dopo standardizzate per monitorare il decorso e alla loro conservazione nella cartella.</li><li>(Facoltativo) Acconsento all'uso di foto anonimizzate per materiali accademici/promozionali. Il rifiuto non pregiudica le cure.</li></ul>", "<b class=\"tt\">6. Conferma</b> Sono stato informato su scopo, metodo, effetti collaterali e alternative, ho avuto la possibilità di fare domande e acconsento liberamente."], "ja": ["<b class=\"tt\">1. 施術の内容</b> 顔の非対称(機能性 — 筋肉・顎関節性)の改善のため、下記の施術を受けることに同意します。<ul><li>推拿(チュナ)— 顎関節・頸椎の矯正、咀嚼筋(咬筋・翼突筋)や後頭下筋などの弛緩</li><li>薬鍼</li><li>鍼</li><li>顎関節矯正装置(口腔スプリント)の処方と装着指導</li><li>ONDAリフティング</li></ul>", "<b class=\"tt\">2. 期待される効果と限界</b> 本施術は筋肉・顎関節要因による機能性非対称の改善を目的とします。効果や維持期間には個人差があります。顎の骨自体による骨格性非対称は対象外で、認められた場合は適切な診療科をご案内することがあります。緩めた筋肉は咀嚼・姿勢の習慣により元に戻ることがあり、維持のため装置の装着と習慣改善が必要です。", "<b class=\"tt\">3. 起こりうる副作用</b> 施術部位の一時的な痛み・あざ・腫れ・だるさ、鍼施術中のめまい、まれに出血・感染が生じることがあります。装置を指示と異なり長時間・不適切に装着すると噛み合わせが変化することがあり、痛みや噛み合わせの異常が続く場合は装着を中止し来院してください。ONDA部位に一時的な紅斑・熱感・腫れが生じることがあります。", "<b class=\"tt\">4. 患者告知事項</b> 妊娠(可能性を含む)、出血性疾患や抗凝固薬の服用、進行中の歯列矯正、顔面の手術・施術歴、その他の疾患について、医療スタッフに正確に伝えました。", "<b class=\"tt\">5. 写真撮影</b><ul><li>(必須) 経過確認のための同一条件の前後写真撮影と診療記録への保管に同意します。</li><li>(任意) 個人を識別できないよう処理した写真の学術・広報資料への利用に同意します。同意しなくても診療に不利益はありません。</li></ul>", "<b class=\"tt\">6. 確認</b> 施術の目的・方法・副作用・代替案について説明を受け、質問の機会を得たうえで、自由な意思で同意します。"], "zhCN": ["<b class=\"tt\">1. 治疗内容</b> 本人同意接受以下治疗以改善面部不对称(功能性—肌肉及颞下颌关节性):<ul><li>推拿—颞下颌关节/颈椎矫正及咀嚼肌(咬肌、翼状肌)、枕下肌等松解</li><li>药针</li><li>针灸</li><li>颞下颌关节矫正器(口腔矫正器)处方及佩戴指导</li><li>ONDA提升</li></ul>", "<b class=\"tt\">2. 预期效果与局限</b> 本治疗旨在改善由肌肉/关节因素引起的功能性不对称。效果及维持时间因个人状态和习惯而异。由下颌骨本身造成的骨骼性不对称不在治疗范围内，如发现会转介合适科室。松解的肌肉可能因咀嚼/姿势习惯而回退，需佩戴矫正器并改善习惯以维持效果。", "<b class=\"tt\">3. 可能的副作用</b> 治疗部位可能出现暂时性疼痛、瘀青、肿胀或酸胀，针灸时头晕，罕见出血或感染。矫正器不当或长时间佩戴可能改变咬合；如疼痛或咬合异常持续，请停止佩戴并就诊。ONDA部位可能出现暂时性红斑、热感或肿胀。", "<b class=\"tt\">4. 患者告知事项</b> 本人已如实告知医疗人员：妊娠(含可能)、出血性疾病或服用抗凝药、正在进行的牙齿矫正、面部手术/医美史及其他疾病。", "<b class=\"tt\">5. 拍照</b><ul><li>(必填) 同意为记录疗程进行同一条件的前后拍照并保存于病历。</li><li>(选填) 同意将去标识化处理的照片用于学术/宣传资料。不同意不影响诊疗。</li></ul>", "<b class=\"tt\">6. 确认</b> 本人已了解治疗的目的、方法、副作用及替代方案，并有提问机会，出于自愿同意接受。"], "zhTW": ["<b class=\"tt\">1. 治療內容</b> 本人同意接受以下治療以改善臉部不對稱(功能性—肌肉及顳顎關節性):<ul><li>推拿—顳顎關節/頸椎矯正及咀嚼肌(咬肌、翼狀肌)、枕下肌等鬆解</li><li>藥針</li><li>針灸</li><li>顳顎關節矯正器(口腔矯正器)處方及配戴指導</li><li>ONDA拉提</li></ul>", "<b class=\"tt\">2. 預期效果與限制</b> 本治療旨在改善由肌肉/關節因素引起的功能性不對稱。效果及維持時間因個人狀態與習慣而異。由下顎骨本身造成的骨骼性不對稱不在治療範圍，如發現會轉介合適科別。鬆解的肌肉可能因咀嚼/姿勢習慣而回復，需配戴矯正器並改善習慣以維持效果。", "<b class=\"tt\">3. 可能的副作用</b> 治療部位可能出現暫時性疼痛、瘀青、腫脹或痠脹，針灸時頭暈，罕見出血或感染。矯正器不當或長時間配戴可能改變咬合；如疼痛或咬合異常持續，請停止配戴並就診。ONDA部位可能出現暫時性紅斑、熱感或腫脹。", "<b class=\"tt\">4. 患者告知事項</b> 本人已如實告知醫療人員：懷孕(含可能)、出血性疾病或服用抗凝血劑、進行中的牙齒矯正、臉部手術/醫美史及其他疾病。", "<b class=\"tt\">5. 拍照</b><ul><li>(必填) 同意為記錄療程進行同一條件的前後拍照並保存於病歷。</li><li>(選填) 同意將去識別化處理的照片用於學術/宣傳資料。不同意不影響診療。</li></ul>", "<b class=\"tt\">6. 確認</b> 本人已了解治療的目的、方法、副作用及替代方案，並有提問機會，出於自願同意接受。"], "th": ["<b class=\"tt\">1. เนื้อหาการรักษา</b> ข้าพเจ้ายินยอมรับการรักษาต่อไปนี้เพื่อแก้ไขความไม่สมมาตรของใบหน้า (เชิงการทำงาน — กล้ามเนื้อและข้อต่อขากรรไกร):<ul><li>นวดจัดกระดูกชูนา — จัด TMJ/ต้นคอ และคลายกล้ามเนื้อบดเคี้ยว (masseter, pterygoid) และ suboccipital</li><li>ฝังเข็มสมุนไพร</li><li>ฝังเข็ม</li><li>เครื่องมือจัด TMJ (สปลินท์) และการสอนวิธีใส่</li><li>ONDA Lifting</li></ul>", "<b class=\"tt\">2. ผลที่คาดหวังและข้อจำกัด</b> การรักษานี้มุ่งแก้ไขความไม่สมมาตรเชิงการทำงานจากกล้ามเนื้อ/TMJ ผลและระยะเวลาคงอยู่แตกต่างกันตามสภาพและนิสัยของแต่ละบุคคล ความไม่สมมาตรจากกระดูกขากรรไกรเองไม่ใช่เป้าหมาย หากพบจะแนะนำให้ไปแผนกที่เหมาะสม กล้ามเนื้อที่คลายแล้วอาจกลับคืนตามนิสัยการเคี้ยว/ท่าทาง จึงต้องใส่เครื่องมือและปรับนิสัยเพื่อคงผล", "<b class=\"tt\">3. ผลข้างเคียงที่อาจเกิด</b> อาจมีอาการปวด รอยช้ำ บวม หรือตึงชั่วคราวบริเวณที่รักษา เวียนศีรษะระหว่างฝังเข็ม และพบได้น้อยคือเลือดออกหรือการติดเชื้อ การใส่เครื่องมือไม่ถูกต้องหรือนานเกินไปอาจทำให้การสบฟันเปลี่ยน หากปวดหรือการสบฟันผิดปกติต่อเนื่องให้หยุดใส่และมาพบแพทย์ บริเวณ ONDA อาจมีรอยแดง ร้อน หรือบวมชั่วคราว", "<b class=\"tt\">4. การแจ้งข้อมูลของผู้ป่วย</b> ข้าพเจ้าได้แจ้งเจ้าหน้าที่ตามจริงเกี่ยวกับการตั้งครรภ์ (รวมถึงความเป็นไปได้) โรคเลือดออกง่ายหรือการใช้ยาละลายลิ่มเลือด การจัดฟันที่กำลังทำอยู่ ประวัติศัลยกรรม/หัตถการบนใบหน้า และโรคอื่น ๆ", "<b class=\"tt\">5. การถ่ายภาพ</b><ul><li>(จำเป็น) ยินยอมให้ถ่ายภาพก่อน/หลังในเงื่อนไขเดียวกันเพื่อติดตามผลและเก็บในเวชระเบียน</li><li>(ทางเลือก) ยินยอมให้ใช้ภาพที่ปกปิดตัวตนเพื่อสื่อวิชาการ/ประชาสัมพันธ์ การไม่ยินยอมไม่มีผลต่อการรักษา</li></ul>", "<b class=\"tt\">6. การยืนยัน</b> ข้าพเจ้าได้รับคำอธิบายถึงวัตถุประสงค์ วิธีการ ผลข้างเคียง และทางเลือก มีโอกาสซักถาม และยินยอมด้วยความสมัครใจ"]}, "consent2": {"en": ["<b class=\"tt\">1. Principle of the discount — it reverts</b> The course discount (4 sessions 5% · 8 sessions 10%) is a price based on the assumption that you complete the number of sessions you agreed to. If you stop partway, the treatments you have already received are recalculated at the undiscounted single-item list price. Only the discount reverts — you are not charged for sessions you did not receive.<ul><li>No prepayment is required. You may pay session by session.</li><li>The list prices used for deduction and settlement are those published in the price list.</li></ul>", "<b class=\"tt\">2. If you stop partway</b><ul><li><b>If you pay session by session</b> — the discount applies from the point you reach the agreed number of sessions, so there is nothing to settle if you stop.</li><li><b>If you paid in advance</b> — the treatments already received are deducted at single-item list price and the remainder is refunded.</li><li><b>TMJ appliance</b> — a separate item, not covered by the course discount. As it is worn directly in the mouth, it cannot be returned or refunded once issued (opened). It is fully refundable before it is issued.</li><li><b>If you have not received any treatment</b> — a full refund is given.</li></ul>", "<b class=\"tt\">3. Other</b><ul><li>Refunds are processed to the original payment method and may take 3–7 business days.</li><li>The course discount is valid for 6 months from the first treatment date, extendable for reasons agreed with the medical staff (illness, childbirth, long stay abroad).</li><li>Please contact us at least one day in advance to change or cancel an appointment.</li><li>These rules follow the Consumer Dispute Resolution Standards and related laws.</li></ul>", "<b class=\"tt\">4. Confirmation</b> I have been informed of and fully understand the above discount conditions and refund rules, and I agree to them."], "it": ["<b class=\"tt\">1. Principio dello sconto — si annulla</b> Lo sconto per ciclo (4 sedute 5% · 8 sedute 10%) è un prezzo basato sul presupposto che Lei completi il numero di sedute concordato. Se interrompe a metà, i trattamenti già ricevuti vengono ricalcolati al prezzo di listino della singola prestazione, senza sconto. Si annulla soltanto lo sconto: non Le vengono addebitate le sedute non ricevute.<ul><li>Non è richiesto alcun pagamento anticipato. Può pagare seduta per seduta.</li><li>I prezzi di listino usati per la detrazione e il conguaglio sono quelli pubblicati nel listino prezzi.</li></ul>", "<b class=\"tt\">2. Se interrompe</b><ul><li><b>Se paga seduta per seduta</b> — lo sconto si applica dal momento in cui raggiunge il numero di sedute concordato, quindi non c'è nulla da conguagliare se interrompe.</li><li><b>Se ha pagato in anticipo</b> — i trattamenti già ricevuti vengono detratti al prezzo di listino e il residuo viene rimborsato.</li><li><b>Bite ATM</b> — voce separata, non coperta dallo sconto per ciclo. Essendo indossato direttamente in bocca, non è restituibile né rimborsabile una volta consegnato (aperto). È interamente rimborsabile prima della consegna.</li><li><b>Se non ha ricevuto alcun trattamento</b> — il rimborso è totale.</li></ul>", "<b class=\"tt\">3. Altro</b><ul><li>I rimborsi sono effettuati sul metodo di pagamento originale e possono richiedere 3–7 giorni lavorativi.</li><li>Lo sconto per ciclo è valido 6 mesi dalla data del primo trattamento, prorogabile per motivi concordati con il personale medico (malattia, parto, lunga permanenza all'estero).</li><li>La preghiamo di comunicare modifiche o cancellazioni con almeno un giorno di anticipo.</li><li>Le presenti regole seguono gli standard di risoluzione delle controversie dei consumatori e le leggi vigenti.</li></ul>", "<b class=\"tt\">4. Conferma</b> Sono stato informato e comprendo pienamente le condizioni di sconto e le regole di rimborso sopra indicate, e le accetto."], "ja": ["<b class=\"tt\">1. 割引の原則 — 戻ります</b> 回数割引(4回 5%・8回 10%)は、<b>お約束の回数を最後までご利用いただくこと</b>を前提とした価格です。途中で中断された場合、すでにお受けになった施術は<b>割引のない単品正価で再計算</b>します。戻るのは割引だけです。お受けになっていない回数分は請求いたしません。<ul><li>前払いは必要ありません。1回ごとのお支払いが可能です。</li><li>控除・精算に用いる単品正価は<b>料金表に掲示された金額</b>に従います。</li></ul>", "<b class=\"tt\">2. 中断される場合</b><ul><li><b>1回ごとにお支払いの場合</b> — 割引はお約束の回数に達した時点で適用されるため、中断されても精算する金額はありません。</li><li><b>前もってお支払いの場合</b> — すでにお受けになった施術を単品正価で控除し、残額を返金いたします。</li><li><b>顎関節矯正装置</b> — 回数割引とは関係のない別項目です。口腔内に直接装着する衛生用品のため、<b>お渡し(開封)後の返品・返金はできません。</b>お渡し前であれば全額返金いたします。</li><li><b>施術を一度もお受けになっていない場合</b> — 全額返金いたします。</li></ul>", "<b class=\"tt\">3. その他</b><ul><li>返金は決済手段を基準に処理され、営業日3〜7日かかる場合があります。</li><li>回数割引の有効期間は初回施術日から6ヶ月で、医療スタッフと協議した事由(疾病・出産・長期出国など)により延長できます。</li><li>ご予約の変更・キャンセルは前日までにご連絡ください。</li><li>本規定は「消費者紛争解決基準」など関係法令に準じます。</li></ul>", "<b class=\"tt\">4. 確認</b> 本人は上記の割引条件および返金規定について説明を受け、十分に理解したうえで同意します。"], "zhCN": ["<b class=\"tt\">1. 优惠原则 — 会回退</b> 疗程优惠(4次 5%・8次 10%)是以<b>您完成约定次数</b>为前提的价格。若中途终止，已接受的治疗将<b>按无优惠的单项原价重新计算</b>。回退的只是优惠，未接受的次数不会向您收费。<ul><li>无需预付，可按次结算。</li><li>用于扣除与结算的单项原价，以<b>价格表公布的金额</b>为准。</li></ul>", "<b class=\"tt\">2. 中途终止时</b><ul><li><b>按次结算的情况</b> — 优惠自达到约定次数时起适用，因此终止时无需结算。</li><li><b>已预先付款的情况</b> — 按单项原价扣除已接受的治疗后，退还余额。</li><li><b>颞下颌关节矫正器</b> — 与疗程优惠无关的独立项目。因直接佩戴于口腔内，属卫生用品，<b>发放(开封)后不可退货退款。</b>发放前可全额退款。</li><li><b>未接受任何治疗的情况</b> — 全额退款。</li></ul>", "<b class=\"tt\">3. 其他</b><ul><li>退款按原支付方式处理，可能需要3~7个工作日。</li><li>疗程优惠自首次治疗之日起6个月内有效，经与医疗人员协商的事由(疾病、生产、长期出国等)可延长。</li><li>预约变更或取消请提前一天联系我们。</li><li>本规定依据《消费者纠纷解决标准》等相关法律。</li></ul>", "<b class=\"tt\">4. 确认</b> 本人已听取并充分理解上述优惠条件与退款规定，并表示同意。"], "zhTW": ["<b class=\"tt\">1. 優惠原則 — 會回復</b> 療程優惠(4次 5%・8次 10%)是以<b>您完成約定次數</b>為前提的價格。若中途終止，已接受的治療將<b>按無優惠的單項原價重新計算</b>。回復的只是優惠，未接受的次數不會向您收費。<ul><li>無需預付，可按次結帳。</li><li>用於扣除與結算的單項原價，以<b>價格表公布的金額</b>為準。</li></ul>", "<b class=\"tt\">2. 中途終止時</b><ul><li><b>按次結帳的情況</b> — 優惠自達到約定次數時起適用，因此終止時無需結算。</li><li><b>已預先付款的情況</b> — 按單項原價扣除已接受的治療後，退還餘額。</li><li><b>顳顎關節矯正器</b> — 與療程優惠無關的獨立項目。因直接配戴於口腔內，屬衛生用品，<b>發放(開封)後不可退貨退費。</b>發放前可全額退費。</li><li><b>未接受任何治療的情況</b> — 全額退費。</li></ul>", "<b class=\"tt\">3. 其他</b><ul><li>退費按原付款方式處理，可能需要3~7個工作日。</li><li>療程優惠自首次治療之日起6個月內有效，經與醫療人員協商之事由(疾病、生產、長期出國等)可延長。</li><li>預約變更或取消請提前一天聯絡我們。</li><li>本規定依據《消費者糾紛解決標準》等相關法令。</li></ul>", "<b class=\"tt\">4. 確認</b> 本人已聽取並充分理解上述優惠條件與退費規定，並表示同意。"], "th": ["<b class=\"tt\">1. หลักการของส่วนลด — ส่วนลดจะย้อนกลับ</b> ส่วนลดคอร์ส (4 ครั้ง 5% · 8 ครั้ง 10%) เป็นราคาที่ตั้งอยู่บนเงื่อนไขว่าคุณจะใช้บริการครบตามจำนวนครั้งที่ตกลงไว้ หากหยุดกลางคัน การรักษาที่ได้รับไปแล้วจะถูกคำนวณใหม่ตามราคาต่อรายการเต็มโดยไม่มีส่วนลด สิ่งที่ย้อนกลับคือส่วนลดเท่านั้น เราไม่เรียกเก็บค่าครั้งที่คุณยังไม่ได้รับ<ul><li>ไม่ต้องชำระล่วงหน้า ชำระเป็นครั้ง ๆ ได้</li><li>ราคาต่อรายการที่ใช้หักและคิดยอด เป็นไปตามที่ประกาศในอัตราค่าบริการ</li></ul>", "<b class=\"tt\">2. เมื่อหยุดกลางคัน</b><ul><li><b>กรณีชำระเป็นครั้ง ๆ</b> — ส่วนลดจะเริ่มใช้เมื่อครบจำนวนครั้งที่ตกลงไว้ ดังนั้นหากหยุดก็ไม่มียอดต้องคิดเพิ่ม</li><li><b>กรณีชำระล่วงหน้าแล้ว</b> — หักการรักษาที่ได้รับไปแล้วตามราคาต่อรายการ แล้วคืนส่วนที่เหลือ</li><li><b>เครื่องมือจัด TMJ</b> — เป็นรายการแยก ไม่รวมในส่วนลดคอร์ส เนื่องจากสวมในช่องปากโดยตรงจึงเป็นของใช้ด้านสุขอนามัย <b>เมื่อรับ (เปิดใช้) แล้วไม่สามารถคืนหรือขอเงินคืนได้</b> หากยังไม่ได้รับ คืนเงินเต็มจำนวน</li><li><b>กรณีที่ยังไม่ได้รับการรักษาเลย</b> — คืนเงินเต็มจำนวน</li></ul>", "<b class=\"tt\">3. อื่น ๆ</b><ul><li>การคืนเงินทำผ่านช่องทางชำระเดิม อาจใช้เวลา 3–7 วันทำการ</li><li>ส่วนลดคอร์สมีอายุ 6 เดือนนับจากวันรักษาครั้งแรก ขยายได้ตามเหตุที่ตกลงกับเจ้าหน้าที่ทางการแพทย์ (เจ็บป่วย คลอดบุตร ไปต่างประเทศระยะยาว)</li><li>กรุณาแจ้งเปลี่ยนหรือยกเลิกนัดล่วงหน้าอย่างน้อย 1 วัน</li><li>กฎนี้เป็นไปตามมาตรฐานระงับข้อพิพาทผู้บริโภคและกฎหมายที่เกี่ยวข้อง</li></ul>", "<b class=\"tt\">4. การยืนยัน</b> ข้าพเจ้าได้รับทราบและเข้าใจเงื่อนไขส่วนลดและกฎการคืนเงินข้างต้นอย่างครบถ้วน และยินยอม"]}};
+function koRefs_(html,sel){var d=document.createElement("div");d.innerHTML=html;return Array.prototype.map.call(d.querySelectorAll(sel),function(e){return e.textContent.trim();});}
+function glossRoot_(root,koHtml){
+  ["h1","h2","h3",".ct",".q"].forEach(function(s){
+    var ko=koRefs_(koHtml,s), cur2=root.querySelectorAll(s);
+    Array.prototype.forEach.call(cur2,function(e,i){ if(ko[i]){var g=document.createElement("span");g.className="ko-gloss";g.textContent=ko[i];e.appendChild(g);} });
+  });
+}
+function injectConsentTrans_(){
+  [["pane-consent1","consent1"],["pane-consent2","consent2"]].forEach(function(pr){
+    var blocks=document.querySelectorAll("#"+pr[0]+" .c-block");
+    Array.prototype.forEach.call(blocks,function(bl,i){
+      var old=bl.querySelector(".c-trans"); if(old) old.remove();
+      if(cur.lang==="ko") return;
+      var arr=CONSENT_TR[pr[1]][cur.lang]; if(!arr||!arr[i]) return;
+      var d=document.createElement("div"); d.className="c-trans"; d.innerHTML=arr[i]; bl.appendChild(d);
+    });
+  });
+}
+function fillConsentNotes_(){
+  var n1=document.getElementById("consentNote1"), n2=document.getElementById("consentNote2");
+  if(!n1||!n2) return;
+  if(cur.lang==="ko"){ n1.style.display="none"; n2.style.display="none"; return; }
+  n1.style.display="block"; n2.style.display="block";
+  n1.innerHTML=CONSENT_NOTE[cur.lang]+'<span class="ko-gloss">아래 동의서는 한국어 정본입니다. 서명 전 각 항목을 의료진이 함께 설명해 드립니다.</span>';
+  n2.innerHTML=CONSENT_NOTE[cur.lang]+'<span class="ko-gloss">아래 환불 규정은 한국어 정본입니다. 서명 전 각 항목을 의료진이 함께 설명해 드립니다.</span>';
+}
 function renderStatic(){
-  document.getElementById("explainRoot").innerHTML = T().explain;
-  document.getElementById("priceRoot").innerHTML = T().price;
-  document.getElementById("afterRoot").innerHTML = T().after;
+  var er=document.getElementById("explainRoot"), pr=document.getElementById("priceRoot"), ar=document.getElementById("afterRoot");
+  er.innerHTML = T().explain; pr.innerHTML = T().price; ar.innerHTML = T().after;
+  if(cur.lang!=="ko"){ glossRoot_(er,I18N.ko.explain); glossRoot_(pr,I18N.ko.price); glossRoot_(ar,I18N.ko.after); }
+  renderExplainAdd_(); fillConsentNotes_(); injectConsentTrans_();
 }
 
 var surveyState = {};
@@ -875,9 +924,15 @@ function renderSurvey(){
   SURVEY_DEF.forEach(function(sec,si){
     html+='<div class="f-sec"><h3><span class="fn">'+String(si+1).padStart(2,"0")+'</span>'+s.sec[sec.sec]+'</h3>';
     sec.fields.forEach(function(f){
-      var d=s.f[f.k], req=f.req?' <span class="req">*</span>':'';
+      if(f.showIf){ var sv=surveyState[f.showIf[0]]; var on=Array.isArray(sv)?sv.indexOf(f.showIf[1])>=0:sv===f.showIf[1]; if(!on) return; }
+      var d=s.f[f.k]||I18N.en.survey.f[f.k]||I18N.ko.survey.f[f.k], req=f.req?' <span class="req">*</span>':'';
       html+='<div class="fld" data-k="'+f.k+'">';
-      if(f.t==="check"){
+      if(f.t==="range"){
+        var rv0 = (typeof surveyState[f.k]==="number") ? surveyState[f.k] : 5;
+        html+='<label class="lb">'+d.lb+req+'</label>'+
+              '<div class="rng"><input type="range" min="0" max="10" step="1" value="'+rv0+'" oninput="setRangeS(\''+f.k+'\',this)"><b id="sv_'+f.k+'">'+rv0+'</b></div>'+
+              '<div class="rng-cap"><span>'+d.lo+'</span><span>'+d.hi+'</span></div>';
+      } else if(f.t==="check"){
         var ck = surveyState[f.k]===true?" checked":"";
         html+='<label class="lb">'+d.lb+req+'</label><div class="chk"><input type="checkbox" id="ck_'+f.k+'"'+ck+' onchange="surveyState[\''+f.k+'\']=this.checked"> <span>'+d.tx+'</span></div>';
       } else if(f.t==="single"||f.t==="multi"){
@@ -920,8 +975,10 @@ function buildSummary(){
   SURVEY_DEF.forEach(function(sec){
     lines.push("■ "+ko.sec[sec.sec]);
     sec.fields.forEach(function(f){
+      if(f.showIf){ var sv=surveyState[f.showIf[0]]; var on=Array.isArray(sv)?sv.indexOf(f.showIf[1])>=0:sv===f.showIf[1]; if(!on) return; }
       var d=ko.f[f.k], v=surveyState[f.k], out="-";
-      if(f.t==="check"){ out = v===true ? "동의함" : "미동의"; }
+      if(f.t==="range"){ out = (typeof v==="number"? v : 5) + " / 10"; }
+      else if(f.t==="check"){ out = v===true ? "동의함" : "미동의"; }
       else if(f.t==="single"){ if(typeof v==="number") out=d.op[v]; }
       else if(f.t==="multi"){ if(Array.isArray(v)&&v.length) out=v.map(function(i){return d.op[i];}).join(", "); }
       else { if(v) out=v; }
@@ -938,7 +995,7 @@ function validateSurvey(){
     if(!f.req) return;
     var v=surveyState[f.k];
     var ok = f.t==="check"? v===true : (f.t==="single"? typeof v==="number" : (f.t==="multi"? Array.isArray(v)&&v.length : v&&String(v).trim()));
-    if(!ok) miss.push(T().survey.f[f.k].lb);
+    if(!ok) miss.push((T().survey.f[f.k]||I18N.en.survey.f[f.k]).lb);
   });});
   return miss;
 }
@@ -997,7 +1054,169 @@ function printPane(id){
   window.print();
 }
 
-function renderAll(){ renderChrome(); renderStatic(); renderSurvey(); }
+
+/* ===== [ADD v2] 재진 추적 설문 + 설명 보강 카드 — 2026-07-26 ===================
+   기존 초진 설문(SURVEY_DEF/renderSurvey/buildSummary/validateSurvey)은 건드리지 않고
+   병렬로 추가한다. 전송은 기존 ENDPOINT_URL(GAS) 재사용 — GAS 수정 없이 동작.
+   ko/en만 정의. 나머지 언어는 en으로 폴백(추측 번역 금지 원칙). =================== */
+
+var REVISIT_DEF = [
+ {sec:0, fields:[{k:"rChart",t:"text",req:1},{k:"rName",t:"text"},{k:"rVisitNo",t:"text",req:1}]},
+ {sec:1, fields:[{k:"rSelfScore",t:"range"},{k:"rOthers",t:"single"}]},
+ {sec:2, fields:[{k:"rTmj",t:"single"},{k:"rStiff",t:"single"},{k:"rNeck",t:"single"},{k:"rHeadache",t:"single"},{k:"rSnore",t:"single"}]},
+ {sec:3, fields:[{k:"rSplint",t:"single"},{k:"rHabit",t:"single"}]},
+ {sec:4, fields:[{k:"rUnderstood",t:"single"},{k:"rNewKnow",t:"single"},{k:"rNote",t:"area"}]}
+];
+
+var revisitState = {};
+function RT_(){ return (T() && T().revisit) ? T().revisit : I18N.en.revisit; }
+function rf_(k){ var r=RT_(); return (r.f && r.f[k]) ? r.f[k] : I18N.en.revisit.f[k]; }
+
+function renderRevisit(){
+  var root=document.getElementById("revisitRoot"); if(!root) return;
+  var s=RT_(), html="";
+  html+='<h1>'+s.title+'</h1><p class="lead">'+s.lead+'</p>';
+  if(cur.lang!=="ko" && cur.lang!=="en"){
+    html+='<div class="c-note">'+I18N.en.revisit.langNote+'<span class="ko-gloss">'+I18N.ko.revisit.langNote+'</span></div>';
+  }
+  REVISIT_DEF.forEach(function(sec,si){
+    html+='<div class="f-sec"><h3><span class="fn">'+String(si+1).padStart(2,"0")+'</span>'+s.sec[sec.sec]+'</h3>';
+    sec.fields.forEach(function(f){
+      var d=rf_(f.k), req=f.req?' <span class="req">*</span>':'';
+      html+='<div class="fld" data-k="'+f.k+'">';
+      if(f.t==="range"){
+        var rv = (typeof revisitState[f.k]==="number") ? revisitState[f.k] : 5;
+        html+='<label class="lb">'+d.lb+req+'</label>'+
+              '<div class="rng"><input type="range" min="0" max="10" step="1" value="'+rv+'" oninput="setRangeR(\''+f.k+'\',this)">'+
+              '<b id="rv_'+f.k+'">'+rv+'</b></div>'+
+              '<div class="rng-cap"><span>'+d.lo+'</span><span>'+d.hi+'</span></div>';
+      } else if(f.t==="single"){
+        html+='<label class="lb">'+d.lb+req+'</label><div class="opts">';
+        d.op.forEach(function(o,oi){
+          var sel = revisitState[f.k]===oi;
+          html+='<label class="'+(sel?"sel":"")+'" onclick="pickOptR(\''+f.k+'\','+oi+')">'+o+'</label>';
+        });
+        html+='</div>';
+      } else if(f.t==="area"){
+        html+='<label class="lb">'+d.lb+req+'</label><textarea placeholder="'+(d.ph||"")+'" oninput="revisitState[\''+f.k+'\']=this.value">'+(revisitState[f.k]||"")+'</textarea>';
+      } else {
+        html+='<label class="lb">'+d.lb+req+'</label><input type="text" placeholder="'+(d.ph||"")+'" value="'+String(revisitState[f.k]||"").replace(/"/g,"&quot;")+'" oninput="revisitState[\''+f.k+'\']=this.value">';
+      }
+      html+='</div>';
+    });
+    html+='</div>';
+  });
+  html+='<div class="submit-row"><button class="btn" onclick="submitRevisit()">'+T().ui.submit+'</button>'+
+        '<button class="btn ghost" onclick="copyRevisit()">'+T().ui.copy+'</button>'+
+        '<span id="sendStateR" style="font-size:14px"></span></div>'+
+        '<div id="revisitResult"><pre id="summaryPreR"></pre></div>';
+  root.innerHTML=html;
+}
+
+function setRangeR(k,el){
+  revisitState[k]=Number(el.value);
+  var b=document.getElementById("rv_"+k); if(b) b.textContent=el.value;
+}
+function pickOptR(k,oi){
+  revisitState[k] = (revisitState[k]===oi ? undefined : oi);
+  renderRevisit();
+}
+
+function buildSummaryR(){
+  var ko=I18N.ko.revisit, langName=LANGS.filter(function(l){return l.code===cur.lang;})[0].label;
+  var lines=["[안면 밸런스 재진 설문] ("+langName+")","제출 시각: "+new Date().toLocaleString("ko-KR"),""];
+  REVISIT_DEF.forEach(function(sec){
+    lines.push("■ "+ko.sec[sec.sec]);
+    sec.fields.forEach(function(f){
+      var d=ko.f[f.k], v=revisitState[f.k], out="-";
+      if(f.t==="range"){ out = (typeof v==="number"? v : 5) + " / 10"; }
+      else if(f.t==="single"){ if(typeof v==="number") out=d.op[v]; }
+      else { if(v) out=v; }
+      lines.push("· "+d.lb+": "+out);
+    });
+    lines.push("");
+  });
+  return lines.join("\n");
+}
+
+function validateRevisit(){
+  var miss=[];
+  REVISIT_DEF.forEach(function(sec){sec.fields.forEach(function(f){
+    if(!f.req) return;
+    var v=revisitState[f.k];
+    var ok = f.t==="single" ? typeof v==="number" : (v && String(v).trim());
+    if(!ok) miss.push(rf_(f.k).lb);
+  });});
+  return miss;
+}
+
+function submitRevisit(){
+  var st=document.getElementById("sendStateR");
+  var miss=validateRevisit();
+  if(miss.length){ st.innerHTML='<span class="err-msg">'+T().ui.required+miss.join(", ")+'</span>'; return; }
+  var summary=buildSummaryR();
+  document.getElementById("summaryPreR").textContent=summary;
+  document.getElementById("revisitResult").style.display="block";
+  if(!ENDPOINT_URL){ st.innerHTML='<span class="err-msg">'+T().ui.noHook+'</span>'; return; }
+  if(ENDPOINT_URL.indexOf("script.google")>=0){
+    fetch(ENDPOINT_URL,{method:"POST",body:JSON.stringify({token:SHARED_TOKEN,lang:cur.lang,text:summary})})
+      .then(function(r){return r.json();})
+      .then(function(j){ st.innerHTML = j&&j.ok ? '<span class="ok-msg">'+T().ui.sentOk+'</span>' : '<span class="err-msg">'+T().ui.sentFail+'</span>'; })
+      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
+  } else {
+    fetch(ENDPOINT_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({text:summary})})
+      .then(function(){ st.innerHTML='<span class="ok-msg">'+T().ui.sentOk+'</span>'; })
+      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
+  }
+}
+
+function copyRevisit(){
+  var summary=buildSummaryR();
+  document.getElementById("summaryPreR").textContent=summary;
+  document.getElementById("revisitResult").style.display="block";
+  var ta=document.createElement("textarea"); ta.value=summary; document.body.appendChild(ta);
+  ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+  document.getElementById("sendStateR").innerHTML='<span class="ok-msg">'+T().ui.copied+'</span>';
+}
+
+/* ---- 설명 탭 상단 보강 카드 (gloss 인덱스 정렬에 영향 없도록 별도 root) ---- */
+var EXPLAIN_ADD = {};
+EXPLAIN_ADD.ko =
+'<div class="card"><span class="tag">먼저 알아두실 것</span><h3>비대칭은 대부분이 가지고 있습니다</h3>'+
+'<p style="font-size:14.5px">건강한 성인의 얼굴을 3D로 정밀 측정한 연구에서 <b>절반 이상이 2mm를 넘는 좌우 차이</b>를 가지고 있었습니다. 완벽한 대칭은 사실상 없습니다.<br>그래서 저희가 보는 것은 "비대칭이 있느냐"가 아니라 <b>어떤 유형이고, 어느 정도이고, 되돌릴 수 있는 종류인가</b>입니다.</p></div>'+
+'<div class="card"><span class="tag">구조 이해</span><h3>머리뼈는 하나의 단단한 공이 아닙니다</h3>'+
+'<p style="font-size:14.5px">머리뼈는 여러 개의 뼈가 봉합선으로 이어진 <b>구조물</b>입니다. 일부 봉합선은 성장이 끝난 뒤에도 완전히 붙지 않고 남아 있습니다.<br>그 구조물 <b>아래에 턱이 관절로 매달려 있고, 목뼈가 그 구조물을 받치고</b> 있습니다.<br>얼굴의 좌우 인상을 실제로 바꾸는 것은 뼈를 움직이는 일이 아니라 — <b>그 구조물에 매달린 턱과, 그것을 받치는 목의 정렬</b>입니다. 저희가 저작근·턱관절·경추를 다루는 이유가 여기 있습니다.</p></div>'+
+'<div class="card"><span class="tag gold">숫자로 보여드립니다</span><h3>어디서부터 "보이기" 시작하는가</h3>'+
+'<p style="font-size:14.5px">사람 눈이 좌우 차이를 인지하기 시작하는 기준선은 연구로 확인되어 있습니다.</p>'+
+'<ul class="cln"><li><b>치아 정중선 어긋남 — 2mm</b></li><li><b>앞니 평면 기울기 — 3°</b></li><li><b>정중선 기울기 — 5°</b></li><li><b>코 편차 — 4mm</b></li></ul>'+
+'<p style="font-size:14.5px;margin-top:10px">이미 비대칭이 있는 얼굴에서는 이보다 더 작은 차이도 인지됩니다.<br>오늘 촬영한 사진 위에 <b>이 기준선과 환자분의 실제 수치를 나란히</b> 올려 보여드립니다. 감으로 말씀드리지 않습니다.</p></div>'+
+'<div class="callout"><div class="ct">사진이 남들이 보는 얼굴입니다</div>거울은 좌우가 뒤집혀 보입니다. 그래서 거울에서는 괜찮아 보이던 것이 사진에서 유독 신경 쓰이는 경우가 많습니다. 저희는 <b>같은 조건에서 촬영한 사진</b>으로 기록하고 비교합니다.</div>';
+
+EXPLAIN_ADD.en =
+'<div class="card"><span class="tag">First, some context</span><h3>Most people have facial asymmetry</h3>'+
+'<p style="font-size:14.5px">In a study that measured healthy adult faces in 3D, <b>more than half had a left-right difference greater than 2&nbsp;mm</b>. Perfect symmetry essentially does not exist.<br>So the question we ask is not "is there asymmetry" but <b>what type, how much, and is it the kind that can be changed</b>.</p></div>'+
+'<div class="card"><span class="tag">Understanding the structure</span><h3>The skull is not one solid ball</h3>'+
+'<p style="font-size:14.5px">The skull is a <b>structure</b> of several bones joined by sutures. Some of those sutures do not fully close even after growth is complete.<br>Beneath that structure, <b>the jaw hangs from a joint, and the neck vertebrae support the whole thing</b>.<br>What actually changes the left-right impression of a face is not moving bone — it is <b>the alignment of the jaw that hangs from that structure, and of the neck that supports it</b>. That is why we work on the chewing muscles, the jaw joint and the cervical spine.</p></div>'+
+'<div class="card"><span class="tag gold">We show you the numbers</span><h3>Where asymmetry starts to become visible</h3>'+
+'<p style="font-size:14.5px">Research has established the thresholds at which the human eye begins to notice a left-right difference.</p>'+
+'<ul class="cln"><li><b>Dental midline shift — 2&nbsp;mm</b></li><li><b>Incisal plane cant — 3°</b></li><li><b>Midline cant — 5°</b></li><li><b>Nose deviation — 4&nbsp;mm</b></li></ul>'+
+'<p style="font-size:14.5px;margin-top:10px">In a face that is already asymmetric, even smaller differences are noticed.<br>On the photographs taken today we place <b>these thresholds and your own measurements side by side</b>. We do not rely on impressions.</p></div>'+
+'<div class="callout"><div class="ct">The photograph is the face other people see</div>A mirror shows you flipped left to right. That is why something that looked fine in the mirror can stand out in a photo. We record and compare using <b>photographs taken under identical conditions</b>.</div>';
+
+function renderExplainAdd_(){
+  var r=document.getElementById("explainAddRoot"); if(!r) return;
+  var h = (cur.lang==="ko") ? EXPLAIN_ADD.ko : EXPLAIN_ADD.en;
+  r.innerHTML = h;
+  if(cur.lang!=="ko"){ glossRoot_(r, EXPLAIN_ADD.ko); }
+}
+/* ===== [/ADD v2] ============================================================ */
+
+function setRangeS(k,el){
+  surveyState[k]=Number(el.value);
+  var b=document.getElementById("sv_"+k); if(b) b.textContent=el.value;
+}
+
+function renderAll(){ renderChrome(); renderStatic(); renderSurvey(); renderRevisit(); }
 renderAll(); initSigs();
 </script>
 </body>
