@@ -579,6 +579,14 @@ function acdSlack_(text) {
   try { t = acdSlackTarget_(); }
   catch (e) { Logger.log('슬랙 설정 문제: ' + e.message); return { ok: false, err: e.message }; }
 
+  // 채널 분리 (260730): 기계 독백은 로그 채널(ACD_SLACK_CHANNEL), 사람이 봐야 하는
+  // 긴급(🚨·🔺)만 경보 채널(ACD_ALERT_CHANNEL, 보통 #회의_프로그램)로.
+  // 경보 채널 속성이 없으면 전부 기본 채널 — 기존 동작과 동일(하위호환).
+  if (t.mode === 'token' && (text.indexOf('🚨') === 0 || text.indexOf('🔺') === 0)) {
+    var alertCh = PropertiesService.getScriptProperties().getProperty('ACD_ALERT_CHANNEL');
+    if (alertCh) t = { mode: 'token', token: t.token, channel: alertCh };
+  }
+
   try {
     var res;
     if (t.mode === 'token') {
