@@ -128,7 +128,9 @@ function item(k){ return CFG.ITEMS.filter(function(i){return i.key===k;})[0]; }
 function pkg(k){ return CFG.PACKAGES.filter(function(p){return p.key===k;})[0]; }
 function compText(p){ return Object.keys(p.comp).map(function(k){return item(k).name+" "+p.comp[k];}).join(" · "); }
 function isAuditDay(){ return new Date().getDay()===CFG.AUDIT_DOW; }
-var DB = load() || { staff:"", base:{}, basePkg:{}, baseDate:"", baseT:"", events:[] };
+var DB = load() || { staff:"", base:{}, basePkg:{}, baseDate:"", baseT:"", events:[], tracks:[] };
+DB.tracks = DB.tracks || [];
+var GB = null;   // GAS invBoot 수신값 (슬랙 자동 파싱분 등)
 function load(){ try{ return JSON.parse(localStorage.getItem("acro_inv3")); }catch(e){ return null; } }
 function save(){ try{ localStorage.setItem("acro_inv3", JSON.stringify(DB)); }catch(e){} }
 /* ---------------- 기록/전송 ---------------- */
@@ -219,7 +221,7 @@ home: function(){
     return '<div class="chip" style="--stripe:'+it.stripe+'"><small>'+it.name+'</small><b>'+(s.중간===null?"?":s.중간)+'</b><small>'+it.unit+'</small>'+
     '<div style="margin-top:5px"><button class="tap" style="padding:5px 9px;font-size:12.5px" onclick="doMove(&quot;'+it.key+'&quot;)">＋채움</button></div></div>';
   }).join("");
-  return headerHtml()+
+  return headerHtml()+tracksCard()+
   '<div class="sect"><h2>🏬 기본 창고 <span class="hint" style="margin:0">(주 1회 실사)</span></h2>'+
   '<div class="acts"><button class="tap" onclick="V.screen=&quot;receive&quot;;render()">＋입고</button><button class="tap" onclick="startAudit()">실사</button></div></div>'+
   '<div class="chips">'+whChips+'</div>'+
@@ -244,6 +246,24 @@ receive: function(){
   '<button class="btn btn-p" onclick="saveReceive()">저장</button></div></div>';
 }
 };
+function daysAgo(d){ var ms=new Date(todayStr())-new Date(d); return Math.round(ms/864e5); }
+function tracksCard(){
+  var open=DB.tracks.filter(function(t){return t.status==="open";});
+  if(!open.length) return "";
+  var rows=open.map(function(t){
+    var gi=DB.tracks.indexOf(t), age=daysAgo(t.d);
+    return '<div class="kv"><span>'+(age>=3?'<span class="badge b-bad">'+age+'일 경과 · 원장 보고</span> ':age>=1?'<span class="badge b-warn">'+age+'일째</span> ':'')+esc(t.desc)+'</span>'+
+    '<button class="tap" style="padding:6px 10px;font-size:13px" onclick="resolveTrack('+gi+')">찾았다!</button></div>';
+  }).join("");
+  return '<div class="card" style="border-left:5px solid var(--bad)"><div class="q" style="font-size:15px">🔎 추적함 — 아직 못 찾은 차이 '+open.length+'건</div>'+rows+
+  '<div class="hint">해결되면 [찾았다!]로 사유를 남겨주세요. 3일 넘으면 원장 보고 대상입니다.</div></div>';
+}
+function resolveTrack(gi){
+  var t=DB.tracks[gi]; if(!t) return;
+  var note=prompt("어떻게 해결됐나요? (예: S0 서비스 1통 확인 — 김OO)",""); if(!note) return;
+  t.status="closed"; t.resolvedNote=note; t.resolvedBy=DB.staff; t.resolvedD=todayStr(); save();
+  pushGas({d:todayStr(), t:nowT(), who:DB.staff, kind:"추적해결", desc:t.desc, note:note}); render();
+}
 function todayLog(){
   var todays=[]; DB.events.forEach(function(e,gi){ if(e.d===todayStr()) todays.push({e:e,gi:gi}); });
   var rows = todays.length? todays.map(function(r){
@@ -324,8 +344,12 @@ function(){
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button><button class="btn btn-p" onclick="W.step=1;drawWiz()">다음 →</button></div>';
 },
 function(){
+  var auto = (GB && GB.slackToday)? '<div class="win" style="text-align:left;margin-bottom:10px">🤖 <b>슬랙에서 자동으로 받아왔습니다:</b> '+
+    Object.keys(GB.slackToday).map(function(k){return item(k)?item(k).name+" "+GB.slackToday[k]:k+" "+GB.slackToday[k];}).join(" · ")+
+    '<div class="btn-row"><button class="btn btn-p" onclick="W.slack=GB.slackToday;W.step=2;drawWiz()">이대로 사용 →</button></div>'+
+    '<div class="hint">다르면 아래에 직접 붙여넣으세요 — 붙여넣은 값이 우선합니다.</div></div>' : '';
   return headerHtml()+wizProg()+
-  '<div class="talk">1/5 · <b>슬랙과 대조합니다.</b> 오늘 #결산_약재입출고의 출고 메시지를 전부 복사해 붙여넣어 주세요.</div>'+
+  '<div class="talk">1/5 · <b>슬랙과 대조합니다.</b>'+(auto?'':' 오늘 #결산_약재입출고의 출고 메시지를 전부 복사해 붙여넣어 주세요.')+'</div>'+auto+
   '<div class="card"><textarea id="slackIn" placeholder="예)&#10;출-편1 디캡1(10462임진희)&#10;출-수2 (상담)&#10;출-반과6(19807천서희)"></textarea>'+
   '<div class="btn-row"><button class="btn" onclick="W.step=0;drawWiz()">←</button><button class="btn" onclick="W.slack=null;W.step=2;drawWiz()">건너뛰기</button><button class="btn btn-p" onclick="parseSlackPaste()">다음 →</button></div></div>';
 },
@@ -465,6 +489,24 @@ function submitClose(){
     slack:W.slack, chart:W.chart, mid:W.mid, midPkg:W.midPkg,
     consumption:cons, answers:W.answers, memo:W.memo,
     warehouse:CFG.ITEMS.map(function(it){var s=stock(it.key);return {item:it.key,창고:s.창고};}) }};
+  // 미해결 불일치 → 추적함 (메모 있으면 해결로 간주)
+  var newTracks=[];
+  CFG.ITEMS.forEach(function(it){
+    var k=it.key, c1=cons.items[k], sl=W.slack?(W.slack[k]||0):null, ch=W.chart?(W.chart[k]||0):null;
+    var vals=[c1,sl,ch].filter(function(v){return v!==null;});
+    var uniq={}; vals.forEach(function(v){uniq[v]=1;});
+    if(Object.keys(uniq).length>1 && !W.answers[k]){
+      newTracks.push({d:t, status:"open", desc:it.name+" — 소진 "+(c1===null?"—":c1)+" / 슬랙 "+(sl===null?"—":sl)+" / 차트 "+(ch===null?"—":ch)});
+    }
+  });
+  CFG.PACKAGES.forEach(function(pk2){
+    var cp=cons.pkgs[pk2.key];
+    if(cp!==null && cp<0 && !W.answers["pkg"+pk2.key]){
+      newTracks.push({d:t, status:"open", desc:pk2.key+" 패키지 — 실물이 계산보다 "+(-cp)+"개 많음 (조립 기록 누락?)"});
+    }
+  });
+  DB.tracks=DB.tracks.concat(newTracks);
+  p.data.newTracks=newTracks;
   if(W.mid){
     CFG.ITEMS.forEach(function(it){
       var s=stock(it.key);
@@ -483,6 +525,17 @@ function submitClose(){
     .catch(function(){done("전송 실패 — 기록은 이 기기에 저장돼 있습니다.");});
 }
 render();
+/* 부팅 시 GAS에서 오늘 슬랙 파싱분·기준 수신 (연결 전엔 무시) */
+function bootFetch(){
+  if(!CFG.GAS_URL) return;
+  try{
+    fetch(CFG.GAS_URL+"?action=invBoot&k="+encodeURIComponent(CFG.APP_KEY))
+      .then(function(r){return r.json();})
+      .then(function(j){ GB=j; render(); })
+      .catch(function(){});
+  }catch(e){}
+}
+bootFetch();
 </script>
 </body>
 </html>
