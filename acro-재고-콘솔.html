@@ -171,6 +171,7 @@ function evDesc(e){
   if(e.kind==="채움") return "채움 "+item(e.item).name+" "+e.qty+item(e.item).unit+" (창고→중간)";
   if(e.kind==="조립") return e.pkg+" 패키지 조립 "+e.qty+"개";
   if(e.kind==="해체") return e.pkg+" 패키지 해체 "+e.qty+"개 (낱개 복귀)";
+  if(e.kind==="제안") return "💬 개선 의견: "+String(e.memo||"").slice(0,60);
   return e.kind;
 }
 function delEv(gi){
@@ -231,7 +232,7 @@ home: function(){
   pkgRows+
   '<div class="swapref">⇄ '+CFG.SWAP_REF+'<br>교체로 패키지를 풀 땐 [해체]를 누르면 낱개로 돌아옵니다.</div>'+
   '<div class="talk" style="margin-top:12px">🙂 <b>환자 출고는 지금처럼 슬랙에</b> 적어주세요 (출-편1 …). 콘솔은 마감 때 슬랙·차트·실물을 자동으로 맞춰봅니다.</div>'+
-  '<div class="btn-row" style="justify-content:flex-end"><button class="btn" onclick="V.screen=&quot;history&quot;;render()">📅 일별 기록</button><button class="btn btn-p" onclick="startClose()">🌙 마감</button></div>'+
+  '<div class="btn-row" style="justify-content:flex-end"><button class="btn" onclick="V.screen=&quot;feedback&quot;;render()">💬 개선·문의</button><button class="btn" onclick="V.screen=&quot;history&quot;;render()">📅 일별 기록</button><button class="btn btn-p" onclick="startClose()">🌙 마감</button></div>'+
   todayLog();
 },
 receive: function(){
@@ -264,6 +265,12 @@ history: function(){
            : '<div class="hint">아직 마감 기록이 없습니다. 첫 마감을 하면 여기부터 쌓입니다.</div>')+
   '<div class="hint">✅ 3중 일치 · ⚠N = 미해결 N건(추적함). 자세한 원본은 마감 제출분(재고원장)에 있습니다.</div>'+
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div></div>';
+},
+feedback: function(){
+  return headerHtml()+
+  '<div class="talk">💬 <b>불편한 점, 이랬으면 좋겠다 — 뭐든 편하게.</b> AI와 대화해도 되고, 그냥 의견만 남겨도 됩니다. 남긴 의견은 기록으로 쌓여 원장님이 봅니다.</div>'+
+  aiBox("fb","예: 조립할 때 수량을 매번 물어보는 게 번거로워요")+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div>';
 }
 };
 function daysAgo(d){ var ms=new Date(todayStr())-new Date(d); return Math.round(ms/864e5); }
@@ -426,6 +433,7 @@ function(){
   (allOk&&anySrc?'<div class="win">🎉 <b>전 품목 일치!</b> 오늘의 재고 방어 성공입니다.</div>':'')+
   (!anySrc?'<div class="hint" style="margin-bottom:8px">슬랙·차트를 모두 건너뛰어 실물 변화만 기록합니다.</div>':'')+
   cards.join("")+
+  (allOk?'':aiBox("wiz","예: 편안환 1통이 남는데 서비스 나간 기억이 없어요"))+
   '<div class="btn-row"><button class="btn" onclick="W.step=3;drawWiz()">←</button><button class="btn btn-p" onclick="W.step=5;drawWiz()">판정 →</button></div>';
 },
 function(){
@@ -441,6 +449,51 @@ function(){
   '<div class="btn-row"><button class="btn" onclick="W.step=4;drawWiz()">←</button><button class="btn btn-p" onclick="submitClose()">마감 제출 ✓</button></div></div>';
 }
 ];
+var AIC={wiz:[], fb:[]};   // AI 대화 (마감 상담 / 개선 제안) — 세션 메모리
+function aiBox(kind, placeholder){
+  var chat=AIC[kind];
+  var log=chat.map(function(m){
+    return '<div style="margin:6px 0;padding:9px 12px;border-radius:10px;font-size:14px;line-height:1.55;'+(m.role==="user"?"background:var(--bg);":"background:var(--warn-bg);")+'">'+(m.role==="user"?"👩‍⚕️ ":"🤖 ")+esc(m.content).replace(/\n/g,"<br>")+'</div>';
+  }).join("");
+  var off = CFG.GAS_URL? '' : '<div class="hint">AI 연결 전(GAS 미연결) — 대화는 연결 후 켜집니다. 아래 [의견 남기기]는 지금도 기록됩니다.</div>';
+  return '<div class="card"><div class="q" style="font-size:15px">💬 AI와 이야기하기</div>'+off+
+  '<div id="aiLog_'+kind+'">'+log+'</div><div id="aiMsg_'+kind+'" class="hint"></div>'+
+  '<div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="aiIn_'+kind+'" placeholder="'+placeholder+'" style="text-align:left;font-size:14px;flex:1;margin:0" onkeydown="if(event.key===&quot;Enter&quot;)aiAsk(&quot;'+kind+'&quot;)"><button class="btn btn-p" onclick="aiAsk(&quot;'+kind+'&quot;)">질문</button></div>'+
+  (kind==="fb"?'<div class="btn-row" style="justify-content:flex-start"><button class="btn" onclick="fbLeave()">✍ 의견만 기록으로 남기기</button></div>':'')+
+  '</div>';
+}
+function aiCtx(kind){
+  if(kind==="wiz" && W){
+    var cons=consumption();
+    return "[재고 마감 상황] 날짜:"+todayStr()+" / 소진:"+JSON.stringify(cons.items)+" / 슬랙:"+JSON.stringify(W.slack)+" / 차트:"+JSON.stringify(W.chart)+" / 실물낱개:"+JSON.stringify(W.mid)+" / 실물패키지:"+JSON.stringify(W.midPkg)+" / 오늘 콘솔기록:"+DB.events.filter(function(e){return e.d===todayStr();}).map(evDesc).join("; ")+" / 품목상식: 반과=반하사심과립(비급여), 교체환산 편1=반과6일 수1=반과9일또는6일, 패키지 1개월=디1편1 2개월=디1편1수1 3개월=디1편2수1";
+  }
+  return "[재고 콘솔 개선 대화] 직원("+DB.staff+")이 아크로한의원 재고 콘솔(창고→중간창고→슬랙출고, 일간 실물 3중 대조)의 개선점·불편을 이야기합니다. 실무 관점에서 듣고 구체적으로 되물어 주세요.";
+}
+function aiAsk(kind){
+  var inp=document.getElementById("aiIn_"+kind), msg=document.getElementById("aiMsg_"+kind);
+  var q=(inp?inp.value:"").trim(); if(!q) return;
+  if(!CFG.GAS_URL){ if(msg) msg.textContent="AI는 GAS 연결 후 켜집니다."; return; }
+  AIC[kind].push({role:"user",content:q}); if(inp) inp.value="";
+  if(msg) msg.textContent="생각 중...";
+  fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"ai",k:CFG.APP_KEY,data:{context:aiCtx(kind),messages:AIC[kind]}})})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j.error){ if(msg) msg.textContent="오류: "+j.error; return; }
+      AIC[kind].push({role:"assistant",content:j.text||"(응답 없음)"});
+      if(V.screen==="feedback") render(); else drawWiz();
+    })
+    .catch(function(){ if(msg) msg.textContent="연결 실패 — 잠시 후 다시."; });
+}
+function fbLeave(){
+  var inp=document.getElementById("aiIn_fb");
+  var q=(inp?inp.value:"").trim();
+  var chatTail=AIC.fb.length? " (AI 대화 "+AIC.fb.length+"턴 포함)" : "";
+  if(!q && !AIC.fb.length){ alert("의견을 적어주세요."); return; }
+  record("제안",{memo:(q||AIC.fb.map(function(m){return m.role+":"+m.content;}).join(" / "))+chatTail});
+  if(inp) inp.value="";
+  alert("의견이 기록됐습니다. 감사합니다! 원장님이 확인합니다 🙌");
+  V.screen="home"; render();
+}
 function consumption(){
   var items={}, pkgs={};
   CFG.PACKAGES.forEach(function(p){
