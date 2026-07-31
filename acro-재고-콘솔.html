@@ -101,6 +101,8 @@ var CFG = {
     {key:"2개월", comp:{"디캡":1,"편":1,"수":1}},
     {key:"3개월", comp:{"디캡":1,"편":2,"수":1}}
   ],
+  LEAD_DAYS: 7,                       // 발주 리드타임(일) — "N일분 이하면 발주" 기준
+  EXP_WARN_M: 2,                      // 유통기한 임박 경고 (개월)
   SWAP_REF: "반과 교체 환산 — 편안환 1통 = 반과 6일 · 수면환 1통 = 반과 9일 또는 6일 (딱 안 떨어져서 더 드리거나 덜 드림)"
 };
 /* ---------------- 유틸/상태 ---------------- */
@@ -193,9 +195,11 @@ home: function(){
     '<div class="btn-row" style="justify-content:center"><button class="btn btn-p" onclick="startAudit()">🔍 첫 실사 시작</button></div>'+todayLog();
   }
   var whChips = CFG.ITEMS.map(function(it){
-    var s=stock(it.key);
-    var badge = s.창고!==null&&s.창고<=it.lot? '<span class="badge b-bad">발주!</span>' : s.창고!==null&&s.창고<=it.lot*2? '<span class="badge b-warn">부족</span>':'';
-    return '<div class="chip" style="--stripe:'+it.stripe+'"><small>'+it.name+'</small><b>'+(s.창고===null?"?":s.창고)+'</b><small>'+it.unit+'</small> '+badge+'</div>';
+    var s=stock(it.key), dl=daysLeft(it.key);
+    var badge = dl!==null
+      ? (dl<=CFG.LEAD_DAYS? '<span class="badge b-bad">발주! '+dl+'일분</span>' : dl<=CFG.LEAD_DAYS*2? '<span class="badge b-warn">'+dl+'일분</span>' : '<span class="badge b-ok">'+dl+'일분</span>')
+      : (s.창고!==null&&s.창고<=it.lot? '<span class="badge b-bad">발주!</span>' : s.창고!==null&&s.창고<=it.lot*2? '<span class="badge b-warn">부족</span>':'');
+    return '<div class="chip" style="--stripe:'+it.stripe+'"><small>'+it.name+'</small><b>'+(s.창고===null?"?":s.창고)+'</b><small>'+it.unit+'</small> '+badge+expBadge(it.key)+'</div>';
   }).join("");
   var pkgRows = CFG.PACKAGES.map(function(p){
     return '<div class="pkg"><b>📦 '+p.key+'</b><div class="comp">'+compText(p)+'</div>'+
@@ -209,7 +213,7 @@ home: function(){
     '<div style="margin-top:5px"><button class="tap" style="padding:5px 9px;font-size:12.5px" onclick="doMove(&quot;'+it.key+'&quot;)">＋채움</button></div></div>';
   }).join("");
   return headerHtml()+tracksCard()+
-  '<div class="sect"><h2>🏬 기본 창고 <span class="hint" style="margin:0">(주 1회 실사)</span></h2>'+
+  (streak()>=2?'<div class="talk" style="padding:8px 14px">🔥 <b>'+streak()+'일 연속 재고 방어 성공!</b> 오늘도 이어가요.</div>':'')+'<div class="sect"><h2>🏬 기본 창고 <span class="hint" style="margin:0">(주 1회 실사)</span></h2>'+
   '<div class="acts"><button class="tap" onclick="V.screen=&quot;receive&quot;;render()">＋입고</button><button class="tap" onclick="startAudit()">실사</button></div></div>'+
   '<div class="chips">'+whChips+'</div>'+
   '<div class="sect"><h2>📦 중간 창고 — 낱개 <span class="hint" style="margin:0">(매일 마감 때 셈)</span></h2></div>'+
@@ -230,6 +234,8 @@ receive: function(){
     '<input type="tel" id="rc'+i+'" placeholder="0" style="width:90px;margin:0;text-align:center"> <span class="hint" style="margin:0">'+it.unit+'</span></div>';
   }).join("")+
   '<input type="text" id="rcMemo" placeholder="메모 (예: 편안환 2박스=20통)">'+
+  '<div class="hint" style="margin-top:8px">📷 거래명세서 사진 (선택 — 수량 분쟁·단위 확인용'+(CFG.GAS_URL?'':' · GAS 연결 후 서버 보관')+')</div>'+
+  '<input type="file" id="rcPhoto" accept="image/*" capture="environment" style="font-size:14px">'+
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
   '<button class="btn btn-p" onclick="saveReceive()">저장</button></div></div>';
 },
@@ -266,9 +272,38 @@ feedback: function(){
   return headerHtml()+
   '<div class="talk">💬 <b>불편한 점, 이랬으면 좋겠다 — 뭐든 편하게.</b> AI와 대화해도 되고, 그냥 의견만 남겨도 됩니다. 남긴 의견은 기록으로 쌓여 원장님이 봅니다.</div>'+
   aiBox("fb","예: 조립할 때 수량을 매번 물어보는 게 번거로워요")+
+  '<div class="card"><div class="q" style="font-size:15px">📜 재고 7원칙</div><ol style="margin:6px 0 0 20px;font-size:13.5px;line-height:1.8">'+
+  ['기록은 지우지 않는다 — 뒤집는 기록을 더한다','실물이 항상 이긴다','사람은 세기 쉬운 것만 센다 (낱알은 세지 않는다)','의심은 3일을 넘기지 않는다','오차는 구간으로 격리한다','불일치는 죄가 아니라 신호다 — 보고한 사람이 잘하는 사람','시스템이 조용하면 정상이다'].map(function(r){return '<li>'+r+'</li>';}).join("")+
+  '</ol></div>'+
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div>';
 }
 };
+function avgDaily(k){
+  var H=(DB.history||[]).slice(-14).filter(function(h){return h.cons && h.cons[k]!=null;});
+  if(!H.length) return 0;
+  var s=H.reduce(function(a,h){return a+num(h.cons[k]);},0);
+  return s/H.length;
+}
+function daysLeft(k){
+  var a=avgDaily(k); if(a<=0) return null;
+  var s=stock(k), tot=(s.창고||0)+(s.중간||0);
+  return Math.floor(tot/a);
+}
+function streak(){
+  var H=DB.history||[], n=0;
+  for(var i=H.length-1;i>=0;i--){ if(H[i].unresolved===0) n++; else break; }
+  return n;
+}
+function expBadge(k){
+  var v=(DB.expiry||{})[k]; if(!v) return "";
+  var m=String(v).match(/(\d{2,4})[-./]?(\d{1,2})/); if(!m) return "";
+  var y=num(m[1]); if(y<100) y+=2000;
+  var exp=new Date(y, num(m[2]), 0);                     // 해당 월 말일
+  var months=(exp-new Date())/(30*864e5);
+  if(months<0) return ' <span class="badge b-bad">유통기한 지남!</span>';
+  if(months<=CFG.EXP_WARN_M) return ' <span class="badge b-warn">유통 '+String(v)+'</span>';
+  return "";
+}
 function patternCard(){
   var closed=(DB.tracks||[]).filter(function(t){return t.status==="closed"&&t.cause;});
   var cancels=DB.events.filter(function(e){return e.kind==="취소";});
@@ -349,6 +384,17 @@ function saveReceive(){
     var v=num(document.getElementById("rc"+i).value);
     if(v) record("입고",{item:it.key, qty:v, memo:document.getElementById("rcMemo").value});
   });
+  try{
+    var ph=document.getElementById("rcPhoto");
+    if(ph && ph.files && ph.files[0]){
+      if(!CFG.GAS_URL){ alert("사진은 GAS 연결 후 서버에 보관됩니다 — 이번엔 기기에 저장하지 않았어요."); }
+      else{
+        var fr=new FileReader();
+        fr.onload=function(){ pushGas({d:todayStr(), t:nowT(), who:DB.staff, kind:"입고사진", memo:document.getElementById("rcMemo")?document.getElementById("rcMemo").value:"", photo:fr.result}); };
+        fr.readAsDataURL(ph.files[0]);
+      }
+    }
+  }catch(e){}
   V.screen="home"; render();
 }
 /* ---------------- 실사 ---------------- */
@@ -358,9 +404,10 @@ function startAudit(){
   CFG.ITEMS.map(function(it,i){
     return '<div class="card" style="border-left:5px solid '+it.stripe+'"><div class="q" style="font-size:15px">'+it.name+' <span class="hint">('+esc(it.loc)+')</span></div>'+
     (it.note?'<div class="warnbox">'+esc(it.note)+'</div>':'')+
-    '<div class="grid2">'+
+    '<div class="grid2" style="grid-template-columns:1fr 1fr 1fr">'+
     '<div><div class="hint">기본 창고 ('+it.unit+')</div><input type="tel" id="au'+i+'w" placeholder="0" value="'+(function(){var s=stock(it.key);return s.창고===null?"":s.창고;})()+'"></div>'+
     '<div><div class="hint">중간창고 낱개 ('+it.unit+')</div><input type="tel" id="au'+i+'m" placeholder="0" value="'+(function(){var s=stock(it.key);return s.중간===null?"":s.중간;})()+'"></div>'+
+    '<div><div class="hint">가장 오래된 유통기한</div><input type="text" id="au'+i+'e" placeholder="예: 2027-03" value="'+esc((DB.expiry||{})[it.key]||"")+'"></div>'+
     '</div></div>';
   }).join("")+
   '<div class="card"><div class="q" style="font-size:15px">싸둔 패키지 (중간창고)</div><div class="grid2" style="grid-template-columns:1fr 1fr 1fr">'+
@@ -379,6 +426,8 @@ function saveAudit(){
   });
   DB.basePkg={};
   CFG.PACKAGES.forEach(function(p,i){ DB.basePkg[p.key]=num(document.getElementById("aup"+i).value); });
+  DB.expiry=DB.expiry||{};
+  CFG.ITEMS.forEach(function(it,i){ var e=document.getElementById("au"+i+"e"); if(e) DB.expiry[it.key]=e.value.trim(); });
   DB.baseDate=todayStr(); DB.baseT=nowT();
   pushSnap("실사"); save();
   record("실사",{memo:JSON.stringify({base:DB.base, pkg:DB.basePkg})});
@@ -590,7 +639,7 @@ function submitClose(){
     events:DB.events.filter(function(e){return e.d===t;}),
     slack:W.slack, chart:W.chart, mid:W.mid, midPkg:W.midPkg,
     consumption:cons, answers:W.answers, memo:W.memo,
-    warehouse:CFG.ITEMS.map(function(it){var s=stock(it.key);return {item:it.key,창고:s.창고};}) }};
+    warehouse:CFG.ITEMS.map(function(it){var s=stock(it.key);return {item:it.key,창고:s.창고};}), expiry:DB.expiry||{} }};
   // 미해결 불일치 → 추적함 (메모 있으면 해결로 간주)
   var newTracks=[];
   CFG.ITEMS.forEach(function(it){
