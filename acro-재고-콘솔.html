@@ -225,12 +225,13 @@ home: function(){
   '<div class="sect"><h2>🏬 기본 창고 <span class="hint" style="margin:0">(주 1회 실사)</span></h2>'+
   '<div class="acts"><button class="tap" onclick="V.screen=&quot;receive&quot;;render()">＋입고</button><button class="tap" onclick="startAudit()">실사</button></div></div>'+
   '<div class="chips">'+whChips+'</div>'+
-  '<div class="sect"><h2>📦 중간 창고 <span class="hint" style="margin:0">(매일 마감 때 셈)</span></h2></div>'+
+  '<div class="sect"><h2>📦 중간 창고 — 낱개 <span class="hint" style="margin:0">(매일 마감 때 셈)</span></h2></div>'+
+  '<div class="chips">'+midChips+'</div>'+
+  '<div class="sect"><h2>🎁 중간 창고 — 싸둔 패키지 <span class="hint" style="margin:0">(낱개를 [조립]하면 여기로)</span></h2></div>'+
   pkgRows+
-  '<div class="chips" style="margin-top:6px">'+midChips+'</div>'+
   '<div class="swapref">⇄ '+CFG.SWAP_REF+'<br>교체로 패키지를 풀 땐 [해체]를 누르면 낱개로 돌아옵니다.</div>'+
   '<div class="talk" style="margin-top:12px">🙂 <b>환자 출고는 지금처럼 슬랙에</b> 적어주세요 (출-편1 …). 콘솔은 마감 때 슬랙·차트·실물을 자동으로 맞춰봅니다.</div>'+
-  '<div class="btn-row" style="justify-content:flex-end"><button class="btn btn-p" onclick="startClose()">🌙 마감</button></div>'+
+  '<div class="btn-row" style="justify-content:flex-end"><button class="btn" onclick="V.screen=&quot;history&quot;;render()">📅 일별 기록</button><button class="btn btn-p" onclick="startClose()">🌙 마감</button></div>'+
   todayLog();
 },
 receive: function(){
@@ -244,6 +245,25 @@ receive: function(){
   '<input type="text" id="rcMemo" placeholder="메모 (예: 편안환 2박스=20통)">'+
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
   '<button class="btn btn-p" onclick="saveReceive()">저장</button></div></div>';
+},
+history: function(){
+  var H=(DB.history||[]).slice().reverse();
+  var head='<tr><th style="text-align:left;padding:6px 8px">날짜</th><th style="padding:6px 4px">담당</th>'+CFG.ITEMS.map(function(it){return '<th style="padding:6px 4px;border-top:3px solid '+it.stripe+'">'+it.name+'</th>';}).join("")+'<th style="padding:6px 4px">판정</th></tr>';
+  var rows=H.map(function(h){
+    var cells=CFG.ITEMS.map(function(it){
+      var k=it.key, c1=(h.cons&&h.cons[k]!=null)?h.cons[k]:"—";
+      var sl=(h.slack&&h.slack[k]!=null)?h.slack[k]:"—", ch=(h.chart&&h.chart[k]!=null)?h.chart[k]:"—";
+      return '<td style="padding:6px 4px;text-align:center;font-variant-numeric:tabular-nums">'+c1+'<br><span style="font-size:11px;color:var(--muted)">슬'+sl+'·차'+ch+'</span></td>';
+    }).join("");
+    return '<tr style="border-top:1px solid var(--line)"><td style="padding:6px 8px;white-space:nowrap">'+h.d.slice(5)+'</td><td style="padding:6px 4px">'+esc(h.staff||"")+'</td>'+cells+
+      '<td style="padding:6px 4px;text-align:center">'+(h.unresolved? '⚠'+h.unresolved : '✅')+'</td></tr>';
+  }).join("");
+  return headerHtml()+
+  '<div class="card"><div class="q">📅 일별 기록 — 소진(위) · 슬랙/차트(아래)</div>'+
+  (H.length? '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px">'+head+rows+'</table></div>'
+           : '<div class="hint">아직 마감 기록이 없습니다. 첫 마감을 하면 여기부터 쌓입니다.</div>')+
+  '<div class="hint">✅ 3중 일치 · ⚠N = 미해결 N건(추적함). 자세한 원본은 마감 제출분(재고원장)에 있습니다.</div>'+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div></div>';
 }
 };
 function daysAgo(d){ var ms=new Date(todayStr())-new Date(d); return Math.round(ms/864e5); }
@@ -300,19 +320,20 @@ function saveReceive(){
 /* ---------------- 실사 ---------------- */
 function startAudit(){
   var html=headerHtml()+
-  '<div class="talk">🔍 <b>재고 파악을 시작합니다.</b> 있는 그대로 세면 됩니다 — 이 값이 오늘부터 기준이 됩니다.</div>'+
+  '<div class="talk">🔍 <b>재고 파악 / 숫자 수정.</b> 있는 그대로 세거나, 틀린 칸만 고치세요 — 저장하면 그 순간부터 이 값이 기준입니다. (테스트 중엔 몇 번이고 다시 해도 됩니다)</div>'+
   CFG.ITEMS.map(function(it,i){
     return '<div class="card" style="border-left:5px solid '+it.stripe+'"><div class="q" style="font-size:15px">'+it.name+' <span class="hint">('+esc(it.loc)+')</span></div>'+
     (it.note?'<div class="warnbox">'+esc(it.note)+'</div>':'')+
     '<div class="grid2">'+
-    '<div><div class="hint">기본 창고 ('+it.unit+')</div><input type="tel" id="au'+i+'w" placeholder="0"></div>'+
-    '<div><div class="hint">중간창고 낱개 ('+it.unit+')</div><input type="tel" id="au'+i+'m" placeholder="0"></div>'+
+    '<div><div class="hint">기본 창고 ('+it.unit+')</div><input type="tel" id="au'+i+'w" placeholder="0" value="'+(function(){var s=stock(it.key);return s.창고===null?"":s.창고;})()+'"></div>'+
+    '<div><div class="hint">중간창고 낱개 ('+it.unit+')</div><input type="tel" id="au'+i+'m" placeholder="0" value="'+(function(){var s=stock(it.key);return s.중간===null?"":s.중간;})()+'"></div>'+
     '</div></div>';
   }).join("")+
   '<div class="card"><div class="q" style="font-size:15px">싸둔 패키지 (중간창고)</div><div class="grid2" style="grid-template-columns:1fr 1fr 1fr">'+
   CFG.PACKAGES.map(function(p,i){
-    return '<div><div class="hint">'+p.key+' (개)</div><input type="tel" id="aup'+i+'" placeholder="0"></div>';
+    return '<div><div class="hint">'+p.key+' (개)</div><input type="tel" id="aup'+i+'" placeholder="0" value="'+(DB.baseDate?prepack(p.key):"")+'"></div>';
   }).join("")+'</div></div>'+
+  '<div class="hint" style="margin-bottom:8px">지금 계산값이 미리 채워져 있습니다 — <b>다른 칸은 두고 고칠 숫자만</b> 바꾸면 됩니다.</div>'+
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
   '<button class="btn btn-p" onclick="saveAudit()">실사 저장 — 오늘부터 이 값이 기준</button></div>';
   document.getElementById("app").innerHTML=html; window.scrollTo(0,0);
@@ -507,6 +528,9 @@ function submitClose(){
   });
   DB.tracks=DB.tracks.concat(newTracks);
   p.data.newTracks=newTracks;
+  DB.history=DB.history||[];
+  DB.history=DB.history.filter(function(h){return h.d!==t;});   // 같은 날 재마감 시 최신으로 대체
+  DB.history.push({d:t, staff:DB.staff, cons:cons.items, slack:W.slack, chart:W.chart, unresolved:newTracks.length});
   if(W.mid){
     CFG.ITEMS.forEach(function(it){
       var s=stock(it.key);
