@@ -157,6 +157,7 @@ function evDesc(e){
   if(e.kind==="해체") return e.pkg+" 패키지 해체 "+e.qty+"개 (낱개 복귀)";
   if(e.kind==="제안") return "💬 개선 의견: "+String(e.memo||"").slice(0,60);
   if(e.kind==="기준복원") return "⏪ 기준 복원 — "+String(e.memo||"");
+  if(e.kind==="취소") return "↩ 되돌림: "+String(e.memo||e.ref||"");
   return e.kind;
 }
 function delEv(gi){
@@ -165,7 +166,7 @@ function delEv(gi){
   if(e.kind==="실사"){ alert("실사 기록은 취소 대신 다시 실사해 주세요."); return; }
   if(!confirm("이 기록을 되돌릴까요?\n\n"+e.t.slice(0,5)+" · "+evDesc(e)+" — "+e.who)) return;
   DB.events.splice(gi,1); save();
-  pushGas(Object.assign({}, e, {kind:"취소", ref:e.kind, by:DB.staff})); render();
+  record("취소",{ref:e.kind, memo:evDesc(e)});   // 잔량엔 무영향 — 되돌린 흔적만 남긴다
 }
 /* ---------------- 화면 ---------------- */
 var V = { screen: DB.staff? "home":"login" };
@@ -257,8 +258,9 @@ history: function(){
       ' <span style="color:var(--muted);font-size:12px">'+CFG.ITEMS.map(function(it){var b=s.base[it.key]||{};return it.key+" "+(b.창고==null?"—":b.창고)+"/"+(b.중간==null?"—":b.중간);}).join(" · ")+'</span></span>'+
       (cur?'':'<button class="tap" style="padding:6px 10px;font-size:13px" onclick="restoreSnap('+gi+')">⏪ 이 시점으로</button>')+'</div>';
     }).join("") : '<div class="hint">아직 실사·마감 기록이 없습니다.</div>')+
-  '<div class="hint">복원해도 이력은 지워지지 않습니다 — 언제든 다른 시점으로 다시 이동할 수 있습니다.</div>'+
-  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div></div>';
+  '<div class="hint">복원해도 이력은 지워지지 않습니다 — 언제든 다른 시점으로 다시 이동할 수 있습니다.</div></div>'+
+  patternCard()+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div>';
 },
 feedback: function(){
   return headerHtml()+
@@ -267,6 +269,20 @@ feedback: function(){
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div>';
 }
 };
+function patternCard(){
+  var closed=(DB.tracks||[]).filter(function(t){return t.status==="closed"&&t.cause;});
+  var cancels=DB.events.filter(function(e){return e.kind==="취소";});
+  if(!closed.length && !cancels.length) return "";
+  function tally(arr,key){ var m={}; arr.forEach(function(x){ var v=x[key]||"미상"; m[v]=(m[v]||0)+1; }); 
+    return Object.keys(m).sort(function(a,b){return m[b]-m[a];}).map(function(k){return k+" <b>"+m[k]+"</b>";}).join(" · "); }
+  var byCause=closed.length? '<div class="kv"><span>유형별</span><span>'+tally(closed,"cause")+'</span></div>':"";
+  var byWho=closed.length? '<div class="kv"><span>관련자별</span><span>'+tally(closed,"causeWho")+'</span></div>':"";
+  var byFinder=closed.length? '<div class="kv"><span>🏅 발견·해결</span><span>'+tally(closed,"resolvedBy")+'</span></div>':"";
+  var byCancel=cancels.length? '<div class="kv"><span>↩ 되돌리기</span><span>'+tally(cancels,"who")+'</span></div>':"";
+  return '<div class="card"><div class="q" style="font-size:15px">📊 실수 패턴 — 교육·개선용</div>'+
+  byCause+byWho+byFinder+byCancel+
+  '<div class="hint">범인찾기가 아니라 <b>어디를 고치고 무엇을 교육할지</b> 보는 표입니다. 불일치를 발견·보고한 사람(🏅)이 잘하고 있는 사람입니다. 같은 유형이 3번 반복되면 절차를 바꿀 신호.</div></div>';
+}
 function pushSnap(kind){
   DB.snaps=DB.snaps||[];
   DB.snaps.push({d:DB.baseDate, t:DB.baseT, who:DB.staff, kind:kind,
@@ -292,11 +308,15 @@ function tracksCard(){
   return '<div class="card" style="border-left:5px solid var(--bad)"><div class="q" style="font-size:15px">🔎 추적함 — 아직 못 찾은 차이 '+open.length+'건</div>'+rows+
   '<div class="hint">해결되면 [찾았다!]로 사유를 남겨주세요. 3일 넘으면 원장 보고 대상입니다.</div></div>';
 }
+var CAUSES=["슬랙 보고 깜빡","차트 입력 누락","세는 실수(실사)","채움·조립 기록 누락","반과 교체 표기 누락","기타"];
 function resolveTrack(gi){
   var t=DB.tracks[gi]; if(!t) return;
   var note=prompt("어떻게 해결됐나요? (예: S0 서비스 1통 확인 — 김OO)",""); if(!note) return;
+  var ci=num(prompt("실수 유형은? (교육·개선용 — 번호만)\n1 슬랙 보고 깜빡\n2 차트 입력 누락\n3 세는 실수(실사)\n4 채움·조립 기록 누락\n5 반과 교체 표기 누락\n6 기타","6"));
+  t.cause=CAUSES[(ci>=1&&ci<=6?ci:6)-1];
+  t.causeWho=(prompt("관련 직원 이름 (본인이면 본인 이름, 모르면 엔터)","")||"미상").trim()||"미상";
   t.status="closed"; t.resolvedNote=note; t.resolvedBy=DB.staff; t.resolvedD=todayStr(); save();
-  pushGas({d:todayStr(), t:nowT(), who:DB.staff, kind:"추적해결", desc:t.desc, note:note}); render();
+  pushGas({d:todayStr(), t:nowT(), who:DB.staff, kind:"추적해결", desc:t.desc, note:note, cause:t.cause, causeWho:t.causeWho}); render();
 }
 function todayLog(){
   var todays=[]; DB.events.forEach(function(e,gi){ if(e.d===todayStr()) todays.push({e:e,gi:gi}); });
