@@ -6,25 +6,10 @@
 <title>아크로 재고 콘솔</title>
 <style>
 :root{
-  --bg:#f7f6f2; --panel:#ffffff; --ink:#23201a; --muted:#6f6a5e; --line:#e6e2d8;
-  --accent:#3f6f4f; --accent-ink:#ffffff; --accent-soft:#e9f1ea;
-  --good:#2e7d4f; --warn:#a8641c; --warn-bg:#fdf3e4; --bad:#b3362c; --bad-bg:#fbeae8;
-  --c-pyeon:#7a9e5f; --c-su:#5d6c9e; --c-dcap:#c07f2d; --c-sook:#8a5fa0; --c-banggwa:#a0522d;
-}
-@media (prefers-color-scheme: dark){:root{
-  --bg:#1c1a16; --panel:#262319; --ink:#ece7da; --muted:#a39b8a; --line:#3a362c;
-  --accent:#7fae8e; --accent-ink:#14211a; --accent-soft:#2c3a30;
-  --good:#8cc9a3; --warn:#d9a05b; --warn-bg:#38301f; --bad:#d98a80; --bad-bg:#3a2422;
-}}
-:root[data-theme="dark"]{
-  --bg:#1c1a16; --panel:#262319; --ink:#ece7da; --muted:#a39b8a; --line:#3a362c;
-  --accent:#7fae8e; --accent-ink:#14211a; --accent-soft:#2c3a30;
-  --good:#8cc9a3; --warn:#d9a05b; --warn-bg:#38301f; --bad:#d98a80; --bad-bg:#3a2422;
-}
-:root[data-theme="light"]{
-  --bg:#f7f6f2; --panel:#ffffff; --ink:#23201a; --muted:#6f6a5e; --line:#e6e2d8;
-  --accent:#3f6f4f; --accent-ink:#ffffff; --accent-soft:#e9f1ea;
-  --good:#2e7d4f; --warn:#a8641c; --warn-bg:#fdf3e4; --bad:#b3362c; --bad-bg:#fbeae8;
+  --bg:#f2faf5; --panel:#ffffff; --ink:#1f3d33; --muted:#5f7a6e; --line:#dcefe4;
+  --accent:#0aa87b; --accent-ink:#ffffff; --accent-soft:#dff5ec;
+  --good:#0a9e64; --warn:#e8930c; --warn-bg:#fff6e3; --bad:#e05252; --bad-bg:#ffeceb;
+  --c-pyeon:#6cc24a; --c-su:#4d7cfe; --c-dcap:#ff9d2e; --c-sook:#b76ee0; --c-banggwa:#ff6b57;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;padding:14px 12px 80px}
@@ -40,8 +25,7 @@ h1{font-size:19px;letter-spacing:-0.2px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px}
 .q{font-size:16.5px;font-weight:800;margin-bottom:6px;text-wrap:balance}
 .hint{color:var(--muted);font-size:13px;margin-top:4px}
-.btn{border:0;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:800;cursor:pointer;background:#efece4;color:var(--ink)}
-:root[data-theme="dark"] .btn, body .btn{background:color-mix(in srgb, var(--panel) 70%, var(--line))}
+.btn{border:0;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:800;cursor:pointer;background:#e7f3ec;color:var(--ink)}
 .btn-p{background:var(--accent);color:var(--accent-ink)}
 .btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:flex-end}
 input,select,textarea{width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;margin-top:6px;background:var(--panel);color:var(--ink)}
@@ -172,6 +156,7 @@ function evDesc(e){
   if(e.kind==="조립") return e.pkg+" 패키지 조립 "+e.qty+"개";
   if(e.kind==="해체") return e.pkg+" 패키지 해체 "+e.qty+"개 (낱개 복귀)";
   if(e.kind==="제안") return "💬 개선 의견: "+String(e.memo||"").slice(0,60);
+  if(e.kind==="기준복원") return "⏪ 기준 복원 — "+String(e.memo||"");
   return e.kind;
 }
 function delEv(gi){
@@ -187,7 +172,7 @@ var V = { screen: DB.staff? "home":"login" };
 function render(){ document.getElementById("app").innerHTML = SCREENS[V.screen](); window.scrollTo(0,0); }
 function headerHtml(){
   return '<header class="top"><h1>💊 아크로 재고 콘솔</h1><span class="date">'+todayStr()+'</span></header>'+
-  (DB.staff?'<div style="margin-bottom:6px"><span class="staffchip">'+esc(DB.staff)+' 님 <a href="#" onclick="DB.staff=&quot;&quot;;save();V.screen=&quot;login&quot;;render();return false">교대</a></span>'+(isAuditDay()?' <span class="badge b-warn">오늘은 기본창고 실사날</span>':'')+'</div>':'');
+  (DB.staff?'<div style="margin-bottom:6px"><span class="staffchip">'+esc(DB.staff)+' 님 <a href="#" onclick="DB.staff=&quot;&quot;;save();V.screen=&quot;login&quot;;render();return false">교대</a></span>'+(isAuditDay()?' <span class="badge b-warn">오늘은 기본창고 실사날</span>':'')+(DB.baseDate?' <span class="hint" style="margin:0">기준: '+DB.baseDate.slice(5)+' '+String(DB.baseT||'').slice(0,5)+'</span>':'')+'</div>':'');
 }
 var SCREENS = {
 login: function(){
@@ -263,7 +248,16 @@ history: function(){
   '<div class="card"><div class="q">📅 일별 기록 — 소진(위) · 슬랙/차트(아래)</div>'+
   (H.length? '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px">'+head+rows+'</table></div>'
            : '<div class="hint">아직 마감 기록이 없습니다. 첫 마감을 하면 여기부터 쌓입니다.</div>')+
-  '<div class="hint">✅ 3중 일치 · ⚠N = 미해결 N건(추적함). 자세한 원본은 마감 제출분(재고원장)에 있습니다.</div>'+
+  '<div class="hint">✅ 3중 일치 · ⚠N = 미해결 N건(추적함). 자세한 원본은 마감 제출분(재고원장)에 있습니다.</div></div>'+
+  '<div class="card"><div class="q" style="font-size:15px">⏱ 기준 이력 — 실사·마감 시점 (깃허브처럼 되돌리기)</div>'+
+  ((DB.snaps&&DB.snaps.length)? DB.snaps.slice().reverse().map(function(s){
+      var gi=DB.snaps.indexOf(s);
+      var cur=(s.d===DB.baseDate&&s.t===DB.baseT);
+      return '<div class="kv"><span>'+(cur?'<span class="badge b-ok">현재</span> ':'')+s.d.slice(5)+' '+s.t.slice(0,5)+' · '+s.kind+' · '+esc(s.who)+
+      ' <span style="color:var(--muted);font-size:12px">'+CFG.ITEMS.map(function(it){var b=s.base[it.key]||{};return it.key+" "+(b.창고==null?"—":b.창고)+"/"+(b.중간==null?"—":b.중간);}).join(" · ")+'</span></span>'+
+      (cur?'':'<button class="tap" style="padding:6px 10px;font-size:13px" onclick="restoreSnap('+gi+')">⏪ 이 시점으로</button>')+'</div>';
+    }).join("") : '<div class="hint">아직 실사·마감 기록이 없습니다.</div>')+
+  '<div class="hint">복원해도 이력은 지워지지 않습니다 — 언제든 다른 시점으로 다시 이동할 수 있습니다.</div>'+
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div></div>';
 },
 feedback: function(){
@@ -273,6 +267,19 @@ feedback: function(){
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div>';
 }
 };
+function pushSnap(kind){
+  DB.snaps=DB.snaps||[];
+  DB.snaps.push({d:DB.baseDate, t:DB.baseT, who:DB.staff, kind:kind,
+    base:JSON.parse(JSON.stringify(DB.base)), basePkg:JSON.parse(JSON.stringify(DB.basePkg))});
+  if(DB.snaps.length>60) DB.snaps=DB.snaps.slice(-60);
+}
+function restoreSnap(i){
+  var s=(DB.snaps||[])[i]; if(!s) return;
+  if(!confirm("이 시점의 기준으로 되돌릴까요?\n\n"+s.d+" "+s.t.slice(0,5)+" · "+s.kind+" · "+s.who+"\n\n그 시점 이후의 콘솔 기록은 이 기준 위에 다시 계산됩니다.")) return;
+  DB.base=JSON.parse(JSON.stringify(s.base)); DB.basePkg=JSON.parse(JSON.stringify(s.basePkg));
+  DB.baseDate=s.d; DB.baseT=s.t; save();
+  record("기준복원",{memo:s.d+" "+s.t.slice(0,5)+" ("+s.kind+"·"+s.who+") 시점으로 복원"});
+}
 function daysAgo(d){ var ms=new Date(todayStr())-new Date(d); return Math.round(ms/864e5); }
 function tracksCard(){
   var open=DB.tracks.filter(function(t){return t.status==="open";});
@@ -352,7 +359,8 @@ function saveAudit(){
   });
   DB.basePkg={};
   CFG.PACKAGES.forEach(function(p,i){ DB.basePkg[p.key]=num(document.getElementById("aup"+i).value); });
-  DB.baseDate=todayStr(); DB.baseT=nowT(); save();
+  DB.baseDate=todayStr(); DB.baseT=nowT();
+  pushSnap("실사"); save();
   record("실사",{memo:JSON.stringify({base:DB.base, pkg:DB.basePkg})});
   alert("실사 저장 완료! 오늘부터 이 값이 기준입니다. 수고하셨습니다 🙌");
   V.screen="home"; render();
@@ -590,7 +598,8 @@ function submitClose(){
       DB.base[it.key]={창고:(s.창고===null?null:s.창고), 중간:W.mid[it.key]};
     });
     DB.basePkg={}; CFG.PACKAGES.forEach(function(pk){ DB.basePkg[pk.key]=(W.midPkg&&W.midPkg[pk.key])||0; });
-    DB.baseDate=t; DB.baseT=nowT(); save();
+    DB.baseDate=t; DB.baseT=nowT();
+    pushSnap("마감"); save();
   }
   function done(mode){
     document.getElementById("app").innerHTML='<div class="win" style="margin-top:30px">✅ <b>마감 완료!</b><br>'+esc(DB.staff)+'님, 오늘도 재고를 지켜주셔서 감사합니다 🙌<br><span class="hint">'+mode+'</span></div>'+
