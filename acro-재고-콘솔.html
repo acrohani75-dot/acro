@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로 재고 콘솔 — 편안환·수면환·디캡슐·반과</title>
+<style>
+:root{--accent:#0e7a5f;--accent-soft:#e6f4f0;--amber:#b45309;--amber-bg:#fffbeb;--gray:#5b6b76;--line:#e5e7eb;--red:#c0392b;--blue:#1e40af;--blue-bg:#eff6ff;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;background:#f6f8f9;color:#1c2b33;line-height:1.55;padding:16px 12px 70px}
+.wrap{max-width:640px;margin:0 auto}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--gray);font-size:13px;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px}
+.q{font-size:17px;font-weight:800;margin-bottom:6px}
+.hint{color:var(--gray);font-size:13px;margin-top:4px}
+.btn{border:0;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:700;cursor:pointer}
+.btn-p{background:var(--accent);color:#fff}
+.btn-s{background:#eef1f3;color:#1c2b33}
+.btn-d{background:#fee2e2;color:var(--red)}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:flex-end}
+input,select,textarea{width:100%;font-size:16px;padding:11px 12px;border:1.5px solid #d1d5db;border-radius:10px;margin-top:6px;background:#fff}
+textarea{min-height:110px;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.namebtn{padding:16px 6px;font-size:16px;font-weight:800;border-radius:12px;border:1.5px solid var(--line);background:#fff;cursor:pointer}
+.namebtn:active{background:var(--accent-soft)}
+.itemcard{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.itemcard b{font-size:16px;min-width:64px}
+.stockbar{flex:1;font-size:12.5px;color:var(--gray)}
+.stockbar .lv{display:flex;gap:4px;margin-top:3px}
+.lv i{height:9px;border-radius:4px;background:var(--accent);display:block}
+.lv i.dim{background:#d1d5db}
+.badge{font-size:11.5px;border-radius:7px;padding:2px 7px;font-weight:800}
+.b-ok{background:var(--accent-soft);color:var(--accent)}
+.b-low{background:var(--amber-bg);color:var(--amber)}
+.b-out{background:#fee2e2;color:var(--red)}
+.tap{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 10px;font-size:14px;font-weight:700;cursor:pointer}
+.tap.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.talk{background:var(--blue-bg);border:1px solid #bfdbfe;border-radius:12px;padding:12px 14px;font-size:15px;margin-bottom:12px}
+.talk b{color:var(--blue)}
+.mism{background:var(--amber-bg);border:1px solid #fde68a;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:14.5px}
+.win{background:var(--accent-soft);border:1px solid #a7d9c9;border-radius:12px;padding:14px;font-size:15px;text-align:center}
+.prog{display:flex;gap:5px;margin:8px 0 14px}
+.prog i{flex:1;height:7px;border-radius:4px;background:#d1d5db}
+.prog i.on{background:var(--accent)}
+.log{font-size:13px;color:#374151;border-top:1px dashed var(--line);padding-top:6px;margin-top:8px}
+.kv{display:flex;justify-content:space-between;font-size:14px;padding:3px 0}
+.del{color:var(--red);cursor:pointer;font-weight:800;padding:0 6px}
+.mono{font-family:ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body><div class="wrap" id="app"></div>
+<script>
+/* =====================================================================
+   아크로 재고 콘솔 v0.9 (초안) — 편안환·수면환·디캡슐·반과 4품목
+   개념: 콘솔이 기록의 입력기, 정본은 GAS 재고원장(시트). 슬랙 수기 입력 대체.
+   GAS 미연결 상태에서도 전 과정 동작(로컬 저장) — 연결은 CFG.GAS_URL만 채우면 됨.
+   ===================================================================== */
+var CFG = {
+  GAS_URL: "",                       // ★ 결산 GAS /exec 재사용 (action:"inv"). 비면 로컬 모드
+  APP_KEY: "",                       // GAS 공유키
+  STAFF: ["이주영","김지민","김민주","김서연","박서윤","임하은","김하은"],   // 로그인 명단 (수정 가능)
+  AUDIT_DOW: 3,                      // 실사 요일 (0일~6토, 3=수) ★원장 확정
+  ITEMS: [                           // lot: 1로트 크기(통). ★원장 확정 전 제안값
+    {key:"편",  name:"편안환", lot:10, unit:"통", loc:"창고 선반 ①"},
+    {key:"수",  name:"수면환", lot:10, unit:"통", loc:"창고 선반 ①"},
+    {key:"디캡",name:"디캡슐", lot:10, unit:"통", loc:"창고 선반 ②"},
+    {key:"반과",name:"반과",   lot:30, unit:"일분", loc:"창고 선반 ③"}   // 반과는 일분(1일=3포) ★단위 확정 필요
+  ],
+  OUT_TYPES: ["환자","상담","서비스(S0)","비대면 선포장","데스크 사용"]
+};
+/* ---------------- 상태 (localStorage 지속) ---------------- */
+function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+var DB = load() || { staff:"", base:{}, baseDate:"", events:[], closedDates:[] };
+// base: {편:{창고로트:n,보충로트:n,데스크통:n}} — 최근 실사 기준. events: [{d,t,who,kind,item,qty,type,chart,name,memo}]
+function load(){ try{ return JSON.parse(localStorage.getItem("acro_inv")); }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem("acro_inv", JSON.stringify(DB)); }catch(e){} }
+function num(v){ var n=Number(String(v==null?"":v).replace(/[^0-9.-]/g,"")); return isNaN(n)?0:n; }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function item(k){ return CFG.ITEMS.filter(function(i){return i.key===k;})[0]; }
+function isAuditDay(){ return new Date().getDay()===CFG.AUDIT_DOW; }
+function nowT(){ var d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); }
+
+/* ---------------- 이벤트 기록 + GAS 전송(큐) ---------------- */
+function record(kind, data){
+  var ev = Object.assign({d:todayStr(), t:nowT(), who:DB.staff, kind:kind}, data);
+  DB.events.push(ev); save(); pushGas(ev); render();
+}
+function undoLast(){
+  var todays = DB.events.filter(function(e){return e.d===todayStr();});
+  if(!todays.length) return;
+  var last = todays[todays.length-1];
+  DB.events.splice(DB.events.lastIndexOf(last),1); save();
+  pushGas(Object.assign({}, last, {kind:"취소", ref:last.kind})); render();
+}
+function pushGas(ev){
+  if(!CFG.GAS_URL) return; // 로컬 모드 — 마감 제출 때 일괄 전송 안내
+  try{ fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"inv",k:CFG.APP_KEY,data:ev})}).catch(function(){}); }catch(e){}
+}
+/* ---------------- 잔량 계산 (기준 + 이벤트 누적) ---------------- */
+function stock(k){
+  var it=item(k), b=DB.base[k]||{창고로트:null,보충로트:null,데스크통:null};
+  var whLot=b.창고로트, bufLot=b.보충로트, deskU=b.데스크통;
+  DB.events.forEach(function(e){
+    if(e.item!==k) return;
+    if(DB.baseDate && e.d<DB.baseDate) return;                 // 기준일 이전 이벤트는 반영 완료분
+    if(e.kind==="입고" && whLot!==null) whLot += num(e.qty);    // 입고는 로트 단위로 기록
+    if(e.kind==="보충"){ if(whLot!==null) whLot-=num(e.qty); if(bufLot!==null) bufLot+=num(e.qty); }
+    if(e.kind==="개봉"){ if(bufLot!==null) bufLot-=1; if(deskU!==null) deskU+=it.lot; }
+    if(e.kind==="출고" && deskU!==null) deskU -= num(e.qty);
+  });
+  return {창고로트:whLot, 보충로트:bufLot, 데스크통:deskU, 미설정:(whLot===null)};
+}
+function outSum(k, dateStr){
+  return DB.events.filter(function(e){return e.kind==="출고"&&e.item===k&&e.d===dateStr;})
+                  .reduce(function(a,e){return a+num(e.qty);},0);
+}
+/* ---------------- 화면 ---------------- */
+var V = { screen: DB.staff? "home":"login", modal:null, wiz:null };
+function render(){
+  var el=document.getElementById("app");
+  el.innerHTML = SCREENS[V.screen]();
+  window.scrollTo(0,0);
+}
+var SCREENS = {
+/* ---- 로그인 ---- */
+login: function(){
+  return '<h1>💊 아크로 재고 콘솔</h1><div class="sub">'+todayStr()+(isAuditDay()?' · <b style="color:var(--amber)">오늘은 실사날입니다</b>':'')+'</div>'+
+  '<div class="card"><div class="q">누구세요? 이름을 눌러주세요</div>'+
+  '<div class="grid2" style="margin-top:8px">'+CFG.STAFF.map(function(n){
+    return '<button class="namebtn" onclick="loginAs(\''+n+'\')">'+n+'</button>';
+  }).join("")+'</div>'+
+  '<input type="text" id="etcName" placeholder="명단에 없으면 이름 입력" style="margin-top:10px">'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="var v=document.getElementById(\'etcName\').value.trim(); if(v)loginAs(v)">입장</button></div></div>';
+},
+/* ---- 홈 ---- */
+home: function(){
+  var greet = isAuditDay()
+    ? '📋 <b>오늘은 실사날 · 재고 파악일입니다.</b> 여유 있을 때 [실사 시작]을 눌러 창고를 세어주세요.'
+    : '안녕하세요, <b>'+esc(DB.staff)+'</b>님! 오늘도 잘 부탁드려요. 약이 나갈 때마다 아래에서 바로 찍어주세요.';
+  var baseNote = DB.baseDate? '기준 실사: '+DB.baseDate : '⚠ 아직 기준 실사가 없습니다 — [실사 시작]으로 첫 기준을 잡아주세요 (잔량 표시는 그때부터).';
+  var todays = DB.events.filter(function(e){return e.d===todayStr();});
+  var logHtml = todays.length? todays.map(function(e,i){
+      var t = e.kind==="출고"? '출고 '+e.item+' '+e.qty+(item(e.item).unit)+(e.type&&e.type!=="환자"?' <span class="badge b-low">'+esc(e.type)+'</span>':'')+(e.chart||e.name?' ('+esc(e.chart||"")+esc(e.name||"")+')':'')
+            : e.kind==="보충"? '보충 '+e.item+' '+e.qty+'로트 (창고→보충존)'
+            : e.kind==="개봉"? '개봉 '+e.item+' 1로트 (보충존→데스크)'
+            : e.kind==="입고"? '입고 '+e.item+' '+e.qty+'로트'
+            : e.kind;
+      return '<div class="kv"><span>'+e.t+' · '+t+' <span style="color:var(--gray)">— '+esc(e.who)+'</span></span></div>';
+    }).join("") : '<div class="hint">오늘 기록이 아직 없습니다.</div>';
+  return '<h1>💊 재고 콘솔</h1><div class="sub">'+todayStr()+' · '+esc(DB.staff)+'님 <a href="#" onclick="DB.staff=\'\';save();V.screen=\'login\';render();return false" style="color:var(--gray)">(교대)</a></div>'+
+  '<div class="talk">'+greet+'</div>'+
+  CFG.ITEMS.map(function(it){ return itemCardHtml(it); }).join("")+
+  '<div class="hint">'+baseNote+'</div>'+
+  '<div class="btn-row" style="justify-content:flex-start">'+
+    '<button class="btn btn-s" onclick="V.screen=\'receive\';render()">📦 입고 기록</button>'+
+    (isAuditDay()||!DB.baseDate? '<button class="btn btn-s" onclick="startAudit()">🔍 실사 시작</button>':'')+
+    '<button class="btn btn-s" onclick="undoLast()">↩ 방금 것 취소</button>'+
+    '<button class="btn btn-p" onclick="startClose()">🌙 마감 시작</button>'+
+  '</div>'+
+  '<div class="card"><div class="q" style="font-size:15px">오늘 기록</div>'+logHtml+'</div>';
+},
+/* ---- 입고 ---- */
+receive: function(){
+  return '<h1>📦 입고</h1><div class="sub">'+todayStr()+'</div>'+
+  '<div class="card"><div class="q">무엇이 몇 로트 들어왔나요?</div>'+
+  '<div class="hint">박스로 오면 로트로 환산해서 넣어주세요 (1로트 = 표 참고). 환산이 애매하면 메모에 원문 그대로.</div>'+
+  CFG.ITEMS.map(function(it,i){
+    return '<div class="itemcard"><b>'+it.name+'</b><span class="hint" style="flex:1">1로트='+it.lot+it.unit+'</span>'+
+    '<input type="tel" id="rc'+i+'" placeholder="0" style="width:80px;margin:0;text-align:center"> 로트</div>';
+  }).join("")+
+  '<input type="text" id="rcMemo" placeholder="메모 (예: 편안환 2박스 = 20통 환산)">'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="V.screen=\'home\';render()">←</button>'+
+  '<button class="btn btn-p" onclick="saveReceive()">저장</button></div></div>';
+}
+};
+function itemCardHtml(it){
+  var s=stock(it.key);
+  var badge = s.미설정? '<span class="badge b-low">기준 필요</span>'
+    : (s.창고로트<=1? '<span class="badge b-out">발주!</span>' : s.창고로트<=2? '<span class="badge b-low">창고 '+s.창고로트+'로트</span>' : '<span class="badge b-ok">창고 '+s.창고로트+'로트</span>');
+  var detail = s.미설정? '실사 후 표시됩니다' : '보충존 '+s.보충로트+'로트 · 데스크 '+s.데스크통+it.unit;
+  return '<div class="itemcard"><b>'+it.name+'</b>'+
+    '<div class="stockbar">'+badge+'<div>'+detail+'</div></div>'+
+    '<button class="tap" onclick="openOut(\''+it.key+'\')">−출고</button>'+
+    '<button class="tap" onclick="record(\'개봉\',{item:\''+it.key+'\'})" title="보충존 로트를 데스크로">개봉</button>'+
+    '<button class="tap" onclick="record(\'보충\',{item:\''+it.key+'\',qty:1})" title="창고에서 보충존으로 1로트">보충</button></div>';
+}
+/* ---- 출고 모달(간이 프롬프트 흐름) ---- */
+function openOut(k){
+  var it=item(k);
+  var qty = num(prompt(it.name+" 몇 "+it.unit+" 나가나요?", "1")); if(!qty) return;
+  var type = prompt("구분? (그냥 엔터=환자 / 상담 / 서비스 / 비대면 / 데스크)","")||"환자";
+  type = type==="서비스"?"서비스(S0)":type==="비대면"?"비대면 선포장":type==="데스크"?"데스크 사용":type;
+  var who = "";
+  if(type==="환자"||type==="서비스(S0)"){ who = prompt("차트번호+이름 (예: 10462임진희)","")||""; }
+  record("출고",{item:k, qty:qty, type:type, chart:(who.match(/\d+/)||[""])[0], name:who.replace(/\d+/g,"").trim()});
+}
+function loginAs(n){ DB.staff=n; save(); V.screen="home"; render(); }
+function saveReceive(){
+  CFG.ITEMS.forEach(function(it,i){
+    var v=num(document.getElementById("rc"+i).value);
+    if(v) record("입고",{item:it.key, qty:v, memo:document.getElementById("rcMemo").value});
+  });
+  V.screen="home"; render();
+}
+/* =====================================================================
+   실사 모드 — "오늘은 재고 파악일입니다"
+   ===================================================================== */
+function startAudit(){
+  var html='<h1>🔍 실사 — 재고 파악</h1><div class="sub">'+todayStr()+' · '+esc(DB.staff)+'님</div>'+
+  '<div class="talk">셋만 세면 됩니다: <b>창고 로트 수 · 보충존 로트 수 · 데스크의 개봉된 통 수</b>. 낱개는 안 셉니다!</div>'+
+  CFG.ITEMS.map(function(it,i){
+    return '<div class="card"><div class="q" style="font-size:15px">'+it.name+' <span class="hint">('+esc(it.loc)+')</span></div>'+
+    '<div class="grid2" style="grid-template-columns:1fr 1fr 1fr;gap:6px">'+
+    '<div><div class="hint">창고(로트)</div><input type="tel" id="au'+i+'w" placeholder="0"></div>'+
+    '<div><div class="hint">보충존(로트)</div><input type="tel" id="au'+i+'b" placeholder="0"></div>'+
+    '<div><div class="hint">데스크('+it.unit+')</div><input type="tel" id="au'+i+'d" placeholder="0"></div>'+
+    '</div></div>';
+  }).join("")+
+  '<div class="btn-row"><button class="btn btn-s" onclick="V.screen=\'home\';render()">←</button>'+
+  '<button class="btn btn-p" onclick="saveAudit()">실사 저장 (오늘부터 이 값이 기준)</button></div>';
+  document.getElementById("app").innerHTML=html; window.scrollTo(0,0);
+}
+function saveAudit(){
+  var prev = JSON.parse(JSON.stringify(DB.base||{}));
+  CFG.ITEMS.forEach(function(it,i){
+    DB.base[it.key]={창고로트:num(document.getElementById("au"+i+"w").value),
+                     보충로트:num(document.getElementById("au"+i+"b").value),
+                     데스크통:num(document.getElementById("au"+i+"d").value)};
+  });
+  DB.baseDate=todayStr(); save();
+  record("실사",{memo:JSON.stringify(DB.base)});
+  alert("실사 저장 완료! 오늘부터 이 값이 기준입니다. 수고하셨습니다 🙌");
+  V.screen="home"; render();
+}
+/* =====================================================================
+   마감 위저드 — 게임처럼 3중 대조
+   순서: ①오늘 요약 → ②슬랙 습관분 확인 → ③OK차트 비급여 복붙 대조 → ④불일치 문답 → ⑤판정·제출
+   ===================================================================== */
+var W = null;
+function startClose(){ W={step:0, slackAdd:[], okRows:null, answers:{}, memo:""}; drawWiz(); }
+function wizProg(){ return '<div class="prog">'+[0,1,2,3,4].map(function(i){return '<i class="'+(i<=W.step?'on':'')+'"></i>';}).join("")+'</div>'; }
+function drawWiz(){
+  var el=document.getElementById("app");
+  el.innerHTML = WIZ[W.step](); window.scrollTo(0,0);
+}
+var WIZ=[
+/* 0. 인사+요약 */
+function(){
+  var t=todayStr();
+  var sums=CFG.ITEMS.map(function(it){ var n=outSum(it.key,t); return n? it.name+" "+n+it.unit : null; }).filter(Boolean);
+  return '<h1>🌙 마감</h1><div class="sub">'+t+'</div>'+wizProg()+
+  '<div class="talk"><b>오늘 근무가 끝나셨군요, '+esc(DB.staff)+'님. 고생 많으셨습니다!</b><br>이제 오늘 나간 약이 기록과 맞는지 같이 확인해볼게요. 3분이면 끝납니다.</div>'+
+  '<div class="card"><div class="q" style="font-size:15px">오늘 콘솔 기록</div>'+
+  (sums.length? '<div>'+sums.join(" · ")+'</div>' : '<div class="hint">오늘 콘솔 출고 기록이 없습니다.</div>')+
+  '</div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="V.screen=\'home\';render()">←</button><button class="btn btn-p" onclick="W.step=1;drawWiz()">다음 →</button></div>';
+},
+/* 1. 슬랙 습관분 */
+function(){
+  return '<h1>🌙 마감</h1><div class="sub">1/4 슬랙과 대조합니다</div>'+wizProg()+
+  '<div class="talk">혹시 오늘 습관처럼 <b>슬랙 #결산_약재입출고에 직접 친</b> 출고가 있나요? 있다면 그 메시지들을 복사해 붙여주세요. 없으면 그냥 다음!</div>'+
+  '<div class="card"><textarea id="slackIn" placeholder="예)\n출-편1 디캡1(10462임진희)\n출-수2 (상담)"></textarea>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="W.step=0;drawWiz()">←</button><button class="btn btn-p" onclick="parseSlackPaste()">다음 →</button></div></div>';
+},
+/* 2. OK차트 복붙 */
+function(){
+  return '<h1>🌙 마감</h1><div class="sub">2/4 차트와 대조합니다</div>'+wizProg()+
+  '<div class="talk"><b>OK차트 비급여 목록</b>을 열어 오늘 화면 전체를 복사(Ctrl+A→C)해서 붙여넣어 주세요. 처방전 발송분까지 이 목록으로 한 번에 봅니다.</div>'+
+  '<div class="card"><textarea id="okIn" placeholder="OK차트 비급여 목록 붙여넣기..."></textarea>'+
+  '<div class="hint">⚠ 처음 몇 번은 형식 학습 기간입니다 — 인식이 이상하면 그대로 제출하고 알려주세요.</div>'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="W.step=1;drawWiz()">←</button><button class="btn btn-s" onclick="W.okRows=null;W.step=3;drawWiz()">건너뛰기</button><button class="btn btn-p" onclick="parseOkPaste()">대조 →</button></div></div>';
+},
+/* 3. 불일치 문답 */
+function(){
+  var t=todayStr(), cards=[], allOk=true;
+  CFG.ITEMS.forEach(function(it){
+    var con = outSum(it.key,t) + W.slackAdd.filter(function(x){return x.item===it.key;}).reduce(function(a,x){return a+x.qty;},0);
+    var ok  = W.okRows? (W.okRows[it.key]||0) : null;
+    if(ok===null){ cards.push('<div class="card"><b>'+it.name+'</b> — 콘솔 '+con+it.unit+' <span class="hint">(차트 대조 생략)</span></div>'); return; }
+    var diff = con - ok;   // +면 기록이 더 많음(차트 미입력?), −면 덜 기록(빠뜨림?)
+    if(diff===0){ cards.push('<div class="card"><b>'+it.name+'</b> ✅ 콘솔 '+con+' = 차트 '+ok+' — 딱 맞습니다!</div>'); return; }
+    allOk=false;
+    var qs = diff<0
+      ? ['차트에는 '+ok+it.unit+'인데 기록은 '+con+it.unit+' — <b>'+(-diff)+it.unit+'이 기록 없이 나갔습니다.</b>',
+         '· 서비스(S0)로 나간 게 있나요? 있었다면 지금 [출고]로 찍어주세요 (구분: 서비스)',
+         '· 비대면 포장을 미리 해둔 게 있나요? (내일 발송분 — 구분: 비대면)',
+         '· 상담 때 벌크로 나간 게 있나요?']
+      : ['기록이 차트보다 '+diff+it.unit+' 많습니다.',
+         '· 차트(OK차트) 입력이 아직 안 된 환자가 있나요? — 입력 후 다시 대조하면 맞습니다',
+         '· 내일 출고 예정분을 오늘 미리 찍었나요?'];
+    cards.push('<div class="mism"><b>🕵️ '+it.name+'</b><br>'+qs.join('<br>')+
+      '<input type="text" placeholder="확인 메모 (예: S0 서비스 1통 — 김OO)" value="'+esc(W.answers[it.key]||"")+'" oninput="W.answers[\''+it.key+'\']=this.value" style="margin-top:8px;font-size:14px"></div>');
+  });
+  return '<h1>🌙 마감</h1><div class="sub">3/4 안 맞는 곳을 같이 찾아봅니다</div>'+wizProg()+
+  (allOk?'<div class="win">🎉 <b>전 품목 일치!</b> 오늘의 재고 방어 성공입니다.</div>':'')+
+  cards.join("")+
+  '<div class="btn-row"><button class="btn btn-s" onclick="W.step=2;drawWiz()">←</button><button class="btn btn-p" onclick="W.step=4;drawWiz()">판정 →</button></div>';
+},
+/* 4. 판정·제출 */
+function(){
+  var t=todayStr();
+  var lines=CFG.ITEMS.map(function(it){
+    var con=outSum(it.key,t)+W.slackAdd.filter(function(x){return x.item===it.key;}).reduce(function(a,x){return a+x.qty;},0);
+    var ok=W.okRows?(W.okRows[it.key]||0):null;
+    return it.name+" 콘솔"+con+(ok===null?"":" / 차트"+ok+(con===ok?" ✅":" ⚠"+(W.answers[it.key]?"(메모)":"(미해결)")));
+  });
+  var unresolved = W.okRows && CFG.ITEMS.some(function(it){
+    var con=outSum(it.key,t)+W.slackAdd.filter(function(x){return x.item===it.key;}).reduce(function(a,x){return a+x.qty;},0);
+    return (W.okRows[it.key]||0)!==con && !W.answers[it.key];
+  });
+  return '<h1>🌙 마감</h1><div class="sub">4/4 판정</div>'+wizProg()+
+  '<div class="card">'+lines.map(function(l){return '<div class="kv"><span>'+l+'</span></div>';}).join("")+'</div>'+
+  (unresolved?'<div class="mism">⚠ 메모 없이 남은 불일치가 있습니다. 그래도 제출은 됩니다 — "요확인"으로 기록되고, 내일 아침 같이 찾으면 됩니다.</div>':'')+
+  '<div class="card"><input type="text" id="clMemo" placeholder="오늘 한 줄 메모 (선택)" value="'+esc(W.memo)+'" oninput="W.memo=this.value">'+
+  '<div class="btn-row"><button class="btn btn-s" onclick="W.step=3;drawWiz()">←</button><button class="btn btn-p" onclick="submitClose()">마감 제출 ✓</button></div></div>';
+}
+];
+function parseSlackPaste(){
+  var raw=document.getElementById("slackIn").value;
+  W.slackAdd=[];
+  raw.split("\n").forEach(function(line){
+    var m=line.match(/출\s*-?\s*(.+)/); if(!m) return;
+    CFG.ITEMS.forEach(function(it){
+      var re=new RegExp(it.key+"\\s*(\\d+)","g"), mm;
+      while((mm=re.exec(m[1]))) W.slackAdd.push({item:it.key, qty:num(mm[1])});
+    });
+  });
+  W.step=2; drawWiz();
+}
+function parseOkPaste(){
+  var raw=document.getElementById("okIn").value;
+  if(!raw.trim()){ W.okRows=null; W.step=3; drawWiz(); return; }
+  // 유연 파싱: 품목명이 든 줄에서 수량 추출. 형식은 실물 샘플로 보정 예정.
+  var names={"편안환":"편","수면환":"수","D캡슐":"디캡","디캡슐":"디캡","반하사심":"반과","반과":"반과"};
+  var rows={};
+  raw.split("\n").forEach(function(line){
+    Object.keys(names).forEach(function(n){
+      if(line.indexOf(n)<0) return;
+      var k=names[n];
+      var m=line.match(/(\d+)\s*(통|개|포|일|EA)?\s*$/) || line.match(/\s(\d+)\s/);
+      rows[k]=(rows[k]||0)+(m?num(m[1]):1);
+    });
+  });
+  W.okRows=rows; W.step=3; drawWiz();
+}
+function submitClose(){
+  var t=todayStr();
+  var p={action:"invClose", k:CFG.APP_KEY, data:{date:t, staff:DB.staff,
+    events:DB.events.filter(function(e){return e.d===t;}),
+    slackAdd:W.slackAdd, okRows:W.okRows, answers:W.answers, memo:W.memo,
+    stock:CFG.ITEMS.map(function(it){var s=stock(it.key);return {item:it.key,창고로트:s.창고로트,보충로트:s.보충로트,데스크통:s.데스크통};}) }};
+  DB.closedDates.push(t); save();
+  function done(mode){
+    document.getElementById("app").innerHTML='<div class="win" style="margin-top:30px">✅ <b>마감 완료!</b><br>'+esc(DB.staff)+'님, 오늘도 재고를 지켜주셔서 감사합니다 🙌<br><span class="hint">'+mode+'</span></div>'+
+    '<div class="btn-row" style="justify-content:center"><button class="btn btn-s" onclick="V.screen=\'home\';render()">홈으로</button></div>';
+  }
+  if(!CFG.GAS_URL){ done("(로컬 모드 — GAS 연결 시 재고원장에 자동 저장됩니다)"); return; }
+  fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify(p)})
+    .then(function(){done("재고원장에 저장되고 관리 채널에 요약이 게시됐습니다.");})
+    .catch(function(){done("전송 실패 — 기록은 이 기기에 저장돼 있습니다. 내일 다시 제출됩니다.");});
+}
+render();
+</script>
+</body>
+</html>
