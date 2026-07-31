@@ -86,12 +86,25 @@ function record(kind, data){
   var ev = Object.assign({d:todayStr(), t:nowT(), who:DB.staff, kind:kind}, data);
   DB.events.push(ev); save(); pushGas(ev); render();
 }
+function evDesc(e){
+  return e.kind==="출고"? "출고 "+e.item+" "+e.qty+item(e.item).unit+(e.chart||e.name?" ("+(e.chart||"")+(e.name||"")+")":"")
+       : e.kind==="보충"? "보충 "+e.item+" "+e.qty+"로트"
+       : e.kind==="개봉"? "개봉 "+e.item+" 1로트"
+       : e.kind==="입고"? "입고 "+e.item+" "+e.qty+"로트"
+       : e.kind;
+}
+function delEv(gi){
+  var e=DB.events[gi];
+  if(!e || e.d!==todayStr()) return;                    // 오늘 것만 취소 가능 (지난날은 손대지 않음)
+  if(e.kind==="실사"){ alert("실사 기록은 취소 대신 다시 실사해 주세요."); return; }
+  if(!confirm("이 기록을 취소할까요?\n\n"+e.t+" · "+evDesc(e)+" — "+e.who)) return;
+  DB.events.splice(gi,1); save();
+  pushGas(Object.assign({}, e, {kind:"취소", ref:e.kind, by:DB.staff})); render();
+}
 function undoLast(){
-  var todays = DB.events.filter(function(e){return e.d===todayStr();});
-  if(!todays.length) return;
-  var last = todays[todays.length-1];
-  DB.events.splice(DB.events.lastIndexOf(last),1); save();
-  pushGas(Object.assign({}, last, {kind:"취소", ref:last.kind})); render();
+  for(var i=DB.events.length-1;i>=0;i--){
+    if(DB.events[i].d===todayStr() && DB.events[i].kind!=="실사"){ delEv(i); return; }
+  }
 }
 function pushGas(ev){
   if(!CFG.GAS_URL) return; // 로컬 모드 — 마감 제출 때 일괄 전송 안내
@@ -139,14 +152,13 @@ home: function(){
     ? '📋 <b>오늘은 실사날 · 재고 파악일입니다.</b> 여유 있을 때 [실사 시작]을 눌러 창고를 세어주세요.'
     : '안녕하세요, <b>'+esc(DB.staff)+'</b>님! 오늘도 잘 부탁드려요. 약이 나갈 때마다 아래에서 바로 찍어주세요.';
   var baseNote = DB.baseDate? '기준 실사: '+DB.baseDate : '⚠ 아직 기준 실사가 없습니다 — [실사 시작]으로 첫 기준을 잡아주세요 (잔량 표시는 그때부터).';
-  var todays = DB.events.filter(function(e){return e.d===todayStr();});
-  var logHtml = todays.length? todays.map(function(e,i){
-      var t = e.kind==="출고"? '출고 '+e.item+' '+e.qty+(item(e.item).unit)+(e.type&&e.type!=="환자"?' <span class="badge b-low">'+esc(e.type)+'</span>':'')+(e.chart||e.name?' ('+esc(e.chart||"")+esc(e.name||"")+')':'')
-            : e.kind==="보충"? '보충 '+e.item+' '+e.qty+'로트 (창고→보충존)'
-            : e.kind==="개봉"? '개봉 '+e.item+' 1로트 (보충존→데스크)'
-            : e.kind==="입고"? '입고 '+e.item+' '+e.qty+'로트'
-            : e.kind;
-      return '<div class="kv"><span>'+e.t+' · '+t+' <span style="color:var(--gray)">— '+esc(e.who)+'</span></span></div>';
+  var todays = [];
+  DB.events.forEach(function(e,gi){ if(e.d===todayStr()) todays.push({e:e, gi:gi}); });
+  var logHtml = todays.length? todays.map(function(r){
+      var e=r.e;
+      var t = esc(evDesc(e)) + (e.kind==="출고"&&e.type&&e.type!=="환자"?' <span class="badge b-low">'+esc(e.type)+'</span>':'');
+      return '<div class="kv"><span>'+e.t+' · '+t+' <span style="color:var(--gray)">— '+esc(e.who)+'</span></span>'+
+             (e.kind!=="실사"?'<span class="del" title="이 기록 취소" onclick="delEv('+r.gi+')">✕</span>':'')+'</div>';
     }).join("") : '<div class="hint">오늘 기록이 아직 없습니다.</div>';
   return '<h1>💊 재고 콘솔</h1><div class="sub">'+todayStr()+' · '+esc(DB.staff)+'님 <a href="#" onclick="DB.staff=\'\';save();V.screen=\'login\';render();return false" style="color:var(--gray)">(교대)</a></div>'+
   '<div class="talk">'+greet+'</div>'+
