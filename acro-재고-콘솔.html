@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아크로 재고 콘솔</title>
+<style>
+:root{
+  --bg:#f2faf5; --panel:#ffffff; --ink:#1f3d33; --muted:#5f7a6e; --line:#dcefe4;
+  --accent:#0aa87b; --accent-ink:#ffffff; --accent-soft:#dff5ec;
+  --good:#0a9e64; --warn:#e8930c; --warn-bg:#fff6e3; --bad:#e05252; --bad-bg:#ffeceb;
+  --c-pyeon:#6cc24a; --c-su:#4d7cfe; --c-dcap:#ff9d2e; --c-sook:#b76ee0; --c-banggwa:#ff6b57;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;padding:14px 12px 80px}
+.wrap{max-width:680px;margin:0 auto}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:4px}
+h1{font-size:19px;letter-spacing:-0.2px}
+.date{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.staffchip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 12px;font-size:13px;font-weight:800}
+.staffchip a{color:var(--muted);text-decoration:none;font-weight:400}
+.flowmap{display:flex;align-items:center;gap:2px;margin:12px 0;font-size:12px;color:var(--muted)}
+.flowmap b{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:5px 10px;font-weight:800;color:var(--ink);white-space:nowrap}
+.flowmap span{padding:0 3px;color:var(--accent);font-weight:800}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin-bottom:12px}
+.q{font-size:16.5px;font-weight:800;margin-bottom:6px;text-wrap:balance}
+.hint{color:var(--muted);font-size:13px;margin-top:4px}
+.btn{border:0;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:800;cursor:pointer;background:#e7f3ec;color:var(--ink)}
+.btn-p{background:var(--accent);color:var(--accent-ink)}
+.btn-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:flex-end}
+input,select,textarea{width:100%;font-size:16px;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;margin-top:6px;background:var(--panel);color:var(--ink)}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+textarea{min-height:110px;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.namebtn{padding:16px 6px;font-size:16px;font-weight:800;border-radius:12px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.namebtn:active{background:var(--accent-soft)}
+/* 품목 행 */
+.item{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--stripe,var(--line));border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.item .nm{min-width:66px}
+.item .nm b{font-size:15.5px;display:block}
+.item .nm small{color:var(--muted);font-size:11px}
+.counts{flex:1;display:flex;gap:14px;font-variant-numeric:tabular-nums}
+.cnt{text-align:center}
+.cnt b{font-size:19px;display:block;line-height:1.1}
+.cnt small{font-size:10.5px;color:var(--muted);letter-spacing:0.04em}
+.tap{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:9px 11px;font-size:14px;font-weight:800;cursor:pointer}
+.tap:active{background:var(--accent-soft)}
+.badge{font-size:11px;border-radius:7px;padding:2px 7px;font-weight:800}
+.b-ok{background:var(--accent-soft);color:var(--accent)}
+.b-warn{background:var(--warn-bg);color:var(--warn)}
+.b-bad{background:var(--bad-bg);color:var(--bad)}
+/* 패키지 */
+.pkg{display:flex;align-items:center;gap:10px;border:1.6px dashed var(--accent);border-radius:12px;padding:10px 12px;margin-bottom:8px;background:var(--panel)}
+.pkg b{font-size:15.5px}
+.pkg .comp{flex:1;font-size:12.5px;color:var(--muted)}
+.pkg .n{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+.talk{background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:15px;margin-bottom:12px}
+.mism{background:var(--warn-bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:14.5px}
+.win{background:var(--accent-soft);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:15px;text-align:center}
+.warnbox{background:var(--bad-bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;margin-top:8px}
+.prog{display:flex;gap:5px;margin:8px 0 14px}
+.prog i{flex:1;height:7px;border-radius:4px;background:var(--line)}
+.prog i.on{background:var(--accent)}
+.kv{display:flex;justify-content:space-between;align-items:center;font-size:14px;padding:4px 0;gap:8px}
+.del{color:var(--bad);cursor:pointer;font-weight:800;padding:0 6px;font-size:15px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.seg .tap.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sect{display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px}
+.sect h2{font-size:15px;letter-spacing:0.02em;display:flex;align-items:center;gap:7px}
+.sect .acts{display:flex;gap:6px}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.chip{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--stripe,var(--line));border-radius:12px;padding:9px 10px;text-align:center}
+.chip b{font-size:21px;display:block;font-variant-numeric:tabular-nums;line-height:1.15}
+.chip small{font-size:11.5px;color:var(--muted)}
+.swapref{font-size:12px;color:var(--muted);background:var(--panel);border:1px dashed var(--line);border-radius:10px;padding:8px 11px;margin-top:8px}
+@media (prefers-reduced-motion: no-preference){ .card,.item,.pkg,.chip{transition:background .15s} }
+</style>
+</head>
+<body><div class="wrap" id="app"></div>
+<script>
+/* =====================================================================
+   아크로 재고 콘솔 v3 — 기본창고 / 중간창고(패키지·낱개) 두 섹션
+   출고는 지금처럼 슬랙에 — 콘솔은 채움·조립·실사와 마감 3중 대조(슬랙·차트·실물)만.
+   5품목: 편안환·수면환·디캡슐·숙취환·반과(반하사심 과립·비급여 가루약 — 보험 탕약과 별개)
+   ===================================================================== */
+var CFG = {
+  GAS_URL: "",                        // ★ 결산 GAS /exec 재사용 (action:"inv"). 비면 로컬 모드
+  APP_KEY: "",
+  STAFF: ["김지민","김민주","김서연","박서윤","김하은"],
+  AUDIT_DOW: 3,                       // 기본창고 실사 요일 (0일~6토) ★원장 확정
+  ITEMS: [
+    {key:"편",  name:"편안환", aliases:["편","편안환"],                          lot:10, unit:"통",  stripe:"var(--c-pyeon)",  loc:"창고 선반 ①"},
+    {key:"수",  name:"수면환", aliases:["수","수면환"],                          lot:10, unit:"통",  stripe:"var(--c-su)",     loc:"창고 선반 ①"},
+    {key:"디캡",name:"디캡슐", aliases:["디캡","D","디캡슐","디톡스캡슐","D캡슐"],  lot:10, unit:"통",  stripe:"var(--c-dcap)",   loc:"창고 선반 ②"},
+    {key:"숙취",name:"숙취환", aliases:["숙취","숙취환"],                         lot:10, unit:"세트", stripe:"var(--c-sook)",   loc:"창고 선반 ②"},
+    {key:"반과",name:"반과",   aliases:["반과","반","반하사심"],                   lot:30, unit:"일분", stripe:"var(--c-banggwa)", loc:"창고 선반 ③",
+     note:"위장약 · 반하사심탕 과립(비급여·가루약). 보험약 반하사심탕(탕약)과 별개!"}
+  ],
+  PACKAGES: [                         // 원장 확정 (260801)
+    {key:"1개월", comp:{"디캡":1,"편":1}},
+    {key:"2개월", comp:{"디캡":1,"편":1,"수":1}},
+    {key:"3개월", comp:{"디캡":1,"편":2,"수":1}}
+  ],
+  LEAD_DAYS: 7,                       // 발주 리드타임(일) — "N일분 이하면 발주" 기준
+  EXP_WARN_M: 2,                      // 유통기한 임박 경고 (개월)
+  SWAP_REF: "반과 교체 환산 — 편안환 1통 = 반과 6일 · 수면환 1통 = 반과 9일 또는 6일 (딱 안 떨어져서 더 드리거나 덜 드림)",
+  SWAP_MAP: { "편":{"반과":6}, "수":{"반과":9} },   // 교체 자동 환산 (빼는 품목 1단위당 넣는 수량) — 없으면 직접 입력
+  SWAP_NOTE: { "수|반과":"수면환은 9일 또는 6일 — 딱 안 떨어져서 더 드리거나 덜 드립니다. 실제 드린 만큼 고쳐주세요." }
+};
+/* ---------------- 유틸/상태 ---------------- */
+function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function nowT(){ var d=new Date(); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0"); }
+function num(v){ var n=Number(String(v==null?"":v).replace(/[^0-9.-]/g,"")); return isNaN(n)?0:n; }
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function item(k){ return CFG.ITEMS.filter(function(i){return i.key===k;})[0]; }
+function pkg(k){ return CFG.PACKAGES.filter(function(p){return p.key===k;})[0]; }
+function compText(p){ return Object.keys(p.comp).map(function(k){return item(k).name+" "+p.comp[k];}).join(" · "); }
+function isAuditDay(){ return new Date().getDay()===CFG.AUDIT_DOW; }
+var DB = load() || { staff:"", base:{}, basePkg:{}, baseDate:"", baseT:"", events:[], tracks:[] };
+DB.tracks = DB.tracks || [];
+var GB = null;   // GAS invBoot 수신값 (슬랙 자동 파싱분 등)
+function load(){ try{ return JSON.parse(localStorage.getItem("acro_inv3")); }catch(e){ return null; } }
+function save(){ try{ localStorage.setItem("acro_inv3", JSON.stringify(DB)); }catch(e){} }
+/* ---------------- 기록/전송 ---------------- */
+function record(kind, data){
+  var ev = Object.assign({d:todayStr(), t:nowT(), who:DB.staff, kind:kind}, data);
+  DB.events.push(ev); save(); pushGas(ev); render();
+}
+function pushGas(ev){
+  if(!CFG.GAS_URL) return;
+  try{ fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"inv",k:CFG.APP_KEY,data:ev})}).catch(function(){}); }catch(e){}
+}
+/* ---------------- 잔량 (기준 + 이벤트 재생) ---------------- */
+function beforeBase(e){ if(!DB.baseDate) return false; if(e.d<DB.baseDate) return true; if(e.d===DB.baseDate && DB.baseT && e.t<=DB.baseT) return true; return false; }
+function stock(k){
+  var b=DB.base[k]||{창고:null,중간:null};
+  var wh=b.창고, mid=b.중간;
+  DB.events.forEach(function(e){
+    if(beforeBase(e)) return;
+    if(e.kind==="입고" && e.item===k && wh!==null) wh+=num(e.qty);
+    if(e.kind==="채움" && e.item===k){ if(wh!==null) wh-=num(e.qty); if(mid!==null) mid+=num(e.qty); }
+    if(e.kind==="조립" && mid!==null){ var p=pkg(e.pkg); if(p&&p.comp[k]) mid-=p.comp[k]*num(e.qty); }
+    if(e.kind==="해체" && mid!==null){ var p2=pkg(e.pkg); if(p2&&p2.comp[k]) mid+=p2.comp[k]*num(e.qty); }
+    if(e.kind==="교체" && mid!==null){                    // 패키지 개수는 그대로 — 안에서만 바뀜
+      if(e.out===k)     mid+=num(e.outQty)*num(e.qty);    // 뺀 것은 낱개로 복귀
+      if(e.inItem===k)  mid-=num(e.inQty)*num(e.qty);     // 넣은 것은 낱개에서 빠짐
+    }
+  });
+  return {창고:wh, 중간:mid, 미설정:(wh===null&&mid===null)};
+}
+function prepack(pk){
+  var n=(DB.basePkg&&DB.basePkg[pk]!=null)?DB.basePkg[pk]:0;
+  DB.events.forEach(function(e){
+    if(beforeBase(e)) return;
+    if(e.kind==="조립" && e.pkg===pk) n+=num(e.qty);
+    if(e.kind==="해체" && e.pkg===pk) n-=num(e.qty);
+  });
+  return n;
+}
+/* ---------------- 취소 ---------------- */
+function evDesc(e){
+  if(e.kind==="입고") return "입고 "+item(e.item).name+" "+e.qty+item(e.item).unit;
+  if(e.kind==="채움") return "채움 "+item(e.item).name+" "+e.qty+item(e.item).unit+" (창고→중간)";
+  if(e.kind==="조립") return e.pkg+" 패키지 조립 "+e.qty+"개";
+  if(e.kind==="해체") return e.pkg+" 패키지 해체 "+e.qty+"개 (낱개 복귀)";
+  if(e.kind==="교체") return "⇄ "+e.pkg+" 패키지 "+e.qty+"개 — "+item(e.out).name+" "+e.outQty+item(e.out).unit+" 빼고 "+
+    (e.inItem? item(e.inItem).name+" "+e.inQty+item(e.inItem).unit+" 넣음" : "그대로 (빼기만)");
+  if(e.kind==="제안") return "💬 개선 의견: "+String(e.memo||"").slice(0,60);
+  if(e.kind==="기준복원") return "⏪ 기준 복원 — "+String(e.memo||"");
+  if(e.kind==="취소") return "↩ 되돌림: "+String(e.memo||e.ref||"");
+  return e.kind;
+}
+function delEv(gi){
+  var e=DB.events[gi];
+  if(!e || e.d!==todayStr()) return;
+  if(e.kind==="실사"){ alert("실사 기록은 취소 대신 다시 실사해 주세요."); return; }
+  if(!confirm("이 기록을 되돌릴까요?\n\n"+e.t.slice(0,5)+" · "+evDesc(e)+" — "+e.who)) return;
+  DB.events.splice(gi,1); save();
+  record("취소",{ref:e.kind, memo:evDesc(e)});   // 잔량엔 무영향 — 되돌린 흔적만 남긴다
+}
+/* ---------------- 화면 ---------------- */
+var V = { screen: DB.staff? "home":"login" };
+function render(){ document.getElementById("app").innerHTML = SCREENS[V.screen](); window.scrollTo(0,0); if(V.screen==="swap") swapSuggest(1); }
+function headerHtml(){
+  return '<header class="top"><h1>💊 아크로 재고 콘솔</h1><span class="date">'+todayStr()+'</span></header>'+
+  (DB.staff?'<div style="margin-bottom:6px"><span class="staffchip">'+esc(DB.staff)+' 님 <a href="#" onclick="DB.staff=&quot;&quot;;save();V.screen=&quot;login&quot;;render();return false">교대</a></span>'+(isAuditDay()?' <span class="badge b-warn">오늘은 기본창고 실사날</span>':'')+(DB.baseDate?' <span class="hint" style="margin:0">기준: '+DB.baseDate.slice(5)+' '+String(DB.baseT||'').slice(0,5)+'</span>':'')+'</div>':'');
+}
+var SCREENS = {
+login: function(){
+  return '<header class="top"><h1>💊 아크로 재고 콘솔</h1><span class="date">'+todayStr()+'</span></header>'+
+  (isAuditDay()?'<div class="talk">📋 <b>오늘은 기본창고 실사날입니다.</b> 입장 후 [실사]로 창고를 세어주세요.</div>':'')+
+  '<div class="card"><div class="q">누구세요? 이름을 눌러주세요</div>'+
+  '<div class="grid2" style="margin-top:8px">'+CFG.STAFF.map(function(n){
+    return '<button class="namebtn" onclick="loginAs(&quot;'+n+'&quot;)">'+n+'</button>';
+  }).join("")+'</div>'+
+  '<input type="text" id="etcName" placeholder="명단에 없으면 이름 입력">'+
+  '<div class="btn-row"><button class="btn" onclick="var v=document.getElementById(&quot;etcName&quot;).value.trim(); if(v)loginAs(v)">입장</button></div></div>';
+},
+home: function(){
+  if(!DB.baseDate){
+    return headerHtml()+
+    '<div class="talk">처음 오셨네요! 재고 숫자를 보여드리려면 <b>지금 있는 그대로 한 번만 세어주면</b> 됩니다. 창고·중간창고·패키지 — 5분이면 끝나요.</div>'+
+    '<div class="btn-row" style="justify-content:center"><button class="btn btn-p" onclick="startAudit()">🔍 첫 실사 시작</button></div>'+todayLog();
+  }
+  var whChips = CFG.ITEMS.map(function(it){
+    var s=stock(it.key), dl=daysLeft(it.key);
+    var badge = dl!==null
+      ? (dl<=CFG.LEAD_DAYS? '<span class="badge b-bad">발주! '+dl+'일분</span>' : dl<=CFG.LEAD_DAYS*2? '<span class="badge b-warn">'+dl+'일분</span>' : '<span class="badge b-ok">'+dl+'일분</span>')
+      : (s.창고!==null&&s.창고<=it.lot? '<span class="badge b-bad">발주!</span>' : s.창고!==null&&s.창고<=it.lot*2? '<span class="badge b-warn">부족</span>':'');
+    return '<div class="chip" style="--stripe:'+it.stripe+'"><small>'+it.name+'</small><b>'+(s.창고===null?"?":s.창고)+'</b><small>'+it.unit+'</small> '+badge+expBadge(it.key)+'</div>';
+  }).join("");
+  var pkgRows = CFG.PACKAGES.map(function(p){
+    return '<div class="pkg"><b>📦 '+p.key+'</b><div class="comp">'+compText(p)+swapTodayText(p.key)+'</div>'+
+      '<span class="n">'+prepack(p.key)+'개</span>'+
+      '<button class="tap" onclick="doAssemble(&quot;'+p.key+'&quot;)">조립</button>'+
+      '<button class="tap" onclick="doDisassemble(&quot;'+p.key+'&quot;)">해체</button>'+
+      '<button class="tap" onclick="openSwap(&quot;'+p.key+'&quot;)">⇄교체</button></div>';
+  }).join("");
+  var midChips = CFG.ITEMS.map(function(it){
+    var s=stock(it.key);
+    return '<div class="chip" style="--stripe:'+it.stripe+'"><small>'+it.name+'</small><b>'+(s.중간===null?"?":s.중간)+'</b><small>'+it.unit+'</small>'+
+    '<div style="margin-top:5px"><button class="tap" style="padding:5px 9px;font-size:12.5px" onclick="doMove(&quot;'+it.key+'&quot;)">＋채움</button></div></div>';
+  }).join("");
+  return headerHtml()+tracksCard()+
+  (streak()>=2?'<div class="talk" style="padding:8px 14px">🔥 <b>'+streak()+'일 연속 재고 방어 성공!</b> 오늘도 이어가요.</div>':'')+'<div class="sect"><h2>🏬 기본 창고 <span class="hint" style="margin:0">(주 1회 실사)</span></h2>'+
+  '<div class="acts"><button class="tap" onclick="V.screen=&quot;receive&quot;;render()">＋입고</button><button class="tap" onclick="startAudit()">실사</button></div></div>'+
+  '<div class="chips">'+whChips+'</div>'+
+  '<div class="sect"><h2>📦 중간 창고 — 낱개 <span class="hint" style="margin:0">(매일 마감 때 셈)</span></h2></div>'+
+  '<div class="chips">'+midChips+'</div>'+
+  '<div class="sect"><h2>🎁 중간 창고 — 싸둔 패키지 <span class="hint" style="margin:0">(낱개를 [조립]하면 여기로)</span></h2></div>'+
+  pkgRows+
+  '<div class="swapref">⇄ '+CFG.SWAP_REF+'<br><b>[⇄교체]</b> = 패키지는 그대로 나가고 안에서 한 품목만 바꿀 때 (편안환 대신 반과 · 편안환만 빼기). <b>[해체]</b> = 패키지를 통째로 풀어 낱개로 되돌릴 때.</div>'+
+  '<div class="talk" style="margin-top:12px">🙂 <b>환자 출고는 지금처럼 슬랙에</b> 적어주세요 (출-편1 …). 콘솔은 마감 때 슬랙·차트·실물을 자동으로 맞춰봅니다.</div>'+
+  '<div class="btn-row" style="justify-content:flex-end"><button class="btn" onclick="V.screen=&quot;feedback&quot;;render()">💬 개선·문의</button><button class="btn" onclick="V.screen=&quot;history&quot;;render()">📅 일별 기록</button><button class="btn btn-p" onclick="startClose()">🌙 마감</button></div>'+
+  todayLog();
+},
+receive: function(){
+  return headerHtml()+
+  '<div class="card"><div class="q">📦 입고 — 창고에 들어온 수량</div>'+
+  '<div class="hint">통 수로 넣어주세요. 박스로 왔으면 환산해서 (애매하면 메모에 원문 그대로).</div>'+
+  CFG.ITEMS.map(function(it,i){
+    return '<div class="item" style="--stripe:'+it.stripe+'"><div class="nm"><b>'+it.name+'</b></div>'+
+    '<input type="tel" id="rc'+i+'" placeholder="0" style="width:90px;margin:0;text-align:center"> <span class="hint" style="margin:0">'+it.unit+'</span></div>';
+  }).join("")+
+  '<input type="text" id="rcMemo" placeholder="메모 (예: 편안환 2박스=20통)">'+
+  '<div class="hint" style="margin-top:8px">📷 거래명세서 사진 (선택 — 수량 분쟁·단위 확인용'+(CFG.GAS_URL?'':' · GAS 연결 후 서버 보관')+')</div>'+
+  '<input type="file" id="rcPhoto" accept="image/*" capture="environment" style="font-size:14px">'+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
+  '<button class="btn btn-p" onclick="saveReceive()">저장</button></div></div>';
+},
+swap: function(){
+  var p=pkg(V.swapPkg);
+  if(!p){ V.screen="home"; return SCREENS.home(); }
+  var outOpts=Object.keys(p.comp).map(function(k){
+    return '<option value="'+k+'">'+item(k).name+' — 구성 '+p.comp[k]+item(k).unit+'</option>';
+  }).join("");
+  var inOpts='<option value="">— 넣지 않음 (그냥 빼기만) —</option>'+CFG.ITEMS.map(function(it){
+    return '<option value="'+it.key+'"'+(it.key==="반과"?' selected':'')+'>'+it.name+'</option>';
+  }).join("");
+  return headerHtml()+
+  '<div class="talk">⇄ <b>'+p.key+' 패키지 — 나갈 때 구성 바꾸기</b><br>패키지는 그대로 나가고 <b>안에서 한 품목만</b> 바뀝니다. 뺀 것은 낱개로 돌아오고, 넣은 것은 낱개에서 빠집니다. 출고는 지금처럼 슬랙에 적어주세요.</div>'+
+  '<div class="card">'+
+  '<div class="q" style="font-size:15px">📦 '+p.key+' <span class="hint" style="margin:0">('+compText(p)+') · 지금 '+prepack(p.key)+'개</span></div>'+
+  '<div class="hint" style="margin-top:12px">몇 개를 이렇게 바꾸나요?</div>'+
+  '<input type="tel" id="swN" value="1">'+
+  '<div class="hint" style="margin-top:12px">① 빼는 것 <span style="color:var(--muted)">— 패키지에서 꺼내 낱개로 되돌립니다</span></div>'+
+  '<select id="swOut" onchange="swapSuggest(1)">'+outOpts+'</select>'+
+  '<input type="tel" id="swOutQ" placeholder="0" oninput="this.dataset.touched=1;swapSuggest()">'+
+  '<div class="hint" style="margin-top:12px">② 대신 넣는 것</div>'+
+  '<select id="swIn" onchange="swapSuggest(1)">'+inOpts+'</select>'+
+  '<input type="tel" id="swInQ" placeholder="0" oninput="this.dataset.touched=1">'+
+  '<div id="swMsg" class="hint" style="margin-top:8px"></div>'+
+  '<div class="swapref">⇄ '+CFG.SWAP_REF+'</div>'+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
+  '<button class="btn btn-p" onclick="saveSwap()">교체 기록</button></div></div>'+
+  todayLog();
+},
+history: function(){
+  var H=(DB.history||[]).slice().reverse();
+  var head='<tr><th style="text-align:left;padding:6px 8px">날짜</th><th style="padding:6px 4px">담당</th>'+CFG.ITEMS.map(function(it){return '<th style="padding:6px 4px;border-top:3px solid '+it.stripe+'">'+it.name+'</th>';}).join("")+'<th style="padding:6px 4px">판정</th></tr>';
+  var rows=H.map(function(h){
+    var cells=CFG.ITEMS.map(function(it){
+      var k=it.key, c1=(h.cons&&h.cons[k]!=null)?h.cons[k]:"—";
+      var sl=(h.slack&&h.slack[k]!=null)?h.slack[k]:"—", ch=(h.chart&&h.chart[k]!=null)?h.chart[k]:"—";
+      return '<td style="padding:6px 4px;text-align:center;font-variant-numeric:tabular-nums">'+c1+'<br><span style="font-size:11px;color:var(--muted)">슬'+sl+'·차'+ch+'</span></td>';
+    }).join("");
+    return '<tr style="border-top:1px solid var(--line)"><td style="padding:6px 8px;white-space:nowrap">'+h.d.slice(5)+'</td><td style="padding:6px 4px">'+esc(h.staff||"")+'</td>'+cells+
+      '<td style="padding:6px 4px;text-align:center">'+(h.unresolved? '⚠'+h.unresolved : '✅')+'</td></tr>';
+  }).join("");
+  return headerHtml()+
+  '<div class="card"><div class="q">📅 일별 기록 — 소진(위) · 슬랙/차트(아래)</div>'+
+  (H.length? '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13.5px">'+head+rows+'</table></div>'
+           : '<div class="hint">아직 마감 기록이 없습니다. 첫 마감을 하면 여기부터 쌓입니다.</div>')+
+  '<div class="hint">✅ 3중 일치 · ⚠N = 미해결 N건(추적함). 자세한 원본은 마감 제출분(재고원장)에 있습니다.</div></div>'+
+  '<div class="card"><div class="q" style="font-size:15px">⏱ 기준 이력 — 실사·마감 시점 (깃허브처럼 되돌리기)</div>'+
+  ((DB.snaps&&DB.snaps.length)? DB.snaps.slice().reverse().map(function(s){
+      var gi=DB.snaps.indexOf(s);
+      var cur=(s.d===DB.baseDate&&s.t===DB.baseT);
+      return '<div class="kv"><span>'+(cur?'<span class="badge b-ok">현재</span> ':'')+s.d.slice(5)+' '+s.t.slice(0,5)+' · '+s.kind+' · '+esc(s.who)+
+      ' <span style="color:var(--muted);font-size:12px">'+CFG.ITEMS.map(function(it){var b=s.base[it.key]||{};return it.key+" "+(b.창고==null?"—":b.창고)+"/"+(b.중간==null?"—":b.중간);}).join(" · ")+'</span></span>'+
+      (cur?'':'<button class="tap" style="padding:6px 10px;font-size:13px" onclick="restoreSnap('+gi+')">⏪ 이 시점으로</button>')+'</div>';
+    }).join("") : '<div class="hint">아직 실사·마감 기록이 없습니다.</div>')+
+  '<div class="hint">복원해도 이력은 지워지지 않습니다 — 언제든 다른 시점으로 다시 이동할 수 있습니다.</div></div>'+
+  patternCard()+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div>';
+},
+feedback: function(){
+  return headerHtml()+
+  '<div class="talk">💬 <b>불편한 점, 이랬으면 좋겠다 — 뭐든 편하게.</b> AI와 대화해도 되고, 그냥 의견만 남겨도 됩니다. 남긴 의견은 기록으로 쌓여 원장님이 봅니다.</div>'+
+  aiBox("fb","예: 조립할 때 수량을 매번 물어보는 게 번거로워요")+
+  '<div class="card"><div class="q" style="font-size:15px">📜 재고 7원칙</div><ol style="margin:6px 0 0 20px;font-size:13.5px;line-height:1.8">'+
+  ['기록은 지우지 않는다 — 뒤집는 기록을 더한다','실물이 항상 이긴다','사람은 세기 쉬운 것만 센다 (낱알은 세지 않는다)','의심은 3일을 넘기지 않는다','오차는 구간으로 격리한다','불일치는 죄가 아니라 신호다 — 보고한 사람이 잘하는 사람','시스템이 조용하면 정상이다'].map(function(r){return '<li>'+r+'</li>';}).join("")+
+  '</ol></div>'+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">← 홈</button></div>';
+}
+};
+function avgDaily(k){
+  var H=(DB.history||[]).slice(-14).filter(function(h){return h.cons && h.cons[k]!=null;});
+  if(!H.length) return 0;
+  var s=H.reduce(function(a,h){return a+num(h.cons[k]);},0);
+  return s/H.length;
+}
+function daysLeft(k){
+  var a=avgDaily(k); if(a<=0) return null;
+  var s=stock(k), tot=(s.창고||0)+(s.중간||0);
+  return Math.floor(tot/a);
+}
+function streak(){
+  var H=DB.history||[], n=0;
+  for(var i=H.length-1;i>=0;i--){ if(H[i].unresolved===0) n++; else break; }
+  return n;
+}
+function expBadge(k){
+  var v=(DB.expiry||{})[k]; if(!v) return "";
+  var m=String(v).match(/(\d{2,4})[-./]?(\d{1,2})/); if(!m) return "";
+  var y=num(m[1]); if(y<100) y+=2000;
+  var exp=new Date(y, num(m[2]), 0);                     // 해당 월 말일
+  var months=(exp-new Date())/(30*864e5);
+  if(months<0) return ' <span class="badge b-bad">유통기한 지남!</span>';
+  if(months<=CFG.EXP_WARN_M) return ' <span class="badge b-warn">유통 '+String(v)+'</span>';
+  return "";
+}
+function patternCard(){
+  var closed=(DB.tracks||[]).filter(function(t){return t.status==="closed"&&t.cause;});
+  var cancels=DB.events.filter(function(e){return e.kind==="취소";});
+  if(!closed.length && !cancels.length) return "";
+  function tally(arr,key){ var m={}; arr.forEach(function(x){ var v=x[key]||"미상"; m[v]=(m[v]||0)+1; }); 
+    return Object.keys(m).sort(function(a,b){return m[b]-m[a];}).map(function(k){return k+" <b>"+m[k]+"</b>";}).join(" · "); }
+  var byCause=closed.length? '<div class="kv"><span>유형별</span><span>'+tally(closed,"cause")+'</span></div>':"";
+  var byWho=closed.length? '<div class="kv"><span>관련자별</span><span>'+tally(closed,"causeWho")+'</span></div>':"";
+  var byFinder=closed.length? '<div class="kv"><span>🏅 발견·해결</span><span>'+tally(closed,"resolvedBy")+'</span></div>':"";
+  var byCancel=cancels.length? '<div class="kv"><span>↩ 되돌리기</span><span>'+tally(cancels,"who")+'</span></div>':"";
+  return '<div class="card"><div class="q" style="font-size:15px">📊 실수 패턴 — 교육·개선용</div>'+
+  byCause+byWho+byFinder+byCancel+
+  '<div class="hint">범인찾기가 아니라 <b>어디를 고치고 무엇을 교육할지</b> 보는 표입니다. 불일치를 발견·보고한 사람(🏅)이 잘하고 있는 사람입니다. 같은 유형이 3번 반복되면 절차를 바꿀 신호.</div></div>';
+}
+function pushSnap(kind){
+  DB.snaps=DB.snaps||[];
+  DB.snaps.push({d:DB.baseDate, t:DB.baseT, who:DB.staff, kind:kind,
+    base:JSON.parse(JSON.stringify(DB.base)), basePkg:JSON.parse(JSON.stringify(DB.basePkg))});
+  if(DB.snaps.length>60) DB.snaps=DB.snaps.slice(-60);
+}
+function restoreSnap(i){
+  var s=(DB.snaps||[])[i]; if(!s) return;
+  if(!confirm("이 시점의 기준으로 되돌릴까요?\n\n"+s.d+" "+s.t.slice(0,5)+" · "+s.kind+" · "+s.who+"\n\n그 시점 이후의 콘솔 기록은 이 기준 위에 다시 계산됩니다.")) return;
+  DB.base=JSON.parse(JSON.stringify(s.base)); DB.basePkg=JSON.parse(JSON.stringify(s.basePkg));
+  DB.baseDate=s.d; DB.baseT=s.t; save();
+  record("기준복원",{memo:s.d+" "+s.t.slice(0,5)+" ("+s.kind+"·"+s.who+") 시점으로 복원"});
+}
+function daysAgo(d){ var ms=new Date(todayStr())-new Date(d); return Math.round(ms/864e5); }
+function tracksCard(){
+  var open=DB.tracks.filter(function(t){return t.status==="open";});
+  if(!open.length) return "";
+  var rows=open.map(function(t){
+    var gi=DB.tracks.indexOf(t), age=daysAgo(t.d);
+    return '<div class="kv"><span>'+(age>=3?'<span class="badge b-bad">'+age+'일 경과 · 원장 보고</span> ':age>=1?'<span class="badge b-warn">'+age+'일째</span> ':'')+esc(t.desc)+'</span>'+
+    '<button class="tap" style="padding:6px 10px;font-size:13px" onclick="resolveTrack('+gi+')">찾았다!</button></div>';
+  }).join("");
+  return '<div class="card" style="border-left:5px solid var(--bad)"><div class="q" style="font-size:15px">🔎 추적함 — 아직 못 찾은 차이 '+open.length+'건</div>'+rows+
+  '<div class="hint">해결되면 [찾았다!]로 사유를 남겨주세요. 3일 넘으면 원장 보고 대상입니다.</div></div>';
+}
+var CAUSES=["슬랙 보고 깜빡","차트 입력 누락","세는 실수(실사)","채움·조립 기록 누락","반과 교체 표기 누락","기타"];
+function resolveTrack(gi){
+  var t=DB.tracks[gi]; if(!t) return;
+  var note=prompt("어떻게 해결됐나요? (예: S0 서비스 1통 확인 — 김OO)",""); if(!note) return;
+  var ci=num(prompt("실수 유형은? (교육·개선용 — 번호만)\n1 슬랙 보고 깜빡\n2 차트 입력 누락\n3 세는 실수(실사)\n4 채움·조립 기록 누락\n5 반과 교체 표기 누락\n6 기타","6"));
+  t.cause=CAUSES[(ci>=1&&ci<=6?ci:6)-1];
+  t.causeWho=(prompt("관련 직원 이름 (본인이면 본인 이름, 모르면 엔터)","")||"미상").trim()||"미상";
+  t.status="closed"; t.resolvedNote=note; t.resolvedBy=DB.staff; t.resolvedD=todayStr(); save();
+  pushGas({d:todayStr(), t:nowT(), who:DB.staff, kind:"추적해결", desc:t.desc, note:note, cause:t.cause, causeWho:t.causeWho}); render();
+}
+function todayLog(){
+  var todays=[]; DB.events.forEach(function(e,gi){ if(e.d===todayStr()) todays.push({e:e,gi:gi}); });
+  var rows = todays.length? todays.map(function(r){
+      return '<div class="kv"><span>'+r.e.t.slice(0,5)+' · '+esc(evDesc(r.e))+' <span style="color:var(--muted)">— '+esc(r.e.who)+'</span></span>'+
+             (r.e.kind!=="실사"?'<span class="del" title="되돌리기" onclick="delEv('+r.gi+')">✕</span>':'')+'</div>';
+    }).join("") : '<div class="hint">오늘 기록이 아직 없습니다.</div>';
+  return '<div class="card" style="margin-top:12px"><div class="q" style="font-size:15px">오늘 기록</div>'+rows+'</div>';
+}
+function loginAs(n){ DB.staff=n; save(); V.screen="home"; render(); }
+function doMove(k){
+  var it=item(k);
+  var q=num(prompt("창고 → 중간창고: "+it.name+" 몇 "+it.unit+" 옮기나요?", String(it.lot))); if(!q) return;
+  record("채움",{item:k, qty:q});
+}
+function doAssemble(pk){
+  var p=pkg(pk);
+  var q=num(prompt(pk+" 패키지 몇 개 조립하나요? (1개 = "+compText(p)+")","1")); if(!q) return;
+  var lack=Object.keys(p.comp).filter(function(k){ var s=stock(k); return s.중간!==null && s.중간 < p.comp[k]*q; });
+  if(lack.length && !confirm("중간창고 낱개가 부족해 보입니다: "+lack.map(function(k){return item(k).name;}).join(", ")+"\n그래도 기록할까요?")) return;
+  record("조립",{pkg:pk, qty:q});
+}
+/* --- 패키지 교체 (나갈 때 안에서 한 품목만 바꾸기) --- */
+function openSwap(pk){ V.swapPkg=pk; V.screen="swap"; render(); }
+function swapSuggest(reset){
+  var p=pkg(V.swapPkg); if(!p) return;
+  var so=document.getElementById("swOut"), si=document.getElementById("swIn"),
+      oq=document.getElementById("swOutQ"), iq=document.getElementById("swInQ"), msg=document.getElementById("swMsg");
+  if(!so||!si||!oq||!iq||!msg) return;
+  if(reset){ delete oq.dataset.touched; delete iq.dataset.touched; }
+  var ok=so.value, ik=si.value;
+  if(!oq.dataset.touched) oq.value=p.comp[ok]||1;
+  if(!ik){                                   // 빼기만
+    iq.value=""; iq.disabled=true;
+    msg.innerHTML="넣지 않고 <b>빼기만</b> 합니다 — 패키지는 나머지 구성("+
+      Object.keys(p.comp).filter(function(k){return k!==ok;}).map(function(k){return item(k).name+" "+p.comp[k];}).join(" · ")+")으로 나갑니다.";
+    return;
+  }
+  iq.disabled=false;
+  if(ik===ok){ iq.value=""; msg.innerHTML='⚠ 빼는 것과 넣는 것이 같습니다 — 다른 품목을 골라주세요.'; return; }
+  var rate=(CFG.SWAP_MAP[ok]||{})[ik];
+  if(rate && !iq.dataset.touched) iq.value=rate*num(oq.value);
+  var note=CFG.SWAP_NOTE[ok+"|"+ik];
+  msg.innerHTML = (rate? '자동 환산 — '+item(ok).name+' 1'+item(ok).unit+' = '+item(ik).name+' '+rate+item(ik).unit+'. 실제와 다르면 고쳐주세요.'
+                       : '환산표에 없는 조합입니다 — 실제로 드린 수량을 직접 넣어주세요.')+
+                  (note? '<br>⚠ '+note : '');
+}
+function saveSwap(){
+  var p=pkg(V.swapPkg); if(!p) return;
+  var n=num(document.getElementById("swN").value);
+  var ok=document.getElementById("swOut").value, oq=num(document.getElementById("swOutQ").value);
+  var ik=document.getElementById("swIn").value, iq=ik? num(document.getElementById("swInQ").value) : 0;
+  if(!n){ alert("몇 개를 바꾸는지 넣어주세요."); return; }
+  if(!oq){ alert("빼는 수량을 넣어주세요."); return; }
+  if(ik===ok){ alert("빼는 것과 넣는 것이 같습니다."); return; }
+  if(ik && !iq){ alert("넣는 수량을 넣어주세요. 안 넣을 거면 [넣지 않음]을 골라주세요."); return; }
+  if(prepack(p.key)<n && !confirm("계산상 "+p.key+" 패키지가 "+prepack(p.key)+"개뿐입니다. 그래도 기록할까요?")) return;
+  if(ik){
+    var s=stock(ik);
+    if(s.중간!==null && s.중간 < iq*n &&
+       !confirm("중간창고 "+item(ik).name+"이 "+s.중간+item(ik).unit+"뿐입니다 (필요 "+(iq*n)+"). 그래도 기록할까요?")) return;
+  }
+  V.screen="home";
+  record("교체",{pkg:p.key, qty:n, out:ok, outQty:oq, inItem:ik, inQty:iq});
+}
+function swapsSinceBase(pk){
+  return DB.events.filter(function(e){ return e.kind==="교체" && e.pkg===pk && !beforeBase(e); });
+}
+function swapTodayText(pk){
+  var sw=swapsSinceBase(pk);
+  if(!sw.length) return "";
+  return '<br><span style="color:var(--accent);font-weight:700">⇄ '+sw.map(function(e){
+    return e.qty+"개 "+item(e.out).name+"→"+(e.inItem? item(e.inItem).name : "빼기만");
+  }).join(" · ")+'</span>';
+}
+function doDisassemble(pk){
+  var q=num(prompt(pk+" 패키지 몇 개 해체하나요? (반과 교체·구성 변경 시)","1")); if(!q) return;
+  if(prepack(pk)<q && !confirm("계산상 프리팩이 "+prepack(pk)+"개뿐입니다. 그래도 기록할까요?")) return;
+  record("해체",{pkg:pk, qty:q});
+}
+function saveReceive(){
+  CFG.ITEMS.forEach(function(it,i){
+    var v=num(document.getElementById("rc"+i).value);
+    if(v) record("입고",{item:it.key, qty:v, memo:document.getElementById("rcMemo").value});
+  });
+  try{
+    var ph=document.getElementById("rcPhoto");
+    if(ph && ph.files && ph.files[0]){
+      if(!CFG.GAS_URL){ alert("사진은 GAS 연결 후 서버에 보관됩니다 — 이번엔 기기에 저장하지 않았어요."); }
+      else{
+        var fr=new FileReader();
+        fr.onload=function(){ pushGas({d:todayStr(), t:nowT(), who:DB.staff, kind:"입고사진", memo:document.getElementById("rcMemo")?document.getElementById("rcMemo").value:"", photo:fr.result}); };
+        fr.readAsDataURL(ph.files[0]);
+      }
+    }
+  }catch(e){}
+  V.screen="home"; render();
+}
+/* ---------------- 실사 ---------------- */
+function startAudit(){
+  var html=headerHtml()+
+  '<div class="talk">🔍 <b>재고 파악 / 숫자 수정.</b> 있는 그대로 세거나, 틀린 칸만 고치세요 — 저장하면 그 순간부터 이 값이 기준입니다. (테스트 중엔 몇 번이고 다시 해도 됩니다)</div>'+
+  CFG.ITEMS.map(function(it,i){
+    return '<div class="card" style="border-left:5px solid '+it.stripe+'"><div class="q" style="font-size:15px">'+it.name+' <span class="hint">('+esc(it.loc)+')</span></div>'+
+    (it.note?'<div class="warnbox">'+esc(it.note)+'</div>':'')+
+    '<div class="grid2" style="grid-template-columns:1fr 1fr 1fr">'+
+    '<div><div class="hint">기본 창고 ('+it.unit+')</div><input type="tel" id="au'+i+'w" placeholder="0" value="'+(function(){var s=stock(it.key);return s.창고===null?"":s.창고;})()+'"></div>'+
+    '<div><div class="hint">중간창고 낱개 ('+it.unit+')</div><input type="tel" id="au'+i+'m" placeholder="0" value="'+(function(){var s=stock(it.key);return s.중간===null?"":s.중간;})()+'"></div>'+
+    '<div><div class="hint">가장 오래된 유통기한</div><input type="text" id="au'+i+'e" placeholder="예: 2027-03" value="'+esc((DB.expiry||{})[it.key]||"")+'"></div>'+
+    '</div></div>';
+  }).join("")+
+  '<div class="card"><div class="q" style="font-size:15px">싸둔 패키지 (중간창고)</div><div class="grid2" style="grid-template-columns:1fr 1fr 1fr">'+
+  CFG.PACKAGES.map(function(p,i){
+    return '<div><div class="hint">'+p.key+' (개)</div><input type="tel" id="aup'+i+'" placeholder="0" value="'+(DB.baseDate?prepack(p.key):"")+'"></div>';
+  }).join("")+'</div></div>'+
+  '<div class="hint" style="margin-bottom:8px">지금 계산값이 미리 채워져 있습니다 — <b>다른 칸은 두고 고칠 숫자만</b> 바꾸면 됩니다.</div>'+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
+  '<button class="btn btn-p" onclick="saveAudit()">실사 저장 — 오늘부터 이 값이 기준</button></div>';
+  document.getElementById("app").innerHTML=html; window.scrollTo(0,0);
+}
+function saveAudit(){
+  CFG.ITEMS.forEach(function(it,i){
+    DB.base[it.key]={창고:num(document.getElementById("au"+i+"w").value),
+                     중간:num(document.getElementById("au"+i+"m").value)};
+  });
+  DB.basePkg={};
+  CFG.PACKAGES.forEach(function(p,i){ DB.basePkg[p.key]=num(document.getElementById("aup"+i).value); });
+  DB.expiry=DB.expiry||{};
+  CFG.ITEMS.forEach(function(it,i){ var e=document.getElementById("au"+i+"e"); if(e) DB.expiry[it.key]=e.value.trim(); });
+  DB.baseDate=todayStr(); DB.baseT=nowT();
+  pushSnap("실사"); save();
+  record("실사",{memo:JSON.stringify({base:DB.base, pkg:DB.basePkg})});
+  alert("실사 저장 완료! 오늘부터 이 값이 기준입니다. 수고하셨습니다 🙌");
+  V.screen="home"; render();
+}
+/* ---------------- 마감 위저드 — 소진 유도 3중 대조 ---------------- */
+var W=null;
+function startClose(){ W={step:0, slack:null, chart:null, mid:null, midPkg:null, answers:{}, memo:"", unknown:null}; drawWiz(); }
+function wizProg(){ return '<div class="prog">'+[0,1,2,3,4,5].map(function(i){return '<i class="'+(i<=W.step?'on':'')+'"></i>';}).join("")+'</div>'; }
+function drawWiz(){ document.getElementById("app").innerHTML = WIZ[W.step](); window.scrollTo(0,0); }
+var WIZ=[
+function(){
+  var t=todayStr();
+  var n=DB.events.filter(function(e){return e.d===t && e.kind!=="실사";}).length;
+  return headerHtml()+wizProg()+
+  '<div class="talk"><b>오늘 근무가 끝나셨군요, '+esc(DB.staff)+'님. 고생 많으셨습니다!</b><br>슬랙·차트·실물 셋을 맞춰보고 마칩니다. 3분!</div>'+
+  '<div class="card"><div class="q" style="font-size:15px">오늘 콘솔 기록 '+n+'건</div><div class="hint">채움·조립·해체·입고 — 출고는 슬랙에서 가져옵니다.</div></div>'+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button><button class="btn btn-p" onclick="W.step=1;drawWiz()">다음 →</button></div>';
+},
+function(){
+  var auto = (GB && GB.slackToday)? '<div class="win" style="text-align:left;margin-bottom:10px">🤖 <b>슬랙에서 자동으로 받아왔습니다:</b> '+
+    Object.keys(GB.slackToday).map(function(k){return item(k)?item(k).name+" "+GB.slackToday[k]:k+" "+GB.slackToday[k];}).join(" · ")+
+    '<div class="btn-row"><button class="btn btn-p" onclick="W.slack=GB.slackToday;W.step=2;drawWiz()">이대로 사용 →</button></div>'+
+    '<div class="hint">다르면 아래에 직접 붙여넣으세요 — 붙여넣은 값이 우선합니다.</div></div>' : '';
+  return headerHtml()+wizProg()+
+  '<div class="talk">1/5 · <b>슬랙과 대조합니다.</b>'+(auto?'':' 오늘 #결산_약재입출고의 출고 메시지를 전부 복사해 붙여넣어 주세요.')+'</div>'+auto+
+  '<div class="card"><textarea id="slackIn" placeholder="예)&#10;출-편1 디캡1(10462임진희)&#10;출-수2 (상담)&#10;출-반과6(19807천서희)"></textarea>'+
+  '<div class="btn-row"><button class="btn" onclick="W.step=0;drawWiz()">←</button><button class="btn" onclick="W.slack=null;W.step=2;drawWiz()">건너뛰기</button><button class="btn btn-p" onclick="parseSlackPaste()">다음 →</button></div></div>';
+},
+function(){
+  return headerHtml()+wizProg()+
+  '<div class="talk">2/5 · <b>차트와 대조합니다.</b> OK차트 비급여 목록을 열어 오늘 화면 전체를 복사(Ctrl+A→C)해 붙여넣어 주세요.</div>'+
+  '<div class="card"><textarea id="okIn" placeholder="OK차트 비급여 목록 붙여넣기..."></textarea>'+
+  '<div class="hint">⚠ 처음 며칠은 형식 학습 기간 — 인식이 이상하면 그대로 제출하고 알려주세요. 보험 반하사심탕(탕약) 줄은 자동 제외합니다.</div>'+
+  '<div class="btn-row"><button class="btn" onclick="W.step=1;drawWiz()">←</button><button class="btn" onclick="W.chart=null;W.step=3;drawWiz()">건너뛰기</button><button class="btn btn-p" onclick="parseOkPaste()">다음 →</button></div></div>';
+},
+function(){
+  return headerHtml()+wizProg()+
+  '<div class="talk">3/5 · <b>중간창고 실물을 세어주세요</b> — 매일 이것만! 낱개 수와 패키지 개수.'+(isAuditDay()?'<br>📋 오늘은 실사날 — 마감 후 [실사]로 기본창고까지.':'')+'</div>'+
+  '<div class="card">'+CFG.ITEMS.map(function(it,i){
+    return '<div class="item" style="--stripe:'+it.stripe+'"><div class="nm"><b>'+it.name+'</b></div>'+
+    '<input type="tel" id="mc'+i+'" placeholder="0" style="width:90px;margin:0;text-align:center"> <span class="hint" style="margin:0">낱개 '+it.unit+'</span></div>';
+  }).join("")+
+  '<div class="grid2" style="grid-template-columns:1fr 1fr 1fr;margin-top:8px">'+CFG.PACKAGES.map(function(p,i){
+    return '<div><div class="hint">'+p.key+' (개)</div><input type="tel" id="mp'+i+'" placeholder="0"></div>';
+  }).join("")+'</div>'+
+  '<div class="btn-row"><button class="btn" onclick="W.step=2;drawWiz()">←</button><button class="btn btn-p" onclick="saveMidCount()">대조 →</button></div></div>';
+},
+function(){
+  var cards=[], allOk=true, anySrc=(W.slack||W.chart);
+  var cons=consumption();
+  CFG.ITEMS.forEach(function(it){
+    var k=it.key, c1=cons.items[k], sl=W.slack?(W.slack[k]||0):null, ch=W.chart?(W.chart[k]||0):null;
+    var vals=[["실측 소진",c1],["슬랙",sl],["차트",ch]].filter(function(v){return v[1]!==null;});
+    var uniq={}; vals.forEach(function(v){uniq[v[1]]=1;});
+    var aj=(cons.swapAdj||{})[k]||0;
+    var line=vals.map(function(v){return v[0]+" "+v[1];}).join(" · ")+
+             (aj? ' <span class="badge b-ok">⇄교체 '+(aj>0?"+":"")+aj+' 반영</span>':'');
+    if(Object.keys(uniq).length<=1){
+      cards.push('<div class="card" style="border-left:5px solid '+it.stripe+'"><b>'+it.name+'</b> ✅ '+line+' — 맞습니다!</div>'); return;
+    }
+    allOk=false;
+    var qs=['<b>🕵️ '+it.name+'</b> — '+line+' ⚠'];
+    if(c1!==null && sl!==null && c1>sl) qs.push('· 실물이 슬랙보다 '+(c1-sl)+it.unit+' 더 나갔습니다 — <b>찾아야 합니다!</b> 서비스(S0)? 비대면 선포장? 슬랙 깜빡?');
+    if(c1!==null && sl!==null && c1<sl) qs.push('· 슬랙엔 있는데 실물이 안 줄었어요 — 내일 출고 예정분을 미리 적었나요? 창고에서 바로 나갔나요(채움 누락)?');
+    if(ch!==null && sl!==null && ch!==sl) qs.push('· 슬랙 '+sl+' vs 차트 '+ch+' — 차트 미입력이거나 슬랙 미보고. 어느 쪽인지 확인!');
+    if(k==="반과") qs.push('· 반과는 교체분(편=6일 · 수=9일/6일)이 슬랙·차트에 어떻게 적혔는지 확인. 보험 반하사심탕과 혼동 금지!');
+    var sx=swapExplain(k, c1, sl, cons);
+    if(sx) qs.push(sx);
+    else if((k==="편"||k==="수") && c1!==null && !aj) qs.push('· 반과로 바꿔 드렸거나 이 품목만 빼고 나갔다면 <b>[⇄교체]를 안 누른 것</b>일 수 있습니다 — 홈 패키지 줄의 [⇄교체]로 기록하면 이 숫자가 맞아집니다.');
+    cards.push('<div class="mism">'+qs.join('<br>')+
+      '<input type="text" placeholder="확인 메모" value="'+esc(W.answers[k]||"")+'" oninput="W.answers[&quot;'+k+'&quot;]=this.value" style="margin-top:8px;font-size:14px"></div>');
+  });
+  CFG.PACKAGES.forEach(function(p){
+    var cp=cons.pkgs[p.key];
+    if(cp===null||cp>=0) return;
+    allOk=false;
+    cards.push('<div class="mism"><b>📦 '+p.key+'</b> — 실물 패키지가 계산보다 '+(-cp)+'개 많습니다. [조립] 기록을 깜빡했나요?'+
+      '<input type="text" placeholder="확인 메모" value="'+esc(W.answers["pkg"+p.key]||"")+'" oninput="W.answers[&quot;pkg'+p.key+'&quot;]=this.value" style="margin-top:8px;font-size:14px"></div>');
+  });
+  return headerHtml()+wizProg()+
+  '<div class="talk">4/5 · 셋을 맞춰봅니다 — 소진(실물 변화) ↔ 슬랙 ↔ 차트</div>'+
+  (allOk&&anySrc?'<div class="win">🎉 <b>전 품목 일치!</b> 오늘의 재고 방어 성공입니다.</div>':'')+
+  (!anySrc?'<div class="hint" style="margin-bottom:8px">슬랙·차트를 모두 건너뛰어 실물 변화만 기록합니다.</div>':'')+
+  unknownCard()+
+  cards.join("")+
+  (allOk?'':aiBox("wiz","예: 편안환 1통이 남는데 서비스 나간 기억이 없어요"))+
+  '<div class="btn-row"><button class="btn" onclick="W.step=3;drawWiz()">←</button><button class="btn btn-p" onclick="W.step=5;drawWiz()">판정 →</button></div>';
+},
+function(){
+  var cons=consumption();
+  var lines=CFG.ITEMS.map(function(it){
+    var k=it.key, sl=W.slack?(W.slack[k]||0):"—", ch=W.chart?(W.chart[k]||0):"—";
+    return it.name+" 소진 "+(cons.items[k]===null?"—":cons.items[k])+" / 슬랙 "+sl+" / 차트 "+ch;
+  });
+  return headerHtml()+wizProg()+
+  '<div class="talk">5/5 · 판정 — 제출하면 오늘 실물이 <b>내일의 기준</b>이 됩니다.</div>'+
+  '<div class="card">'+lines.map(function(l){return '<div class="kv"><span>'+l+'</span></div>';}).join("")+'</div>'+
+  '<div class="card"><input type="text" id="clMemo" placeholder="오늘 한 줄 메모 (선택)" value="'+esc(W.memo)+'" oninput="W.memo=this.value">'+
+  '<div class="btn-row"><button class="btn" onclick="W.step=4;drawWiz()">←</button><button class="btn btn-p" onclick="submitClose()">마감 제출 ✓</button></div></div>';
+}
+];
+var AIC={wiz:[], fb:[]};   // AI 대화 (마감 상담 / 개선 제안) — 세션 메모리
+function aiBox(kind, placeholder){
+  var chat=AIC[kind];
+  var log=chat.map(function(m){
+    return '<div style="margin:6px 0;padding:9px 12px;border-radius:10px;font-size:14px;line-height:1.55;'+(m.role==="user"?"background:var(--bg);":"background:var(--warn-bg);")+'">'+(m.role==="user"?"👩‍⚕️ ":"🤖 ")+esc(m.content).replace(/\n/g,"<br>")+'</div>';
+  }).join("");
+  var off = CFG.GAS_URL? '' : '<div class="hint">AI 연결 전(GAS 미연결) — 대화는 연결 후 켜집니다. 아래 [의견 남기기]는 지금도 기록됩니다.</div>';
+  return '<div class="card"><div class="q" style="font-size:15px">💬 AI와 이야기하기</div>'+off+
+  '<div id="aiLog_'+kind+'">'+log+'</div><div id="aiMsg_'+kind+'" class="hint"></div>'+
+  '<div style="display:flex;gap:8px;margin-top:8px"><input type="text" id="aiIn_'+kind+'" placeholder="'+placeholder+'" style="text-align:left;font-size:14px;flex:1;margin:0" onkeydown="if(event.key===&quot;Enter&quot;)aiAsk(&quot;'+kind+'&quot;)"><button class="btn btn-p" onclick="aiAsk(&quot;'+kind+'&quot;)">질문</button></div>'+
+  (kind==="fb"?'<div class="btn-row" style="justify-content:flex-start"><button class="btn" onclick="fbLeave()">✍ 의견만 기록으로 남기기</button></div>':'')+
+  '</div>';
+}
+function aiCtx(kind){
+  if(kind==="wiz" && W){
+    var cons=consumption();
+    return "[재고 마감 상황] 날짜:"+todayStr()+" / 소진:"+JSON.stringify(cons.items)+" / 슬랙:"+JSON.stringify(W.slack)+" / 차트:"+JSON.stringify(W.chart)+" / 실물낱개:"+JSON.stringify(W.mid)+" / 실물패키지:"+JSON.stringify(W.midPkg)+" / 오늘 콘솔기록:"+DB.events.filter(function(e){return e.d===todayStr();}).map(evDesc).join("; ")+" / 품목상식: 반과=반하사심과립(비급여), 교체환산 편1=반과6일 수1=반과9일또는6일, 패키지 1개월=디1편1 2개월=디1편1수1 3개월=디1편2수1";
+  }
+  return "[재고 콘솔 개선 대화] 직원("+DB.staff+")이 아크로한의원 재고 콘솔(창고→중간창고→슬랙출고, 일간 실물 3중 대조)의 개선점·불편을 이야기합니다. 실무 관점에서 듣고 구체적으로 되물어 주세요.";
+}
+function aiAsk(kind){
+  var inp=document.getElementById("aiIn_"+kind), msg=document.getElementById("aiMsg_"+kind);
+  var q=(inp?inp.value:"").trim(); if(!q) return;
+  if(!CFG.GAS_URL){ if(msg) msg.textContent="AI는 GAS 연결 후 켜집니다."; return; }
+  AIC[kind].push({role:"user",content:q}); if(inp) inp.value="";
+  if(msg) msg.textContent="생각 중...";
+  fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"ai",k:CFG.APP_KEY,data:{context:aiCtx(kind),messages:AIC[kind]}})})
+    .then(function(r){return r.json();})
+    .then(function(j){
+      if(j.error){ if(msg) msg.textContent="오류: "+j.error; return; }
+      AIC[kind].push({role:"assistant",content:j.text||"(응답 없음)"});
+      if(V.screen==="feedback") render(); else drawWiz();
+    })
+    .catch(function(){ if(msg) msg.textContent="연결 실패 — 잠시 후 다시."; });
+}
+function fbLeave(){
+  var inp=document.getElementById("aiIn_fb");
+  var q=(inp?inp.value:"").trim();
+  var chatTail=AIC.fb.length? " (AI 대화 "+AIC.fb.length+"턴 포함)" : "";
+  if(!q && !AIC.fb.length){ alert("의견을 적어주세요."); return; }
+  record("제안",{memo:(q||AIC.fb.map(function(m){return m.role+":"+m.content;}).join(" / "))+chatTail});
+  if(inp) inp.value="";
+  alert("의견이 기록됐습니다. 감사합니다! 원장님이 확인합니다 🙌");
+  V.screen="home"; render();
+}
+/* 나간 패키지에 교체가 걸려 있으면 기본 구성으로 센 소진을 바로잡는다.
+   (편안환 대신 반과가 나간 경우 — 편안환은 안 나간 게 정답, 반과가 나간 게 정답)
+   실제로 나간 패키지 수만큼만 보정한다. 아직 선반에 있는 교체분은 낱개 계산에 이미 반영돼 있다. */
+function swapAdjust(pkgs){
+  var adj={};
+  CFG.PACKAGES.forEach(function(p){
+    var gone=pkgs[p.key];
+    if(gone===null || gone<=0) return;
+    var budget=gone;
+    swapsSinceBase(p.key).forEach(function(e){
+      if(budget<=0) return;
+      var n=Math.min(num(e.qty), budget); budget-=n;
+      if(e.out)    adj[e.out]    = (adj[e.out]||0)    - num(e.outQty)*n;
+      if(e.inItem) adj[e.inItem] = (adj[e.inItem]||0) + num(e.inQty)*n;
+    });
+  });
+  return adj;
+}
+/* 어긋남이 "교체하고 빼낸 걸 선반에 안 돌려놓은" 모양인지 본다.
+   슬랙엔 대체품이 나갔다고 적혀 있는데 실물은 원래 품목이 더 줄어 있으면 그 경우다. */
+function swapExplain(k, c1, sl, cons){
+  if(!W.slack || c1===null || sl===null || c1<=sl) return "";
+  var inPkg = CFG.PACKAGES.some(function(p){ return p.comp[k] && cons.pkgs[p.key]>0; });
+  if(!inPkg) return "";
+  var tg = Object.keys(CFG.SWAP_MAP[k]||{}).filter(function(t){ return (W.slack[t]||0)>0; });
+  if(!tg.length) return "";
+  return '· 슬랙엔 오늘 '+tg.map(function(t){return item(t).name+" "+W.slack[t]+item(t).unit;}).join(" · ")+
+    '이 나갔다고 적혀 있습니다. 패키지에서 '+item(k).name+'을 빼고 대신 넣으신 거라면 — <b>빼낸 '+item(k).name+' '+(c1-sl)+item(k).unit+'이 선반으로 안 돌아왔을 수 있습니다.</b> 찾아서 제자리에 두고 홈에서 [⇄교체]로 기록해 주세요.';
+}
+/* 콘솔이 모르는 슬랙 표기 — 조용히 버리지 않고 보여준다 */
+function unknownCard(){
+  var u=W.unknown||{}, ks=Object.keys(u);
+  if(!ks.length) return "";
+  return '<div class="mism">❓ <b>콘솔이 모르는 표기 '+ks.length+'가지</b> — '+
+    ks.map(function(n){return esc(n)+" "+u[n];}).join(" · ")+
+    '<br><span class="hint">이 품목들은 소진 계산에 들어가지 않았습니다. 콘솔에 등록되지 않은 약재라면 원장님께 알려주세요 (오타면 무시하셔도 됩니다).</span></div>';
+}
+function consumption(){
+  var items={}, pkgs={};
+  CFG.PACKAGES.forEach(function(p){
+    pkgs[p.key] = (W.midPkg===null)? null : prepack(p.key) - (W.midPkg[p.key]||0);
+  });
+  var adj=swapAdjust(pkgs);
+  CFG.ITEMS.forEach(function(it){
+    var k=it.key, s=stock(k);
+    if(W.mid===null || s.중간===null){ items[k]=null; return; }
+    var single = s.중간 - (W.mid[k]||0);
+    var viaPkg = 0;
+    CFG.PACKAGES.forEach(function(p){ if(pkgs[p.key]!==null && p.comp[k]) viaPkg += pkgs[p.key]*p.comp[k]; });
+    items[k] = single + viaPkg + (adj[k]||0);
+  });
+  return {items:items, pkgs:pkgs, swapAdj:adj};
+}
+function saveMidCount(){
+  W.mid={}; W.midPkg={};
+  CFG.ITEMS.forEach(function(it,i){ W.mid[it.key]=num(document.getElementById("mc"+i).value); });
+  CFG.PACKAGES.forEach(function(p,i){ W.midPkg[p.key]=num(document.getElementById("mp"+i).value); });
+  W.step=4; drawWiz();
+}
+function aliasFind(text){
+  var hits=[];
+  CFG.ITEMS.forEach(function(it){
+    it.aliases.slice().sort(function(a,b){return b.length-a.length;}).forEach(function(al){
+      var re=new RegExp(al.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*(\\d+)","g"), m;
+      while((m=re.exec(text))){ hits.push({item:it.key, qty:num(m[1]), pos:m.index, len:al.length}); }
+    });
+  });
+  hits.sort(function(a,b){return a.pos-b.pos || b.len-a.len;});
+  var out=[], covered=[];
+  hits.forEach(function(h){
+    if(covered.some(function(c){return h.pos>=c[0]&&h.pos<c[1];})) return;
+    covered.push([h.pos, h.pos+h.len+String(h.qty).length]); out.push(h);
+  });
+  return out;
+}
+function parseSlackPaste(){
+  var raw=document.getElementById("slackIn").value;
+  if(!raw.trim()){ W.slack=null; W.unknown=null; W.step=2; drawWiz(); return; }
+  var tot={}, unk={};
+  raw.split("\n").forEach(function(line){
+    var m=line.match(/출\s*-?\s*(.+)/); if(!m) return;
+    var body=m[1].replace(/\([^)]*\)/g," ");       // 환자 정보 괄호는 떼고 본다 (이름에 품목 글자가 섞여도 안전)
+    aliasFind(body).forEach(function(h){ tot[h.item]=(tot[h.item]||0)+h.qty; });
+    var re=/([가-힣A-Za-z]+)\s*(\d+)/g, mm;        // 콘솔이 모르는 표기 수집 — 버리지 않고 원장께 올린다
+    while((mm=re.exec(body))){
+      var nm=mm[1];
+      var known=CFG.ITEMS.some(function(it){
+        return it.aliases.some(function(al){ return nm.indexOf(al)>=0; }) || nm.indexOf(it.name)>=0;
+      });
+      if(!known) unk[nm]=(unk[nm]||0)+num(mm[2]);
+    }
+  });
+  W.slack=tot; W.unknown=unk; W.step=2; drawWiz();
+}
+function parseOkPaste(){
+  var raw=document.getElementById("okIn").value;
+  if(!raw.trim()){ W.chart=null; W.step=3; drawWiz(); return; }
+  var rows={};
+  raw.split("\n").forEach(function(line){
+    CFG.ITEMS.forEach(function(it){
+      var found=it.aliases.some(function(al){ return al.length>1 && line.indexOf(al)>=0; }) || line.indexOf(it.name)>=0;
+      if(!found) return;
+      if(it.key==="반과" && line.indexOf("반하사심탕")>=0 && line.indexOf("과립")<0) return;
+      var m=line.match(/(\d+)\s*(통|개|포|일|세트|EA)?\s*$/) || line.match(/\s(\d+)\s/);
+      rows[it.key]=(rows[it.key]||0)+(m?num(m[1]):1);
+    });
+  });
+  W.chart=rows; W.step=3; drawWiz();
+}
+function submitClose(){
+  var t=todayStr(), cons=consumption();
+  var p={action:"invClose", k:CFG.APP_KEY, data:{date:t, staff:DB.staff,
+    events:DB.events.filter(function(e){return e.d===t;}),
+    slack:W.slack, chart:W.chart, mid:W.mid, midPkg:W.midPkg, unknown:W.unknown,
+    consumption:cons, answers:W.answers, memo:W.memo,
+    warehouse:CFG.ITEMS.map(function(it){var s=stock(it.key);return {item:it.key,창고:s.창고};}), expiry:DB.expiry||{} }};
+  // 미해결 불일치 → 추적함 (메모 있으면 해결로 간주)
+  var newTracks=[];
+  CFG.ITEMS.forEach(function(it){
+    var k=it.key, c1=cons.items[k], sl=W.slack?(W.slack[k]||0):null, ch=W.chart?(W.chart[k]||0):null;
+    var vals=[c1,sl,ch].filter(function(v){return v!==null;});
+    var uniq={}; vals.forEach(function(v){uniq[v]=1;});
+    if(Object.keys(uniq).length>1 && !W.answers[k]){
+      newTracks.push({d:t, status:"open", desc:it.name+" — 소진 "+(c1===null?"—":c1)+" / 슬랙 "+(sl===null?"—":sl)+" / 차트 "+(ch===null?"—":ch)});
+    }
+  });
+  CFG.PACKAGES.forEach(function(pk2){
+    var cp=cons.pkgs[pk2.key];
+    if(cp!==null && cp<0 && !W.answers["pkg"+pk2.key]){
+      newTracks.push({d:t, status:"open", desc:pk2.key+" 패키지 — 실물이 계산보다 "+(-cp)+"개 많음 (조립 기록 누락?)"});
+    }
+  });
+  DB.tracks=DB.tracks.concat(newTracks);
+  p.data.newTracks=newTracks;
+  DB.history=DB.history||[];
+  DB.history=DB.history.filter(function(h){return h.d!==t;});   // 같은 날 재마감 시 최신으로 대체
+  DB.history.push({d:t, staff:DB.staff, cons:cons.items, slack:W.slack, chart:W.chart, unresolved:newTracks.length});
+  if(W.mid){
+    CFG.ITEMS.forEach(function(it){
+      var s=stock(it.key);
+      DB.base[it.key]={창고:(s.창고===null?null:s.창고), 중간:W.mid[it.key]};
+    });
+    DB.basePkg={}; CFG.PACKAGES.forEach(function(pk){ DB.basePkg[pk.key]=(W.midPkg&&W.midPkg[pk.key])||0; });
+    DB.baseDate=t; DB.baseT=nowT();
+    pushSnap("마감"); save();
+  }
+  function done(mode){
+    document.getElementById("app").innerHTML='<div class="win" style="margin-top:30px">✅ <b>마감 완료!</b><br>'+esc(DB.staff)+'님, 오늘도 재고를 지켜주셔서 감사합니다 🙌<br><span class="hint">'+mode+'</span></div>'+
+    '<div class="btn-row" style="justify-content:center"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">홈으로</button></div>';
+  }
+  if(!CFG.GAS_URL){ done("(로컬 모드 — GAS 연결 시 재고원장에 자동 저장됩니다)"); return; }
+  fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify(p)})
+    .then(function(){done("재고원장에 저장되고 관리 채널에 요약이 게시됐습니다.");})
+    .catch(function(){done("전송 실패 — 기록은 이 기기에 저장돼 있습니다.");});
+}
+render();
+/* 부팅 시 GAS에서 오늘 슬랙 파싱분·기준 수신 (연결 전엔 무시) */
+function bootFetch(){
+  if(!CFG.GAS_URL) return;
+  try{
+    fetch(CFG.GAS_URL+"?action=invBoot&k="+encodeURIComponent(CFG.APP_KEY))
+      .then(function(r){return r.json();})
+      .then(function(j){ GB=j; render(); })
+      .catch(function(){});
+  }catch(e){}
+}
+bootFetch();
+</script>
+</body>
+</html>
