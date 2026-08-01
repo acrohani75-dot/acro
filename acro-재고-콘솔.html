@@ -103,7 +103,9 @@ var CFG = {
   ],
   LEAD_DAYS: 7,                       // 발주 리드타임(일) — "N일분 이하면 발주" 기준
   EXP_WARN_M: 2,                      // 유통기한 임박 경고 (개월)
-  SWAP_REF: "반과 교체 환산 — 편안환 1통 = 반과 6일 · 수면환 1통 = 반과 9일 또는 6일 (딱 안 떨어져서 더 드리거나 덜 드림)"
+  SWAP_REF: "반과 교체 환산 — 편안환 1통 = 반과 6일 · 수면환 1통 = 반과 9일 또는 6일 (딱 안 떨어져서 더 드리거나 덜 드림)",
+  SWAP_MAP: { "편":{"반과":6}, "수":{"반과":9} },   // 교체 자동 환산 (빼는 품목 1단위당 넣는 수량) — 없으면 직접 입력
+  SWAP_NOTE: { "수|반과":"수면환은 9일 또는 6일 — 딱 안 떨어져서 더 드리거나 덜 드립니다. 실제 드린 만큼 고쳐주세요." }
 };
 /* ---------------- 유틸/상태 ---------------- */
 function todayStr(){ var d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -139,6 +141,10 @@ function stock(k){
     if(e.kind==="채움" && e.item===k){ if(wh!==null) wh-=num(e.qty); if(mid!==null) mid+=num(e.qty); }
     if(e.kind==="조립" && mid!==null){ var p=pkg(e.pkg); if(p&&p.comp[k]) mid-=p.comp[k]*num(e.qty); }
     if(e.kind==="해체" && mid!==null){ var p2=pkg(e.pkg); if(p2&&p2.comp[k]) mid+=p2.comp[k]*num(e.qty); }
+    if(e.kind==="교체" && mid!==null){                    // 패키지 개수는 그대로 — 안에서만 바뀜
+      if(e.out===k)     mid+=num(e.outQty)*num(e.qty);    // 뺀 것은 낱개로 복귀
+      if(e.inItem===k)  mid-=num(e.inQty)*num(e.qty);     // 넣은 것은 낱개에서 빠짐
+    }
   });
   return {창고:wh, 중간:mid, 미설정:(wh===null&&mid===null)};
 }
@@ -157,6 +163,8 @@ function evDesc(e){
   if(e.kind==="채움") return "채움 "+item(e.item).name+" "+e.qty+item(e.item).unit+" (창고→중간)";
   if(e.kind==="조립") return e.pkg+" 패키지 조립 "+e.qty+"개";
   if(e.kind==="해체") return e.pkg+" 패키지 해체 "+e.qty+"개 (낱개 복귀)";
+  if(e.kind==="교체") return "⇄ "+e.pkg+" 패키지 "+e.qty+"개 — "+item(e.out).name+" "+e.outQty+item(e.out).unit+" 빼고 "+
+    (e.inItem? item(e.inItem).name+" "+e.inQty+item(e.inItem).unit+" 넣음" : "그대로 (빼기만)");
   if(e.kind==="제안") return "💬 개선 의견: "+String(e.memo||"").slice(0,60);
   if(e.kind==="기준복원") return "⏪ 기준 복원 — "+String(e.memo||"");
   if(e.kind==="취소") return "↩ 되돌림: "+String(e.memo||e.ref||"");
@@ -172,7 +180,7 @@ function delEv(gi){
 }
 /* ---------------- 화면 ---------------- */
 var V = { screen: DB.staff? "home":"login" };
-function render(){ document.getElementById("app").innerHTML = SCREENS[V.screen](); window.scrollTo(0,0); }
+function render(){ document.getElementById("app").innerHTML = SCREENS[V.screen](); window.scrollTo(0,0); if(V.screen==="swap") swapSuggest(1); }
 function headerHtml(){
   return '<header class="top"><h1>💊 아크로 재고 콘솔</h1><span class="date">'+todayStr()+'</span></header>'+
   (DB.staff?'<div style="margin-bottom:6px"><span class="staffchip">'+esc(DB.staff)+' 님 <a href="#" onclick="DB.staff=&quot;&quot;;save();V.screen=&quot;login&quot;;render();return false">교대</a></span>'+(isAuditDay()?' <span class="badge b-warn">오늘은 기본창고 실사날</span>':'')+(DB.baseDate?' <span class="hint" style="margin:0">기준: '+DB.baseDate.slice(5)+' '+String(DB.baseT||'').slice(0,5)+'</span>':'')+'</div>':'');
@@ -202,10 +210,11 @@ home: function(){
     return '<div class="chip" style="--stripe:'+it.stripe+'"><small>'+it.name+'</small><b>'+(s.창고===null?"?":s.창고)+'</b><small>'+it.unit+'</small> '+badge+expBadge(it.key)+'</div>';
   }).join("");
   var pkgRows = CFG.PACKAGES.map(function(p){
-    return '<div class="pkg"><b>📦 '+p.key+'</b><div class="comp">'+compText(p)+'</div>'+
+    return '<div class="pkg"><b>📦 '+p.key+'</b><div class="comp">'+compText(p)+swapTodayText(p.key)+'</div>'+
       '<span class="n">'+prepack(p.key)+'개</span>'+
       '<button class="tap" onclick="doAssemble(&quot;'+p.key+'&quot;)">조립</button>'+
-      '<button class="tap" onclick="doDisassemble(&quot;'+p.key+'&quot;)">해체</button></div>';
+      '<button class="tap" onclick="doDisassemble(&quot;'+p.key+'&quot;)">해체</button>'+
+      '<button class="tap" onclick="openSwap(&quot;'+p.key+'&quot;)">⇄교체</button></div>';
   }).join("");
   var midChips = CFG.ITEMS.map(function(it){
     var s=stock(it.key);
@@ -220,7 +229,7 @@ home: function(){
   '<div class="chips">'+midChips+'</div>'+
   '<div class="sect"><h2>🎁 중간 창고 — 싸둔 패키지 <span class="hint" style="margin:0">(낱개를 [조립]하면 여기로)</span></h2></div>'+
   pkgRows+
-  '<div class="swapref">⇄ '+CFG.SWAP_REF+'<br>교체로 패키지를 풀 땐 [해체]를 누르면 낱개로 돌아옵니다.</div>'+
+  '<div class="swapref">⇄ '+CFG.SWAP_REF+'<br><b>[⇄교체]</b> = 패키지는 그대로 나가고 안에서 한 품목만 바꿀 때 (편안환 대신 반과 · 편안환만 빼기). <b>[해체]</b> = 패키지를 통째로 풀어 낱개로 되돌릴 때.</div>'+
   '<div class="talk" style="margin-top:12px">🙂 <b>환자 출고는 지금처럼 슬랙에</b> 적어주세요 (출-편1 …). 콘솔은 마감 때 슬랙·차트·실물을 자동으로 맞춰봅니다.</div>'+
   '<div class="btn-row" style="justify-content:flex-end"><button class="btn" onclick="V.screen=&quot;feedback&quot;;render()">💬 개선·문의</button><button class="btn" onclick="V.screen=&quot;history&quot;;render()">📅 일별 기록</button><button class="btn btn-p" onclick="startClose()">🌙 마감</button></div>'+
   todayLog();
@@ -238,6 +247,33 @@ receive: function(){
   '<input type="file" id="rcPhoto" accept="image/*" capture="environment" style="font-size:14px">'+
   '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
   '<button class="btn btn-p" onclick="saveReceive()">저장</button></div></div>';
+},
+swap: function(){
+  var p=pkg(V.swapPkg);
+  if(!p){ V.screen="home"; return SCREENS.home(); }
+  var outOpts=Object.keys(p.comp).map(function(k){
+    return '<option value="'+k+'">'+item(k).name+' — 구성 '+p.comp[k]+item(k).unit+'</option>';
+  }).join("");
+  var inOpts='<option value="">— 넣지 않음 (그냥 빼기만) —</option>'+CFG.ITEMS.map(function(it){
+    return '<option value="'+it.key+'"'+(it.key==="반과"?' selected':'')+'>'+it.name+'</option>';
+  }).join("");
+  return headerHtml()+
+  '<div class="talk">⇄ <b>'+p.key+' 패키지 — 나갈 때 구성 바꾸기</b><br>패키지는 그대로 나가고 <b>안에서 한 품목만</b> 바뀝니다. 뺀 것은 낱개로 돌아오고, 넣은 것은 낱개에서 빠집니다. 출고는 지금처럼 슬랙에 적어주세요.</div>'+
+  '<div class="card">'+
+  '<div class="q" style="font-size:15px">📦 '+p.key+' <span class="hint" style="margin:0">('+compText(p)+') · 지금 '+prepack(p.key)+'개</span></div>'+
+  '<div class="hint" style="margin-top:12px">몇 개를 이렇게 바꾸나요?</div>'+
+  '<input type="tel" id="swN" value="1">'+
+  '<div class="hint" style="margin-top:12px">① 빼는 것 <span style="color:var(--muted)">— 패키지에서 꺼내 낱개로 되돌립니다</span></div>'+
+  '<select id="swOut" onchange="swapSuggest(1)">'+outOpts+'</select>'+
+  '<input type="tel" id="swOutQ" placeholder="0" oninput="this.dataset.touched=1;swapSuggest()">'+
+  '<div class="hint" style="margin-top:12px">② 대신 넣는 것</div>'+
+  '<select id="swIn" onchange="swapSuggest(1)">'+inOpts+'</select>'+
+  '<input type="tel" id="swInQ" placeholder="0" oninput="this.dataset.touched=1">'+
+  '<div id="swMsg" class="hint" style="margin-top:8px"></div>'+
+  '<div class="swapref">⇄ '+CFG.SWAP_REF+'</div>'+
+  '<div class="btn-row"><button class="btn" onclick="V.screen=&quot;home&quot;;render()">←</button>'+
+  '<button class="btn btn-p" onclick="saveSwap()">교체 기록</button></div></div>'+
+  todayLog();
 },
 history: function(){
   var H=(DB.history||[]).slice().reverse();
@@ -374,6 +410,59 @@ function doAssemble(pk){
   if(lack.length && !confirm("중간창고 낱개가 부족해 보입니다: "+lack.map(function(k){return item(k).name;}).join(", ")+"\n그래도 기록할까요?")) return;
   record("조립",{pkg:pk, qty:q});
 }
+/* --- 패키지 교체 (나갈 때 안에서 한 품목만 바꾸기) --- */
+function openSwap(pk){ V.swapPkg=pk; V.screen="swap"; render(); }
+function swapSuggest(reset){
+  var p=pkg(V.swapPkg); if(!p) return;
+  var so=document.getElementById("swOut"), si=document.getElementById("swIn"),
+      oq=document.getElementById("swOutQ"), iq=document.getElementById("swInQ"), msg=document.getElementById("swMsg");
+  if(!so||!si||!oq||!iq||!msg) return;
+  if(reset){ delete oq.dataset.touched; delete iq.dataset.touched; }
+  var ok=so.value, ik=si.value;
+  if(!oq.dataset.touched) oq.value=p.comp[ok]||1;
+  if(!ik){                                   // 빼기만
+    iq.value=""; iq.disabled=true;
+    msg.innerHTML="넣지 않고 <b>빼기만</b> 합니다 — 패키지는 나머지 구성("+
+      Object.keys(p.comp).filter(function(k){return k!==ok;}).map(function(k){return item(k).name+" "+p.comp[k];}).join(" · ")+")으로 나갑니다.";
+    return;
+  }
+  iq.disabled=false;
+  if(ik===ok){ iq.value=""; msg.innerHTML='⚠ 빼는 것과 넣는 것이 같습니다 — 다른 품목을 골라주세요.'; return; }
+  var rate=(CFG.SWAP_MAP[ok]||{})[ik];
+  if(rate && !iq.dataset.touched) iq.value=rate*num(oq.value);
+  var note=CFG.SWAP_NOTE[ok+"|"+ik];
+  msg.innerHTML = (rate? '자동 환산 — '+item(ok).name+' 1'+item(ok).unit+' = '+item(ik).name+' '+rate+item(ik).unit+'. 실제와 다르면 고쳐주세요.'
+                       : '환산표에 없는 조합입니다 — 실제로 드린 수량을 직접 넣어주세요.')+
+                  (note? '<br>⚠ '+note : '');
+}
+function saveSwap(){
+  var p=pkg(V.swapPkg); if(!p) return;
+  var n=num(document.getElementById("swN").value);
+  var ok=document.getElementById("swOut").value, oq=num(document.getElementById("swOutQ").value);
+  var ik=document.getElementById("swIn").value, iq=ik? num(document.getElementById("swInQ").value) : 0;
+  if(!n){ alert("몇 개를 바꾸는지 넣어주세요."); return; }
+  if(!oq){ alert("빼는 수량을 넣어주세요."); return; }
+  if(ik===ok){ alert("빼는 것과 넣는 것이 같습니다."); return; }
+  if(ik && !iq){ alert("넣는 수량을 넣어주세요. 안 넣을 거면 [넣지 않음]을 골라주세요."); return; }
+  if(prepack(p.key)<n && !confirm("계산상 "+p.key+" 패키지가 "+prepack(p.key)+"개뿐입니다. 그래도 기록할까요?")) return;
+  if(ik){
+    var s=stock(ik);
+    if(s.중간!==null && s.중간 < iq*n &&
+       !confirm("중간창고 "+item(ik).name+"이 "+s.중간+item(ik).unit+"뿐입니다 (필요 "+(iq*n)+"). 그래도 기록할까요?")) return;
+  }
+  V.screen="home";
+  record("교체",{pkg:p.key, qty:n, out:ok, outQty:oq, inItem:ik, inQty:iq});
+}
+function swapsSinceBase(pk){
+  return DB.events.filter(function(e){ return e.kind==="교체" && e.pkg===pk && !beforeBase(e); });
+}
+function swapTodayText(pk){
+  var sw=swapsSinceBase(pk);
+  if(!sw.length) return "";
+  return '<br><span style="color:var(--accent);font-weight:700">⇄ '+sw.map(function(e){
+    return e.qty+"개 "+item(e.out).name+"→"+(e.inItem? item(e.inItem).name : "빼기만");
+  }).join(" · ")+'</span>';
+}
 function doDisassemble(pk){
   var q=num(prompt(pk+" 패키지 몇 개 해체하나요? (반과 교체·구성 변경 시)","1")); if(!q) return;
   if(prepack(pk)<q && !confirm("계산상 프리팩이 "+prepack(pk)+"개뿐입니다. 그래도 기록할까요?")) return;
@@ -484,7 +573,9 @@ function(){
     var k=it.key, c1=cons.items[k], sl=W.slack?(W.slack[k]||0):null, ch=W.chart?(W.chart[k]||0):null;
     var vals=[["실측 소진",c1],["슬랙",sl],["차트",ch]].filter(function(v){return v[1]!==null;});
     var uniq={}; vals.forEach(function(v){uniq[v[1]]=1;});
-    var line=vals.map(function(v){return v[0]+" "+v[1];}).join(" · ");
+    var aj=(cons.swapAdj||{})[k]||0;
+    var line=vals.map(function(v){return v[0]+" "+v[1];}).join(" · ")+
+             (aj? ' <span class="badge b-ok">⇄교체 '+(aj>0?"+":"")+aj+' 반영</span>':'');
     if(Object.keys(uniq).length<=1){
       cards.push('<div class="card" style="border-left:5px solid '+it.stripe+'"><b>'+it.name+'</b> ✅ '+line+' — 맞습니다!</div>'); return;
     }
@@ -494,7 +585,7 @@ function(){
     if(c1!==null && sl!==null && c1<sl) qs.push('· 슬랙엔 있는데 실물이 안 줄었어요 — 내일 출고 예정분을 미리 적었나요? 창고에서 바로 나갔나요(채움 누락)?');
     if(ch!==null && sl!==null && ch!==sl) qs.push('· 슬랙 '+sl+' vs 차트 '+ch+' — 차트 미입력이거나 슬랙 미보고. 어느 쪽인지 확인!');
     if(k==="반과") qs.push('· 반과는 교체분(편=6일 · 수=9일/6일)이 슬랙·차트에 어떻게 적혔는지 확인. 보험 반하사심탕과 혼동 금지!');
-    if((k==="편"||k==="수") && c1!==null) qs.push('· 반과로 교체해 드렸다면 이 품목은 안 나간 게 정상 (패키지 [해체] 후 낱개 복귀 확인)');
+    if((k==="편"||k==="수") && c1!==null && !aj) qs.push('· 반과로 바꿔 드렸거나 이 품목만 빼고 나갔다면 <b>[⇄교체]를 안 누른 것</b>일 수 있습니다 — 홈 패키지 줄의 [⇄교체]로 기록하면 이 숫자가 맞아집니다.');
     cards.push('<div class="mism">'+qs.join('<br>')+
       '<input type="text" placeholder="확인 메모" value="'+esc(W.answers[k]||"")+'" oninput="W.answers[&quot;'+k+'&quot;]=this.value" style="margin-top:8px;font-size:14px"></div>');
   });
@@ -571,20 +662,39 @@ function fbLeave(){
   alert("의견이 기록됐습니다. 감사합니다! 원장님이 확인합니다 🙌");
   V.screen="home"; render();
 }
+/* 나간 패키지에 교체가 걸려 있으면 기본 구성으로 센 소진을 바로잡는다.
+   (편안환 대신 반과가 나간 경우 — 편안환은 안 나간 게 정답, 반과가 나간 게 정답)
+   실제로 나간 패키지 수만큼만 보정한다. 아직 선반에 있는 교체분은 낱개 계산에 이미 반영돼 있다. */
+function swapAdjust(pkgs){
+  var adj={};
+  CFG.PACKAGES.forEach(function(p){
+    var gone=pkgs[p.key];
+    if(gone===null || gone<=0) return;
+    var budget=gone;
+    swapsSinceBase(p.key).forEach(function(e){
+      if(budget<=0) return;
+      var n=Math.min(num(e.qty), budget); budget-=n;
+      if(e.out)    adj[e.out]    = (adj[e.out]||0)    - num(e.outQty)*n;
+      if(e.inItem) adj[e.inItem] = (adj[e.inItem]||0) + num(e.inQty)*n;
+    });
+  });
+  return adj;
+}
 function consumption(){
   var items={}, pkgs={};
   CFG.PACKAGES.forEach(function(p){
     pkgs[p.key] = (W.midPkg===null)? null : prepack(p.key) - (W.midPkg[p.key]||0);
   });
+  var adj=swapAdjust(pkgs);
   CFG.ITEMS.forEach(function(it){
     var k=it.key, s=stock(k);
     if(W.mid===null || s.중간===null){ items[k]=null; return; }
     var single = s.중간 - (W.mid[k]||0);
     var viaPkg = 0;
     CFG.PACKAGES.forEach(function(p){ if(pkgs[p.key]!==null && p.comp[k]) viaPkg += pkgs[p.key]*p.comp[k]; });
-    items[k] = single + viaPkg;
+    items[k] = single + viaPkg + (adj[k]||0);
   });
-  return {items:items, pkgs:pkgs};
+  return {items:items, pkgs:pkgs, swapAdj:adj};
 }
 function saveMidCount(){
   W.mid={}; W.midPkg={};
