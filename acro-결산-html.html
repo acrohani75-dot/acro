@@ -571,15 +571,20 @@ function buildReport(c){
     누계:{통장:prev.통장+totBank, 지출:prev.지출+지출, 환불:prev.환불+num(s["환불총액"]), 카드:prev.카드+totCard, 매출:prev.매출+매출},
     미수분리:haveCols };
 }
-/* 전일 누계: 결산원장 마지막 제출의 보고서JSON 체인. 같은 날 재제출은 그 제출의 전일누계로 대체(이중가산 방지). 없으면 시드 */
+/* 전일 누계: 결산원장 마지막 제출의 보고서JSON 체인. 같은 날 재제출은 그 제출의 전일누계로 대체(이중가산 방지). 없으면 시드
+   누계는 월 단위다 — 달이 바뀌면 0에서 다시 시작한다 (260802: 8/1에 7월 누계가 그대로 승계돼 환불이 이월된 건 수정) */
+function ym(d){ return String(d||"").slice(0,7); }
+function zeroCum(){ return {통장:0, 지출:0, 환불:0, 카드:0, 매출:0}; }
 function prevCum(dt){
   var lr=null;
   try{ lr=(carry.prevReport&&String(carry.prevReport).length>2)?JSON.parse(carry.prevReport):null; }catch(e){}
   if(lr&&lr.누계){
-    if(lr.날짜===dt&&lr.전일누계) return lr.전일누계;
+    if(lr.날짜===dt&&lr.전일누계) return lr.전일누계;      // 같은 날 재제출 — 이중가산 방지
+    if(ym(lr.날짜)!==ym(dt)) return zeroCum();             // 달이 바뀜 — 누계 리셋
     return lr.누계;
   }
   var sd=CFG.SEED_CUM;
+  if(ym(sd.date)!==ym(dt)) return zeroCum();               // 시드도 같은 규칙 (시드 월이 지났으면 이어받지 않는다)
   return {통장:sd.통장, 지출:sd.지출, 환불:sd.환불, 카드:sd.카드, 매출:sd.매출};
 }
 /* 공식 양식 렌더 (인쇄·재인쇄 공용) */
