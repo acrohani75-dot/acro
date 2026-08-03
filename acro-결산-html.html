@@ -99,7 +99,10 @@ var CFG = {
   DENOMS: [50000,10000,5000,1000],
   RULE_VER: "260716",
   // v3.2 누계 시드 — 2026-07-17 마감 기준. 매출=총진료비 총액(환불·지출 미차감). 260719 교정: 103,254,110(순액)→104,356,110(총액, +1,102,000=환불1,050,000+지출52,000)
-  SEED_CUM: { date:"2026-07-17", 통장:17428400, 지출:52000, 환불:1050000, 카드:79815250, 매출:104356110 }
+  SEED_CUM: { date:"2026-07-17", 통장:17428400, 지출:52000, 환불:1050000, 카드:79815250, 매출:104356110 },
+  /* 누계 체인을 믿기 시작하는 날. 이 날 전 제출분은 월 리셋이 없던 때라 지난달 누계가 섞여 있을 수 있다.
+     이 날 결산에서 담당자가 전일누계를 한 번 확인·보정하면, 그 다음부터는 체인이 깨끗해져 자동으로 굴러간다. */
+  CUM_TRUST_FROM: "2026-08-03"
 };
 var carry = { prevSafe: null, prevDate: "", pendingSeoulpay: [] }; // 이월값 (GAS→localStorage 폴백)
 var bankAuto = null; // {sum, count} GAS 봇입금 조회 결과
@@ -174,6 +177,10 @@ var S = {
   refCardToday: null,      // 카드환불: 오늘 단말에서 취소했나 ('today'|'other')
   refBankOut: null,        // 통장환불: 이체 나갔나 ('done'|'later')
   prevSafeIn: null,        // 전일 금고 마감액 수동 입력 (null=자동 이월값 사용)
+  prevCumIn: null,         // 전일누계 보정값 {통장,지출,환불,카드,매출} (null=자동 계산값 사용)
+  cumEdit: false,          // 전일누계 편집칸 열림 여부
+  cumMode: null,           // 보정 방식 'recalc'(월 재합산)|'zero'(0부터)|'manual'(직접 입력)
+  cumRecalc: null,         // 월 재합산 결과 {cum, days:[], miss:[]}
   staff: "",
   memoDraft: {},           // 레일별 확인 메모 (상태 저장 — 재렌더에도 보존)
   aiChat: []               // AI 상담 대화 [{role, content}]
@@ -524,13 +531,91 @@ function renderJudge(){
     rail('② 통장 (기업은행)',c.pass.bank,bankD)+
     rail('③ 현금 (금고)',c.pass.safe,safeD)+
     '<div class="kv"><span>환불총액 / 미수금</span><b>'+won(c.ok.refund)+(c.ok.refund>0?' (현 '+fmt(c.refund.cash)+'·카 '+fmt(c.refund.card)+'·통 '+fmt(c.refund.bank)+')':'')+' / '+won(c.ok.misu)+'</b></div>'+
-    '</div>'+ recovHtml + adjustBox() + mismHtml + aiHtml +
+    '</div>'+ recovHtml + adjustBox() + mismHtml + cumBox() + aiHtml +
     '<div class="card"><div class="q">제출</div>'+
     '<div class="hint">담당자 이름을 쓰고 제출하면 Slack #결산 채널에 자동 게시되고, 오늘 금고 실측('+won(c.denomTotal)+')과 권종이 내일 기본값으로 저장됩니다.</div>'+
     '<input type="text" id="staffIn" placeholder="담당자 이름" style="text-align:left" value="'+esc(S.staff)+'">'+
     '<div class="summary-line" id="lineOut">'+esc(line)+'</div>'+
     '<div id="subMsg" style="font-size:13px;margin-top:4px;"></div>'+
     '<div class="btn-row"><button class="btn btn-s" onclick="go(7)">← 이전(금고)</button><button class="btn btn-s" onclick="printReport()">🖨 A4 인쇄</button><button class="btn btn-s" onclick="exportReportXls(buildReport(computeChecks()))">📊 엑셀 보고서</button><button class="btn btn-s" onclick="copyLine()">요약 복사</button><button class="btn btn-p" onclick="submitAll()">제출 ✓</button></div></div>';
+}
+/* ===== 전일누계 확인·보정 =====
+   누계는 결산원장 체인을 타고 자동으로 이어진다. 다만 월 리셋이 없던 시기의 기록에는 지난달 값이
+   섞여 있을 수 있어, 그 기록을 물고 오는 날에는 담당자가 한 번 기준을 잡아준다. 그 뒤로는 다시 자동. */
+var CUMKEYS=[["통장","통장수입"],["카드","카드 수입"],["매출","매출"],["지출","지출"],["환불","환불"]];
+function reportDate(){ return (S.parsed&&S.parsed.date)||todayStr(); }
+function copyCum(c){ var o={}; CUMKEYS.forEach(function(k){ o[k[0]]=num(c&&c[k[0]]); }); return o; }
+function cumSetK(k,v){ if(!S.prevCumIn) S.prevCumIn=copyCum(effPrevCum(reportDate())); S.prevCumIn[k]=num(v); S.cumMode="manual"; render(); }
+function cumZero(){ S.prevCumIn=zeroCum(); S.cumEdit=true; S.cumMode="zero"; S.cumRecalc=null; render(); }  // 이번 달을 오늘부터 0으로 다시 세기
+function cumAuto(){ S.prevCumIn=null; S.cumEdit=false; S.cumMode=null; S.cumRecalc=null; render(); }        // 자동값으로 되돌리기
+function cumEditOn(){ S.cumEdit=true; render(); }
+/* 이번 달 누계를 결산원장에서 다시 합산한다.
+   각 제출분의 (누계 − 전일누계)가 그날 몫이므로, 체인에 지난달 값이 섞여 있어도 날짜별 몫만 더하면 이번 달 합계가 정확히 나온다. */
+function monthCumFromRows(dt, rows){
+  var seen={}, days=[], miss=[], sum=zeroCum();
+  (rows||[]).forEach(function(r){
+    var d=String(r["날짜"]||"").slice(0,10);
+    if(!d || ym(d)!==ym(dt) || d>=dt) return;   // 이번 달 · 오늘 이전만
+    if(seen[d]) return; seen[d]=1;              // 같은 날 여러 건이면 가장 최근 제출만 (목록이 최신순)
+    var R=null;
+    try{ if(r["보고서JSON"]&&String(r["보고서JSON"]).length>2) R=JSON.parse(r["보고서JSON"]); }catch(e){}
+    if(!R||!R.누계||!R.전일누계){ miss.push(d); return; }   // v3.0 이전 제출분 — 보고서 데이터 없음
+    CUMKEYS.forEach(function(k){ sum[k[0]]+=num(R.누계[k[0]])-num(R.전일누계[k[0]]); });
+    days.push(d);
+  });
+  days.sort(); miss.sort();
+  return {cum:sum, days:days, miss:miss};
+}
+function cumRecalc(){
+  var dt=reportDate(), msg=document.getElementById("cumMsg");
+  if(CFG.GAS_URL===""){ if(msg) msg.innerHTML='서버 연결이 없어 결산원장을 못 읽어요 — 값을 직접 넣어 주세요.'; return; }
+  if(msg) msg.innerHTML='결산원장에서 이번 달을 다시 합산하는 중…';
+  fetch(CFG.GAS_URL+"?action=history&n=60&k="+encodeURIComponent(CFG.APP_KEY))
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      HIST=(j&&j.rows)||[];
+      var rc=monthCumFromRows(dt, HIST);
+      S.cumRecalc=rc; S.prevCumIn=copyCum(rc.cum); S.cumMode="recalc"; S.cumEdit=true; render();
+    })
+    .catch(function(e){ var m=document.getElementById("cumMsg"); if(m) m.innerHTML='불러오기 실패 — 다시 눌러보거나 값을 직접 넣어 주세요.'; });
+}
+function cumBox(){
+  var dt=reportDate(), info=prevCumInfo(dt), man=!!S.prevCumIn, cur=effPrevCum(dt);
+  var stale=(info.src==="stale"), open=stale||S.cumEdit||man;
+  var msg={
+    resubmit:"같은 날 재제출이라 이 날의 <b>원래 전일누계</b>를 그대로 씁니다 (이중가산 없음).",
+    month:"달이 바뀌었습니다 — 누계를 <b>0에서 다시 시작</b>합니다 (직전 기록 "+esc(String(info.from))+").",
+    chain:esc(String(info.from))+" 결산에서 이어받았습니다.",
+    seed:"기준값("+esc(String(info.from))+")에서 시작합니다.",
+    stale:"직전 결산("+esc(String(info.from))+")은 <b>월 리셋이 반영되기 전</b>에 제출됐습니다 — 그 누계에 <b>지난달 값이 섞여 있을 수 있습니다</b>.<br>아래 <b>[📅 이번 달 결산에서 다시 합산]</b>을 누르면 결산원장의 이번 달 제출분만 더해 정확한 값을 넣어드립니다. <b>오늘 한 번만</b> 하면 내일부터는 자동입니다."
+  }[info.src]||"";
+  var rc=S.cumRecalc, rcTxt="";
+  if(rc){
+    rcTxt=(rc.days.length
+      ? '📅 결산원장에서 <b>'+rc.days.length+'일치</b>를 다시 합산했습니다 ('+rc.days.map(function(d){return d.slice(5);}).join(', ')+').'
+      : '📅 이번 달 오늘 이전에 제출된 결산이 없습니다 — <b>0에서 시작</b>합니다.')
+      +(rc.miss.length? '<br>⚠ '+rc.miss.map(function(d){return d.slice(5);}).join(', ')+' 은(는) 보고서 데이터가 없는 옛 제출분이라 <b>빠졌습니다</b> — 그만큼은 직접 더해 주세요.' : '');
+  }
+  var modeTxt={recalc:"결산원장 재합산 반영됨", zero:"이번 달 0부터로 지정됨", manual:"직접 입력으로 보정됨"}[S.cumMode]||"보정됨";
+  var rows=CUMKEYS.map(function(k){
+    return '<div class="kv"><span>전일 '+k[1]+'</span>'+(open
+      ? '<input type="tel" style="width:150px;text-align:right;font-size:14px;margin:0" value="'+fmt(num(cur[k[0]]))+'" onchange="cumSetK(\''+k[0]+'\',this.value)">'
+      : '<b>'+won(num(cur[k[0]]))+'</b>')+'</div>';
+  }).join("");
+  var st=stale&&!man;
+  return '<div class="card"'+(st?' style="border-color:#fde68a;background:#fffbeb"':'')+'>'+
+    '<div class="q">'+(st?'⚠ ':'')+'전일까지의 누계 확인</div>'+
+    '<div class="hint">이번 달 <b>어제까지의 합계</b>입니다. 여기에 오늘치를 더한 값이 보고서의 "총 ○○"로 나갑니다.<br>'+msg+'</div>'+
+    (rcTxt?'<div class="hint" style="color:#166534">'+rcTxt+'</div>':'')+
+    rows+
+    (man?'<div class="hint" style="color:#b3452e">'+modeTxt+' — 결산 기록에 남습니다.</div>':'')+
+    '<div id="cumMsg" style="font-size:13px;color:var(--gray);margin:4px 0"></div>'+
+    '<div class="btn-row" style="justify-content:flex-start">'+
+      '<button class="btn '+(st?'btn-p':'btn-s')+'" onclick="cumRecalc()">📅 이번 달 결산에서 다시 합산</button>'+
+      (open?'':'<button class="btn btn-s" onclick="cumEditOn()">✎ 고치기</button>')+
+      '<button class="btn btn-s" onclick="cumZero()">이번 달 0부터</button>'+
+      (man?'<button class="btn btn-s" onclick="cumAuto()">↺ 자동값으로</button>':'')+
+    '</div></div>';
 }
 function copyLine(){
   var t=document.getElementById("lineOut").textContent;
@@ -554,7 +639,7 @@ function buildReport(c){
   var totCard=num(s["카드수납"])+num(s["카드회수"]);
   var totCash=num(s["현금수납"])+num(s["현금회수"]);
   var totBank=num(s["통장회수"]);
-  var prev=prevCum(dt);
+  var prev=effPrevCum(dt);
   var 지출=c.expenseSum, 매출=num(s["총진료비"]);
   return { ver:"R1", 날짜:dt,
     담당자:(document.getElementById("staffIn")?document.getElementById("staffIn").value:S.staff)||"",
@@ -567,21 +652,32 @@ function buildReport(c){
     금고:{전일:(effPrevSafe()===null?0:num(effPrevSafe())), 지출:지출, 입금:totCash, 금일:c.denomTotal},
     일결산:{수입:매출, 지출:지출},
     환불상세:{손비:0, 통장:num(s["통장환불"]), 카드:num(s["카드환불"]), 현금:num(s["현금환불"])},
-    전일누계:prev,
+    전일누계:prev, 누계출처:prevCumInfo(dt).src, 누계보정:!!S.prevCumIn, 누계보정방식:(S.prevCumIn?(S.cumMode||"manual"):""),
     누계:{통장:prev.통장+totBank, 지출:prev.지출+지출, 환불:prev.환불+num(s["환불총액"]), 카드:prev.카드+totCard, 매출:prev.매출+매출},
     미수분리:haveCols };
 }
-/* 전일 누계: 결산원장 마지막 제출의 보고서JSON 체인. 같은 날 재제출은 그 제출의 전일누계로 대체(이중가산 방지). 없으면 시드 */
-function prevCum(dt){
+/* 전일 누계: 결산원장 마지막 제출의 보고서JSON 체인. 같은 날 재제출은 그 제출의 전일누계로 대체(이중가산 방지). 없으면 시드
+   누계는 월 단위다 — 달이 바뀌면 0에서 다시 시작한다 (260802: 8/1에 7월 누계가 그대로 승계돼 환불이 이월된 건 수정) */
+function ym(d){ return String(d||"").slice(0,7); }
+function zeroCum(){ return {통장:0, 지출:0, 환불:0, 카드:0, 매출:0}; }
+function prevCumInfo(dt){
   var lr=null;
   try{ lr=(carry.prevReport&&String(carry.prevReport).length>2)?JSON.parse(carry.prevReport):null; }catch(e){}
   if(lr&&lr.누계){
-    if(lr.날짜===dt&&lr.전일누계) return lr.전일누계;
-    return lr.누계;
+    if(lr.날짜===dt&&lr.전일누계) return {cum:lr.전일누계, src:"resubmit", from:lr.날짜};  // 같은 날 재제출 — 이중가산 방지
+    if(ym(lr.날짜)!==ym(dt))      return {cum:zeroCum(),   src:"month",    from:lr.날짜};  // 달이 바뀜 — 누계 리셋
+    /* 같은 달이지만 월 리셋 전에 만들어진 기록 — 그 안에 지난달 누계가 남아 있을 수 있다. 사람이 확인해야 한다. */
+    if(CFG.CUM_TRUST_FROM && lr.날짜<CFG.CUM_TRUST_FROM && dt>=CFG.CUM_TRUST_FROM)
+      return {cum:lr.누계, src:"stale", from:lr.날짜};
+    return {cum:lr.누계, src:"chain", from:lr.날짜};
   }
   var sd=CFG.SEED_CUM;
-  return {통장:sd.통장, 지출:sd.지출, 환불:sd.환불, 카드:sd.카드, 매출:sd.매출};
+  if(ym(sd.date)!==ym(dt)) return {cum:zeroCum(), src:"month", from:sd.date};  // 시드도 같은 규칙
+  return {cum:{통장:sd.통장, 지출:sd.지출, 환불:sd.환불, 카드:sd.카드, 매출:sd.매출}, src:"seed", from:sd.date};
 }
+function prevCum(dt){ return prevCumInfo(dt).cum; }
+/* 실제 보고서가 쓰는 전일누계 — 담당자가 보정했으면 그 값 */
+function effPrevCum(dt){ return S.prevCumIn ? S.prevCumIn : prevCum(dt); }
 /* 공식 양식 렌더 (인쇄·재인쇄 공용) */
 function renderReportHtml(R){
   function w(n){ return fmt(n); }
