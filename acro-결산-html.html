@@ -177,8 +177,10 @@ var S = {
   refCardToday: null,      // 카드환불: 오늘 단말에서 취소했나 ('today'|'other')
   refBankOut: null,        // 통장환불: 이체 나갔나 ('done'|'later')
   prevSafeIn: null,        // 전일 금고 마감액 수동 입력 (null=자동 이월값 사용)
-  prevCumIn: null,         // 전일누계 수동 보정 {통장,지출,환불,카드,매출} (null=자동 계산값 사용)
+  prevCumIn: null,         // 전일누계 보정값 {통장,지출,환불,카드,매출} (null=자동 계산값 사용)
   cumEdit: false,          // 전일누계 편집칸 열림 여부
+  cumMode: null,           // 보정 방식 'recalc'(월 재합산)|'zero'(0부터)|'manual'(직접 입력)
+  cumRecalc: null,         // 월 재합산 결과 {cum, days:[], miss:[]}
   staff: "",
   memoDraft: {},           // 레일별 확인 메모 (상태 저장 — 재렌더에도 보존)
   aiChat: []               // AI 상담 대화 [{role, content}]
@@ -543,10 +545,40 @@ function renderJudge(){
 var CUMKEYS=[["통장","통장수입"],["카드","카드 수입"],["매출","매출"],["지출","지출"],["환불","환불"]];
 function reportDate(){ return (S.parsed&&S.parsed.date)||todayStr(); }
 function copyCum(c){ var o={}; CUMKEYS.forEach(function(k){ o[k[0]]=num(c&&c[k[0]]); }); return o; }
-function cumSetK(k,v){ if(!S.prevCumIn) S.prevCumIn=copyCum(effPrevCum(reportDate())); S.prevCumIn[k]=num(v); render(); }
-function cumZero(){ S.prevCumIn=zeroCum(); S.cumEdit=true; render(); }         // 이번 달을 오늘부터 0으로 다시 세기
-function cumAuto(){ S.prevCumIn=null; S.cumEdit=false; render(); }             // 자동값으로 되돌리기
+function cumSetK(k,v){ if(!S.prevCumIn) S.prevCumIn=copyCum(effPrevCum(reportDate())); S.prevCumIn[k]=num(v); S.cumMode="manual"; render(); }
+function cumZero(){ S.prevCumIn=zeroCum(); S.cumEdit=true; S.cumMode="zero"; S.cumRecalc=null; render(); }  // 이번 달을 오늘부터 0으로 다시 세기
+function cumAuto(){ S.prevCumIn=null; S.cumEdit=false; S.cumMode=null; S.cumRecalc=null; render(); }        // 자동값으로 되돌리기
 function cumEditOn(){ S.cumEdit=true; render(); }
+/* 이번 달 누계를 결산원장에서 다시 합산한다.
+   각 제출분의 (누계 − 전일누계)가 그날 몫이므로, 체인에 지난달 값이 섞여 있어도 날짜별 몫만 더하면 이번 달 합계가 정확히 나온다. */
+function monthCumFromRows(dt, rows){
+  var seen={}, days=[], miss=[], sum=zeroCum();
+  (rows||[]).forEach(function(r){
+    var d=String(r["날짜"]||"").slice(0,10);
+    if(!d || ym(d)!==ym(dt) || d>=dt) return;   // 이번 달 · 오늘 이전만
+    if(seen[d]) return; seen[d]=1;              // 같은 날 여러 건이면 가장 최근 제출만 (목록이 최신순)
+    var R=null;
+    try{ if(r["보고서JSON"]&&String(r["보고서JSON"]).length>2) R=JSON.parse(r["보고서JSON"]); }catch(e){}
+    if(!R||!R.누계||!R.전일누계){ miss.push(d); return; }   // v3.0 이전 제출분 — 보고서 데이터 없음
+    CUMKEYS.forEach(function(k){ sum[k[0]]+=num(R.누계[k[0]])-num(R.전일누계[k[0]]); });
+    days.push(d);
+  });
+  days.sort(); miss.sort();
+  return {cum:sum, days:days, miss:miss};
+}
+function cumRecalc(){
+  var dt=reportDate(), msg=document.getElementById("cumMsg");
+  if(CFG.GAS_URL===""){ if(msg) msg.innerHTML='서버 연결이 없어 결산원장을 못 읽어요 — 값을 직접 넣어 주세요.'; return; }
+  if(msg) msg.innerHTML='결산원장에서 이번 달을 다시 합산하는 중…';
+  fetch(CFG.GAS_URL+"?action=history&n=60&k="+encodeURIComponent(CFG.APP_KEY))
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      HIST=(j&&j.rows)||[];
+      var rc=monthCumFromRows(dt, HIST);
+      S.cumRecalc=rc; S.prevCumIn=copyCum(rc.cum); S.cumMode="recalc"; S.cumEdit=true; render();
+    })
+    .catch(function(e){ var m=document.getElementById("cumMsg"); if(m) m.innerHTML='불러오기 실패 — 다시 눌러보거나 값을 직접 넣어 주세요.'; });
+}
 function cumBox(){
   var dt=reportDate(), info=prevCumInfo(dt), man=!!S.prevCumIn, cur=effPrevCum(dt);
   var stale=(info.src==="stale"), open=stale||S.cumEdit||man;
@@ -555,8 +587,16 @@ function cumBox(){
     month:"달이 바뀌었습니다 — 누계를 <b>0에서 다시 시작</b>합니다 (직전 기록 "+esc(String(info.from))+").",
     chain:esc(String(info.from))+" 결산에서 이어받았습니다.",
     seed:"기준값("+esc(String(info.from))+")에서 시작합니다.",
-    stale:"직전 결산("+esc(String(info.from))+")은 <b>월 리셋이 반영되기 전</b>에 제출됐습니다 — 그 누계에 <b>지난달 값이 섞여 있을 수 있습니다</b>. 오늘 한 번만 확인해 주세요. 아래 값이 <b>이번 달 어제까지의 합계</b>가 맞으면 그대로 두고, 아니면 고치거나 [0부터]를 누르세요."
+    stale:"직전 결산("+esc(String(info.from))+")은 <b>월 리셋이 반영되기 전</b>에 제출됐습니다 — 그 누계에 <b>지난달 값이 섞여 있을 수 있습니다</b>.<br>아래 <b>[📅 이번 달 결산에서 다시 합산]</b>을 누르면 결산원장의 이번 달 제출분만 더해 정확한 값을 넣어드립니다. <b>오늘 한 번만</b> 하면 내일부터는 자동입니다."
   }[info.src]||"";
+  var rc=S.cumRecalc, rcTxt="";
+  if(rc){
+    rcTxt=(rc.days.length
+      ? '📅 결산원장에서 <b>'+rc.days.length+'일치</b>를 다시 합산했습니다 ('+rc.days.map(function(d){return d.slice(5);}).join(', ')+').'
+      : '📅 이번 달 오늘 이전에 제출된 결산이 없습니다 — <b>0에서 시작</b>합니다.')
+      +(rc.miss.length? '<br>⚠ '+rc.miss.map(function(d){return d.slice(5);}).join(', ')+' 은(는) 보고서 데이터가 없는 옛 제출분이라 <b>빠졌습니다</b> — 그만큼은 직접 더해 주세요.' : '');
+  }
+  var modeTxt={recalc:"결산원장 재합산 반영됨", zero:"이번 달 0부터로 지정됨", manual:"직접 입력으로 보정됨"}[S.cumMode]||"보정됨";
   var rows=CUMKEYS.map(function(k){
     return '<div class="kv"><span>전일 '+k[1]+'</span>'+(open
       ? '<input type="tel" style="width:150px;text-align:right;font-size:14px;margin:0" value="'+fmt(num(cur[k[0]]))+'" onchange="cumSetK(\''+k[0]+'\',this.value)">'
@@ -566,9 +606,12 @@ function cumBox(){
   return '<div class="card"'+(st?' style="border-color:#fde68a;background:#fffbeb"':'')+'>'+
     '<div class="q">'+(st?'⚠ ':'')+'전일까지의 누계 확인</div>'+
     '<div class="hint">이번 달 <b>어제까지의 합계</b>입니다. 여기에 오늘치를 더한 값이 보고서의 "총 ○○"로 나갑니다.<br>'+msg+'</div>'+
+    (rcTxt?'<div class="hint" style="color:#166534">'+rcTxt+'</div>':'')+
     rows+
-    (man?'<div class="hint" style="color:#b3452e">수동 보정됨 — 결산 기록에 남습니다.</div>':'')+
+    (man?'<div class="hint" style="color:#b3452e">'+modeTxt+' — 결산 기록에 남습니다.</div>':'')+
+    '<div id="cumMsg" style="font-size:13px;color:var(--gray);margin:4px 0"></div>'+
     '<div class="btn-row" style="justify-content:flex-start">'+
+      '<button class="btn '+(st?'btn-p':'btn-s')+'" onclick="cumRecalc()">📅 이번 달 결산에서 다시 합산</button>'+
       (open?'':'<button class="btn btn-s" onclick="cumEditOn()">✎ 고치기</button>')+
       '<button class="btn btn-s" onclick="cumZero()">이번 달 0부터</button>'+
       (man?'<button class="btn btn-s" onclick="cumAuto()">↺ 자동값으로</button>':'')+
@@ -609,7 +652,7 @@ function buildReport(c){
     금고:{전일:(effPrevSafe()===null?0:num(effPrevSafe())), 지출:지출, 입금:totCash, 금일:c.denomTotal},
     일결산:{수입:매출, 지출:지출},
     환불상세:{손비:0, 통장:num(s["통장환불"]), 카드:num(s["카드환불"]), 현금:num(s["현금환불"])},
-    전일누계:prev, 누계출처:prevCumInfo(dt).src, 누계보정:!!S.prevCumIn,
+    전일누계:prev, 누계출처:prevCumInfo(dt).src, 누계보정:!!S.prevCumIn, 누계보정방식:(S.prevCumIn?(S.cumMode||"manual"):""),
     누계:{통장:prev.통장+totBank, 지출:prev.지출+지출, 환불:prev.환불+num(s["환불총액"]), 카드:prev.카드+totCard, 매출:prev.매출+매출},
     미수분리:haveCols };
 }
