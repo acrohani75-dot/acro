@@ -41,7 +41,7 @@
   .slide[data-sec="p2"]{--sec:var(--teal); --sec-deep:var(--teal-deep); --sec-soft:var(--teal-soft);}
   .slide[data-sec="ba"]{--sec:var(--plum); --sec-deep:var(--plum-deep); --sec-soft:var(--plum-soft);}
   .slide[data-sec="safe"]{--sec:var(--rose); --sec-deep:var(--rose-deep); --sec-soft:var(--rose-soft);}
-  @keyframes fade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+  @keyframes fade{from{opacity:0;} to{opacity:1;}}
   @media(prefers-reduced-motion:reduce){.slide{animation:none;}}
 
   /* eyebrow / badge */
@@ -716,15 +716,45 @@ function buildStage(){
 }
 
 const elCur=document.getElementById('cur'), elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
+
+/* ---------- 화면에 맞춰 슬라이드 자동 축소(내용 잘림 방지) ---------- */
+function fitActive(){
+  const act=stage.querySelector('.slide.active');
+  if(!act) return;
+  // 측정을 위해 높이 제한/변형 초기화
+  act.style.transform='none';
+  act.style.maxHeight='none';
+  const cs=getComputedStyle(stage);
+  const availH=stage.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+  const availW=stage.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  const natH=act.offsetHeight, natW=act.offsetWidth;
+  if(!natH||!natW) return;
+  let scale=Math.min(1, availH/natH, availW/natW);
+  if(scale>=0.999){ act.style.transform='none'; return; }
+  // 가운데를 기준으로 축소하면 상·하가 모두 화면 안에 들어온다
+  act.style.transformOrigin='center center';
+  act.style.transform='scale('+scale+')';
+}
+let fitTimer=null;
+function fitSoon(){
+  requestAnimationFrame(fitActive);
+  clearTimeout(fitTimer);
+  fitTimer=setTimeout(fitActive,260); // CJK/태국어 폰트 로드 후 재계산
+}
+
 function render(){
   sayStopAll();
   const slides=stage.querySelectorAll('.slide');
-  slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); });
+  slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); if(i!==idx){ s.style.transform='none'; s.style.maxHeight=''; } });
   elCur.textContent=idx+1;
   elTag.textContent=pageLabel(SLIDES[idx]).txt;
   elProg.style.width=((idx+1)/total*100)+'%';
   const act=slides[idx]; if(act) act.scrollTop=0;
+  fitSoon();
 }
+window.addEventListener('resize', fitSoon);
+document.addEventListener('fullscreenchange', fitSoon);
+if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(fitActive); }
 function go(n){ idx=Math.max(0,Math.min(total-1,n)); render(); }
 function next(){ go(idx+1); } function prev(){ go(idx-1); }
 
