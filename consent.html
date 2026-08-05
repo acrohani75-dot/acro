@@ -41,6 +41,10 @@ h2{font-size:1.15rem;letter-spacing:-.01em}
 .presets{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font-size:.85rem;font-weight:700;cursor:pointer}
 .chip:active{background:var(--accent2)}
+/* ---------- 자동저장 경고 배너 ---------- */
+.saveWarn{display:none;background:#fdecec;border:1.5px solid #f0b4b4;color:var(--danger);
+  border-radius:12px;padding:12px 14px;margin-top:14px;font-size:.9rem;font-weight:700;line-height:1.6}
+.saveWarn.on{display:block}
 /* ---------- patient mode ---------- */
 #patientMode{display:none}
 .pm-head{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;
@@ -93,12 +97,15 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
 </style>
 </head>
 <body>
-
 <!-- ================= 직원 화면 ================= -->
 <div id="staffMode" class="wrap">
-  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.3</span></h1>
+  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.4</span></h1>
   <p class="lead">필요한 동의서만 체크하고 [환자 모드 시작]을 누르면, 선택한 문서만 순서대로 서명받습니다.</p>
-
+  <div class="saveWarn" id="saveWarn">
+    ⚠ 자동저장이 꺼져 있습니다 — 서명해도 구글 드라이브에 저장되지 않습니다.<br>
+    주소 끝에 <code>#w=배포ID</code> 를 붙여서 한 번만 열어 주세요. 그 뒤로는 이 아이패드에 기억됩니다.<br>
+    이 상태로 받으시려면 완료 화면에서 <b>반드시 [인쇄 / PDF 저장]</b>을 누르셔야 기록이 남습니다.
+  </div>
   <div class="card">
     <h2>1. 환자 정보</h2>
     <div class="row" style="margin-top:10px">
@@ -107,20 +114,17 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
       <div class="field"><label>생년월일</label><input id="pBirth" placeholder="1994.01.01"></div>
     </div>
   </div>
-
   <div class="card">
     <h2>2. 동의서 선택</h2>
     <div class="presets" id="presetRow"></div>
     <div id="formList"></div>
     <p class="note">배지: <span class="badge v">정본</span> 기존 확정 문구 이식 · <span class="badge d">검수 전</span> 원장 검수 후 사용</p>
   </div>
-
   <div class="card row" style="justify-content:space-between">
     <div class="note" id="pickSummary">선택된 동의서: 0건</div>
     <button class="btn" id="startBtn" onclick="startPatient()" disabled>환자 모드 시작 →</button>
   </div>
 </div>
-
 <!-- ================= 환자 모드 ================= -->
 <div id="patientMode">
   <div class="pm-head">
@@ -138,7 +142,6 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
     <button class="btn" id="nextBtn" onclick="nav(1)">동의하고 다음 →</button>
   </div>
 </div>
-
 <!-- ================= 완료 화면 ================= -->
 <div id="doneMode" class="wrap" style="display:none">
   <div class="card" style="text-align:center;padding:34px">
@@ -153,9 +156,7 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
     <p class="note" id="sendStatus"></p>
   </div>
 </div>
-
 <div id="printArea"></div>
-
 <script>
 /* ================================================================
    CONFIG — GAS 웹훅 URL을 넣으면 완료 시 자동 전송(슬랙/드라이브 연동은 GAS에서 처리).
@@ -163,23 +164,29 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
 ================================================================ */
 /* 웹훅 URL은 소스에 박지 않는다 (acro 리포 CLAUDE.md §1 — public 리포에 GAS 배포 ID 금지).
    데스크 북마크 주소의 해시로 주입한다:  consent.html#w=<배포ID>
-   해시가 없으면 webhookUrl 은 빈 문자열이 되고, 기존 안전망대로 "자동 전송 미설정" 안내가 뜬다. */
+   [v1.4] 한 번 주입되면 이 기기(localStorage)에 저장한다. 이후에는 해시가 빠진 주소로 열어도
+   계속 ON 이 유지된다 — 북마크·홈화면 바로가기에서 해시가 유실되어 조용히 저장이 멈추던 문제를 막는다.
+   배포ID가 바뀌면 새 해시로 한 번만 열면 덮어쓴다. */
 var CONFIG = { webhookUrl: (function(){
   var m = String(location.hash || "").match(/[#&]w=([A-Za-z0-9_-]+)/);
-  return m ? "https://script.google.com/macros/s/" + m[1] + "/exec" : "";
+  if (m){
+    try { localStorage.setItem("acro_consent_w", m[1]); } catch(e){}
+    return "https://script.google.com/macros/s/" + m[1] + "/exec";
+  }
+  var saved = "";
+  try { saved = localStorage.getItem("acro_consent_w") || ""; } catch(e){}
+  return saved ? "https://script.google.com/macros/s/" + saved + "/exec" : "";
 })(), staffPin: "1175" };
-
 /* ================================================================
    동의서 정의부 — html 안의 문구가 정본.
    verified:true  → 기존 확정 문구 이식 (정본)
    verified:false → 초안. 원장 검수 후 verified를 true로 바꾸면 배너가 사라짐.
+   optional:true  → 선택 동의. '동의하지 않음'을 골라도 진행을 막지 않고 미동의로 기록한다.
 ================================================================ */
 var FORMS = [
-
 /* ---------- 1. 개인정보 수집·이용 동의서 (정본 이식: 초진설문지2026 GAS P12 — 실사용 디지털 정본) ---------- */
 { id:"privacy", title:"개인정보 수집·이용 동의서", short:"신환 필수. CCTV 고지 포함", verified:true,
   html: '<h1>개인정보 수집·이용 동의서</h1><p class="lead">ACRO KOREAN MEDICINE CLINIC</p><div class="c-block">본원은 개인정보 보호법 등 관련 법령상의 개인정보 보호 규정을 준수하며 귀하의 개인정보 보호에 최선을 다하고 있습니다. 본원은 개인정보 보호법 제15조 및 제22조에 근거하여, 다음과 같이 개인정보를 수집·이용하는 데 동의를 받고자 합니다. <p><b>· 수집하는 개인정보의 항목</b><br>필수정보: 환자 이름, 주민등록번호, 주소, 일반 전화번호, 휴대폰 번호, 진료과목 (의료법에 근거하여, 방문에 의한 진료 신청 시 동의 없이 수집할 수 있는 개인정보)<br>선택정보: 가족관계, 유입경로, 직업, 소개자, 이메일, 영상장비 촬영 자료</p> <p><b>· 개인정보의 수집·이용 목적</b><br>환자의 진단·치료·질병 예방 및 건강 증진을 위한 제반 진료 업무, 진료비 청구·수납·환불 등 원무 서비스, 진료 예약 및 조회·검사 결과 안내·한약(약품) 발송 안내, 원외 탕전실로의 처방 전송(탕전 업무), 교육·연구·통계·외부 수탁검사·협력 병의원 진료 의뢰, 병원 운영을 위한 법적/행정적 대응, 민원 처리, 가족 등에게 병의 증세·환자 상태 설명, 의학 관련 건강정보 및 병원 이용 안내, 정보통신망법 제50조에 의한 전자적 전송매체를 이용한 광고성 정보 전송, <b>개인을 알아볼 수 없는 형태의 인바디 등 데이터를 통계·연구·성과 홍보에 활용</b> 등.</p> <p><b>· 개인정보의 보유 및 이용 기간</b><br>본원에서 수집한 개인정보는 법정 보관기간 동안만 보유하며 그 이후에는 삭제합니다. 정보제공자가 삭제를 요청할 경우 즉시 삭제합니다. 단, 타 법령의 규정에 의해 보유하도록 한 기간 동안은 보관할 수 있습니다.</p> <p><b>· 동의 거부권 및 불이익</b><br>귀하는 개인정보 수집·이용 동의를 거부할 권리가 있습니다. 다만 거부 시 진료 관련 안내 서비스를 받을 수 없음을 참고하시기 바랍니다. 동의 거부에 따른 진료상 불이익은 없습니다.</p> <p><b>· CCTV 촬영 영상정보</b><br>설치장소: 대기실·데스크, 검사실, 상담실, 추나치료실, 침구치료실 일부 / 목적: 범죄 예방·수사, 시설 안전·화재 예방, 환자와의 분쟁 발생 자료 확보 등.</p> <p style="color:#888;">※ 본원은 동의한 내용 외의 다른 목적으로 활용하지 않으며, 의료법·개인정보 보호법·정보통신망법을 준수합니다. (만 14세 미만 아동은 법정대리인 동의 필요)</p></div><div class="c-block"><b class="tt">동의 확인</b><div class="agreeRow"><label><input type="radio" name="ag_privacy" value="Y" data-req="1"> 위 내용을 충분히 읽고 이해하였으며, 개인정보 수집·이용에 동의합니다</label><label><input type="radio" name="ag_privacy" value="N"> 동의하지 않습니다</label></div></div>' },
-
 /* ---------- 2a. 아크로컷 시술동의서 (정본 이식: 시술초진설문지 GAS SRC — 원본 설문지 verbatim) ---------- */
 { id:"procCut", title:"아크로컷 지방분해약침 시술동의서", short:"아크로컷 시술 환자", verified:true,
   html: '\
@@ -220,7 +227,6 @@ var FORMS = [
 <div class="chk"><input type="checkbox" data-req="1"> <span>기재한 정보를 아크로 한의원에 제공함을 동의합니다.</span></div>\
 <div class="agreeRow"><label><input type="radio" name="ag_procCut" value="Y" data-req="1"> 동의함</label>\
 <label><input type="radio" name="ag_procCut" value="N"> 동의하지 않음</label></div></div>' },
-
 /* ---------- 2b. 바디리프팅(ONDA·아크로웨이브) 시술동의서 (정본 이식: 시술초진설문지 GAS SRC — 원본 설문지 verbatim) ---------- */
 { id:"procWave", title:"바디리프팅(ONDA·아크로웨이브) 시술동의서", short:"ONDA·웨이브 시술 환자", verified:true,
   html: '\
@@ -241,7 +247,6 @@ var FORMS = [
 <div class="chk"><input type="checkbox" data-req="1"> <span>기재한 정보를 아크로 한의원에 제공함을 동의합니다.</span></div>\
 <div class="agreeRow"><label><input type="radio" name="ag_procWave" value="Y" data-req="1"> 동의함</label>\
 <label><input type="radio" name="ag_procWave" value="N"> 동의하지 않음</label></div></div>' },
-
 /* ---------- 3. 환불 규정서 (정본 이식: 다이어트 초진 설문지 내 환불 규정서) ---------- */
 { id:"refund", title:"환불 규정서 (다이어트 한약)", short:"다이어트 프로그램 접수 시", verified:true,
   html: '\
@@ -270,7 +275,6 @@ Ex. 3개월 패키지 접수 후 1개월분만 처방받고 양도하는 경우 
 본인은 한약 복용 중 준수해야 할 사항에 대해 충분한 설명을 들었습니다. 이를 본인이 준수하지 않아 발생한 일에 대해서는 본원의 책임이 없음을 인지하고 있습니다.\
 <div class="agreeRow"><label><input type="radio" name="ag_refund" value="Y" data-req="1"> 동의함</label>\
 <label><input type="radio" name="ag_refund" value="N"> 동의하지 않음</label></div></div>' },
-
 /* ---------- 4. 사진 및 후기제공 동의서 (정본 이식: 실물 스캔 전사 260724) ---------- */
 { id:"photo", title:"아크로한의원 사진 및 후기제공 동의서", short:"감량 경과 사진·후기 활용 (선택)", verified:true,
   html: '\
@@ -297,7 +301,6 @@ Ex. 3개월 패키지 접수 후 1개월분만 처방받고 양도하는 경우 
 <div class="chk"><input type="checkbox"> <span><b>사용 범위 추가 확인</b> : 온/오프라인 홍보매체, 모바일 어플, 인쇄매체, 특수매체(극장, 기타 옥외광고물, 포스터 외 POP광고물, 영상광고, 버스/지하철광고 등), 해외 마케팅, 그 외 아크로한의원의 광고성&amp;학술적 목적 관련 매체에 대한 광고와 홍보물로 사용 가능</span></div></div>\
 <div class="c-block"><b class="tt">작성자 정보</b>\
 <div class="kv"><b>연락처</b><input class="fv" data-k="연락처" placeholder="010-0000-0000"></div></div>' },
-
 /* ---------- 5. 미성년자 진료 및 처방 동의서 (정본 이식: 실물 스캔 전사 260724) ---------- */
 { id:"minor", title:"미성년자 진료 및 처방 동의서", short:"미성년 환자 · 법정대리인 서명", verified:true, guardian:true,
   html: '\
@@ -315,7 +318,6 @@ Ex. 3개월 패키지 접수 후 1개월분만 처방받고 양도하는 경우 
 <div class="agreeRow"><label><input type="radio" name="ag_minor" value="Y" data-req="1"> 동의함</label>\
 <label><input type="radio" name="ag_minor" value="N"> 동의하지 않음</label></div>\
 <p class="note">아래 서명란: 첫 번째 = 환자 본인 서명, 두 번째 = 법정대리인 서명</p></div>' },
-
 /* ---------- 6. 안면 밸런스 시술 동의서 (asym/index.html 초안 v1.0 이식) ---------- */
 { id:"asymProc", title:"안면 밸런스 프로그램 시술 동의서", short:"안면비대칭 프로그램", verified:true,
   html: '\
@@ -342,7 +344,6 @@ Ex. 3개월 패키지 접수 후 1개월분만 처방받고 양도하는 경우 
 <div class="agreeRow"><label><input type="radio" name="ag_asymProc" value="Y" data-req="1"> 동의함</label>\
 <label><input type="radio" name="ag_asymProc" value="N"> 동의하지 않음</label></div>\
 <div class="kv" style="margin-top:10px"><b>설명 의료인 성명</b><input class="fv" data-k="설명의료인" placeholder="설명한 의료인 성명"></div></div>' },
-
 /* ---------- 7. 안면 밸런스 패키지 환불 동의서 (asym/index.html 초안 v1.0 이식) ---------- */
 { id:"asymRefund", title:"안면 밸런스 패키지 이용 및 환불 규정 동의서", short:"안면비대칭 패키지 결제 시", verified:true,
   html: '\
@@ -369,7 +370,6 @@ Ex. 3개월 패키지 접수 후 1개월분만 처방받고 양도하는 경우 
 <div class="agreeRow"><label><input type="radio" name="ag_asymRefund" value="Y" data-req="1"> 동의함</label>\
 <label><input type="radio" name="ag_asymRefund" value="N"> 동의하지 않음</label></div></div>' }
 ];
-
 /* 조합 프리셋 — 회의(260723) 요청 반영: 컷/웨이브 시술+마케팅 조합 포함 */
 var PRESETS = [
   { name:"다이어트 신환", ids:["privacy","refund"] },
@@ -380,12 +380,9 @@ var PRESETS = [
   { name:"미성년자 추가", ids:["minor"], add:true },
   { name:"전체 해제", ids:[] }
 ];
-
 /* ================================================================ 이하 로직 ================================================================ */
 var picked = [], cur = 0, results = {};
-
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
-
 function renderStaff(){
   var list = document.getElementById("formList"); list.innerHTML = "";
   FORMS.forEach(function(f){
@@ -421,7 +418,6 @@ function syncPick(){
   document.getElementById("startBtn").disabled = picked.length === 0 || !document.getElementById("pName").value.trim();
 }
 document.addEventListener("input", function(e){ if (e.target.id === "pName") syncPick(); });
-
 function fmtDate(){
   var d = new Date();
   return d.getFullYear() + "." + String(d.getMonth()+1).padStart(2,"0") + "." + String(d.getDate()).padStart(2,"0");
@@ -431,8 +427,13 @@ function patient(){
            chart: document.getElementById("pChart").value.trim(),
            birth: document.getElementById("pBirth").value.trim(), date: fmtDate() };
 }
-
 function startPatient(){
+  /* [v1.4] 자동저장이 꺼진 채로 서명받는 사고를 막는다 — 저장 안 되는데 완료 화면만 뜨던 문제 */
+  if (!CONFIG.webhookUrl && !confirm(
+      "⚠ 자동저장이 꺼져 있습니다.\n\n" +
+      "서명해도 구글 드라이브에 저장되지 않습니다.\n" +
+      "주소 끝에 #w=배포ID 가 있는지 확인해 주세요.\n\n" +
+      "그래도 진행하시겠습니까? (완료 후 반드시 [인쇄/PDF 저장]을 눌러야 기록이 남습니다)")) return;
   cur = 0; results = {};
   document.getElementById("staffMode").style.display = "none";
   document.getElementById("doneMode").style.display = "none";
@@ -440,9 +441,7 @@ function startPatient(){
   renderForm();
   window.scrollTo(0,0);
 }
-
 function formById(id){ for (var i=0;i<FORMS.length;i++) if (FORMS[i].id===id) return FORMS[i]; return null; }
-
 function renderForm(){
   var p = patient(), f = formById(picked[cur]);
   document.getElementById("pmWho").textContent = p.name + " 님" + (p.chart ? " · " + p.chart : "");
@@ -481,12 +480,10 @@ function renderForm(){
   document.getElementById("nextBtn").textContent = cur === picked.length-1 ? "동의 완료 ✓" : "동의하고 다음 →";
   window.scrollTo(0,0);
 }
-
 function inpKey(inp){
   var idx = Array.prototype.indexOf.call(document.getElementById("pmBody").querySelectorAll("input"), inp);
   return (inp.name || inp.dataset.k || "i") + "#" + idx;
 }
-
 /* ---------- 서명 패드 ---------- */
 var sigDirty = {};
 function initSig(id, dataUrl){
@@ -518,7 +515,6 @@ function sigClear(n){
   c.getContext("2d").clearRect(0, 0, c.width, c.height);
   sigDirty[id] = false;
 }
-
 /* ---------- 진행 ---------- */
 function collectCurrent(){
   var f = formById(picked[cur]), body = document.getElementById("pmBody");
@@ -534,11 +530,12 @@ function collectCurrent(){
     }
   });
   if (!reqOk) return { err: "필수 동의 항목을 선택해 주세요." };
-  if (agreeNo) return { err: "'동의하지 않음'이 선택되어 있습니다. 데스크 직원에게 문의해 주세요." };
+  /* [v1.4] optional:true 인 선택 동의서는 '동의하지 않음'이어도 진행을 막지 않고 미동의로 기록한다 */
+  if (agreeNo && !f.optional) return { err: "'동의하지 않음'이 선택되어 있습니다. 데스크 직원에게 문의해 주세요." };
   if (!sigDirty["sigPad"]) return { err: "서명을 입력해 주세요." };
   if (f.guardian && !sigDirty["sigPad2"]) return { err: "법정대리인 서명을 입력해 주세요." };
   var r = { inputs: inputs, sig: document.getElementById("sigPad").toDataURL("image/png"),
-            bodyHtml: null };
+            bodyHtml: null, agreed: !agreeNo };
   if (f.guardian) r.sig2 = document.getElementById("sigPad2").toDataURL("image/png");
   var clone = body.cloneNode(true);
   var sb = clone.querySelector("#sigBlock"); if (sb) sb.remove();
@@ -568,7 +565,6 @@ function staffExit(){
   if (pin === CONFIG.staffPin){ resetAll(); }
   else if (pin !== null) alert("번호가 일치하지 않습니다.");
 }
-
 /* ---------- 완료 ---------- */
 function finish(){
   var p = patient();
@@ -600,23 +596,43 @@ function buildPrint(){
   });
 }
 function printAll(){ window.print(); }
+/* [v1.4] 전송 결과를 GAS 응답 본문(ok)까지 확인한다.
+   기존에는 res.ok(HTTP 200)만 보고 "전송 완료"를 띄웠는데, GAS는 저장에 실패해도 200을 반환한다.
+   그래서 드라이브에 아무것도 안 들어갔는데 화면은 성공으로 보이던 문제가 있었다. */
 function sendWebhook(){
   var el = document.getElementById("sendStatus");
-  if (!CONFIG.webhookUrl){ el.textContent = "자동 전송 미설정 — 인쇄/PDF로 보관해 주세요."; return; }
+  function fail(msg){
+    el.innerHTML = '<span style="color:var(--danger);font-weight:800">✗ 저장 실패 — ' + esc(String(msg)) + '</span>' +
+      '<br><button class="btn warn sm" style="margin-top:8px" onclick="sendWebhook()">다시 전송</button>' +
+      ' <button class="btn ghost sm" style="margin-top:8px" onclick="printAll()">인쇄/PDF로 보관</button>';
+  }
+  if (!CONFIG.webhookUrl){
+    el.innerHTML = '<span style="color:var(--danger);font-weight:800">⚠ 자동저장 꺼짐 — 저장되지 않았습니다. 반드시 [인쇄/PDF 저장]을 눌러 주세요.</span>';
+    return;
+  }
   el.textContent = "전송 중...";
   var p = patient();
   var payload = { type: "consent", patient: p, forms: picked.map(function(id){
     var r = results[id] || {};
-    return { id: id, title: formById(id).title, inputs: r.inputs, bodyHtml: r.bodyHtml, sig: r.sig, sig2: r.sig2 || null };
+    return { id: id, title: formById(id).title, agreed: r.agreed !== false,
+             inputs: r.inputs, bodyHtml: r.bodyHtml, sig: r.sig, sig2: r.sig2 || null };
   }) };
   var body = JSON.stringify(payload);
   fetch(CONFIG.webhookUrl, { method: "POST", body: body })
-    .then(function(res){ el.textContent = res.ok ? "✓ 전송 완료" : "전송 실패 — 인쇄/PDF로 보관해 주세요."; })
+    .then(function(res){ return res.text(); })
+    .then(function(t){
+      var d = null; try { d = JSON.parse(t); } catch(e){}
+      if (d && d.ok){
+        el.innerHTML = '<span style="color:var(--ok);font-weight:800">✓ 드라이브 저장 완료</span>';
+        return;
+      }
+      fail(d && d.error ? d.error : String(t).slice(0,120));
+    })
     .catch(function(){
       /* file:// 등 CORS 차단 환경 폴백 — 응답은 못 읽지만 전송은 도달함 */
       fetch(CONFIG.webhookUrl, { method: "POST", mode: "no-cors", body: body })
-        .then(function(){ el.textContent = "✓ 전송됨 (수신 확인 불가 — Drive 폴더에서 확인)"; })
-        .catch(function(){ el.textContent = "전송 실패 — 인쇄/PDF로 보관해 주세요."; });
+        .then(function(){ el.innerHTML = '<span style="color:var(--warn);font-weight:800">△ 전송됨 · 저장 확인 불가 — 드라이브 폴더를 직접 확인해 주세요</span>'; })
+        .catch(function(){ fail("네트워크 오류 — 전송되지 않았습니다"); });
     });
 }
 function resetAll(){
@@ -629,13 +645,17 @@ function resetAll(){
   renderStaff(); syncPick();
   window.scrollTo(0,0);
 }
-
 renderStaff(); syncPick();
-
-/* 자동저장 ON/OFF 를 헤더에 실제 상태로 표시 — 직원이 주소를 잘못 열면 즉시 보이게 */
+/* 자동저장 ON/OFF 를 헤더와 배너에 실제 상태로 표시 — 직원이 주소를 잘못 열면 즉시 보이게 */
 (function(){
+  var on = !!CONFIG.webhookUrl;
   var b = document.getElementById("verBadge");
-  if (b) b.textContent = "v1.3 · 자동저장 " + (CONFIG.webhookUrl ? "ON" : "OFF");
+  if (b){
+    b.textContent = "v1.4 · 자동저장 " + (on ? "ON" : "OFF");
+    b.className = "badge " + (on ? "v" : "d");
+  }
+  var w = document.getElementById("saveWarn");
+  if (w) w.classList.toggle("on", !on);
 })();
 </script>
 </body>
