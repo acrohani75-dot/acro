@@ -230,7 +230,7 @@ const PROXY_URL = "https://script.google.com/macros/s/AKfycbyzJ1FiqTOYvfkdFGTLq5
 /* 모델 ID는 여기 한 곳에서만 관리 — 교체 시 이 두 줄만 고치면 됨
    (2026-08-05 확인: platform.claude.com/docs/en/about-claude/models/overview) */
 const MODEL_FAST    = 'claude-haiku-4-5-20251001';   // 기본 — 빠름
-const MODEL_PRECISE = 'claude-opus-5';               // '정밀 번역' 체크 시. 느리면 'claude-sonnet-5'
+const MODEL_PRECISE = 'claude-sonnet-5';             // '정밀 번역' 체크 시. 더 정밀하게는 'claude-opus-5'
 /* 무전 → GAS 프록시 경유 Slack 전송 (웹훅 URL은 스크립트 속성 SLACK_WEBHOOK_URL에 보관) */
 /* 발신자 이름: 각자 폰에서 최초 1회 입력, 기기에 저장 (설정 ⚙에서 변경 가능) */
 let radioName = '';
@@ -394,21 +394,36 @@ function isHallucination(t){
   rest = rest.replace(/[、。,.·:：\-용어]/g,'');
   return n >= 3 && rest.length <= 8;
 }
+/* 일시적 장애로 보고 자동 재시도할 오류 — Overloaded(529), 속도제한(429), 5xx, 타임아웃 */
+const TRANSIENT_RE = /overload|529|rate.?limit|429|too many|timeout|timed out|50[0234]\b|temporarily|unavailable|network|failed to fetch/i;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 /* 프록시 호출 공통 — 서버가 HTML 오류 페이지를 뱉어도 원인이 화면에 그대로 찍히게 한다.
-   (예전엔 res.json()이 곧바로 "Unexpected token '<'"로 터져서 원인을 알 수 없었음) */
-async function callProxy(payload){
-  const res = await fetch(PROXY_URL, {
-    method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  });
-  const raw = await res.text();
-  let data;
-  try { data = JSON.parse(raw); }
-  catch(e){
-    throw new Error('서버가 JSON을 반환하지 않음 (HTTP ' + res.status + ') — ' + raw.slice(0,120).replace(/\s+/g,' '));
+   (예전엔 res.json()이 곧바로 "Unexpected token '<'"로 터져서 원인을 알 수 없었음)
+   일시 장애면 0.7초 → 1.4초 간격으로 조용히 2번 더 시도한다. */
+async function callProxy(payload, tries){
+  const max = (tries === undefined) ? 3 : tries;
+  let last;
+  for (let i = 0; i < max; i++){
+    try{
+      const res = await fetch(PROXY_URL, {
+        method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const raw = await res.text();
+      let data;
+      try { data = JSON.parse(raw); }
+      catch(e){
+        throw new Error('서버가 JSON을 반환하지 않음 (HTTP ' + res.status + ') — ' + raw.slice(0,120).replace(/\s+/g,' '));
+      }
+      if (data.error) throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || 'error'));
+      return data;
+    }catch(err){
+      last = err;
+      if (i === max - 1 || !TRANSIENT_RE.test(err.message || '')) throw err;
+      await sleep(700 * Math.pow(2, i));
+    }
   }
-  if (data.error) throw new Error(typeof data.error === 'string' ? data.error : (data.error.message || 'error'));
-  return data;
+  throw last;
 }
 function blobToB64(blob){
   return new Promise((res, rej)=>{
@@ -608,10 +623,15 @@ STRICT RULES:
 TEXT:
 ${text}`;
   try{
-    const data = await callProxy({
-      model: useOpus ? MODEL_PRECISE : MODEL_FAST,
-      max_tokens: 400, prompt
-    });
+    let data;
+    try{
+      data = await callProxy({ model: useOpus ? MODEL_PRECISE : MODEL_FAST, max_tokens: 400, prompt });
+    }catch(e){
+      /* 정밀 번역이 계속 막히면 빠른 모델로 자동 대체 — 진료가 끊기지 않게 */
+      if (!useOpus || !TRANSIENT_RE.test(e.message || '')) throw e;
+      data = await callProxy({ model: MODEL_FAST, max_tokens: 400, prompt }, 2);
+      toast('정밀 번역 지연 — 빠른 모델로 통역했습니다');
+    }
     const out = (data.content && data.content[0] && data.content[0].text || '').trim();
     if (isKo) entry.tgt = out; else entry.ko = out;
     entry.stage = 'done';
