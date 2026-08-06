@@ -419,7 +419,13 @@ async function callProxy(payload, tries){
       return data;
     }catch(err){
       last = err;
-      if (i === max - 1 || !TRANSIENT_RE.test(err.message || '')) throw err;
+      if (i === max - 1 || !TRANSIENT_RE.test(err.message || '')){
+        /* [260806] 모델 장애 폴백 — 지정 모델 실패 시 기본(haiku)으로 1회 재시도 (번역 경로만: payload.model 있는 경우) */
+        if (payload && payload.model && payload.model !== MODEL_FAST){
+          return callProxy(Object.assign({}, payload, { model: MODEL_FAST }), 2);
+        }
+        throw err;
+      }
       await sleep(700 * Math.pow(2, i));
     }
   }
