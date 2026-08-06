@@ -164,7 +164,11 @@ var S = {
   raw: "", parsed: null,
   allthat: "", smartro: "",
   expenses: [],            // {item, amt} 현금 지출 (금고에서 나감)
-  adjusts: [],             // {rail, amt, why} 사유 확인된 차이 보정 (과수납·단말 차이 등) — 실측이 많으면 +, 적으면 −
+  adjusts: [],             // {rail, amt, why, srcDate, kind} 사유 확인된 차이 보정 — 실측이 많으면 +, 적으면 −
+                           //   srcDate: 원거래일(''=오늘). 마감된 날 거래를 오늘 조정으로 잡을 때 그 날짜를 남긴다
+  adjNl: "",               // 자연어 보정 입력 (직원이 상황을 문장으로 적는 칸)
+  adjNlProp: null,         // AI가 읽어낸 제안 {items:[], note:""} — 사람이 확인하기 전엔 반영되지 않는다
+  adjNlLog: [],            // 확정된 자연어 원문 기록 [{raw, items}] — 나중에 추적용
   delivCardCnt: 0,         // 카드로 받은 택배비 건수
   smartroRev: "",          // 스마트로 진료비(매출·프로그램가) 총액 — 표시액에서 EMS·수수료 역산의 기준
   emsAmt: "",              // (역산 파생) 스마트로 EMS = round(표시액/(1+수수료)) − 진료비 — 카드 대조·매출에서 제외
@@ -281,28 +285,154 @@ function pendingBox(idPrefix){
 }
 /* ===== 사유 확인된 차이 보정 (과수납·단말 차이 등) — 판정 화면 전용 ===== */
 function sgnWon(n){ return (num(n)>0?"+":"")+fmt(n)+"원"; }
-function adjAdd(){ S.adjusts.push({rail:"카드",amt:"",why:""}); render(); }
+/* 자주 나오는 보정 — 케이스마다 화면을 늘리지 않고 프리셋으로 처리한다 */
+var ADJ_PRESETS=[
+  {k:"카드변경", rail:"카드", why:"결제 카드 변경 — 취소·재결제"},
+  {k:"환불",     rail:"카드", why:"환불 처리 차이"},
+  {k:"정산대기", rail:"통장", why:"정산대기 — 차트엔 있고 오늘 입금 없음"},
+  {k:"과수납",   rail:"금고", why:"과수납"},
+  {k:"기타",     rail:"카드", why:""}
+];
+function adjAdd(k){
+  var p=null; ADJ_PRESETS.forEach(function(x){ if(x.k===k) p=x; });
+  S.adjusts.push({rail:(p?p.rail:"카드"), amt:"", why:(p?p.why:""), srcDate:"", kind:(p?p.k:"")});
+  render();
+}
 function adjDel(i){ S.adjusts.splice(i,1); render(); }
+/* 보정이 판정에 실제로 어떻게 작용하는지 — 부호를 거꾸로 넣으면 여기서 바로 드러난다 */
+function adjEffectLine(name, adj, diff, pass){
+  if(diff===null) return name+" 보정 <b>"+sgnWon(adj)+"</b> → 오늘은 기준 설정일";
+  return name+" 보정 <b>"+sgnWon(adj)+"</b> → 남은 차이 <b>"+fmt(diff)+"원</b> "+(pass?"✅":"⚠");
+}
 function adjLineText(){
   return S.adjusts.filter(function(a){return num(a.amt)!==0;})
     .map(function(a){ return a.rail+sgnWon(a.amt).replace("원","")+(a.why?"("+a.why+")":""); }).join(" ");
 }
 function adjustBox(){
+  var dt=reportDate();
   var rows = S.adjusts.map(function(a,i){
     var sel = ["카드","통장","금고"].map(function(r){return '<option'+(a.rail===r?' selected':'')+'>'+r+'</option>';}).join("");
-    return '<div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">'+
-      '<select onchange="S.adjusts['+i+'].rail=this.value;render()" style="font-size:14px;padding:8px 6px;border:1px solid #d1d5db;border-radius:8px">'+sel+'</select>'+
-      '<input type="tel" value="'+(num(a.amt)?fmt(a.amt):esc(a.amt))+'" placeholder="금액(±)" style="flex:1;min-width:90px;font-size:15px" oninput="S.adjusts['+i+'].amt=this.value" onchange="render()">'+
-      '<input type="text" value="'+esc(a.why||"")+'" placeholder="사유 (필수 — 예: 과수납)" style="flex:2;text-align:left;font-size:14px" oninput="S.adjusts['+i+'].why=this.value">'+
-      '<button class="btn btn-s" style="padding:8px 10px" onclick="adjDel('+i+')">✕</button></div>';
+    var sd=String(a.srcDate||""), past=(sd&&sd!==dt);
+    return '<div style="border:1px solid #f0e2b6;border-radius:10px;padding:8px;margin-bottom:8px;background:#fffdf6">'+
+      '<div style="display:flex;gap:6px;align-items:center">'+
+        '<select onchange="S.adjusts['+i+'].rail=this.value;render()" style="font-size:14px;padding:8px 6px;border:1px solid #d1d5db;border-radius:8px">'+sel+'</select>'+
+        '<input type="tel" value="'+(num(a.amt)?fmt(a.amt):esc(a.amt))+'" placeholder="금액(±)" style="flex:1;min-width:90px;font-size:15px" oninput="S.adjusts['+i+'].amt=this.value" onchange="render()">'+
+        (a.kind?'<span style="font-size:12px;color:var(--gray);white-space:nowrap">'+esc(a.kind)+'</span>':'')+
+        '<button class="btn btn-s" style="padding:8px 10px" onclick="adjDel('+i+')">✕</button>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;align-items:center;margin-top:6px">'+
+        '<input type="date" value="'+esc(sd)+'" onchange="S.adjusts['+i+'].srcDate=this.value;render()" title="원거래일 (비우면 오늘)" style="font-size:13px;padding:7px 6px;border:1px solid #d1d5db;border-radius:8px;width:150px">'+
+        '<input type="text" value="'+esc(a.why||"")+'" placeholder="사유 (필수)" style="flex:1;text-align:left;font-size:14px" oninput="S.adjusts['+i+'].why=this.value">'+
+      '</div>'+
+      (past?'<div style="font-size:12px;color:#92400e;margin-top:5px">📌 '+esc(sd)+' 거래분 — <b>그날 결산은 그대로 두고</b> 오늘 조정으로 기록됩니다.</div>':'')+
+    '</div>';
   }).join("");
+  /* 보정이 실제로 판정을 어떻게 움직였는지 — 부호 실수를 여기서 잡는다 */
+  var eff="";
+  try{
+    if(S.parsed){
+      var c=computeChecks(), used={}, lines=[];
+      S.adjusts.forEach(function(a){ if(num(a.amt)) used[a.rail]=1; });
+      if(used["카드"]) lines.push(adjEffectLine("카드", c.adj.card, c.cardDiff, c.pass.card));
+      if(used["통장"]) lines.push(adjEffectLine("통장", c.adj.bank, c.bankDiff, c.pass.bank));
+      if(used["금고"]) lines.push(adjEffectLine("금고", c.adj.safe, c.safeDiff, c.pass.safe));
+      if(lines.length) eff='<div style="margin-top:8px;padding:8px 10px;background:#fff;border:1px solid #f0e2b6;border-radius:8px;font-size:13px;line-height:1.8">'+lines.join("<br>")+
+        '<div style="color:var(--gray);font-size:12px;margin-top:4px">남은 차이가 0이 아니면 부호가 반대이거나 금액이 다를 수 있어요.</div></div>';
+    }
+  }catch(e){}
   var warn = S.adjusts.some(function(a){return num(a.amt)!==0 && !String(a.why||"").trim();})
     ? '<div style="color:#c0392b;font-size:12.5px;margin-top:4px">⚠ 사유가 빈 보정이 있어요 — 사유 없는 보정은 기록으로 남길 수 없습니다.</div>' : '';
+  var presets = ADJ_PRESETS.map(function(p){
+    return '<button class="btn btn-s" style="padding:7px 10px;font-size:13px" onclick="adjAdd(\''+p.k+'\')">+ '+p.k+'</button>';
+  }).join("");
   return '<div class="suggest" style="background:#fef9ec;border-color:#fde68a">'+
-    '<b>⚖ 사유가 확인된 차이가 있나요?</b> <span style="color:var(--gray);font-size:12.5px">(과수납, 올댓 단말과 차이나는 케이스 등)</span><br>'+
-    '<span style="color:var(--gray);font-size:12.5px">원인을 아는 금액을 적으면 해당 레일 판정에서 그만큼 상쇄됩니다. <b>실측(단말·입금·금고)이 차트보다 많으면 +, 적으면 −</b>. 사유는 Slack·보고서에 그대로 기록됩니다.</span>'+
-    '<div style="margin-top:10px">'+rows+'</div>'+warn+
-    '<button class="btn btn-s" style="margin-top:4px" onclick="adjAdd()">+ 보정 추가</button></div>';
+    '<b>⚖ 사유가 확인된 차이가 있나요?</b> <span style="color:var(--gray);font-size:12.5px">(과수납, 카드 변경, 단말 차이 등)</span><br>'+
+    '<span style="color:var(--gray);font-size:12.5px">원인을 아는 금액을 적으면 해당 레일 판정에서 그만큼 상쇄됩니다. <b>실측(단말·입금·금고)이 차트보다 많으면 +, 적으면 −</b>. 사유는 Slack·보고서에 그대로 기록됩니다.<br><b>지난 날짜 거래</b>(예: 결제 카드 변경)는 <b>원거래일</b>을 적어주세요 — 그날 결산은 건드리지 않습니다.</span>'+
+    adjNlBox()+
+    '<div style="margin-top:10px">'+rows+'</div>'+eff+warn+
+    '<div class="btn-row" style="justify-content:flex-start;margin-top:6px;gap:6px;flex-wrap:wrap">'+presets+'</div></div>';
+}
+/* ===== 자연어로 보정 적기 =====
+   AI는 문장을 보정 레코드로 "제안"만 한다. 금액·부호를 AI가 확정하지 않는다.
+   반드시 숫자를 표로 보여주고 사람이 확정하며, 확정 뒤에는 기존 산수 판정 엔진이 3레일 대조로 검증한다. */
+function adjNlBox(){
+  var p=S.adjNlProp;
+  var prop="";
+  if(p){
+    var rowsP=p.items.map(function(x,i){
+      return '<tr><td style="padding:4px 6px">'+esc(x.rail)+'</td>'+
+             '<td style="padding:4px 6px;text-align:right;white-space:nowrap"><b>'+sgnWon(x.amt)+'</b></td>'+
+             '<td style="padding:4px 6px;white-space:nowrap">'+esc(x.srcDate||"오늘")+'</td>'+
+             '<td style="padding:4px 6px;text-align:left">'+esc(x.why||"")+'</td></tr>';
+    }).join("");
+    prop='<div style="margin-top:8px;padding:9px 10px;background:#fff;border:1px solid #bfdbfe;border-radius:8px">'+
+      '<div style="font-size:13px;margin-bottom:6px"><b>이렇게 읽었습니다</b> — 숫자를 확인하고 넣어주세요. 아직 반영 전입니다.</div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:13px"><tr style="color:var(--gray)"><th style="text-align:left;padding:2px 6px">레일</th><th style="text-align:right;padding:2px 6px">금액</th><th style="text-align:left;padding:2px 6px">원거래일</th><th style="text-align:left;padding:2px 6px">사유</th></tr>'+rowsP+'</table>'+
+      (p.note?'<div style="font-size:12.5px;color:#92400e;margin-top:6px">⚠ '+esc(p.note)+'</div>':'')+
+      '<div class="btn-row" style="justify-content:flex-start;margin-top:8px"><button class="btn btn-p" onclick="adjNlApply()">넣기 ✓</button><button class="btn btn-s" onclick="adjNlCancel()">취소</button></div>'+
+      '<div style="font-size:12px;color:var(--gray);margin-top:4px">넣은 뒤에도 금액·부호를 직접 고칠 수 있고, 아래 판정에서 남은 차이로 검증됩니다.</div></div>';
+  }
+  return '<div style="margin-top:10px;padding:9px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px">'+
+    '<div style="font-size:13px"><b>✍ 말로 적어도 됩니다</b> <span style="color:var(--gray)">— 예: "7월 30일에 카드로 32만원 결제한 분이 카드 바꿔서 오늘 취소하고 34만원으로 다시 긁었어요"</span></div>'+
+    '<textarea id="adjNlIn" placeholder="상황을 그대로 적어주세요" style="width:100%;margin-top:7px;min-height:56px;font-size:14px;text-align:left;padding:8px;border:1px solid #d1d5db;border-radius:8px;font-family:inherit" oninput="S.adjNl=this.value">'+esc(S.adjNl||"")+'</textarea>'+
+    '<div class="btn-row" style="justify-content:flex-start;margin-top:6px"><button class="btn btn-s" onclick="adjNlAsk()">보정으로 바꾸기</button></div>'+
+    '<div id="adjNlMsg" style="font-size:12.5px;color:var(--gray);margin-top:4px"></div>'+prop+'</div>';
+}
+function adjNlCancel(){ S.adjNlProp=null; render(); }
+function adjNlApply(){
+  if(!S.adjNlProp) return;
+  S.adjNlProp.items.forEach(function(x){ S.adjusts.push({rail:x.rail, amt:String(x.amt), why:x.why, srcDate:x.srcDate||"", kind:"자연어"}); });
+  S.adjNlLog.push({raw:String(S.adjNl||"").trim(), items:S.adjNlProp.items});
+  S.adjNlProp=null; S.adjNl=""; render();
+}
+/* AI 응답에서 JSON만 뽑아 검증한다. 형식이 어긋나면 버린다 — 통과 못 하면 사람이 직접 입력. */
+function parseAdjJson(t){
+  var s=String(t||"").split("```").join("\n");
+  var a=s.indexOf("{"), b=s.lastIndexOf("}");
+  if(a<0||b<=a) return null;
+  var o=null; try{ o=JSON.parse(s.slice(a,b+1)); }catch(e){ return null; }
+  if(!o||!o.items||!o.items.length) return null;
+  var out=[];
+  o.items.forEach(function(x){
+    var rail=String(x.rail||"");
+    if(rail!=="카드"&&rail!=="통장"&&rail!=="금고") return;      // 레일이 셋 중 하나가 아니면 버린다
+    var amt=Number(x.amt);
+    if(!isFinite(amt)||amt===0) return;                          // 금액이 수가 아니면 버린다
+    var d=String(x.srcDate||"");
+    if(d && !/^\d{4}-\d{2}-\d{2}$/.test(d)) d="";
+    out.push({rail:rail, amt:Math.round(amt), why:String(x.why||"").slice(0,120), srcDate:d});
+  });
+  if(!out.length) return null;
+  return {items:out, note:String(o.note||"").slice(0,300)};
+}
+function adjNlAsk(){
+  var msgEl=document.getElementById("adjNlMsg");
+  var q=String(S.adjNl||"").trim();
+  if(!q){ if(msgEl) msgEl.textContent="상황을 먼저 적어주세요."; return; }
+  if(CFG.GAS_URL===""){ if(msgEl) msgEl.textContent="AI 연결 전입니다 — 아래에서 직접 입력해 주세요."; return; }
+  var c=computeChecks(), dt=reportDate();
+  var ctx="너는 한의원 일일결산의 '보정(adjust)' 입력을 돕는다. 직원이 적은 상황을 보정 레코드로 바꾸는 일만 한다.\n"
+    +"[보정의 뜻] 각 레코드의 amt는 '실측(카드단말·통장입금·금고현금)이 OK차트 기대보다 얼마나 많은지'를 설명하는 값이다. "
+    +"실측이 차트보다 많으면 양수, 적으면 음수. rail은 카드/통장/금고 중 하나. "
+    +"srcDate는 원거래일(YYYY-MM-DD)이고 오늘 거래면 빈 문자열. 지난 날짜 거래여도 그날 결산은 고치지 않고 오늘 조정으로 잡는다.\n"
+    +"[오늘] "+dt+"\n"
+    +"[현재 남은 차이] 카드 "+c.cardDiff+"원 / 통장 "+c.bankDiff+"원 / 금고 "+(c.safeDiff===null?"기준설정일":c.safeDiff+"원")+"\n"
+    +"[참고] OK차트 카드수납 "+c.ok.card+", 통장회수 "+c.ok.bank+", 현금수납 "+c.ok.cash+", 환불총액 "+c.ok.refund+"\n"
+    +"확실하지 않은 값은 지어내지 말고 note에 무엇이 불확실한지 한국어로 적어라. 금액이 불분명하면 그 항목을 빼라.\n"
+    +'반드시 아래 형태의 JSON만 출력한다. 설명·인사·마크다운 금지.\n'
+    +'{"items":[{"rail":"카드","amt":-320000,"srcDate":"2026-07-30","why":"카드 변경 — 원결제 취소"}],"note":""}';
+  if(msgEl) msgEl.textContent="읽는 중…";
+  fetch(CFG.GAS_URL,{method:"POST",body:JSON.stringify({action:"ai",k:CFG.APP_KEY,data:{context:ctx,messages:[{role:"user",content:q}]}})})
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var m=document.getElementById("adjNlMsg");
+      if(j.error==="no_key"){ if(m) m.textContent="AI 미연결 — 아래에서 직접 입력해 주세요."; return; }
+      if(j.error){ if(m) m.textContent="오류: "+j.error+" — 직접 입력해 주세요."; return; }
+      var p=parseAdjJson(j.text||"");
+      if(!p){ if(m) m.textContent="읽어내지 못했습니다 — 아래 프리셋으로 직접 넣어주세요."; return; }
+      S.adjNlProp=p; render();
+    })
+    .catch(function(e){ var m=document.getElementById("adjNlMsg"); if(m) m.textContent="연결 실패 — 직접 입력해 주세요."; });
 }
 /* ================= 화면 ================= */
 var STEPS = 9; // 0붙여넣기 1확인 2환불확인(조건부) 3올댓 4스마트로 5지출 6택배 7금고 8판정/완료
@@ -759,6 +889,7 @@ function payload(){
     inputs:{allthat:num(S.allthat),smartro:num(S.smartro),smartroRev:c.smartroRev,smartroFee:c.fee,emsAmt:c.ems,delivCardCnt:S.delivCardCnt,expenses:S.expenses,seoulpay:num(S.seoulpayToday),zeropay:num(S.zeropayToday),appPay:num(S.appPayToday),pending:c.pending,bankReal:c.bankReal,denomTotal:c.denomTotal,denom:S.denom,denomEtc:num(S.denomEtc),denomText:denomText(),prevSafeUsed:c.prevSafeUsed,prevSafeSource:c.prevSafeSource},
     judge:{card:c.pass.card,bank:c.pass.bank,safe:c.pass.safe,cardDiff:c.cardDiff,bankDiff:c.bankDiff,safeDiff:c.safeDiff,delivBankCnt:c.delivBankCnt,adj:c.adj},
     adjusts:S.adjusts.filter(function(a){return num(a.amt)!==0;}),
+    adjNl:S.adjNlLog,     // 자연어로 넣은 보정의 원문 — 나중에 "왜 이렇게 잡혔지" 추적용
     refundAnswers:{cardToday:S.refCardToday,bankOut:S.refBankOut},
     report:buildReport(c),
     memos:memosList(), aiChat:S.aiChat,
@@ -795,7 +926,7 @@ function printReport(){
   var denRows = CFG.DENOMS.map(function(d){return '<tr><td>'+fmt(d)+'원권</td><td>'+fmt(num(S.denom[d]))+'장</td><td>'+won(d*num(S.denom[d]))+'</td></tr>';}).join("")
     +(num(S.denomEtc)?'<tr><td>기타(동전 등)</td><td>—</td><td>'+won(S.denomEtc)+'</td></tr>':"");
   var memoRows = memosList().map(function(m){return '<tr><td>'+esc(m.rail)+'</td><td style="text-align:left">'+esc(m.note)+'</td></tr>';}).join("");
-  var adjRows = S.adjusts.filter(function(a){return num(a.amt)!==0;}).map(function(a){return '<tr><td>'+esc(a.rail)+'</td><td style="text-align:right">'+sgnWon(a.amt)+'</td><td style="text-align:left">'+esc(a.why||"")+'</td></tr>';}).join("");
+  var adjRows = S.adjusts.filter(function(a){return num(a.amt)!==0;}).map(function(a){return '<tr><td>'+esc(a.rail)+(a.srcDate&&a.srcDate!==reportDate()?' <span style="font-size:11px">('+esc(a.srcDate)+' 거래분)</span>':'')+'</td><td style="text-align:right">'+sgnWon(a.amt)+'</td><td style="text-align:left">'+esc(a.why||"")+'</td></tr>';}).join("");
   var refA=[]; if(S.refCardToday) refA.push("카드취소: "+(S.refCardToday==="today"?"오늘 단말 취소":"다른 날/미처리"));
   if(S.refBankOut) refA.push("통장환불 이체: "+(S.refBankOut==="done"?"완료":"예정"));
   var R = buildReport(c);
