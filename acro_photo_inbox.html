@@ -126,7 +126,7 @@ var GAS_URL = "https://script.google.com/macros/s/AKfycbypKSEXsX0IzNm-GvPPBtK4b7
 var TREATMENTS = ["온다", "웨이브", "컷"];
 var BODY_PARTS = ["안면", "복부", "위팔", "허벅지", "종아리", "전신", "직접입력"];
 var TIMINGS = ["시술전", "시술후", "직접입력"];
-var MAX_EDGE = 3200, JPEG_Q = 0.85;
+var MAX_EDGE = 4096, JPEG_Q = 0.92, PASS_MAX_BYTES = 10 * 1024 * 1024;
 
 var photos = []; // {b64, mime, status, el}
 var selTreats = {}, selPart = null;
@@ -242,13 +242,12 @@ function canvasCapture() {
   var scale = Math.min(1, MAX_EDGE / Math.max(v.videoWidth, v.videoHeight));
   c.width = Math.round(v.videoWidth * scale);
   c.height = Math.round(v.videoHeight * scale);
-  c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+  var ctx = c.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(v, 0, 0, c.width, c.height);
   var dataUrl = c.toDataURL("image/jpeg", JPEG_Q);
-  var item = { b64: dataUrl.split(",")[1], mime: "image/jpeg", status: "대기" };
-  photos.push(item);
-  renderThumb(item, dataUrl);
-  $("btnUp").style.display = "block";
-  camFeedback();
+  pushPhoto(dataUrl.split(",")[1], dataUrl);
 }
 function shootFrame() {
   if (camIC && camIC.takePhoto) {
@@ -278,19 +277,34 @@ $("fFilesGal").onchange = onPickFiles;
 function addPhoto(file) {
   var img = new Image();
   img.onload = function () {
-    var w = img.width, h = img.height, scale = Math.min(1, MAX_EDGE / Math.max(w, h));
+    var w = img.width, h = img.height;
+    URL.revokeObjectURL(img.src);
+    // 원본 통과: JPEG이고 해상도·용량이 한도 안이면 재압축하지 않는다 (화질 손실 0)
+    if (file.type === "image/jpeg" && file.size <= PASS_MAX_BYTES && Math.max(w, h) <= MAX_EDGE) {
+      var fr = new FileReader();
+      fr.onload = function () { pushPhoto(String(fr.result).split(",")[1], String(fr.result)); };
+      fr.readAsDataURL(file);
+      return;
+    }
+    var scale = Math.min(1, MAX_EDGE / Math.max(w, h));
     var c = document.createElement("canvas");
     c.width = Math.round(w * scale); c.height = Math.round(h * scale);
-    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-    URL.revokeObjectURL(img.src);
+    var ctx = c.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, c.width, c.height);
     var dataUrl = c.toDataURL("image/jpeg", JPEG_Q);
-    var item = { b64: dataUrl.split(",")[1], mime: "image/jpeg", status: "대기" };
-    photos.push(item);
-    renderThumb(item, dataUrl);
-    $("btnUp").style.display = "block";
-    if ($("camModal").style.display === "block") camFeedback();
+    pushPhoto(dataUrl.split(",")[1], dataUrl);
   };
   img.src = URL.createObjectURL(file);
+}
+
+function pushPhoto(b64, dataUrl) {
+  var item = { b64: b64, mime: "image/jpeg", status: "대기" };
+  photos.push(item);
+  renderThumb(item, dataUrl);
+  $("btnUp").style.display = "block";
+  if ($("camModal").style.display === "block") camFeedback();
 }
 
 function renderThumb(item, dataUrl) {
@@ -377,7 +391,7 @@ function uploadAll(chart, name, ymd, meta) {
 
 function post(payload, timeoutMs) {
   var ctl = (typeof AbortController !== "undefined") ? new AbortController() : null;
-  var timer = ctl ? setTimeout(function () { ctl.abort(); }, timeoutMs || 60000) : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, timeoutMs || 120000) : null;
   return fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload), signal: ctl ? ctl.signal : undefined })
     .then(function (r) {
       if (timer) clearTimeout(timer);
@@ -386,7 +400,7 @@ function post(payload, timeoutMs) {
     })
     .catch(function (e) {
       if (timer) clearTimeout(timer);
-      throw (e && e.name === "AbortError") ? "시간 초과(60초·사진이 너무 큼)" : e;
+      throw (e && e.name === "AbortError") ? "시간 초과(120초·사진이 너무 큼)" : e;
     });
 }
 
