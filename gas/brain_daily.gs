@@ -6,7 +6,9 @@
  *
  * 구조 — L0 게이트웨이:
  *   헌법(acro_canon의 L0_헌법_v 최신본)이 시스템 프롬프트 최상단에 앉고,
- *   그 아래에 작업 지시, 그 아래에 오늘의 슬랙 다이제스트가 온다.
+ *   그 아래에 작업 지시, 그 아래에 오늘의 슬랙 다이제스트 + OK차트 실측(feed)이 온다.
+ *   feed는 canon 리포 feed/okchart_daily.json — 워커 저녁 잡(okchart/daily_jobs.py)이 커밋.
+ *   feed가 없거나 오늘 것이 아니면 조용히 생략(뇌는 실측 없이도 돈다).
  *   헌법 로딩 실패 시 마지막 캐시를 쓰고 슬랙에 경보한다(조용히 실패 금지).
  *
  * 전제: build_kb.gs · rainy_hook.gs 와 같은 Apps Script 프로젝트
@@ -36,8 +38,11 @@ function acbDaily() {
   try {
     var l0 = acbLoadL0_();
     var digest = acbReadChannels_();
-    if (!digest.text) { acbPost_('🌙 하루 마무리 — 오늘 읽을 수 있는 채널 메시지가 없습니다 (설정 확인: BRAIN_READ_CHANNELS).'); return; }
-    var out = acbAsk_(l0.text + '\n\n---\n\n' + acbTaskPrompt_(), digest.text);
+    var feed = acbLoadFeed_();
+    var user = digest.text
+      + (feed ? (digest.text ? '\n\n' : '') + '## OK차트 실측(전산)\n' + acbFeedText_(feed) : '');
+    if (!user) { acbPost_('🌙 하루 마무리 — 오늘 읽을 수 있는 채널 메시지가 없습니다 (설정 확인: BRAIN_READ_CHANNELS).'); return; }
+    var out = acbAsk_(l0.text + '\n\n---\n\n' + acbTaskPrompt_(), user);
     acbPost_(out + (l0.stale ? '\n_⚠ 헌법을 캐시본으로 사용함 (최신 로딩 실패)_' : ''));
     props.deleteProperty('BRAIN_LAST_ERR');
   } catch (e) {
@@ -64,6 +69,8 @@ function acbTaskPrompt_() {
     '· 판정 대기: 원장 판정을 기다리는 것 (채굴 다이제스트 등, 없으면 생략)',
     '· 내일: 준비사항 — 채널에서 실제로 보이는 것만 (없으면 생략)',
     '· 조언: 0~2개 — 정본과 어긋난 안내, 반복 수작업, 놓친 것이 실제로 보일 때만. 억지로 만들지 않는다. 없으면 "특이사항 없음"',
+    '',
+    '다이제스트에 "OK차트 실측(전산)" 블록이 있으면 결산·내일 항목은 그 숫자를 사실로 쓴다(전산 실측이 곧 확인이다).',
     '',
     '금지: 환자 이름·차트번호 언급(건수·이니셜만), 추측으로 채우기(확인 안 되면 "확인 불가"), 영업성 문구, 다이제스트에 없는 내용.'
   ].join('\n');
@@ -97,6 +104,35 @@ function acbLoadL0_() {
     if (cached) return { text: cached, stale: true };   // 캐시로 계속 — 게시물 말미에 표기됨
     throw new Error('헌법 로딩 실패(캐시도 없음): ' + String(e && e.message || e));
   }
+}
+
+/** OK차트 실측 feed — canon 리포 feed/okchart_daily.json (워커 저녁 잡이 커밋).
+ *  오늘 날짜가 아니거나 없으면 null — 뇌는 실측 없이도 돈다 (조용한 생략, 경보 아님) */
+function acbLoadFeed_() {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var repo = props.getProperty('CANON_REPO'), token = props.getProperty('GH_TOKEN');
+    if (!repo || !token) return null;
+    var res = UrlFetchApp.fetch('https://api.github.com/repos/' + repo + '/contents/feed/okchart_daily.json',
+      { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) return null;
+    var j = JSON.parse(res.getContentText());
+    if (!j || !j.content) return null;
+    var feed = JSON.parse(Utilities.newBlob(Utilities.base64Decode(String(j.content).replace(/\n/g, ''))).getDataAsString('UTF-8'));
+    var today = Utilities.formatDate(new Date(), 'Asia/Seoul', 'yyyy-MM-dd');
+    return (feed && feed.date === today) ? feed : null;
+  } catch (e) { return null; }
+}
+
+function acbFeedText_(f) {
+  var won = function (n) { return String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원'; };
+  var pays = (f.pay_by_method || []).map(function (p) { return p.method + ' ' + p.cnt + '건 ' + won(p.sum); }).join(' · ');
+  return [
+    '진료 환자 ' + (f.visits || 0) + '명',
+    '결제: ' + (pays || '없음'),
+    '오늘 발생 미수 합 ' + won(f.misu_today),
+    '내일 예약 ' + (f.resv_tomorrow || 0) + '건' + (f.resv_tomorrow_first ? ' (첫 ' + f.resv_tomorrow_first + ')' : '')
+  ].join('\n');
 }
 
 /** 오늘 00:00 KST 이후 슬랙 메시지 수집 → 마스킹 → 다이제스트 */
