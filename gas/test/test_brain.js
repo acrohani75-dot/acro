@@ -2,7 +2,7 @@
 const fs=require('fs'), vm=require('vm'), path=require('path');
 const G=f=>path.join(__dirname,'..',f);
 const logs=[], posted=[], fetches=[];
-let anthropicResponse=null, propsStore={};
+let anthropicResponse=null, propsStore={}, feedFile=null; // {content:base64} 또는 null(404)
 const sandbox={
   PropertiesService:{getScriptProperties:()=>({
     getProperty:k=>propsStore[k]||null,
@@ -10,6 +10,9 @@ const sandbox={
     deleteProperty:k=>{delete propsStore[k];}
   })},
   UrlFetchApp:{fetch:(url,opt)=>{fetches.push(url);
+    if(url.includes('feed/okchart_daily.json')) return feedFile
+      ? {getResponseCode:()=>200,getContentText:()=>JSON.stringify(feedFile)}
+      : {getResponseCode:()=>404,getContentText:()=>'{}'};
     if(url.includes('api.github.com')) return {getResponseCode:()=>200,getContentText:()=>JSON.stringify([
       {name:'L0_헌법_v0_2_260806.md',download_url:'dl://v02'},
       {name:'L0_헌법_v1_1_260806.md',download_url:'dl://v11'},
@@ -23,7 +26,9 @@ const sandbox={
     if(url.includes('chat.postMessage')){posted.push(JSON.parse(opt.payload));return {getResponseCode:()=>200,getContentText:()=>'{"ok":true}'};}
     return {getResponseCode:()=>404,getContentText:()=>''};
   }},
-  Utilities:{formatDate:(d,tz,fmt)=>fmt==='yyyy-MM-dd'?'2026-08-06':'12:34'},
+  Utilities:{formatDate:(d,tz,fmt)=>fmt==='yyyy-MM-dd'?'2026-08-06':'12:34',
+    base64Decode:s=>Buffer.from(s,'base64'),
+    newBlob:b=>({getDataAsString:()=>Buffer.from(b).toString('utf8')})},
   ScriptApp:{getProjectTriggers:()=>[],newTrigger:()=>({timeBased:()=>({atHour:()=>({everyDays:()=>({create:()=>{}})})})})},
   JSON,Object,String,Array,Math,Date,RegExp,Error,Number,encodeURIComponent,console
 };
@@ -84,6 +89,38 @@ ok('작업 지시가 헌법 뒤에', capturedSystem.indexOf('하루 마무리')>
 ok('#회의_프로그램에 게시됨', posted.length===1 && posted[0].channel==='CMEET');
 ok('게시문에 마무리 내용', posted[0].text.includes('하루 마무리'));
 ok('오류 상태 클리어', !propsStore.BRAIN_LAST_ERR);
+
+console.log('5b) OK차트 실측 feed — 로딩·날짜검증·다이제스트 결합');
+const mkFeed=o=>({content:Buffer.from(JSON.stringify(o),'utf8').toString('base64')});
+const todayFeed={v:1,date:'2026-08-06',visits:23,pay_by_method:[{method:'카드',cnt:12,sum:1234000}],misu_today:50000,resv_tomorrow:17,resv_tomorrow_first:'10:00'};
+propsStore={CANON_REPO:'x/c',GH_TOKEN:'t'};
+feedFile=mkFeed(todayFeed);
+let f=sandbox.acbLoadFeed_();
+ok('오늘 feed 로딩', !!f && f.visits===23);
+ok('실측 블록 문구·천단위', sandbox.acbFeedText_(f).includes('카드 12건 1,234,000원') && sandbox.acbFeedText_(f).includes('내일 예약 17건 (첫 10:00)'));
+feedFile=mkFeed({v:1,date:'2026-08-05',visits:9});
+ok('어제 feed는 무시(null)', sandbox.acbLoadFeed_()===null);
+feedFile=null;
+ok('feed 없음(404)도 null — 조용한 생략', sandbox.acbLoadFeed_()===null);
+
+console.log('5c) 전체 흐름 — feed가 사용자 입력에 결합');
+feedFile=mkFeed(todayFeed);
+propsStore={CANON_REPO:'x/c',GH_TOKEN:'t',SLACK_TOKEN:'x',BRAIN_READ_CHANNELS:'C001',
+            ANTHROPIC_API_KEY:'k',BRAIN_POST_CHANNEL:'CMEET'};
+anthropicResponse={stop_reason:'end_turn',content:[{type:'text',text:'🌙 하루 마무리 — 2026-08-06\n· 결산: 실측 23명'}]};
+const origAsk3=sandbox.acbAsk_; let capturedUser='';
+sandbox.acbAsk_=function(s,u){capturedUser=u;return origAsk3(s,u);};
+posted.length=0;
+sandbox.acbDaily();
+ok('실측 블록이 다이제스트 뒤에 결합', capturedUser.includes('## OK차트 실측(전산)') && capturedUser.indexOf('채널')<capturedUser.indexOf('OK차트 실측'));
+ok('게시 정상', posted.length===1);
+// 슬랙이 비어도 feed만으로 돈다
+propsStore={CANON_REPO:'x/c',GH_TOKEN:'t',SLACK_TOKEN:'x',
+            ANTHROPIC_API_KEY:'k',BRAIN_POST_CHANNEL:'CMEET'};  // BRAIN_READ_CHANNELS 없음
+posted.length=0;
+sandbox.acbDaily();
+ok('슬랙 0건+feed 있음 → 실측만으로 게시', posted.length===1 && !posted[0].text.includes('채널 메시지가 없습니다'));
+feedFile=null;
 
 console.log('6) 실패 시 — 경보하되 같은 오류 반복 억제');
 propsStore={SLACK_TOKEN:'x',BRAIN_POST_CHANNEL:'CMEET'};  // 헌법 로딩 실패 유도
