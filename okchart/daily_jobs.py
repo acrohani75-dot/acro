@@ -26,14 +26,27 @@ import urllib.request
 BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # jobs\ 상위 = 워커 폴더
 
 # ── 쿼리 상수 (SQL Server 2008 R2 — SELECT만) ──────────────────────────────
+# ⚠ TTTDrug는 방문 1건이 여러 행(진료 행+처방 행)으로 쪼개지고 [결제금액]·[미수금]이
+#   행마다 복사된다 — 단순 SUM은 약 2배 과대계상 (탐침 260812 실측: 8월 81,975,500
+#   vs 중복제거 39,009,900). 반드시 DISTINCT 서브쿼리로 중복 제거 후 집계한다.
+#   [결제금액]>0 조건: 결제방법 빈값·0원 행 1,190건 제외.
 Q_RESV = ("SELECT Res_Time_0, Res_ChartNo, Res_Name, Res_DoctorName, Res_Item "
           "FROM Reservation_New WHERE Res_Canceled=0 AND Res_Date=? ORDER BY Res_Time_0")
 Q_VISITS = "SELECT COUNT(DISTINCT Customer_PK) FROM Detail WHERE TxDate>=? AND TxDate<?"
-Q_PAY = ("SELECT [결제방법], COUNT(*), SUM([결제금액]) FROM TTTDrug "
-         "WHERE TxDate>=? AND TxDate<? GROUP BY [결제방법]")
-Q_MISU = "SELECT SUM([미수금]) FROM TTTDrug WHERE TxDate>=? AND TxDate<?"
+Q_PAY = ("SELECT [결제방법], COUNT(*), SUM(p) FROM ("
+         "SELECT DISTINCT Customer_PK, TxDate, [결제방법], [결제금액] p "
+         "FROM TTTDrug WHERE TxDate>=? AND TxDate<? AND [결제금액]>0) t "
+         "GROUP BY [결제방법]")
+Q_MISU = ("SELECT SUM(m) FROM ("
+          "SELECT DISTINCT Customer_PK, TxDate, [미수금] m "
+          "FROM TTTDrug WHERE TxDate>=? AND TxDate<?) t")
 Q_RESV_CNT = ("SELECT COUNT(*), MIN(Res_Time_0) FROM Reservation_New "
               "WHERE Res_Canceled=0 AND Res_Date=?")
+# [해피콜]은 완료 플래그가 아니라 '예정일'이다([해피콜완료]는 전 행 NULL — 사용 금지).
+# 날짜형·ISO문자열 모두 안전하게 범위 비교. 첫 실발사에서 건수를 탐침 P2와 대조할 것.
+Q_HCALL = ("SELECT DISTINCT c.sn, t.Name FROM TTTDrug t "
+           "JOIN MasterDB.dbo.Customer c ON c.Customer_PK=t.Customer_PK "
+           "WHERE t.[해피콜]>=? AND t.[해피콜]<?")
 
 
 def load_cfg():
@@ -62,12 +75,12 @@ def q(conn, database, sql, params):
 
 
 # ── 순수 조립 함수 (테스트 대상) ────────────────────────────────────────────
-def morning_report(rows_today, rows_tomorrow, today, tomorrow):
-    """오늘·내일 예약을 게시문으로. 둘 다 0건이면 None(게시 생략)."""
-    if not rows_today and not rows_tomorrow:
+def morning_report(rows_today, rows_tomorrow, rows_hcall, today, tomorrow):
+    """오늘·내일 예약 + 오늘 해피콜 예정을 게시문으로. 전부 0건이면 None(게시 생략)."""
+    if not rows_today and not rows_tomorrow and not rows_hcall:
         return None
-    lines = ["📋 예약 리스트 — %s (오늘 %d건 · 내일 %d건)"
-             % (today, len(rows_today), len(rows_tomorrow))]
+    lines = ["📋 예약·콜 리스트 — %s (오늘 예약 %d건 · 내일 %d건 · 해피콜 예정 %d명)"
+             % (today, len(rows_today), len(rows_tomorrow), len(rows_hcall))]
     def block(title, rows):
         if not rows:
             return
@@ -77,6 +90,10 @@ def morning_report(rows_today, rows_tomorrow, today, tomorrow):
             lines.append("· %s %s(%s) %s — %s" % (t, name, chart, item, doc))
     block("[오늘]", rows_today)
     block("[내일 %s — 내원전 확인콜 대상]" % tomorrow, rows_tomorrow)
+    if rows_hcall:
+        lines.append("[오늘 해피콜 예정]")
+        for r in rows_hcall:
+            lines.append("· %s(%s)" % (str(r[1] or "").strip(), str(r[0] or "").strip()))
     return "\n".join(lines)
 
 
@@ -137,7 +154,8 @@ def run_morning(conn, cfg, dry):
     today = datetime.date.today()
     d0, d1 = today.isoformat(), (today + datetime.timedelta(days=1)).isoformat()
     text = morning_report(q(conn, "MasterDB", Q_RESV, (d0,)),
-                          q(conn, "MasterDB", Q_RESV, (d1,)), d0, d1)
+                          q(conn, "MasterDB", Q_RESV, (d1,)),
+                          q(conn, "TreatCurrent", Q_HCALL, (d0, d1)), d0, d1)
     if text is None:
         print("예약 0건 — 게시 생략")
         return
