@@ -43,21 +43,20 @@ print("1) morning_report — 형식·0건 생략")
 rows_t = [("10:00", "001234", "홍길동", "임원장", "온다")]
 rows_m = [("09:30", "005678", "김영희", "박원장", "다이어트재진"),
           ("11:00", "000009", "조민지", "임원장", "체크")]
-rows_h = [("003333", "박선영"), ("004444", "이도윤")]
-txt = dj.morning_report(rows_t, rows_m, rows_h, "2026-08-11", "2026-08-12")
-ok("헤더에 건수", "오늘 예약 1건 · 내일 2건 · 해피콜 예정 2명" in txt)
+txt = dj.morning_report(rows_t, rows_m, "2026-08-11", "2026-08-12")
+ok("헤더에 건수", "오늘 1건 · 내일 2건" in txt)
 ok("오늘 블록 형식", "· 10:00 홍길동(001234) 온다 — 임원장" in txt)
 ok("내일 블록에 확인콜 문구", "내원전 확인콜 대상" in txt)
 ok("시간순 그대로 유지", txt.index("09:30") < txt.index("11:00"))
-ok("해피콜 블록 형식", "[오늘 해피콜 예정]" in txt and "· 박선영(003333)" in txt)
-ok("전부 0건이면 None", dj.morning_report([], [], [], "d", "d") is None)
-ok("None 값 안전 처리", "· " in dj.morning_report([(None, "1", None, "의", "항목")], [], [], "d", "d"))
+ok("해피콜 언급 없음(이번 단계 밖)", "해피콜" not in txt)
+ok("둘 다 0건이면 None", dj.morning_report([], [], "d", "d") is None)
+ok("None 값 안전 처리", "· " in dj.morning_report([(None, "1", None, "의", "항목")], [], "d", "d"))
 
 print("1b) 쿼리 상수 — TTTDrug 행중복 방어(탐침 260812)")
 ok("Q_PAY 중복제거+0원 제외", "DISTINCT" in dj.Q_PAY and "[결제금액]>0" in dj.Q_PAY)
 ok("Q_MISU 중복제거", "DISTINCT" in dj.Q_MISU)
-ok("Q_HCALL 해피콜완료 미사용·범위비교", "해피콜완료" not in dj.Q_HCALL and "[해피콜]>=?" in dj.Q_HCALL)
-ok("전 쿼리 SELECT만", all(s.strip().startswith("SELECT") for s in (dj.Q_RESV, dj.Q_VISITS, dj.Q_PAY, dj.Q_MISU, dj.Q_RESV_CNT, dj.Q_HCALL)))
+ok("해피콜 쿼리 부재(이번 단계 밖)", not hasattr(dj, "Q_HCALL"))
+ok("전 쿼리 SELECT만", all(s.strip().startswith("SELECT") for s in (dj.Q_RESV, dj.Q_VISITS, dj.Q_PAY, dj.Q_MISU, dj.Q_RESV_CNT)))
 
 print("2) build_feed — 계약 v1 · 무PII")
 feed = dj.build_feed(23, [("카드", 12, 1234000), (None, 1, None)], 50000, 17, "10:00:00", "2026-08-11", "21:40")
@@ -67,15 +66,13 @@ ok("첫 예약시각 HH:MM 절단", feed["resv_tomorrow_first"] == "10:00")
 ok("이름·차트 키 없음(무PII)", not any(k in json.dumps(feed, ensure_ascii=False) for k in ("name", "chart", "홍길동")))
 
 print("3) run_morning — 쿼리 흐름·dry-run 출력·0건 생략")
-conn = FakeConn({"SELECT Res_Time_0": lambda p: rows_t if p[0] == dj.datetime.date.today().isoformat() else rows_m,
-                 "SELECT DISTINCT c.sn": rows_h})
+conn = FakeConn({"SELECT Res_Time_0": lambda p: rows_t if p[0] == dj.datetime.date.today().isoformat() else rows_m})
 buf = io.StringIO()
 with contextlib.redirect_stdout(buf):
     dj.run_morning(conn, {}, dry=True)
-ok("dry-run이 게시문 출력", "예약·콜 리스트" in buf.getvalue())
-ok("해피콜도 게시문에 포함", "박선영" in buf.getvalue())
+ok("dry-run이 게시문 출력", "예약 리스트" in buf.getvalue())
 ok("MasterDB USE 선행", any("USE [MasterDB]" in s for s, _ in conn.log))
-conn2 = FakeConn({"SELECT Res_Time_0": [], "SELECT DISTINCT c.sn": []})
+conn2 = FakeConn({"SELECT Res_Time_0": []})
 buf = io.StringIO()
 with contextlib.redirect_stdout(buf):
     dj.run_morning(conn2, {}, dry=True)
