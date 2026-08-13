@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """OK차트 일일 잡 — 아침 예약 리스트(Slack) · 저녁 실측 feed(GitHub)
 
+범위: 예약 리스트와 일일 집계만. 해피콜은 이번 단계 밖이다(원장 판정 260813).
+
 원장 PC 워커 폴더(jobs\\)에 두고 작업 스케줄러로 하루 2회 실행한다.
   python daily_jobs.py morning [--dry-run]   # 08:30 오늘·내일 예약 → Slack 게시
   python daily_jobs.py evening [--dry-run]   # 21:40 오늘 집계 → canon 리포 feed 커밋
@@ -42,11 +44,9 @@ Q_MISU = ("SELECT SUM(m) FROM ("
           "FROM TTTDrug WHERE TxDate>=? AND TxDate<?) t")
 Q_RESV_CNT = ("SELECT COUNT(*), MIN(Res_Time_0) FROM Reservation_New "
               "WHERE Res_Canceled=0 AND Res_Date=?")
-# [해피콜]은 완료 플래그가 아니라 '예정일'이다([해피콜완료]는 전 행 NULL — 사용 금지).
-# 날짜형·ISO문자열 모두 안전하게 범위 비교. 첫 실발사에서 건수를 탐침 P2와 대조할 것.
-Q_HCALL = ("SELECT DISTINCT c.sn, t.Name FROM TTTDrug t "
-           "JOIN MasterDB.dbo.Customer c ON c.Customer_PK=t.Customer_PK "
-           "WHERE t.[해피콜]>=? AND t.[해피콜]<?")
+# 해피콜: 이번 단계 범위 아님(원장 판정 260813 "지금 단계에서 체크할 건 아니다").
+# [해피콜]=예정일 · [해피콜완료]=전 행 NULL 이라는 탐침 결과는 설계 정본에 보존 — 판정 규칙
+# 확정 후 U3에서 다룬다. 여기에 되살리지 말 것.
 
 
 def load_cfg():
@@ -75,12 +75,12 @@ def q(conn, database, sql, params):
 
 
 # ── 순수 조립 함수 (테스트 대상) ────────────────────────────────────────────
-def morning_report(rows_today, rows_tomorrow, rows_hcall, today, tomorrow):
-    """오늘·내일 예약 + 오늘 해피콜 예정을 게시문으로. 전부 0건이면 None(게시 생략)."""
-    if not rows_today and not rows_tomorrow and not rows_hcall:
+def morning_report(rows_today, rows_tomorrow, today, tomorrow):
+    """오늘·내일 예약을 게시문으로. 둘 다 0건이면 None(게시 생략)."""
+    if not rows_today and not rows_tomorrow:
         return None
-    lines = ["📋 예약·콜 리스트 — %s (오늘 예약 %d건 · 내일 %d건 · 해피콜 예정 %d명)"
-             % (today, len(rows_today), len(rows_tomorrow), len(rows_hcall))]
+    lines = ["📋 예약 리스트 — %s (오늘 %d건 · 내일 %d건)"
+             % (today, len(rows_today), len(rows_tomorrow))]
     def block(title, rows):
         if not rows:
             return
@@ -90,10 +90,6 @@ def morning_report(rows_today, rows_tomorrow, rows_hcall, today, tomorrow):
             lines.append("· %s %s(%s) %s — %s" % (t, name, chart, item, doc))
     block("[오늘]", rows_today)
     block("[내일 %s — 내원전 확인콜 대상]" % tomorrow, rows_tomorrow)
-    if rows_hcall:
-        lines.append("[오늘 해피콜 예정]")
-        for r in rows_hcall:
-            lines.append("· %s(%s)" % (str(r[1] or "").strip(), str(r[0] or "").strip()))
     return "\n".join(lines)
 
 
@@ -154,8 +150,7 @@ def run_morning(conn, cfg, dry):
     today = datetime.date.today()
     d0, d1 = today.isoformat(), (today + datetime.timedelta(days=1)).isoformat()
     text = morning_report(q(conn, "MasterDB", Q_RESV, (d0,)),
-                          q(conn, "MasterDB", Q_RESV, (d1,)),
-                          q(conn, "TreatCurrent", Q_HCALL, (d0, d1)), d0, d1)
+                          q(conn, "MasterDB", Q_RESV, (d1,)), d0, d1)
     if text is None:
         print("예약 0건 — 게시 생략")
         return

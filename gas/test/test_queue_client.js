@@ -1,10 +1,11 @@
 // okchart_queue_client.gs 순수 로직 검증 — GAS API 스텁
 const fs=require('fs'), vm=require('vm'), path=require('path');
 const G=f=>path.join(__dirname,'..',f);
-let propsStore={}, script=[], calls=[], slept=0;
+let propsStore={}, script=[], calls=[], slept=0, lastPayload='{}';
 const sandbox={
   PropertiesService:{getScriptProperties:()=>({getProperty:k=>propsStore[k]||null})},
   UrlFetchApp:{fetch:(url,opt)=>{calls.push({url,method:(opt&&opt.method)||'get'});
+    if(opt&&opt.payload) lastPayload=opt.payload;
     const step=script.shift()||{code:404,body:'{}'};
     return {getResponseCode:()=>step.code,getContentText:()=>step.body};}},
   Utilities:{sleep:ms=>{slept+=ms;}},
@@ -53,6 +54,32 @@ reset([{code:200,body:'{"id":"a"}'},{code:200,body:'{"status":"done","result":[{
 let ctx=sandbox.acqPatientContext_({chart:'1'});
 ok('재진 확인+최근 진료 포함', ctx.includes('재진')&&ctx.includes('다이어트재진'));
 ok('내부용 경고 문구 포함', ctx.includes('노출 금지'));
+
+console.log('4) 예약 응대 — 빈 슬롯·게시 (허브 인계 260813)');
+const CAND=['10:00','11:00','14:00','15:00'];
+reset([{code:200,body:'{"id":"r1"}'},
+       {code:200,body:'{"status":"done","result":[{"Res_Time_0":"11:00:00"},{"Res_Time_0":"14:00"}]}'}]);
+ok('예약 시각 HH:MM 정규화', JSON.stringify(sandbox.acqBookedTimes_('2026-08-14'))==='["11:00","14:00"]');
+reset([{code:200,body:'{"id":"r2"}'},
+       {code:200,body:'{"status":"done","result":[{"Res_Time_0":"11:00:00"}]}'}]);
+ok('빈 슬롯 = 후보 − 예약', JSON.stringify(sandbox.acqFreeSlots_('2026-08-14',CAND))==='["10:00","14:00","15:00"]');
+reset([{code:200,body:'{"id":"r3"}'},{code:200,body:'{"status":"done","result":[]}'}]);
+ok('예약 0건이면 후보 전부 빈 슬롯', sandbox.acqFreeSlots_('2026-08-14',CAND).length===4);
+reset([{code:500,body:''}]);
+ok('★조회 실패는 null — 빈 배열 아님(중복예약 방지)', sandbox.acqFreeSlots_('2026-08-14',CAND)===null);
+reset([{code:200,body:'{"id":"r4"}'},{code:200,body:'{"status":"error"}'}]);
+ok('워커 error도 null', sandbox.acqBookedTimes_('2026-08-14')===null);
+
+propsStore={SLACK_TOKEN:'x'};   // 채널 속성 없음
+ok('채널 미설정이면 게시 안 함', sandbox.acqPostReservation_('홍길동','8/14 10:00','온다')===false);
+propsStore={SLACK_TOKEN:'x',OKQ_RESV_CHANNEL:'CINCALL'};
+reset([{code:200,body:'{"ok":true}'}]);
+ok('게시 성공', sandbox.acqPostReservation_('홍길동','8/14 10:00','온다')===true);
+ok('1줄 형식 [예약] 이름/일시/시술', JSON.parse(lastPayload).text==='[예약] 홍길동 / 8/14 10:00 / 온다');
+ok('게시 채널은 속성값', JSON.parse(lastPayload).channel==='CINCALL');
+reset([{code:200,body:'{"ok":true}'}]);
+sandbox.acqPostReservation_('','','');
+ok('빈 값도 안전하게 표기', JSON.parse(lastPayload).text==='[예약] 이름미상 / 일시미상 / 시술미상');
 
 console.log('\n'+(fail?`❌ ${pass}/${pass+fail}`:`✅ 전부 통과 — ${pass}케이스`));
 process.exit(fail?1:0);
