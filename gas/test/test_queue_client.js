@@ -2,22 +2,30 @@
 const fs=require('fs'), vm=require('vm'), path=require('path');
 const G=f=>path.join(__dirname,'..',f);
 let propsStore={}, script=[], calls=[], slept=0, lastPayload='{}';
+// script는 "응답 시퀀스"다. fetchAll은 요청 수만큼 앞에서 꺼내 쓴다(제출 병렬 = 한 묶음).
+const take=()=>{const s=script.shift()||{code:404,body:'{}'};return {getResponseCode:()=>s.code,getContentText:()=>s.body};};
+let fetchAllSizes=[];
 const sandbox={
   PropertiesService:{getScriptProperties:()=>({getProperty:k=>propsStore[k]||null})},
-  UrlFetchApp:{fetch:(url,opt)=>{calls.push({url,method:(opt&&opt.method)||'get'});
-    if(opt&&opt.payload) lastPayload=opt.payload;
-    const step=script.shift()||{code:404,body:'{}'};
-    return {getResponseCode:()=>step.code,getContentText:()=>step.body};}},
+  UrlFetchApp:{
+    fetch:(url,opt)=>{calls.push({url,method:(opt&&opt.method)||'get'});
+      if(opt&&opt.payload) lastPayload=opt.payload;
+      return take();},
+    fetchAll:reqs=>{fetchAllSizes.push(reqs.length);
+      return reqs.map(r=>{calls.push({url:r.url,method:r.method||'get'});
+        if(r.payload) lastPayload=r.payload;
+        return take();});}
+  },
   Utilities:{sleep:ms=>{slept+=ms;}},
   JSON,Object,String,Array,Math,Date,Error,Number,encodeURIComponent,console
 };
 vm.createContext(sandbox);
 vm.runInContext(fs.readFileSync(G('okchart_queue_client.gs'),'utf8'),sandbox);
-sandbox.ACQ_CFG.POLL_MS=1000; sandbox.ACQ_CFG.MAX_WAIT_MS=3000; // 테스트용 축소
+sandbox.ACQ_CFG.POLL_STEPS_MS=[1000]; sandbox.ACQ_CFG.MAX_WAIT_MS=3000; // 테스트용 축소
 
 let pass=0,fail=0;
 const ok=(l,c)=>{c?(pass++,console.log('  ✓ '+l)):(fail++,console.log('  ✗ '+l));};
-const reset=(s)=>{script=s;calls=[];slept=0;};
+const reset=(s)=>{script=s;calls=[];slept=0;fetchAllSizes=[];};
 
 console.log('1) 정상 왕복 — submit → processing → done');
 propsStore={OKQ_URL:'https://q/exec',OKQ_TOKEN:'T'};
@@ -45,15 +53,37 @@ reset([{code:200,body:'{"id":"j4"}'},{code:503,body:''},
        {code:200,body:'{"status":"done","result":1}'}]);
 ok('폴링 일시 오류는 건너뛰고 재시도', sandbox.acqQuery_('x',{})===1);
 
+console.log('2b) 다건 동시 조회 — 제출·폴링이 각각 한 묶음');
+reset([{code:200,body:'{"id":"a"}'},{code:200,body:'{"id":"b"}'},        // 제출 3건 한 번에
+       {code:200,body:'{"id":"c"}'},
+       {code:200,body:'{"status":"done","result":1}'},                    // 폴링 3건 한 번에
+       {code:200,body:'{"status":"done","result":2}'},
+       {code:200,body:'{"status":"done","result":3}'}]);
+let multi=sandbox.acqQueryMulti_([{name:'a'},{name:'b'},{name:'c'}]);
+ok('3건 결과가 순서대로', JSON.stringify(multi)==='[1,2,3]');
+ok('왕복은 제출1+폴링1 = 2묶음', fetchAllSizes.length===2);
+ok('묶음마다 3건 병렬', fetchAllSizes[0]===3&&fetchAllSizes[1]===3);
+ok('대기는 3건이 아니라 1건 분량', slept===1000);
+reset([{code:200,body:'{"id":"a"}'},{code:500,body:''},{code:200,body:'{"id":"c"}'},
+       {code:200,body:'{"status":"done","result":1}'},{code:200,body:'{"status":"error"}'}]);
+multi=sandbox.acqQueryMulti_([{name:'a'},{name:'b'},{name:'c'}]);
+ok('일부 실패해도 나머지는 살린다', JSON.stringify(multi)==='[1,null,null]');
+ok('제출 실패분은 폴링에서 제외(2건만)', fetchAllSizes[1]===2);
+
 console.log('3) 환자 맥락 블록');
-reset([{code:200,body:'{"id":"a"}'},{code:200,body:'{"status":"done","result":[]}'}]);
+reset([{code:200,body:'{"id":"a"}'},{code:200,body:'{"id":"b"}'},{code:200,body:'{"id":"c"}'},
+       {code:200,body:'{"status":"done","result":[]}'},
+       {code:200,body:'{"status":"done","result":[{"px":"다이어트재진"}]}'},
+       {code:200,body:'{"status":"done","result":[]}'}]);
 ok('본인 확인 실패(빈 결과) → 빈 문자열', sandbox.acqPatientContext_({chart:'1'})==='');
-reset([{code:200,body:'{"id":"a"}'},{code:200,body:'{"status":"done","result":[{"sn":"1"}]}'},
-       {code:200,body:'{"id":"b"}'},{code:200,body:'{"status":"done","result":[{"px":"다이어트재진"}]}'},
-       {code:200,body:'{"id":"c"}'},{code:200,body:'{"status":"done","result":[]}'}]);
+reset([{code:200,body:'{"id":"a"}'},{code:200,body:'{"id":"b"}'},{code:200,body:'{"id":"c"}'},
+       {code:200,body:'{"status":"done","result":[{"sn":"1"}]}'},
+       {code:200,body:'{"status":"done","result":[{"px":"다이어트재진"}]}'},
+       {code:200,body:'{"status":"done","result":[]}'}]);
 let ctx=sandbox.acqPatientContext_({chart:'1'});
 ok('재진 확인+최근 진료 포함', ctx.includes('재진')&&ctx.includes('다이어트재진'));
 ok('내부용 경고 문구 포함', ctx.includes('노출 금지'));
+ok('3건 순차가 아니라 한 번 대기', slept===1000);
 
 console.log('4) 예약 응대 — 빈 슬롯·게시 (허브 인계 260813)');
 const CAND=['10:00','11:00','14:00','15:00'];
