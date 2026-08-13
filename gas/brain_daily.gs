@@ -29,7 +29,8 @@ var ACB_CFG = {
   PER_CHANNEL_CHARS: 6000,   // 채널당 다이제스트 상한 (최근 것 우선)
   TOTAL_CHARS: 40000,        // 전체 입력 상한
   MSG_LIMIT: 200,            // 채널당 최근 메시지 수
-  L0_PREFIX: 'L0_헌법_v'
+  L0_PREFIX: 'L0_헌법_v',
+  KB_PREFIX: 'L2_응대KB_v'   // 정본 적체 감시용 (260813 — 8/6~8/13 17건 방치 사고)
 };
 
 /** 진입점 (트리거/수동) */
@@ -39,8 +40,11 @@ function acbDaily() {
     var l0 = acbLoadL0_();
     var digest = acbReadChannels_();
     var feed = acbLoadFeed_();
+    var kb = acbLoadKbState_();
     var user = digest.text
-      + (feed ? (digest.text ? '\n\n' : '') + '## OK차트 실측(전산)\n' + acbFeedText_(feed) : '');
+      + (feed ? (digest.text ? '\n\n' : '') + '## OK차트 실측(전산)\n' + acbFeedText_(feed) : '')
+      + (kb ? '\n\n## 정본 현황\n최신 응대KB: v' + kb.ver + ' (' + kb.ymd + ' 등재분까지)\n'
+            + '이 날짜 이후 슬랙에 올라온 KB추가·KB수정·채굴 판정은 아직 정본에 없다.' : '');
     if (!user) { acbPost_('🌙 하루 마무리 — 오늘 읽을 수 있는 채널 메시지가 없습니다 (설정 확인: BRAIN_READ_CHANNELS).'); return; }
     var out = acbAsk_(l0.text + '\n\n---\n\n' + acbTaskPrompt_(), user);
     acbPost_(out + (l0.stale ? '\n_⚠ 헌법을 캐시본으로 사용함 (최신 로딩 실패)_' : ''));
@@ -62,13 +66,17 @@ function acbTaskPrompt_() {
     '너는 위 헌법을 따르는 아크로드다. 지금은 "하루 마무리" 시간이다.',
     '아래는 아크로한의원 슬랙의 오늘 메시지 다이제스트다(개인정보는 이미 마스킹됨).',
     '',
-    '다음 형식으로 정리하라. 다섯 줄 안팎, 담백하게, 과장 없이:',
+    '이 게시물은 **슬랙용 짧은 알림**이다 — 직원이 스쳐 보는 것이라 가볍게 쓴다.',
+    '상세 브리핑은 원장에게 별도로(클로드) 나가므로 여기서 길게 쓰지 않는다.',
+    '',
+    '다음 형식으로 정리하라. **각 항목 한 줄씩, 전체 다섯 줄 이내**, 담백하게, 과장 없이:',
     '🌙 하루 마무리 — [오늘 날짜]',
     '· 문의 잔량: 미답·미확인으로 보이는 환자 문의 건수 (없으면 "없음")',
     '· 결산: 오늘 결산 제출 여부 (확인 안 되면 "확인 불가")',
     '· 판정 대기: 원장 판정을 기다리는 것 (채굴 다이제스트 등, 없으면 생략)',
+    '· 정본 적체: "정본 현황" 블록이 있으면, 그 등재 날짜 **이후**에 슬랙에 올라온 KB추가·KB수정·채굴 판정이 다이제스트에 몇 건 보이는지 센다. 1건이라도 있으면 "미등재 N건 (가장 오래된 것 M/D)"으로 알린다. 0건이면 생략. 등재는 사람이 해야 하는 일이라, 조용히 쌓이면 그대로 잊힌다.',
     '· 내일: 준비사항 — 채널에서 실제로 보이는 것만 (없으면 생략)',
-    '· 조언: 0~2개 — 정본과 어긋난 안내, 반복 수작업, 놓친 것이 실제로 보일 때만. 억지로 만들지 않는다. 없으면 "특이사항 없음"',
+    '· 조언: **0~1개, 한 줄** — 오늘 꼭 짚어야 할 것이 실제로 보일 때만. 억지로 만들지 않는다. 없으면 "특이사항 없음"',
     '',
     '다이제스트에 "OK차트 실측(전산)" 블록이 있으면 결산·내일 항목은 그 숫자를 사실로 쓴다(전산 실측이 곧 확인이다).',
     '',
@@ -104,6 +112,31 @@ function acbLoadL0_() {
     if (cached) return { text: cached, stale: true };   // 캐시로 계속 — 게시물 말미에 표기됨
     throw new Error('헌법 로딩 실패(캐시도 없음): ' + String(e && e.message || e));
   }
+}
+
+/** 정본 현황 — 최신 L2_응대KB_v 파일명에서 버전·날짜를 읽는다.
+ *  260813 사고: 원장이 슬랙에 직접 쓴 KB추가·KB수정 17건이 일주일간 정본에 안 들어갔다.
+ *  채굴·판정은 돌았는데 등재만 끊긴 것을 아무도 못 봤다 — 그래서 뇌가 매일 본다.
+ *  실패하면 null (조용한 생략 — 적체 감시 실패가 하루 마무리 전체를 죽이지 않는다). */
+function acbLoadKbState_() {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var repo = props.getProperty('CANON_REPO'), token = props.getProperty('GH_TOKEN');
+    if (!repo || !token) return null;
+    var res = UrlFetchApp.fetch('https://api.github.com/repos/' + repo + '/contents/',
+      { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) return null;
+    var files = JSON.parse(res.getContentText()), best = null;
+    for (var i = 0; i < files.length; i++) {
+      var n = files[i].name || '';
+      if (n.indexOf(ACB_CFG.KB_PREFIX) !== 0) continue;
+      var v = acdParseVer_(n);
+      if (!best || v[0] > best.v[0] || (v[0] === best.v[0] && v[1] > best.v[1])) best = { name: n, v: v };
+    }
+    if (!best) return null;
+    var d = best.name.match(/_(\d{6})\.md$/);   // 파일명 말미 YYMMDD
+    return { ver: best.v[0] + '.' + best.v[1], ymd: d ? d[1] : '', name: best.name };
+  } catch (e) { return null; }
 }
 
 /** OK차트 실측 feed — canon 리포 feed/okchart_daily.json (워커 저녁 잡이 커밋).
