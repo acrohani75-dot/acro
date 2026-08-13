@@ -19,41 +19,73 @@
  */
 
 var ACQ_CFG = {
-  POLL_MS: 20000,      // 폴링 간격 20초 (허브 실측 권장)
+  // 폴링 간격 — 평탄한 20초는 최대 20초를 그냥 버린다. 워커 주간 폴링이 15초라
+  // 그 전에는 어차피 결과가 없고, 그 다음부터는 촘촘히 본다. 마지막 값을 상한까지 반복.
+  POLL_STEPS_MS: [15000, 5000, 5000, 5000, 5000, 10000, 20000],
   MAX_WAIT_MS: 180000  // 총 대기 상한 180초
 };
 
-/** named_query 실행. 성공 시 result, 그 외 전부 null */
-function acqQuery_(name, params) {
+/** named_query 여러 건을 **한 번에** 제출하고 같이 기다린다.
+ *  순차 호출(59초 × N)이 아니라 제출을 병렬화해 N건이 1건과 같은 시간에 끝난다.
+ *  반환: jobs와 같은 길이의 배열. 각 원소는 result 또는 null(실패·타임아웃).
+ *  jobs: [{name, params}, ...] */
+function acqQueryMulti_(jobs) {
+  var out = (jobs || []).map(function () { return null; });
   try {
+    if (!out.length) return out;
     var props = PropertiesService.getScriptProperties();
     var url = props.getProperty('OKQ_URL'), token = props.getProperty('OKQ_TOKEN');
-    if (!url || !token) return null;
-    var res = UrlFetchApp.fetch(url, {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify({ token: token, action: 'submit',
-        job: { type: 'named_query', name: String(name), params: params || {} } }),
-      muteHttpExceptions: true
+    if (!url || !token) return out;
+
+    // 1) 제출 — 전부 한 번에
+    var subs = jobs.map(function (j) {
+      return {
+        url: url, method: 'post', contentType: 'application/json',
+        payload: JSON.stringify({ token: token, action: 'submit',
+          job: { type: 'named_query', name: String(j.name), params: j.params || {} } }),
+        muteHttpExceptions: true
+      };
     });
-    if (res.getResponseCode() !== 200) return null;
-    var id = (JSON.parse(res.getContentText() || '{}') || {}).id;
-    if (!id) return null;
-    var waited = 0;
-    while (waited < ACQ_CFG.MAX_WAIT_MS) {
-      Utilities.sleep(ACQ_CFG.POLL_MS);
-      waited += ACQ_CFG.POLL_MS;
-      var r = UrlFetchApp.fetch(url + '?token=' + encodeURIComponent(token)
-        + '&action=result&id=' + encodeURIComponent(id), { muteHttpExceptions: true });
-      if (r.getResponseCode() !== 200) continue;   // 일시 오류는 다음 폴링에서 재시도
-      var j = JSON.parse(r.getContentText() || '{}') || {};
-      if (j.status === 'done') return (j.result === undefined) ? null : j.result;
-      if (j.status === 'error') return null;       // 워커가 거부한 잡 — 재시도 무의미
+    var srs = UrlFetchApp.fetchAll(subs);
+    var pending = [];   // {i, id}
+    for (var i = 0; i < srs.length; i++) {
+      if (srs[i].getResponseCode() !== 200) continue;
+      var id = (JSON.parse(srs[i].getContentText() || '{}') || {}).id;
+      if (id) pending.push({ i: i, id: id });
     }
-    return null;                                   // 상한 초과(야간 등) — 실측 없이 진행
+    if (!pending.length) return out;
+
+    // 2) 폴링 — 남은 잡만 묶어서 한 번에
+    var waited = 0, step = 0;
+    while (pending.length && waited < ACQ_CFG.MAX_WAIT_MS) {
+      var ms = ACQ_CFG.POLL_STEPS_MS[Math.min(step, ACQ_CFG.POLL_STEPS_MS.length - 1)];
+      step++;
+      Utilities.sleep(ms);
+      waited += ms;
+      var reqs = pending.map(function (p) {
+        return { url: url + '?token=' + encodeURIComponent(token)
+          + '&action=result&id=' + encodeURIComponent(p.id), muteHttpExceptions: true };
+      });
+      var rrs = UrlFetchApp.fetchAll(reqs);
+      var still = [];
+      for (var k = 0; k < pending.length; k++) {
+        if (rrs[k].getResponseCode() !== 200) { still.push(pending[k]); continue; }  // 일시 오류는 재시도
+        var j2 = JSON.parse(rrs[k].getContentText() || '{}') || {};
+        if (j2.status === 'done') { out[pending[k].i] = (j2.result === undefined) ? null : j2.result; continue; }
+        if (j2.status === 'error') continue;        // 워커가 거부한 잡 — 재시도 무의미
+        still.push(pending[k]);
+      }
+      pending = still;
+    }
+    return out;                                     // 상한 초과분은 null — 실측 없이 진행
   } catch (e) {
-    return null;
+    return out;
   }
+}
+
+/** named_query 1건. 성공 시 result, 그 외 전부 null */
+function acqQuery_(name, params) {
+  return acqQueryMulti_([{ name: name, params: params }])[0];
 }
 
 /** 예약된 시각 목록 (HH:MM). 조회 실패면 **null** — 빈 배열이 아니다.
@@ -110,13 +142,18 @@ function acqPostReservation_(name, when, item) {
 /** 환자 실측 맥락 블록 — 프롬프트 [3.5]용. 본인 특정이 안 됐거나 조회 실패면 빈 문자열.
  *  주의(헌법 4): 결과는 내부 재료다 — 원문·타 환자 정보를 환자 메시지에 노출하지 않는다. */
 function acqPatientContext_(params) {
-  var v = acqQuery_('patient_verify', params);
+  // 3건을 한 번에 — 순차로 돌리면 대기가 3배가 된다(환자는 그 시간을 그대로 기다린다).
+  // 본인 확인 전에 나머지도 같이 조회하지만, 확인 실패면 전부 버린다(아래 즉시 반환).
+  var r = acqQueryMulti_([
+    { name: 'patient_verify', params: params },
+    { name: 'recent_treatments', params: params },
+    { name: 'reservations', params: params }
+  ]);
+  var v = r[0];
   if (!v || (Array.isArray(v) && !v.length)) return '';
   var lines = ['## 환자 실측(전산 · 내부 재료 — 원문을 환자에게 노출 금지)',
                '환자 확인: 재진(전산 기록 있음)'];
-  var tx = acqQuery_('recent_treatments', params);
-  if (tx && tx.length) lines.push('최근 진료: ' + JSON.stringify(tx).slice(0, 800));
-  var rs = acqQuery_('reservations', params);
-  if (rs && rs.length) lines.push('예약: ' + JSON.stringify(rs).slice(0, 400));
+  if (r[1] && r[1].length) lines.push('최근 진료: ' + JSON.stringify(r[1]).slice(0, 800));
+  if (r[2] && r[2].length) lines.push('예약: ' + JSON.stringify(r[2]).slice(0, 400));
   return lines.join('\n');
 }
