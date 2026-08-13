@@ -17,7 +17,9 @@ const sandbox={
       {name:'L0_헌법_v0_2_260806.md',download_url:'dl://v02'},
       {name:'L0_헌법_v1_1_260806.md',download_url:'dl://v11'},
       {name:'L0_헌법_v1_0_260806.md',download_url:'dl://v10'},
-      {name:'L2_응대KB_v2_18_260806.md',download_url:'dl://kb'}]) };
+      {name:'L2_응대KB_v2_18_260806.md',download_url:'dl://kb'},
+      {name:'L2_응대KB_v2_19_260813.md',download_url:'dl://kb19'},
+      {name:'L2_응대KB_v2_9_260730.md',download_url:'dl://kb9'}]) };
     if(url==='dl://v11') return {getResponseCode:()=>200,getContentText:()=>'# 아크로드 헌법 v1.1 — 확정\n핵심 한 줄...'};
     if(url.includes('conversations.history')) return {getResponseCode:()=>200,getContentText:()=>JSON.stringify({ok:true,messages:[
       {ts:'1754500000',text:'김철수 님 010-1234-5678 로 연락드렸습니다'},
@@ -103,6 +105,14 @@ ok('어제 feed는 무시(null)', sandbox.acbLoadFeed_()===null);
 feedFile=null;
 ok('feed 없음(404)도 null — 조용한 생략', sandbox.acbLoadFeed_()===null);
 
+console.log('5b2) 정본 현황 — 최신 KB 판별·적체 감시');
+propsStore={CANON_REPO:'x/c',GH_TOKEN:'t'};
+let kb=sandbox.acbLoadKbState_();
+ok('최신 KB 선택(v2_19 > v2_18 > v2_9)', kb && kb.ver==='2.19');
+ok('등재 날짜 파싱', kb && kb.ymd==='260813');
+propsStore={};
+ok('속성 없으면 null(조용한 생략)', sandbox.acbLoadKbState_()===null);
+
 console.log('5c) 전체 흐름 — feed가 사용자 입력에 결합');
 feedFile=mkFeed(todayFeed);
 propsStore={CANON_REPO:'x/c',GH_TOKEN:'t',SLACK_TOKEN:'x',BRAIN_READ_CHANNELS:'C001',
@@ -114,6 +124,8 @@ posted.length=0;
 sandbox.acbDaily();
 ok('실측 블록이 다이제스트 뒤에 결합', capturedUser.includes('## OK차트 실측(전산)') && capturedUser.indexOf('채널')<capturedUser.indexOf('OK차트 실측'));
 ok('게시 정상', posted.length===1);
+ok('정본 현황 블록도 결합', capturedUser.includes('## 정본 현황') && capturedUser.includes('v2.19'));
+ok('작업 지시에 적체 항목', sandbox.acbTaskPrompt_().includes('정본 적체'));
 // 슬랙이 비어도 feed만으로 돈다
 propsStore={CANON_REPO:'x/c',GH_TOKEN:'t',SLACK_TOKEN:'x',
             ANTHROPIC_API_KEY:'k',BRAIN_POST_CHANNEL:'CMEET'};  // BRAIN_READ_CHANNELS 없음
