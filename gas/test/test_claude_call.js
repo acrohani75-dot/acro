@@ -122,6 +122,22 @@ out=sandbox.accAsk_('작업지시','','안녕하세요');
 ok('KB 빈 값이면 히트 섹션 생략', out==='네, 도와드릴게요'
    && !lastPayload.messages[0].content.includes('정본 히트'));
 
+console.log('6b) fast mode 스위치 — 속성 하나로 온오프');
+reset();
+anthropicResponse={stop_reason:'end_turn',content:[{type:'text',text:'ok'}]};
+let capturedOpt=null;
+const origFetch=sandbox.UrlFetchApp.fetch;
+sandbox.UrlFetchApp.fetch=(url,opt)=>{if(url.includes('anthropic'))capturedOpt=opt;return origFetch(url,opt);};
+sandbox.accAsk_('t',null,'u');
+ok('기본은 fast 아님(speed 없음·베타헤더 없음)',
+   !JSON.parse(capturedOpt.payload).speed && !capturedOpt.headers['anthropic-beta']);
+propsStore.ACC_FAST='1';
+sandbox.accAsk_('t',null,'u');
+ok('ACC_FAST=1이면 speed:fast + 베타 헤더',
+   JSON.parse(capturedOpt.payload).speed==='fast'
+   && capturedOpt.headers['anthropic-beta']==='fast-mode-2026-02-01');
+sandbox.UrlFetchApp.fetch=origFetch;
+
 console.log('7) 캐시 100KB 초과 — 캐시만 포기하고 응대는 계속');
 reset();
 BODY['dl://l0_13']='가'.repeat(200*1024);
