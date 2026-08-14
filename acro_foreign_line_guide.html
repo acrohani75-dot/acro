@@ -1,36 +1,650 @@
-<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>아크로 외국인 응대 가이드 (루트A/B/C + 복용관리)</title><style>:root{--green:#2d6a4f;--green-l:#52b788;--green-p:#d8f3dc;--accent:#1b4332;--ra:#1565c0;--ra-bg:#e3f2fd;--rb:#6a1b9a;--rb-bg:#f3e5f5;--rc:#b5451b;--rc-bg:#fdf0eb;--rd:#1a6e4a;--rd-bg:#e6f4ee;--border:#dde4ed;--text:#1a1a2e;--muted:#5c6875;--ja-bg:#fafcff;--note-bg:#fffbee;--note-border:#c9a800;--case1:#1976d2;--case2:#7b1fa2;--case3:#2e7d32;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans JP',sans-serif;background:#f0f4f8;color:var(--text);font-size:15px;line-height:1.75;}input.tab{display:none;}.tab-nav{background:#fff;border-bottom:2px solid var(--border);padding:0 28px;display:flex;overflow-x:auto;position:sticky;top:55px;z-index:200;}.tab-nav label{font-size:14px;font-weight:700;color:var(--muted);padding:14px 20px;border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer;transition:all .15s;}.page{display:none;}#t0:checked~.wrap .tab-nav label[for=t0],#t1:checked~.wrap .tab-nav label[for=t1],#t2:checked~.wrap .tab-nav label[for=t2],#t3:checked~.wrap .tab-nav label[for=t3],#t4:checked~.wrap .tab-nav label[for=t4],#t5:checked~.wrap .tab-nav label[for=t5]{color:var(--green);border-bottom-color:var(--green-l);background:#f0faf4;}#t0:checked~.wrap .p0{display:block;}#t1:checked~.wrap .p1{display:block;}#t2:checked~.wrap .p2{display:block;}#t3:checked~.wrap .p3{display:block;}#t4:checked~.wrap .p4{display:block;}#t5:checked~.wrap .p5{display:block;}input.lng{display:none;}.lng-nav{background:#1b4332;padding:10px 28px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:210;}.lng-nav label{padding:6px 16px;border-radius:16px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.6);transition:all .15s;}#lja:checked~.wrap .lng-nav label[for=lja],#len:checked~.wrap .lng-nav label[for=len],#lzh:checked~.wrap .lng-nav label[for=lzh],#ltw:checked~.wrap .lng-nav label[for=ltw],#lth:checked~.wrap .lng-nav label[for=lth]{background:rgba(255,255,255,.2);color:#fff;border-color:#fff;}.lng-tag{color:rgba(255,255,255,.4);font-size:12px;font-weight:700;letter-spacing:1px;margin-right:4px;}.s-ja,.s-en,.s-zh,.s-tw,.s-th{display:none;}#lja:checked~.wrap .s-ja{display:block;}#len:checked~.wrap .s-en{display:block;}#lzh:checked~.wrap .s-zh{display:block;}#ltw:checked~.wrap .s-tw{display:block;}#lth:checked~.wrap .s-th{display:block;}input.case{display:none;}input.ecase{display:none;}.ecase-nav{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}.ecase-nav label{padding:9px 18px;border-radius:24px;font-size:12.5px;font-weight:800;cursor:pointer;border:2px solid transparent;opacity:.5;transition:all .2s;letter-spacing:.2px;}.ecase-nav label.e1{background:#1976d2;color:#fff;border-color:#1976d2;}.ecase-nav label.e2{background:#7b1fa2;color:#fff;border-color:#7b1fa2;}.ecase-nav label.e3{background:#b5451b;color:#fff;border-color:#b5451b;}#ea:checked~.wrap .p5 .ecase-nav label[for=ea],#eb:checked~.wrap .p5 .ecase-nav label[for=eb],#ec:checked~.wrap .p5 .ecase-nav label[for=ec]{opacity:1;box-shadow:0 3px 12px rgba(0,0,0,.25);transform:translateY(-1px);}.epage{display:none;}#ea:checked~.wrap .p5 .ea{display:block;}#eb:checked~.wrap .p5 .eb{display:block;}#ec:checked~.wrap .p5 .ec{display:block;}.case-nav{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}.case-nav label{padding:12px 24px;border-radius:24px;font-size:14px;font-weight:800;cursor:pointer;border:2.5px solid;opacity:1;transition:all .2s;letter-spacing:.2px;}.case-nav label.c1{background:#fff;color:var(--case1);border-color:var(--case1);}.case-nav label.c2{background:#fff;color:var(--case2);border-color:var(--case2);}.case-nav label.c3{background:#fff;color:var(--case3);border-color:var(--case3);}#ca:checked~.wrap .p1 .case-nav label[for=ca]{background:var(--case1);color:#fff;border-color:var(--case1);box-shadow:0 4px 14px rgba(25,118,210,.45);transform:translateY(-2px);}#cb:checked~.wrap .p1 .case-nav label[for=cb]{background:var(--case2);color:#fff;border-color:var(--case2);box-shadow:0 4px 14px rgba(123,31,162,.45);transform:translateY(-2px);}#cc:checked~.wrap .p1 .case-nav label[for=cc]{background:var(--case3);color:#fff;border-color:var(--case3);box-shadow:0 4px 14px rgba(46,125,50,.45);transform:translateY(-2px);}.cpage{display:none;}#ca:checked~.wrap .p1 .ca{display:block;}#cb:checked~.wrap .p1 .cb{display:block;}#cc:checked~.wrap .p1 .cc{display:block;}input.rcase{display:none;}.rc-nav{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}.nav-hint{font-size:12.5px;font-weight:800;color:var(--rd);margin-bottom:7px;letter-spacing:.3px;}.rc-nav label{padding:12px 26px;border-radius:24px;font-size:14.5px;font-weight:800;cursor:pointer;border:2.5px solid;opacity:1;transition:all .2s;letter-spacing:.2px;}.rc-nav label.rd1{background:#fff;color:var(--rd);border-color:var(--rd);}.rc-nav label.rd2{background:#fff;color:#7b5ea7;border-color:#7b5ea7;}#rca:checked~.wrap .p3 .rc-nav label[for=rca]{background:var(--rd);color:#fff;border-color:var(--rd);box-shadow:0 4px 14px rgba(26,110,74,.45);transform:translateY(-2px);}#rcb:checked~.wrap .p3 .rc-nav label[for=rcb]{background:#7b5ea7;color:#fff;border-color:#7b5ea7;box-shadow:0 4px 14px rgba(123,94,167,.45);transform:translateY(-2px);}.rcpage{display:none;}#rca:checked~.wrap .p3 .rca{display:block;}#rcb:checked~.wrap .p3 .rcb{display:block;}.bnum.d{background:var(--rd);}.btitle.d{color:var(--rd);}.banner.d{background:var(--rd-bg);}.shead.d{background:var(--rd-bg);border-left:3px solid var(--rd);}.snum.d{background:var(--rd);color:#fff;}.hd{background:linear-gradient(135deg,var(--accent) 0%,var(--green) 55%,#40916c 100%);color:#fff;padding:28px 32px 22px;}.hd h1{font-size:22px;font-weight:800;}.main{max-width:1600px;margin:0 auto;padding:28px 28px 80px;}.hd h1{font-size:16px;font-weight:800;}.main{max-width:1600px;margin:0 auto;padding:28px 28px 80px;}.sec-label{font-size:12px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}.section{margin-bottom:24px;}.banner{border-radius:10px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}.banner.a{background:var(--ra-bg);}.banner.b{background:var(--rb-bg);}.banner.c{background:var(--rc-bg);}.bnum{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0;}.bnum.a{background:var(--ra);}.bnum.b{background:var(--rb);}.bnum.c{background:var(--rc);}.btitle{font-size:17px;font-weight:800;}.btitle.a{color:var(--ra);}.btitle.b{color:var(--rb);}.btitle.c{color:var(--rc);}.bsub{font-size:13px;color:var(--muted);margin-top:2px;}.card{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}.shead{padding:14px 20px;display:flex;align-items:center;gap:12px;}.shead.a{border-left:4px solid var(--ra);background:#f7faff;}.shead.b{border-left:4px solid var(--rb);background:#fdf8ff;}.shead.c{border-left:4px solid var(--rc);background:#fdf8f5;}.shead.w{border-left:4px solid #e65100;background:#fff8f4;}.snum{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}.snum.a{background:var(--ra);}.snum.b{background:var(--rb);}.snum.c{background:var(--rc);}.snum.w{background:#e65100;}.shead-txt strong{font-size:16px;font-weight:700;}.shead-txt span{font-size:13px;color:var(--muted);display:block;margin-top:2px;}.sbody{border-top:1px solid var(--border);}.bi-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}.bi-row:last-child{border-bottom:none;}.bi-ja{background:var(--ja-bg);padding:13px 15px;border-right:1px solid var(--border);min-width:0;}.bi-note{background:var(--note-bg);padding:13px 15px;min-width:0;}.col-head{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;padding-bottom:4px;border-bottom:1px dashed var(--border);}.col-head.ja{color:var(--ra);}.col-head.note{color:#8a6000;}.bi-label{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px;margin-top:14px;}.bi-label:first-child{margin-top:0;}.script{background:#eef4ff;border:1px solid #c5d9f5;border-left:4px solid var(--ra);border-radius:6px;padding:14px 16px;font-size:14px;line-height:2.0;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;}.script.b{background:#f5eeff;border-color:#d5b8f5;border-left-color:var(--rb);}.script.c{background:#fdf2ee;border-color:#f0c0a0;border-left-color:var(--rc);}.note{background:#fffbee;border:1px solid #e8d870;border-left:4px solid var(--note-border);border-radius:6px;padding:12px 16px;font-size:14px;line-height:1.85;margin-bottom:8px;}.note.warn{background:#fff4f4;border-color:#f0b0b0;border-left-color:#b83030;color:#3a0000;}.note.green{background:#f0faf4;border-color:#a8d8bc;border-left-color:var(--green);color:#1b4332;}.chk{list-style:none;padding:0;}.chk li{padding:5px 0;font-size:14px;color:#3a3000;display:flex;gap:8px;align-items:flex-start;}.chk li::before{content:'✔';color:var(--green-l);font-weight:700;flex-shrink:0;}.chk li.warn::before{content:'⚠';color:#c62828;}.chk li.info::before{content:'💡';}.action{background:#fdecea;border:1px solid #f5b5ae;border-left:3px solid #d93025;border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;color:#b3251a;margin-bottom:6px;}.flow{display:flex;align-items:stretch;gap:0;margin-bottom:14px;overflow-x:auto;}.flow-step{flex:1;min-width:90px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 10px;text-align:center;}.flow-step.a{border-top:3px solid var(--ra);}.flow-step.b{border-top:3px solid var(--rb);}.flow-step.c{border-top:3px solid var(--rc);}.flow-step .fnum{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:3px;}.flow-step .ftxt{font-size:14px;font-weight:700;}.flow-step .fsub{font-size:9.5px;color:var(--muted);margin-top:1px;}.flow-arr{display:flex;align-items:center;padding:0 3px;color:var(--muted);font-size:14px;flex-shrink:0;}.flow-wrap{margin-bottom:16px;}.flow-label{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.5px;}.principles{display:grid;grid-template-columns:1fr 1fr;gap:8px;}.pr-item{display:flex;align-items:flex-start;gap:8px;background:var(--green-p);border-radius:8px;padding:10px 12px;}.pr-icon{font-size:15px;flex-shrink:0;}.pr-txt{font-size:12.5px;color:var(--accent);line-height:1.5;}.how-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:13px;line-height:1.6;}.step-num{background:#3a4a5c;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}.how-tip{background:#f0f4f8;border-left:3px solid #5a7a9a;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#3a4a5c;margin-top:6px;}.script-ex{display:block;background:#f5f5f5;border-radius:6px;padding:8px 10px;font-size:12px;color:#333;margin-top:4px;font-style:italic;border-left:3px solid #5a7a9a;}.qref{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}.qref table{width:100%;border-collapse:collapse;font-size:14px;}.qref thead th{background:var(--accent);color:#fff;padding:12px 16px;text-align:left;font-size:13px;letter-spacing:.5px;}.qref tbody tr:nth-child(even){background:#f8fafb;}.qref tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;font-size:14px;}.qref tbody td:first-child{font-weight:700;color:var(--green);white-space:nowrap;width:70px;}.qref tbody td:nth-child(2){border-right:1px solid var(--border);width:35%;}.qref tbody td:nth-child(3){border-right:1px solid var(--border);color:#1b3a2a;font-size:11px;width:30%;}.qref tbody tr:last-child td{border-bottom:none;}.ko-trans-wrap{margin-bottom:10px;}.ko-trans-head{font-size:9.5px;font-weight:800;letter-spacing:1px;color:#2d6a4f;margin-bottom:6px;padding-bottom:3px;border-bottom:1px dashed #a8d8bc;}.ko-trans{background:#f0faf4;border:1px solid #b7dfc8;border-left:4px solid #2d6a4f;border-radius:6px;padding:14px 16px;font-size:14px;line-height:2.0;white-space:pre-wrap;word-break:break-word;color:#1b3a2a;}.lbl{display:block;font-size:11px;font-weight:800;color:#fff;background:#5c6875;letter-spacing:.8px;margin-top:14px;margin-bottom:8px;padding:4px 10px;border-radius:4px;}.lbl:first-child{margin-top:0;}.lnk{color:var(--ra);font-size:11px;word-break:break-all;}.ph{background:#fff3cd;border-radius:3px;padding:0 4px;font-size:10.5px;font-weight:700;color:#856404;}.send-box{background:#e3f2fd;border:2px dashed #90caf9;border-radius:8px;padding:12px 14px;text-align:center;font-size:12px;font-weight:700;color:var(--ra);margin-bottom:8px;}.search-wrap{display:none;}.search-box{position:relative;width:340px;}.search-box input{width:100%;padding:7px 34px 7px 14px;border-radius:22px;border:none;font-size:13px;outline:none;background:rgba(255,255,255,.15);color:#fff;}.search-box input::placeholder{color:rgba(255,255,255,.55);}.search-box input:focus{background:rgba(255,255,255,.25);}.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,.6);font-size:15px;display:none;}.search-count{color:rgba(255,255,255,.8);font-size:13px;white-space:nowrap;min-width:80px;}.search-highlight{background:#fff176;border-radius:2px;padding:0 1px;}.card.search-hidden{display:none;}.card.search-match{outline:2px solid #52b788;}
+<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>아크로 외국인 응대 가이드 (루트A/B/C + 복용관리)</title><style>:root{--green:#2d6a4f;--green-l:#52b788;--green-p:#d8f3dc;--accent:#1b4332;--ra:#1565c0;--ra-bg:#e3f2fd;--rb:#6a1b9a;--rb-bg:#f3e5f5;--rc:#b5451b;--rc-bg:#fdf0eb;--rd:#1a6e4a;--rd-bg:#e6f4ee;--border:#dde4ed;--text:#1a1a2e;--muted:#5c6875;--ja-bg:#fafcff;--note-bg:#fffbee;--note-border:#c9a800;--case1:#1976d2;--case2:#7b1fa2;--case3:#2e7d32;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans JP',sans-serif;background:#f0f4f8;color:var(--text);font-size:15px;line-height:1.75;}input.tab{display:none;}.tab-nav{background:#fff;border-bottom:2px solid var(--border);padding:0 28px;display:flex;overflow-x:auto;position:sticky;top:55px;z-index:200;}.tab-nav label{font-size:14px;font-weight:700;color:var(--muted);padding:14px 20px;border-bottom:3px solid transparent;white-space:nowrap;cursor:pointer;transition:all .15s;}.page{display:none;}#t0:checked~.wrap .tab-nav label[for=t0],#t1:checked~.wrap .tab-nav label[for=t1],#t2:checked~.wrap .tab-nav label[for=t2],#t3:checked~.wrap .tab-nav label[for=t3],#t4:checked~.wrap .tab-nav label[for=t4],#t5:checked~.wrap .tab-nav label[for=t5],#t6:checked~.wrap .tab-nav label[for=t6]{color:var(--green);border-bottom-color:var(--green-l);background:#f0faf4;}#t0:checked~.wrap .p0{display:block;}#t1:checked~.wrap .p1{display:block;}#t2:checked~.wrap .p2{display:block;}#t3:checked~.wrap .p3{display:block;}#t4:checked~.wrap .p4{display:block;}#t5:checked~.wrap .p5{display:block;}#t6:checked~.wrap .p6{display:block;}input.lng{display:none;}.lng-nav{background:#1b4332;padding:10px 28px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:210;}.lng-nav label{padding:6px 16px;border-radius:16px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.6);transition:all .15s;}#lja:checked~.wrap .lng-nav label[for=lja],#len:checked~.wrap .lng-nav label[for=len],#lzh:checked~.wrap .lng-nav label[for=lzh],#ltw:checked~.wrap .lng-nav label[for=ltw],#lth:checked~.wrap .lng-nav label[for=lth]{background:rgba(255,255,255,.2);color:#fff;border-color:#fff;}.lng-tag{color:rgba(255,255,255,.4);font-size:12px;font-weight:700;letter-spacing:1px;margin-right:4px;}.s-ja,.s-en,.s-zh,.s-tw,.s-th{display:none;}#lja:checked~.wrap .s-ja{display:block;}#len:checked~.wrap .s-en{display:block;}#lzh:checked~.wrap .s-zh{display:block;}#ltw:checked~.wrap .s-tw{display:block;}#lth:checked~.wrap .s-th{display:block;}input.case{display:none;}input.ecase{display:none;}.ecase-nav{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}.ecase-nav label{padding:9px 18px;border-radius:24px;font-size:12.5px;font-weight:800;cursor:pointer;border:2px solid transparent;opacity:.5;transition:all .2s;letter-spacing:.2px;}.ecase-nav label.e1{background:#1976d2;color:#fff;border-color:#1976d2;}.ecase-nav label.e2{background:#7b1fa2;color:#fff;border-color:#7b1fa2;}.ecase-nav label.e3{background:#b5451b;color:#fff;border-color:#b5451b;}#ea:checked~.wrap .p5 .ecase-nav label[for=ea],#eb:checked~.wrap .p5 .ecase-nav label[for=eb],#ec:checked~.wrap .p5 .ecase-nav label[for=ec]{opacity:1;box-shadow:0 3px 12px rgba(0,0,0,.25);transform:translateY(-1px);}.epage{display:none;}#ea:checked~.wrap .p5 .ea{display:block;}#eb:checked~.wrap .p5 .eb{display:block;}#ec:checked~.wrap .p5 .ec{display:block;}.case-nav{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}.case-nav label{padding:12px 24px;border-radius:24px;font-size:14px;font-weight:800;cursor:pointer;border:2.5px solid;opacity:1;transition:all .2s;letter-spacing:.2px;}.case-nav label.c1{background:#fff;color:var(--case1);border-color:var(--case1);}.case-nav label.c2{background:#fff;color:var(--case2);border-color:var(--case2);}.case-nav label.c3{background:#fff;color:var(--case3);border-color:var(--case3);}#ca:checked~.wrap .p1 .case-nav label[for=ca]{background:var(--case1);color:#fff;border-color:var(--case1);box-shadow:0 4px 14px rgba(25,118,210,.45);transform:translateY(-2px);}#cb:checked~.wrap .p1 .case-nav label[for=cb]{background:var(--case2);color:#fff;border-color:var(--case2);box-shadow:0 4px 14px rgba(123,31,162,.45);transform:translateY(-2px);}#cc:checked~.wrap .p1 .case-nav label[for=cc]{background:var(--case3);color:#fff;border-color:var(--case3);box-shadow:0 4px 14px rgba(46,125,50,.45);transform:translateY(-2px);}.cpage{display:none;}#ca:checked~.wrap .p1 .ca{display:block;}#cb:checked~.wrap .p1 .cb{display:block;}#cc:checked~.wrap .p1 .cc{display:block;}input.rcase{display:none;}.rc-nav{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}.nav-hint{font-size:12.5px;font-weight:800;color:var(--rd);margin-bottom:7px;letter-spacing:.3px;}.rc-nav label{padding:12px 26px;border-radius:24px;font-size:14.5px;font-weight:800;cursor:pointer;border:2.5px solid;opacity:1;transition:all .2s;letter-spacing:.2px;}.rc-nav label.rd1{background:#fff;color:var(--rd);border-color:var(--rd);}.rc-nav label.rd2{background:#fff;color:#7b5ea7;border-color:#7b5ea7;}#rca:checked~.wrap .p3 .rc-nav label[for=rca]{background:var(--rd);color:#fff;border-color:var(--rd);box-shadow:0 4px 14px rgba(26,110,74,.45);transform:translateY(-2px);}#rcb:checked~.wrap .p3 .rc-nav label[for=rcb]{background:#7b5ea7;color:#fff;border-color:#7b5ea7;box-shadow:0 4px 14px rgba(123,94,167,.45);transform:translateY(-2px);}.rcpage{display:none;}#rca:checked~.wrap .p3 .rca{display:block;}#rcb:checked~.wrap .p3 .rcb{display:block;}.bnum.d{background:var(--rd);}.btitle.d{color:var(--rd);}.banner.d{background:var(--rd-bg);}.shead.d{background:var(--rd-bg);border-left:3px solid var(--rd);}.snum.d{background:var(--rd);color:#fff;}.hd{background:linear-gradient(135deg,var(--accent) 0%,var(--green) 55%,#40916c 100%);color:#fff;padding:28px 32px 22px;}.hd h1{font-size:22px;font-weight:800;}.main{max-width:1600px;margin:0 auto;padding:28px 28px 80px;}.hd h1{font-size:16px;font-weight:800;}.main{max-width:1600px;margin:0 auto;padding:28px 28px 80px;}.sec-label{font-size:12px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}.section{margin-bottom:24px;}.banner{border-radius:10px;padding:18px 22px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}.banner.a{background:var(--ra-bg);}.banner.b{background:var(--rb-bg);}.banner.c{background:var(--rc-bg);}.bnum{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0;}.bnum.a{background:var(--ra);}.bnum.b{background:var(--rb);}.bnum.c{background:var(--rc);}.btitle{font-size:17px;font-weight:800;}.btitle.a{color:var(--ra);}.btitle.b{color:var(--rb);}.btitle.c{color:var(--rc);}.bsub{font-size:13px;color:var(--muted);margin-top:2px;}.card{background:#fff;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}.shead{padding:14px 20px;display:flex;align-items:center;gap:12px;}.shead.a{border-left:4px solid var(--ra);background:#f7faff;}.shead.b{border-left:4px solid var(--rb);background:#fdf8ff;}.shead.c{border-left:4px solid var(--rc);background:#fdf8f5;}.shead.w{border-left:4px solid #e65100;background:#fff8f4;}.snum{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}.snum.a{background:var(--ra);}.snum.b{background:var(--rb);}.snum.c{background:var(--rc);}.snum.w{background:#e65100;}.shead-txt strong{font-size:16px;font-weight:700;}.shead-txt span{font-size:13px;color:var(--muted);display:block;margin-top:2px;}.sbody{border-top:1px solid var(--border);}.bi-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);}.bi-row:last-child{border-bottom:none;}.bi-ja{background:var(--ja-bg);padding:13px 15px;border-right:1px solid var(--border);min-width:0;}.bi-note{background:var(--note-bg);padding:13px 15px;min-width:0;}.col-head{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;padding-bottom:4px;border-bottom:1px dashed var(--border);}.col-head.ja{color:var(--ra);}.col-head.note{color:#8a6000;}.bi-label{font-size:13px;font-weight:800;color:var(--muted);margin-bottom:6px;margin-top:14px;}.bi-label:first-child{margin-top:0;}.script{background:#eef4ff;border:1px solid #c5d9f5;border-left:4px solid var(--ra);border-radius:6px;padding:14px 16px;font-size:14px;line-height:2.0;white-space:pre-wrap;word-break:break-word;margin-bottom:8px;}.script.b{background:#f5eeff;border-color:#d5b8f5;border-left-color:var(--rb);}.script.c{background:#fdf2ee;border-color:#f0c0a0;border-left-color:var(--rc);}.note{background:#fffbee;border:1px solid #e8d870;border-left:4px solid var(--note-border);border-radius:6px;padding:12px 16px;font-size:14px;line-height:1.85;margin-bottom:8px;}.note.warn{background:#fff4f4;border-color:#f0b0b0;border-left-color:#b83030;color:#3a0000;}.note.green{background:#f0faf4;border-color:#a8d8bc;border-left-color:var(--green);color:#1b4332;}.chk{list-style:none;padding:0;}.chk li{padding:5px 0;font-size:14px;color:#3a3000;display:flex;gap:8px;align-items:flex-start;}.chk li::before{content:'✔';color:var(--green-l);font-weight:700;flex-shrink:0;}.chk li.warn::before{content:'⚠';color:#c62828;}.chk li.info::before{content:'💡';}.action{background:#fdecea;border:1px solid #f5b5ae;border-left:3px solid #d93025;border-radius:6px;padding:8px 12px;font-size:12px;font-weight:700;color:#b3251a;margin-bottom:6px;}.flow{display:flex;align-items:stretch;gap:0;margin-bottom:14px;overflow-x:auto;}.flow-step{flex:1;min-width:90px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:9px 10px;text-align:center;}.flow-step.a{border-top:3px solid var(--ra);}.flow-step.b{border-top:3px solid var(--rb);}.flow-step.c{border-top:3px solid var(--rc);}.flow-step .fnum{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:3px;}.flow-step .ftxt{font-size:14px;font-weight:700;}.flow-step .fsub{font-size:9.5px;color:var(--muted);margin-top:1px;}.flow-arr{display:flex;align-items:center;padding:0 3px;color:var(--muted);font-size:14px;flex-shrink:0;}.flow-wrap{margin-bottom:16px;}.flow-label{font-size:10px;font-weight:700;color:var(--muted);margin-bottom:5px;letter-spacing:.5px;}.principles{display:grid;grid-template-columns:1fr 1fr;gap:8px;}.pr-item{display:flex;align-items:flex-start;gap:8px;background:var(--green-p);border-radius:8px;padding:10px 12px;}.pr-icon{font-size:15px;flex-shrink:0;}.pr-txt{font-size:12.5px;color:var(--accent);line-height:1.5;}.how-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:13px;line-height:1.6;}.step-num{background:#3a4a5c;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px;}.how-tip{background:#f0f4f8;border-left:3px solid #5a7a9a;padding:8px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#3a4a5c;margin-top:6px;}.script-ex{display:block;background:#f5f5f5;border-radius:6px;padding:8px 10px;font-size:12px;color:#333;margin-top:4px;font-style:italic;border-left:3px solid #5a7a9a;}.qref{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;}.qref table{width:100%;border-collapse:collapse;font-size:14px;}.qref thead th{background:var(--accent);color:#fff;padding:12px 16px;text-align:left;font-size:13px;letter-spacing:.5px;}.qref tbody tr:nth-child(even){background:#f8fafb;}.qref tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;font-size:14px;}.qref tbody td:first-child{font-weight:700;color:var(--green);white-space:nowrap;width:70px;}.qref tbody td:nth-child(2){border-right:1px solid var(--border);width:35%;}.qref tbody td:nth-child(3){border-right:1px solid var(--border);color:#1b3a2a;font-size:11px;width:30%;}.qref tbody tr:last-child td{border-bottom:none;}.ko-trans-wrap{margin-bottom:10px;}.ko-trans-head{font-size:9.5px;font-weight:800;letter-spacing:1px;color:#2d6a4f;margin-bottom:6px;padding-bottom:3px;border-bottom:1px dashed #a8d8bc;}.ko-trans{background:#f0faf4;border:1px solid #b7dfc8;border-left:4px solid #2d6a4f;border-radius:6px;padding:14px 16px;font-size:14px;line-height:2.0;white-space:pre-wrap;word-break:break-word;color:#1b3a2a;}.lbl{display:block;font-size:11px;font-weight:800;color:#fff;background:#5c6875;letter-spacing:.8px;margin-top:14px;margin-bottom:8px;padding:4px 10px;border-radius:4px;}.lbl:first-child{margin-top:0;}.lnk{color:var(--ra);font-size:11px;word-break:break-all;}.ph{background:#fff3cd;border-radius:3px;padding:0 4px;font-size:10.5px;font-weight:700;color:#856404;}.send-box{background:#e3f2fd;border:2px dashed #90caf9;border-radius:8px;padding:12px 14px;text-align:center;font-size:12px;font-weight:700;color:var(--ra);margin-bottom:8px;}.search-wrap{display:none;}.search-box{position:relative;width:340px;}.search-box input{width:100%;padding:7px 34px 7px 14px;border-radius:22px;border:none;font-size:13px;outline:none;background:rgba(255,255,255,.15);color:#fff;}.search-box input::placeholder{color:rgba(255,255,255,.55);}.search-box input:focus{background:rgba(255,255,255,.25);}.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,.6);font-size:15px;display:none;}.search-count{color:rgba(255,255,255,.8);font-size:13px;white-space:nowrap;min-width:80px;}.search-highlight{background:#fff176;border-radius:2px;padding:0 1px;}.card.search-hidden{display:none;}.card.search-match{outline:2px solid #52b788;}
 .ko-trans-case{background:#f0faf4;border:1px solid #b7dfc8;border-left:4px solid #2d6a4f;border-radius:6px;overflow:hidden;margin-top:10px;margin-bottom:0;}
 .ko-trans-case:first-child{margin-top:0;}
 .lbl-case{display:block;font-size:11px;font-weight:800;color:#1b4332;background:#c8ecd8;padding:5px 14px;letter-spacing:.5px;}
 .ko-trans-body{padding:12px 16px;font-size:14px;line-height:2.0;white-space:pre-wrap;word-break:break-word;color:#1b3a2a;}
-</style></head><body><input class="ecase" type="radio" name="ecase" id="ea" checked><input class="ecase" type="radio" name="ecase" id="eb"><input class="ecase" type="radio" name="ecase" id="ec"><input class="tab" type="radio" name="tab" id="t0" checked><input class="tab" type="radio" name="tab" id="t1"><input class="tab" type="radio" name="tab" id="t2"><input class="tab" type="radio" name="tab" id="t3"><input class="tab" type="radio" name="tab" id="t4"><input class="tab" type="radio" name="tab" id="t5"><input class="rcase" type="radio" name="rcase" id="rca" checked><input class="rcase" type="radio" name="rcase" id="rcb"><input class="lng" type="radio" name="lng" id="lja" checked><input class="lng" type="radio" name="lng" id="len"><input class="lng" type="radio" name="lng" id="lzh"><input class="lng" type="radio" name="lng" id="ltw"><input class="lng" type="radio" name="lng" id="lth"><input class="case" type="radio" name="case" id="ca" checked><input class="case" type="radio" name="case" id="cb"><input class="case" type="radio" name="case" id="cc"><div class="wrap"><div class="hd"><h1>🌿 아크로 외국인 응대 가이드 (루트A/B/C + 복용관리)</h1></div><div class="lng-nav"><span class="lng-tag">전송 언어</span><label for="lja">🇯🇵 일본어</label><label for="len">🇺🇸 영어</label><label for="lzh">🇨🇳 중국어(간체)</label><label for="ltw">🇹🇼 중국어(번체)</label><label for="lth">🇹🇭 태국어</label><div style="flex:1;"></div><div class="search-box"><input type="text" id="searchInput" placeholder="🔍  키워드 검색 (예: 설문지, 소개, 결제...)"><span class="search-clear" id="searchClear" onclick="clearSearch()">✕</span></div><span class="search-count" id="searchCount"></span></div><nav class="tab-nav"><label for="t0">공통 원칙</label><label for="t1">루트A 내원</label><label for="t2">루트B 비대면</label><label for="t3">루트C 재진</label><label for="t4">복용 관리</label><label for="t5">EMS 배송 문의</label></nav><div class="main"><div class="page p0"><div class="section" style="margin-bottom:16px;"><div class="sec-label" style="background:#3a4a5c;color:#fff;">📱 LINE 채팅 번역하는 방법</div><div class="card" style="border-left:4px solid #3a4a5c;"><div class="shead" style="background:#f4f6f8;"><div class="shead-txt"><strong>방법 ① 크롬 브라우저 자동번역</strong><span>제일 간단한 방법</span></div></div><div class="sbody"><div class="how-step"><span class="step-num">1</span><span>크롬 브라우저로 LINE 채팅 열기</span></div><div class="how-step"><span class="step-num">2</span><span>화면 빈 곳에서 <strong>마우스 오른쪽 클릭</strong></span></div><div class="how-step"><span class="step-num">3</span><span>메뉴에서 <strong>"한국어로 번역"</strong> 클릭<br><span style="font-size:11.5px;color:#666;">→ 채팅 내용이 자동으로 한국어로 바뀌어요!</span></span></div><div class="how-tip">💡 번역이 조금 어색해도 대략적인 내용 파악에 충분해요</div></div></div></div><div class="section"><div class="sec-label">공통 원칙</div><div class="principles"><div class="pr-item"><div class="pr-icon">🤖</div><div class="pr-txt">AI가 먼저 응대 → 직원이 인계받아 진행</div></div><div class="pr-item"><div class="pr-icon">🙏</div><div class="pr-txt">고객명은 항상 <strong>성(姓)+様(さま)</strong>로 호칭</div></div><div class="pr-item"><div class="pr-icon">💬</div><div class="pr-txt">어조는 정중하되 친근하게 (, 😊 이모티콘 활용)</div></div><div class="pr-item"><div class="pr-icon">❓</div><div class="pr-txt">모르는 내용은 즉답 금지 → 원장님 확인 후 안내</div></div><div class="pr-item"><div class="pr-icon">📍</div><div class="pr-txt">경로 확인 필수 (강남언니/소개/기타) → 가격 적용 기준 상이</div></div><div class="pr-item"><div class="pr-icon">🩺</div><div class="pr-txt">의료 관련 질문은 반드시 원장님 통해 답변 — 직원 임의 판단 금지</div></div><div class="pr-item"><div class="pr-icon">✍️</div><div class="pr-txt">개인정보(이름·연락처) 입력 시 오타 주의 — 성함 틀리지 않게</div></div><div class="pr-item"><div class="pr-icon">📅</div><div class="pr-txt">재예약/취소 요청 시 한국 체류 일정 먼저 확인</div></div><div class="pr-item"><div class="pr-icon">🌏</div><div class="pr-txt">환자의 국가 언어로 답변 유지 — 대만(繁體) · 중국(简体) 혼용 주의</div></div></div></div></div><div class="page p1"><div class="section"><div class="sec-label">내원 고객 안내 순서</div><div class="flow-wrap"><div class="flow-label">▶ 공통 플로우</div><div class="flow"><div class="flow-step a"><div class="fnum">STEP 1</div><div class="ftxt">예약확인</div><div class="fsub">기본안내+본인확인+경로확인</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">STEP 2</div><div class="ftxt">설문지 발송</div><div class="fsub">케이스별 상이</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">STEP 3</div><div class="ftxt">전날 리마인드</div><div class="fsub">주의사항 안내</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">STEP 4</div><div class="ftxt">진료 후 마무리</div><div class="fsub">복용가이드+소개혜택</div></div></div></div><div class="banner a"><div class="bnum a">A</div><div><div class="btitle a">루트 A｜내원 고객</div><div class="bsub">케이스를 선택하세요</div></div></div><div class="nav-hint">👇 케이스를 선택하세요</div><div class="case-nav"><label for="ca" class="c1">① 다이어트만</label><label for="cb" class="c2">② 리프팅만</label><label for="cc" class="c3">③ 다이어트 + 리프팅</label></div><div class="cpage ca"><div class="card"><div class="shead a"><div class="snum a">1</div><div class="shead-txt"><strong>예약 확인 + 기본 안내</strong><span>예약 확정 직후 발송</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓医院です。
+input.icase{display:none;}.ic-nav{display:flex;gap:8px;margin:6px 0 16px;flex-wrap:wrap;}.ic-nav label{padding:10px 20px;border-radius:24px;font-size:13.5px;font-weight:800;cursor:pointer;border:2px solid #1a6e4a;color:#1a6e4a;background:#fff;transition:all .2s;}#ic1:checked~.wrap .p6 .ic-nav label[for=ic1],#ic2:checked~.wrap .p6 .ic-nav label[for=ic2],#ic3:checked~.wrap .p6 .ic-nav label[for=ic3],#ic4:checked~.wrap .p6 .ic-nav label[for=ic4],#ic5:checked~.wrap .p6 .ic-nav label[for=ic5],#ic6:checked~.wrap .p6 .ic-nav label[for=ic6]{background:#1a6e4a;color:#fff;box-shadow:0 3px 12px rgba(26,110,74,.4);transform:translateY(-1px);}.icpage{display:none;}#ic1:checked~.wrap .p6 .ic1,#ic2:checked~.wrap .p6 .ic2,#ic3:checked~.wrap .p6 .ic3,#ic4:checked~.wrap .p6 .ic4,#ic5:checked~.wrap .p6 .ic5,#ic6:checked~.wrap .p6 .ic6{display:block;}</style></head><body><input class="ecase" type="radio" name="ecase" id="ea" checked><input class="ecase" type="radio" name="ecase" id="eb"><input class="ecase" type="radio" name="ecase" id="ec"><input class="tab" type="radio" name="tab" id="t0" checked><input class="tab" type="radio" name="tab" id="t1"><input class="tab" type="radio" name="tab" id="t2"><input class="tab" type="radio" name="tab" id="t3"><input class="tab" type="radio" name="tab" id="t4"><input class="tab" type="radio" name="tab" id="t5"><input class="tab" type="radio" name="tab" id="t6"><input class="rcase" type="radio" name="rcase" id="rca" checked><input class="rcase" type="radio" name="rcase" id="rcb"><input class="lng" type="radio" name="lng" id="lja" checked><input class="lng" type="radio" name="lng" id="len"><input class="lng" type="radio" name="lng" id="lzh"><input class="lng" type="radio" name="lng" id="ltw"><input class="lng" type="radio" name="lng" id="lth"><input class="case" type="radio" name="case" id="ca" checked><input class="case" type="radio" name="case" id="cb"><input class="case" type="radio" name="case" id="cc"><input class="icase" type="radio" name="icase" id="ic1" checked><input class="icase" type="radio" name="icase" id="ic2"><input class="icase" type="radio" name="icase" id="ic3"><input class="icase" type="radio" name="icase" id="ic4"><input class="icase" type="radio" name="icase" id="ic5"><input class="icase" type="radio" name="icase" id="ic6"><div class="wrap"><div class="hd"><h1>🌿 아크로 외국인 응대 가이드 (루트A/B/C + 복용관리)</h1></div><div class="lng-nav"><span class="lng-tag">전송 언어</span><label for="lja">🇯🇵 일본어</label><label for="len">🇺🇸 영어</label><label for="lzh">🇨🇳 중국어(간체)</label><label for="ltw">🇹🇼 중국어(번체)</label><label for="lth">🇹🇭 태국어</label><div style="flex:1;"></div><div class="search-box"><input type="text" id="searchInput" placeholder="🔍  키워드 검색 (예: 설문지, 소개, 결제...)"><span class="search-clear" id="searchClear" onclick="clearSearch()">✕</span></div><span class="search-count" id="searchCount"></span></div><nav class="tab-nav"><label for="t0">공통 원칙</label><label for="t6">유입 응대</label><label for="t1">루트A 내원</label><label for="t2">루트B 비대면</label><label for="t3">루트C 재진</label><label for="t4">복용 관리</label><label for="t5">EMS 배송 문의</label></nav><div class="main"><div class="page p0"><div class="section" style="margin-bottom:16px;"><div class="sec-label" style="background:#3a4a5c;color:#fff;">📱 LINE 채팅 번역하는 방법</div><div class="card" style="border-left:4px solid #3a4a5c;"><div class="shead" style="background:#f4f6f8;"><div class="shead-txt"><strong>방법 ① 크롬 브라우저 자동번역</strong><span>제일 간단한 방법</span></div></div><div class="sbody"><div class="how-step"><span class="step-num">1</span><span>크롬 브라우저로 LINE 채팅 열기</span></div><div class="how-step"><span class="step-num">2</span><span>화면 빈 곳에서 <strong>마우스 오른쪽 클릭</strong></span></div><div class="how-step"><span class="step-num">3</span><span>메뉴에서 <strong>"한국어로 번역"</strong> 클릭<br><span style="font-size:11.5px;color:#666;">→ 채팅 내용이 자동으로 한국어로 바뀌어요!</span></span></div><div class="how-tip">💡 번역이 조금 어색해도 대략적인 내용 파악에 충분해요</div></div></div></div><div class="section"><div class="sec-label">공통 원칙</div><div class="principles"><div class="pr-item"><div class="pr-icon">🤖</div><div class="pr-txt">AI가 먼저 응대 → 직원이 인계받아 진행</div></div><div class="pr-item"><div class="pr-icon">🙏</div><div class="pr-txt">고객명은 항상 <strong>성(姓)+様(さま)</strong>로 호칭</div></div><div class="pr-item"><div class="pr-icon">💬</div><div class="pr-txt">어조는 정중하되 친근하게 (, 😊 이모티콘 활용)</div></div><div class="pr-item"><div class="pr-icon">❓</div><div class="pr-txt">모르는 내용은 즉답 금지 → 원장님 확인 후 안내</div></div><div class="pr-item"><div class="pr-icon">📍</div><div class="pr-txt">경로 확인 필수 (강남언니/소개/기타) → 가격 적용 기준 상이</div></div><div class="pr-item"><div class="pr-icon">🩺</div><div class="pr-txt">의료 관련 질문은 반드시 원장님 통해 답변 — 직원 임의 판단 금지</div></div><div class="pr-item"><div class="pr-icon">✍️</div><div class="pr-txt">개인정보(이름·연락처) 입력 시 오타 주의 — 성함 틀리지 않게</div></div><div class="pr-item"><div class="pr-icon">📅</div><div class="pr-txt">재예약/취소 요청 시 한국 체류 일정 먼저 확인</div></div><div class="pr-item"><div class="pr-icon">🌏</div><div class="pr-txt">환자의 국가 언어로 답변 유지 — 대만(繁體) · 중국(简体) 혼용 주의</div></div></div></div></div><div class="page p6"><div class="section"><div class="sec-label">유입 응대 · 유치콜</div><div class="banner a" style="background:#e6f4ee;"><div class="bnum a" style="background:#1a6e4a;">유</div><div><div class="btitle a" style="color:#1a6e4a;">유입 응대 (유치콜)</div><div class="bsub">리드 유입 시 첫 응대 → 예약 유치. 1~3차콜·종료콜·예약확인·재요청</div></div></div><div class="note warn" style="margin-bottom:14px;">⚠️ <b>자작 문구(초안) — 원장 검수 후 사용.</b> 아웃콜 유치콜은 기존 가이드 정본이 아니라 새로 작성한 초안입니다. 논문·후기·주소·링크·채널ID 등은 발송 전 원장·번역 검수를 권장합니다. 간체·태국어는 번역본이며 전용 채널(WeChat 등) 미확정 상태입니다.</div><div class="flow-wrap"><div class="flow-label">▶ 유치콜 케이던스 (실측)</div><div class="flow"><div class="flow-step a"><div class="fnum">1차콜</div><div class="ftxt">첫 응대</div><div class="fsub">한약/컷/온다/웨이브</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">1~4일</div><div class="ftxt">2차콜</div><div class="fsub">실슬롯+홈피</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">3~4일</div><div class="ftxt">3차콜</div><div class="fsub">홈피+비대면</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">3일</div><div class="ftxt">종료콜</div><div class="fsub">예약실패_종결</div></div><div class="flow-arr">·</div><div class="flow-step a" style="border-top-color:#1a6e4a;"><div class="fnum">예약시</div><div class="ftxt">예약확인콜</div><div class="fsub">주소 안내</div></div></div></div><div class="nav-hint">👇 단계를 선택하세요 · 1차콜은 문의 유형별 4종</div><div class="ic-nav"><label for="ic1">1차콜</label><label for="ic2">2차콜</label><label for="ic3">3차콜</label><label for="ic4">종료콜</label><label for="ic5">예약확인</label><label for="ic6">재요청</label></div><div class="icpage ic1"><div class="card"><div class="shead a"><div class="snum a">1</div><div class="shead-txt"><strong>1차콜 — 한약(다이어트)</strong><span>유입 첫 응대 · 내원+비대면</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+ダイエット漢方にご興味をお持ちいただき、ありがとうございます。
+
+当院は院長が約30分、1:1でじっくりカウンセリングを行い、お一人おひとりの体質に合わせて処方するカプセル漢方です。
+掲載論文では10週間で初期体重の平均約10%の減量が報告されており、カンナムオンニにも750件以上のクチコミをいただいております。
+ご来院での診療はもちろん、ご来院が難しい場合はオンライン（非対面）診療のうえ、処方・EMS発送も可能です。
+
+ご希望の日時はございますか？ お気軽にお知らせいただければ、このチャットですぐにご予約をお手伝いいたします😊
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+Thank you for your interest in our diet herbal medicine.
+
+Our director personally provides a thorough 30-minute 1:1 consultation and prescribes a capsule herbal medicine tailored to your body type.
+In a published study, patients lost an average of about 10% of their initial body weight over 10 weeks, and we have over 750 reviews on Gangnam Unni.
+In-person visits are of course available, and if visiting is difficult, online (non-face-to-face) consultation with prescription and EMS delivery is also possible.
+
+Do you have a preferred date and time? Just let us know and we'll arrange your booking right here in this chat 😊
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+感谢您对减肥韩方（减重中药）的关注。
+
+本院由院长亲自进行约30分钟的一对一详细咨询，并根据您的体质开具胶囊型韩方处方。
+发表的论文显示，10周内初期体重平均减轻约10%，Gangnam Unni（江南姐姐）上也有750多条评价。
+可以到院面诊，若不便到院，也可通过在线（非面诊）诊疗后开方并以EMS配送。
+
+请问您有希望的日期和时间吗？告诉我们即可在这个聊天里立即为您预约😊
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+感謝您對減重韓方（漢方減肥）的關注。
+
+本院由院長親自進行約30分鐘的一對一詳細諮詢，並依照您的體質開立膠囊型韓方處方。
+發表的論文顯示，10週內初期體重平均減輕約10%，Gangnam Unni（江南姐姐）上也有750多則評價。
+可以到院面診，若不便到院，也可透過線上（非面診）診療後開方並以EMS配送。
+
+請問您有希望的日期和時間嗎？告訴我們即可在這個聊天為您立即預約😊
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+ขอบคุณที่สนใจยาสมุนไพรลดน้ำหนักของเรา
+
+ที่คลินิกของเรา ผู้อำนวยการ (แพทย์) จะให้คำปรึกษาแบบตัวต่อตัวอย่างละเอียดประมาณ 30 นาที และจ่ายยาสมุนไพรชนิดแคปซูลที่เหมาะกับสภาพร่างกายของคุณ
+จากงานวิจัยที่ตีพิมพ์ พบว่าน้ำหนักลดลงเฉลี่ยประมาณ 10% ของน้ำหนักเริ่มต้นภายใน 10 สัปดาห์ และมีรีวิวมากกว่า 750 รายการบน Gangnam Unni
+สามารถเข้ามาพบแพทย์ที่คลินิกได้ และหากมาไม่สะดวก ก็สามารถปรึกษาแบบออนไลน์ (ไม่ต้องมาที่คลินิก) แล้วสั่งจ่ายยาและจัดส่งทาง EMS ได้เช่นกัน
+
+คุณมีวันและเวลาที่สะดวกไหมครับ/คะ? แจ้งได้เลย แล้วเราจะจองให้คุณในแชตนี้ทันที 😊
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+다이어트 한약에 관심 가져주셔서 감사합니다.
+
+저희는 원장이 직접 약 30분간 1:1로 꼼꼼히 상담하고, 한 분 한 분의 체질에 맞춰 처방하는 캡슐 한약입니다.
+게재된 논문에서는 10주간 초기 체중의 평균 약 10% 감량이 보고되었고, 강남언니에도 750건 이상의 후기가 있습니다.
+내원 진료는 물론, 방문이 어려우신 경우 비대면(온라인) 진료 후 처방·EMS 배송도 가능합니다.
+
+원하시는 날짜·시간이 있으실까요? 편하게 알려주시면 이 채팅에서 바로 예약 도와드리겠습니다😊
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 질문으로 끝남 — 답장 오면 일정 조율 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">2</div><div class="shead-txt"><strong>1차콜 — 컷(지방분해주사)</strong><span>유입 첫 응대 · 부위 질문</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+Acro Cut（100%漢方成分の脂肪分解注射）にご興味をお持ちいただき、ありがとうございます。
+
+気になる部位の脂肪をピンポイントで集中ケアする施術で、施術時間も短く、当日の日常生活も可能です。
+院長が直接カウンセリングを行い、部位やお悩みに合わせて施術いたします。
+
+ご希望の部位と、ご都合のよい日時を教えていただけますか？ このチャットですぐにご予約を確定できます😊
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+Thank you for your interest in Acro Cut (100% herbal fat-dissolving injection).
+
+It targets fat in the specific areas you're concerned about, takes only a short time, and you can return to daily life the same day.
+Our director consults with you personally and performs the treatment tailored to the area and your condition.
+
+Could you tell us the area you'd like treated and a convenient date and time? We can confirm your booking right here in this chat 😊
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+感谢您对 Acro Cut（100%韩方成分溶脂针）的关注。
+
+针对您在意的部位精准集中分解脂肪，疗程时间短，当天即可恢复日常生活。
+由院长亲自咨询后，根据部位和状态为您进行施术。
+
+方便告诉我们您想改善的部位和方便的日期时间吗？可以直接在此聊天为您确认预约😊
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+感謝您對 Acro Cut（100%韓方成分溶脂針）的關注。
+
+針對您在意的部位精準集中分解脂肪，療程時間短，當天即可恢復日常生活。
+由院長親自諮詢後，依照部位和狀態為您進行施術。
+
+方便告訴我們您想改善的部位和方便的日期時間嗎？可以直接在此聊天為您確認預約😊
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+ขอบคุณที่สนใจ Acro Cut (ยาฉีดสลายไขมันจากสมุนไพร 100%)
+
+จัดการไขมันเฉพาะจุดที่คุณกังวลแบบตรงจุด ใช้เวลาสั้น และกลับไปใช้ชีวิตประจำวันได้ในวันเดียวกัน
+ผู้อำนวยการ (แพทย์) จะให้คำปรึกษาด้วยตนเอง แล้วทำการรักษาให้เหมาะกับบริเวณและสภาพของคุณ
+
+รบกวนแจ้งบริเวณที่ต้องการทำและวันเวลาที่สะดวกได้ไหมครับ/คะ? เรายืนยันการจองให้คุณได้เลยในแชตนี้ 😊
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+Acro Cut(100% 한약 성분 지방분해 주사)에 관심 가져주셔서 감사합니다.
+
+신경 쓰이는 부위의 지방을 핀포인트로 집중 관리하는 시술로, 시술 시간이 짧고 당일 일상생활도 가능합니다.
+원장이 직접 상담 후 부위와 상태에 맞춰 시술해드리고 있습니다.
+
+원하시는 부위와 편하신 일시를 알려주시겠어요? 이 채팅에서 바로 예약 도와드리겠습니다😊
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 부위 답변 오면 일정 조율 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">3</div><div class="shead-txt"><strong>1차콜 — 온다(리프팅)</strong><span>유입 첫 응대 · 부위+일정</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+ONDA（オンダ）リフティングのご相談、ありがとうございます。
+
+気になる部位を集中的に引き締めるリフティング施術で、施術後はメイク直しだけでそのまま日常にお戻りいただけます。施術は20〜40分ほどで、ダウンタイムもほとんどありません。
+院長が直接カウンセリングを行い、部位やお悩みに合わせて施術いたします。
+
+ご希望の部位と、ご都合のよい日時を教えていただけますか？ このチャットですぐにご予約を確定できます😊
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+Thank you for your interest in ONDA lifting.
+
+It's a focused lifting treatment for the areas you're concerned about — after treatment, just touch up your makeup and head right back to your day. The treatment takes about 20–40 minutes with almost no downtime.
+Our director consults with you personally and performs the treatment tailored to the area and your condition.
+
+Could you tell us the area you'd like treated and a convenient date and time? We can confirm your booking right here in this chat 😊
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+感谢您咨询ONDA提拉疗程。
+
+针对在意部位集中紧致提拉的疗程，疗程后补个妆即可直接回到日常生活。疗程约20～40分钟，几乎没有恢复期。
+由院长亲自咨询后，根据部位和状态为您进行施术。
+
+方便告诉我们您想改善的部位和方便的日期时间吗？可以直接在此聊天为您确认预约😊
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+感謝您諮詢ONDA提拉療程。
+
+針對在意部位集中緊緻提拉的療程，療程後補個妝即可直接回到日常生活。療程約20～40分鐘，幾乎沒有恢復期。
+由院長親自諮詢後，依照部位和狀態為您進行施術。
+
+方便告訴我們您想改善的部位和方便的日期時間嗎？可以直接在此聊天為您確認預約😊
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+ขอบคุณที่สอบถามเกี่ยวกับการยกกระชับ ONDA
+
+เป็นการยกกระชับเฉพาะจุดที่คุณกังวล หลังทำเพียงเติมแต่งหน้าเล็กน้อยก็กลับไปใช้ชีวิตประจำวันได้ทันที ใช้เวลาประมาณ 20–40 นาที แทบไม่มีช่วงพักฟื้น
+ผู้อำนวยการ (แพทย์) จะให้คำปรึกษาด้วยตนเอง แล้วทำการรักษาให้เหมาะกับบริเวณและสภาพของคุณ
+
+รบกวนแจ้งบริเวณที่ต้องการทำและวันเวลาที่สะดวกได้ไหมครับ/คะ? เรายืนยันการจองให้คุณได้เลยในแชตนี้ 😊
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+ONDA(온다) 리프팅 상담 주셔서 감사합니다.
+
+신경 쓰이는 부위를 집중적으로 끌어올리는 리프팅 시술로, 시술 후 메이크업 수정만 하고 바로 일상 복귀가 가능합니다. 시술은 20~40분 정도이며 다운타임이 거의 없습니다.
+원장이 직접 상담 후 부위와 상태에 맞춰 시술해드리고 있습니다.
+
+원하시는 부위와 편하신 일시를 알려주시겠어요? 이 채팅에서 바로 예약 도와드리겠습니다😊
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · ★온다 수리중 기간엔 웨이브 대체 안내. 기기 설명 문구 원장 확정 필요 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">4</div><div class="shead-txt"><strong>1차콜 — 웨이브(리프팅)</strong><span>유입 첫 응대 · 부위+일정</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+Acro Wave のご相談、ありがとうございます。
+
+気になる部位を集中的に引き締めるリフティング施術で、施術後はメイク直しだけでそのまま日常にお戻りいただけます。施術は20〜40分ほどで、ダウンタイムもほとんどありません。
+院長が直接カウンセリングを行い、部位やお悩みに合わせて施術いたします。
+
+ご希望の部位と、ご都合のよい日時を教えていただけますか？ このチャットですぐにご予約を確定できます😊
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+Thank you for your interest in Acro Wave.
+
+It's a focused lifting treatment for the areas you're concerned about — after treatment, just touch up your makeup and head right back to your day. The treatment takes about 20–40 minutes with almost no downtime.
+Our director consults with you personally and performs the treatment tailored to the area and your condition.
+
+Could you tell us the area you'd like treated and a convenient date and time? We can confirm your booking right here in this chat 😊
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+感谢您对 Acro Wave 的咨询。
+
+针对在意部位集中紧致提拉的疗程，疗程后补个妆即可直接回到日常生活。疗程约20～40分钟，几乎没有恢复期。
+由院长亲自咨询后，根据部位和状态为您进行施术。
+
+方便告诉我们您想改善的部位和方便的日期时间吗？可以直接在此聊天为您确认预约😊
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+感謝您對 Acro Wave 的諮詢。
+
+針對在意部位集中緊緻提拉的療程，療程後補個妝即可直接回到日常生活。療程約20～40分鐘，幾乎沒有恢復期。
+由院長親自諮詢後，依照部位和狀態為您進行施術。
+
+方便告訴我們您想改善的部位和方便的日期時間嗎？可以直接在此聊天為您確認預約😊
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+ขอบคุณที่สอบถามเกี่ยวกับ Acro Wave
+
+เป็นการยกกระชับเฉพาะจุดที่คุณกังวล หลังทำเพียงเติมแต่งหน้าเล็กน้อยก็กลับไปใช้ชีวิตประจำวันได้ทันที ใช้เวลาประมาณ 20–40 นาที แทบไม่มีช่วงพักฟื้น
+ผู้อำนวยการ (แพทย์) จะให้คำปรึกษาด้วยตนเอง แล้วทำการรักษาให้เหมาะกับบริเวณและสภาพของคุณ
+
+รบกวนแจ้งบริเวณที่ต้องการทำและวันเวลาที่สะดวกได้ไหมครับ/คะ? เรายืนยันการจองให้คุณได้เลยในแชตนี้ 😊
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+Acro Wave 상담 주셔서 감사합니다.
+
+신경 쓰이는 부위를 집중적으로 끌어올리는 리프팅 시술로, 시술 후 메이크업 수정만 하고 바로 일상 복귀가 가능합니다. 시술은 20~40분 정도이며 다운타임이 거의 없습니다.
+원장이 직접 상담 후 부위와 상태에 맞춰 시술해드리고 있습니다.
+
+원하시는 부위와 편하신 일시를 알려주시겠어요? 이 채팅에서 바로 예약 도와드리겠습니다😊
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 부위+일정 동시 질문 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div></div><div class="icpage ic2"><div class="card"><div class="shead a"><div class="snum a">5</div><div class="shead-txt"><strong>2차콜 — 실슬롯 제시(범용)</strong><span>1차 후 1~4일 · 홈피 예약 병행</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">【お名前】様、アクロ韓方クリニックです😊
+先日ご相談いただいた件でご連絡いたしました。
+
+直近ですと
+▶【○曜日 ○月○日 ○○:○○】
+▶【○曜日 ○月○日 ○○:○○】
+にご案内が可能です。
+
+このままチャットでご予約を確定できますので、ご都合のよい時間をお知らせください。上記以外の日時もお気軽にどうぞ。
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 【Name】, this is Acro Korean Medicine Clinic 😊
+We're following up on your earlier inquiry.
+
+Our nearest available times are:
+▶ 【Day, Month/Date, 00:00】
+▶ 【Day, Month/Date, 00:00】
+
+You can confirm your booking right here in this chat — just let us know which time works for you. Other dates are also welcome.
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">【姓名】您好，这里是Acro韩医院😊
+关于您先前咨询的内容，再次与您联系。
+
+近期可安排的时段如下：
+▶【○月○日（星期○）○○:○○】
+▶【○月○日（星期○）○○:○○】
+
+可以直接在这个聊天视窗确认预约，请告诉我们您方便的时间。其他日期也欢迎提出。
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">【姓名】您好，這裡是Acro韓醫院😊
+關於您先前諮詢的內容，再次與您聯繫。
+
+近期可安排的時段如下：
+▶【○月○日（星期○）○○:○○】
+▶【○月○日（星期○）○○:○○】
+
+可以直接在這個聊天視窗確認預約，請告訴我們您方便的時間。其他日期也歡迎提出。
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">เรียนคุณ 【ชื่อ】 นี่คือคลินิก Acro Korean Medicine 😊
+เราติดต่อกลับเกี่ยวกับการสอบถามครั้งก่อนของคุณ
+
+เวลาที่ว่างเร็วที่สุดคือ:
+▶ 【วัน เดือน/วันที่ 00:00】
+▶ 【วัน เดือน/วันที่ 00:00】
+
+คุณสามารถยืนยันการจองได้เลยในแชตนี้ แจ้งเวลาที่สะดวกได้เลยนะคะ/ครับ วันอื่นก็ยินดีเช่นกัน
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">【이름】님, 아크로한의원입니다😊
+지난번 상담 주신 건으로 연락드립니다.
+
+가까운 일정으로는
+▶【○요일 ○월○일 ○○:○○】
+▶【○요일 ○월○일 ○○:○○】
+에 안내가 가능합니다.
+
+이 채팅에서 바로 예약을 확정할 수 있으니 편하신 시간을 알려주세요.
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · ※발송 전 예약표에서 실제 빈 슬롯 2개 확인 후 기입 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div></div><div class="icpage ic3"><div class="card"><div class="shead a"><div class="snum a">6</div><div class="shead-txt"><strong>3차콜 — 홈피 유도+비대면(범용)</strong><span>2차 후 3~4일 · 해외배송 안내</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+
+ご相談いただいた件について、まだお返事をいただけておらず、もう一度ご連絡いたしました。
+ご予約・ご相談はホームページから24時間いつでも可能です（あなたの言語で対応）😊
+ご来院が難しい場合は、海外発送のご相談も承っております。
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+
+We haven't heard back regarding your inquiry, so we're reaching out once more.
+You can book or consult anytime on our website, in your own language, 24/7 😊
+If visiting in person is difficult, international shipping is also available upon consultation.
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+
+关于您咨询的内容，尚未收到您的回复，因此再次与您联系。
+预约·咨询可通过官网24小时办理（以您的语言应对）😊
+若不便到院，也可洽询国际配送。
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+
+關於您諮詢的內容，尚未收到您的回覆，因此再次與您聯繫。
+預約·諮詢可透過官網24小時辦理（以您的語言應對）😊
+若不便到院，也可洽詢國際配送。
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+
+เกี่ยวกับเรื่องที่คุณสอบถาม เรายังไม่ได้รับการตอบกลับ จึงติดต่อมาอีกครั้ง
+คุณสามารถจอง/ปรึกษาผ่านเว็บไซต์ได้ตลอด 24 ชั่วโมง (ในภาษาของคุณ) 😊
+หากมาที่คลินิกไม่สะดวก ก็สามารถปรึกษาเรื่องการจัดส่งระหว่างประเทศได้
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+
+상담해 주신 건에 관하여 아직 답변을 받지 못하여 다시 한번 연락드립니다.
+예약·상담은 홈페이지에서 24시간 언제든 가능합니다(고객님의 언어로 응대)😊
+내원이 어려우신 경우에도 해외 배송 상담을 받아보실 수 있습니다.
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 홈페이지 유도는 3차에서만 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div></div><div class="icpage ic4"><div class="card"><div class="shead a"><div class="snum a">7</div><div class="shead-txt"><strong>종료콜(범용)+비대면</strong><span>3차 후 3일 · 종결</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+
+先日ご相談いただいた件について、最後にもう一度ご連絡いたしました。
+ご検討中でしたら、ホームページから24時間いつでもご予約・ご相談いただけます😊
+医師との1:1カウンセリングのほか、海外発送のご相談も可能です。
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ
+※ 最後のご連絡となります。</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+
+This is our final message regarding your earlier inquiry.
+If you're still considering, you can book or consult anytime on our website, 24/7 😊
+A 1:1 consultation with our doctor and international shipping are both available.
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175
+※ This is our last follow-up message.</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+
+关于此前咨询的内容，最后再与您联系一次。
+若仍在考虑，可通过官网24小时预约·咨询😊
+除了与医师1:1咨询外，也可洽询国际配送。
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们
+※ 这是最后一次联系。</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+
+關於先前諮詢的內容，最後再與您聯繫一次。
+若仍在考慮，可透過官網24小時預約·諮詢😊
+除了與醫師1:1諮詢外，也可洽詢國際配送。
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）
+※ 這是最後一次的聯繫。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+
+เกี่ยวกับเรื่องที่คุณสอบถามก่อนหน้านี้ นี่เป็นการติดต่อครั้งสุดท้าย
+หากยังพิจารณาอยู่ สามารถจอง/ปรึกษาผ่านเว็บไซต์ได้ตลอด 24 ชั่วโมง 😊
+นอกจากการปรึกษาแบบ 1:1 กับแพทย์แล้ว ยังมีบริการจัดส่งระหว่างประเทศด้วย
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้
+※ นี่เป็นการติดตามครั้งสุดท้าย</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+
+지난번 상담해 주신 건에 관하여 마지막으로 한번 더 연락드립니다.
+고민 중이시라면 홈페이지에서 24시간 언제든 예약·상담을 받아보실 수 있습니다😊
+의료진과의 1:1 상담은 물론, 해외 배송 상담도 가능합니다.
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게
+※ 상담 후 드리는 마지막 연락입니다.</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 종료 후 상담결과=예약실패_종결 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div></div><div class="icpage ic5"><div class="card"><div class="shead a"><div class="snum a">8</div><div class="shead-txt"><strong>예약확인콜 (가예약 확정)</strong><span>예약 확정 시 발송 · 주소 포함 · 시술예약이면 영상줄 삭제</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓医院です。
+ご予約ありがとうございます。ご予約が確定いたしました😊
+日時のご確認・ご変更はホームページからいつでも可能です。ご変更の際は前日までにご連絡ください。
+
+📍 所在地：ソウル特別市江南区江南大路480 2階 アクロ韓医院
+
+ご不明な点は、このチャットでお気軽にお問い合わせください。
+▶ ご予約の確認・変更 https://www.acrohani.com
+
+※ ダイエット漢方をご予約の場合、下記の動画を事前にご覧いただくと役立ちます。
+▶ 服用方法（日・英字幕） https://youtu.be/Z9YQxD4swn4
+▶ 漢方の基本（日・英字幕） https://youtu.be/-0OPstMcplE</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+Thank you for booking — your appointment is confirmed 😊
+You can check or change your appointment anytime on our website. For changes, please contact us by the day before.
+
+📍 Address: 2F, 480 Gangnam-daero, Gangnam-gu, Seoul
+
+If you have any questions, feel free to ask us right here in this chat.
+▶ Check/change your booking https://www.acrohani.com
+
+※ If you booked the diet herbal medicine, these videos may help — please watch in advance.
+▶ How to take (JP/EN subtitles) https://youtu.be/Z9YQxD4swn4
+▶ Diet herbal basics (JP/EN subtitles) https://youtu.be/-0OPstMcplE</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+感谢您的预约，您的预约已确认😊
+预约的确认·变更可随时通过官网办理，变更时请于前一天之前与我们联系。
+
+📍 地址：首尔特别市江南区江南大路480 2层 Acro韩医院
+
+如有疑问，请直接在这个聊天里咨询我们。
+▶ 确认·变更预约 https://www.acrohani.com
+
+※ 如果您预约的是减肥韩方，建议先观看以下视频。
+▶ 服用方法（日·英字幕） https://youtu.be/Z9YQxD4swn4
+▶ 韩方基础（日·英字幕） https://youtu.be/-0OPstMcplE</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+感謝您的預約，您的預約已確認😊
+預約的確認·變更可隨時透過官網辦理，變更時請於前一天之前與我們聯繫。
+
+📍 地址：首爾特別市江南區江南大路480 2樓 Acro韓醫院
+
+如有疑問，請直接在這個聊天諮詢我們。
+▶ 確認·變更預約 https://www.acrohani.com
+
+※ 若您預約的是減重韓方，建議先觀看以下影片。
+▶ 服用方法（日·英字幕） https://youtu.be/Z9YQxD4swn4
+▶ 韓方基礎（日·英字幕） https://youtu.be/-0OPstMcplE</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+ขอบคุณสำหรับการจอง การนัดหมายของคุณได้รับการยืนยันแล้ว 😊
+คุณสามารถตรวจสอบหรือเปลี่ยนแปลงการนัดหมายได้ตลอดเวลาผ่านเว็บไซต์ หากต้องการเปลี่ยนแปลง กรุณาแจ้งล่วงหน้าอย่างน้อย 1 วัน
+
+📍 ที่อยู่: ชั้น 2, 480 Gangnam-daero, Gangnam-gu, Seoul
+
+หากมีคำถาม สอบถามได้เลยในแชตนี้
+▶ ตรวจสอบ/เปลี่ยนแปลงการจอง https://www.acrohani.com
+
+※ หากคุณจองยาสมุนไพรลดน้ำหนัก แนะนำให้ดูวิดีโอด้านล่างล่วงหน้า
+▶ วิธีรับประทาน (ซับ ญี่ปุ่น/อังกฤษ) https://youtu.be/Z9YQxD4swn4
+▶ พื้นฐานยาสมุนไพร (ซับ ญี่ปุ่น/อังกฤษ) https://youtu.be/-0OPstMcplE</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+예약해 주셔서 감사합니다. 예약이 확정되었습니다😊
+일시 확인·변경은 홈페이지에서 언제든 가능하며, 변경 시에는 전날까지 연락 부탁드립니다.
+
+📍 소재지: 서울특별시 강남구 강남대로 480 2층 아크로한의원
+
+궁금하신 점은 이 채팅으로 편하게 문의해 주세요.
+▶ 예약 확인·변경 https://www.acrohani.com
+
+※ 다이어트 한약을 예약하신 경우, 아래 영상을 미리 보시면 도움이 됩니다.
+▶ 복용 방법(일·영 자막) https://youtu.be/Z9YQxD4swn4
+▶ 한약의 기본(일·영 자막) https://youtu.be/-0OPstMcplE</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 예약 확정 직후 발송. 시술(컷·온다·웨이브) 예약이면 하단 유튜브 영상 줄 삭제</div></div></div></div></div><div class="note warn" style="margin-top:14px;font-size:14.5px;line-height:1.75;">★ <b>예약 확정 후 필수</b> — 루트 A/B/C에 맞는 <b>설문지 및 안내사항</b>을 반드시 발송할 것.<br>· 루트A(내원) / 루트B(비대면) / 루트C(재진) 탭의 설문지·안내를 사용</div></div><div class="icpage ic6"><div class="card"><div class="shead a"><div class="snum a">9</div><div class="shead-txt"><strong>재요청 1차 — 대안 슬롯</strong><span>원하는 시간 마감 시 · 실시간 예약현황</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+
+お問い合わせありがとうございます。ただ、ご希望の時間帯は予約が埋まっており、現在は難しい状況です。
+ほかにご都合のよい日時を1〜2つお知らせください。ホームページからは空き状況をリアルタイムで確認しながらご予約いただけます😊
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+
+Thank you for your inquiry. Unfortunately, the time you requested is fully booked at the moment.
+Please share 1-2 other dates or times that work for you — or you can check real-time availability and book directly on our website 😊
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+
+感谢您的询问。不过您希望的时段目前已约满，现在较难安排。
+请提供其他方便的日期或时间1〜2个。官网可实时查看空档并直接预约😊
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+
+感謝您的詢問。不過您希望的時段目前已額滿，現在較難安排。
+請提供其他方便的日期或時間1〜2個。官網可即時查看空檔並直接預約😊
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+
+ขอบคุณสำหรับการสอบถาม แต่ช่วงเวลาที่คุณต้องการถูกจองเต็มแล้วในขณะนี้
+รบกวนแจ้งวันหรือเวลาอื่นที่สะดวก 1-2 ช่วง หรือดูช่วงเวลาว่างแบบเรียลไทม์และจองผ่านเว็บไซต์ได้เลย 😊
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+
+문의해 주셔서 감사합니다. 다만 원하신 시간대는 예약이 마감되어 현재는 어려운 상황입니다.
+가능하신 다른 날짜나 시간을 1~2개 알려주시면 바로 확인하여 안내해 드리겠습니다. 홈페이지에서는 예약 가능 현황을 실시간으로 확인하며 예약하실 수 있습니다😊
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 대안 슬롯 2개 실측 기입 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">10</div><div class="shead-txt"><strong>재요청 2차</strong><span></span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+
+先日のご予約について、改めてご連絡いたしました。
+ご都合のよい日時をお知らせいただくか、ホームページから直接ご予約いただけます😊
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+
+We're following up on your booking request.
+Please let us know any dates that work, or book directly on our website anytime 😊
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+
+关于此前的预约，再次与您联系。
+请告知方便的日期时间，或直接通过官网预约😊
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+
+關於先前的預約，再次與您聯繫。
+請告知方便的日期時間，或直接透過官網預約😊
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+
+ติดตามเรื่องการจองของคุณอีกครั้ง
+แจ้งวันเวลาที่สะดวก หรือจองผ่านเว็บไซต์ได้ทุกเมื่อ 😊
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+
+지난번 예약 건에 관하여 다시 한번 연락드립니다.
+가능하신 날짜나 시간을 알려주시거나, 홈페이지에서 직접 예약하실 수 있습니다😊
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">11</div><div class="shead-txt"><strong>재요청 3차 — 마지막</strong><span>무응답 시 종료콜 합류</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓方クリニックです。
+
+ご予約の件、もう一度ご連絡いたしました。
+ご都合のよい日時があればお知らせください。ホームページからもいつでもご予約いただけます😊
+
+📱 24時間いつでもホームページでご予約・ご相談（あなたの言語で対応・AI相談員が即対応）
+https://www.acrohani.com
+💬 直接のご相談はLINEで（ID: @903rlqfz）お気軽にどうぞ
+※ ご返信がない場合は、終了のご連絡に切り替えさせていただきます。</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
+
+We're reaching out once more about your booking.
+Feel free to share any preferred dates, or book anytime on our website 😊
+
+📱 Book or consult anytime on our website — in your own language, 24/7 (instant AI assistant)
+https://www.acrohani.com
+💬 For direct chat: WhatsApp +82 10-4475-1175 → https://wa.me/821044751175
+※ If we don't hear back, this will move to our final message.</div><div class="s-zh script">您好😊 这里是Acro韩医院。
+
+关于预约，再与您联系一次。
+若有方便的日期时间请告知，也可随时通过官网预约😊
+
+📱 官网24小时预约·咨询（以您的语言应对·AI即时回复）
+https://www.acrohani.com
+💬 如需直接咨询，请在本聊天中告诉我们
+※ 若未收到回复，将转为结束联系。</div><div class="s-tw script">您好😊 這裡是Acro韓醫院。
+
+關於預約，再與您聯繫一次。
+若有方便的日期時間請告知，也可隨時透過官網預約😊
+
+📱 官網24小時預約·諮詢（以您的語言應對·AI即時回覆）
+https://www.acrohani.com
+💬 如需直接諮詢，請洽LINE（ID: @814kgltm）
+※ 若未收到回覆，將轉為結束聯繫。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+
+ติดต่อเรื่องการจองอีกครั้ง
+หากมีวันเวลาที่สะดวกแจ้งได้เลย และจองผ่านเว็บไซต์ได้ทุกเมื่อ 😊
+
+📱 จอง/ปรึกษาผ่านเว็บไซต์ตลอด 24 ชั่วโมง (ในภาษาของคุณ · ผู้ช่วย AI ตอบทันที)
+https://www.acrohani.com
+💬 หากต้องการปรึกษาโดยตรง สอบถามได้เลยในแชตนี้
+※ หากไม่ได้รับการตอบกลับ จะเปลี่ยนเป็นการติดต่อครั้งสุดท้าย</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요😊 아크로한의원입니다.
+
+예약 건에 관하여 한번 더 연락드립니다.
+가능하신 날짜나 시간이 있으시면 알려주세요. 홈페이지에서도 언제든 예약하실 수 있습니다😊
+
+📱 홈페이지에서 24시간 언제든 예약·상담 가능
+https://www.acrohani.com
+💬 직접 상담은 이 채팅으로 편하게
+※ 무응답 시 종료콜로 합류</div></div><div class="note" style="margin-top:8px;">👤 <b>직원 액션</b> · 무응답 시 종료콜 합류 · 📎 LINE/WhatsApp QR 첨부</div></div></div></div></div></div></div></div><div class="page p1"><div class="section"><div class="sec-label">내원 고객 안내 순서</div><div class="flow-wrap"><div class="flow-label">▶ 공통 플로우</div><div class="flow"><div class="flow-step a"><div class="fnum">STEP 1</div><div class="ftxt">예약확인</div><div class="fsub">기본안내+본인확인+경로확인</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">STEP 2</div><div class="ftxt">설문지 발송</div><div class="fsub">케이스별 상이</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">STEP 3</div><div class="ftxt">전날 리마인드</div><div class="fsub">주의사항 안내</div></div><div class="flow-arr">→</div><div class="flow-step a"><div class="fnum">STEP 4</div><div class="ftxt">진료 후 마무리</div><div class="fsub">복용가이드+소개혜택</div></div></div></div><div class="banner a"><div class="bnum a">A</div><div><div class="btitle a">루트 A｜내원 고객</div><div class="bsub">케이스를 선택하세요</div></div></div><div class="nav-hint">👇 케이스를 선택하세요</div><div class="case-nav"><label for="ca" class="c1">① 다이어트만</label><label for="cb" class="c2">② 리프팅만</label><label for="cc" class="c3">③ 다이어트 + 리프팅</label></div><div class="cpage ca"><div class="card"><div class="shead a"><div class="snum a">1</div><div class="shead-txt"><strong>예약 확인 + 기본 안내</strong><span>예약 확정 직후 발송</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓医院です。
 <span class="ph">○月○日○時</span>にダイエット診療のご予約をお取りいたしました。
 ダイエット診療はご来院後、診療からご帰宅まで約1時間ほどお時間をいただきます。
 また、服用中のお薬や基礎疾患がある場合、診療後に医師の判断により処方ができないことがございます。
 その際は診療および検査費として3万ウォンが発生する場合がございますので、あらかじめご了承ください。
-★未成年者（2007年生まれで誕生日を迎えていない方）の場合
+★未成年者（満19歳以下、満19歳の誕生日を迎えていない方）の場合
 診療前に保護者様へ電話録音による同意確認を行った上で処方いたします。</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
 We have reserved your diet consultation for <span class="ph">○/○ at ○:○○</span>.
 Please note that the consultation takes approximately 1 hour from arrival to departure.
 If you are currently taking any medication or have pre-existing conditions, the doctor may not be able to prescribe after the consultation. In that case, a consultation/examination fee of 30,000 KRW may apply.
-★ For minors (born in 2007 and birthday not yet passed): Parental consent via recorded phone call is required before prescription.</div><div class="s-zh script">您好 😊 这里是Acro韩医院。
+★ For minors (aged 19 or under, whose 19th birthday has not yet passed): Parental consent via recorded phone call is required before prescription.</div><div class="s-zh script">您好 😊 这里是Acro韩医院。
 已为您预约了 <span class="ph">○月○日○时</span> 的减肥诊疗。
 减肥诊疗从到院到离院大约需要1小时。
 如果您正在服用药物或有基础疾病，医师诊察后可能无法开具处方。此时将收取诊察及检查费3万韩元，请提前了解。
-★ 未成年人（2007年出生且生日未过者）须在诊察前通过保护者电话录音同意后方可开具处方。</div><div class="s-tw script">您好 😊 這裡是Acro韓醫院。
+★ 未成年人（未满19周岁，尚未过19周岁生日者）须在诊察前通过保护者电话录音同意后方可开具处方。</div><div class="s-tw script">您好 😊 這裡是Acro韓醫院。
 已為您預約了 <span class="ph">○月○日○時</span> 的減肥診療。
 減肥診療從到院到離院大約需要1小時。
 如果您正在服用藥物或有基礎疾病，醫師診察後可能無法開立處方。此時將收取診察及檢查費3萬韓元，請提前了解。
-★ 未成年人（2007年出生且生日未過者）須在診察前透過監護人電話錄音同意後方可開立處方。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+★ 未成年人（未滿19歲，尚未過19歲生日者）須在診察前透過監護人電話錄音同意後方可開立處方。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
 เราได้จองการปรึกษาด้านการลดน้ำหนักให้คุณในวันที่ <span class="ph">○/○ เวลา ○:○○</span> แล้ว
 การปรึกษาใช้เวลาประมาณ 1 ชั่วโมงนับจากเวลาที่มาถึง
 หากคุณกำลังรับประทานยาหรือมีโรคประจำตัว แพทย์อาจไม่สามารถสั่งจ่ายยาได้หลังการปรึกษา ในกรณีนี้อาจมีค่าปรึกษา/ตรวจ 30,000 วอน
-★ สำหรับผู้เยาว์ (เกิดปี 2007 และยังไม่ถึงวันเกิด) ต้องได้รับความยินยอมจากผู้ปกครองผ่านการบันทึกเสียงทางโทรศัพท์ก่อนการตรวจ จึงจะสั่งจ่ายยาได้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요 😊 아크로 한의원입니다.
+★ สำหรับผู้เยาว์ (อายุไม่เกิน 19 ปี และยังไม่ถึงวันเกิดอายุครบ 19 ปี) ต้องได้รับความยินยอมจากผู้ปกครองผ่านการบันทึกเสียงทางโทรศัพท์ก่อนการตรวจ จึงจะสั่งจ่ายยาได้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요 😊 아크로 한의원입니다.
 
 [○월○일 ○시]에 다이어트 진료 예약을 잡아드렸습니다.
 다이어트 진료는 내원 후 진료부터 귀가까지 약 1시간 소요됩니다.
 복용 중인 약물이나 기저질환이 있는 경우, 진료 후 처방이 불가할 수 있으며 이 경우 진료·검사비 3만 원이 발생할 수 있습니다. 미리 양해 부탁드립니다.
-★ 미성년자(2007년생으로 생일 미경과자)의 경우
+★ 미성년자(만 19세 이하, 만 19세 생일이 지나지 않은 분)의 경우
 진료 전 보호자 전화 녹음 동의 확인 후 처방합니다.</div></div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">2</div><div class="shead-txt"><strong>설문지 발송</strong><span>대면 초진 설문지 링크</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">ご来院時にスムーズに診療を行うため、事前に問診票をお送りしております。
 お薬はご来院当日にそのままお渡しできますので、問診票に記載されている配送内容はご確認不要です。
 可能でしたら、ご来院前にあらかじめご記入をお願いいたします😊
@@ -181,19 +795,19 @@ Online consultation questionnaire: <span class="lnk">https://script.google.com/m
 하나는 내원용 설문지, 다른 하나는 온라인 진료용 설문지입니다.
 내원 진료 문진표:</div></div><div class="ko-trans-case"><span class="lbl-case">[링크]</span><div class="ko-trans-body">온라인 진료 문진표: [링크]</div></div></div></div></div></div></div></div><div class="cpage cb"><div class="card"><div class="shead a"><div class="snum a">1</div><div class="shead-txt"><strong>예약 확인 + 기본 안내</strong><span>예약 확정 직후 발송</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">こんにちは😊 アクロ韓医院です。
 <span class="ph">○月○日○時</span>にリフティング施術のご予約をお取りいたしました。
-★未成年者（2007年生まれで誕生日を迎えていない方）の場合
+★未成年者（満19歳以下、満19歳の誕生日を迎えていない方）の場合
 診療前に保護者様へ電話録音による同意確認を行った上で処方いたします。</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
 We have reserved your lifting treatment for <span class="ph">○/○ at ○:○○</span>.
-★ For minors (born in 2007 and birthday not yet passed): Parental consent via recorded phone call is required before prescription.</div><div class="s-zh script">您好 😊 这里是Acro韩医院。
+★ For minors (aged 19 or under, whose 19th birthday has not yet passed): Parental consent via recorded phone call is required before prescription.</div><div class="s-zh script">您好 😊 这里是Acro韩医院。
 已为您预约了 <span class="ph">○月○日○时</span> 的提升施术。
-★ 未成年人（2007年出生且生日未过者）须在诊察前通过保护者电话录音同意后方可开具处方。</div><div class="s-tw script">您好 😊 這裡是Acro韓醫院。
+★ 未成年人（未满19周岁，尚未过19周岁生日者）须在诊察前通过保护者电话录音同意后方可开具处方。</div><div class="s-tw script">您好 😊 這裡是Acro韓醫院。
 已為您預約了 <span class="ph">○月○日○時</span> 的提升施術。
-★ 未成年人（2007年出生且生日未過者）須在診察前透過監護人電話錄音同意後方可開立處方。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+★ 未成年人（未滿19歲，尚未過19歲生日者）須在診察前透過監護人電話錄音同意後方可開立處方。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
 เราได้จองการรักษา Lifting ให้คุณในวันที่ <span class="ph">○/○ เวลา ○:○○</span> แล้ว
-★ สำหรับผู้เยาว์ (เกิดปี 2007 และยังไม่ถึงวันเกิด) ต้องได้รับความยินยอมจากผู้ปกครองผ่านการบันทึกเสียงทางโทรศัพท์ก่อนการตรวจ จึงจะสั่งจ่ายยาได้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요 😊 아크로 한의원입니다.
+★ สำหรับผู้เยาว์ (อายุไม่เกิน 19 ปี และยังไม่ถึงวันเกิดอายุครบ 19 ปี) ต้องได้รับความยินยอมจากผู้ปกครองผ่านการบันทึกเสียงทางโทรศัพท์ก่อนการตรวจ จึงจะสั่งจ่ายยาได้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요 😊 아크로 한의원입니다.
 
 [○월○일 ○시]에 리프팅 시술 예약을 잡아드렸습니다.
-★ 미성년자(2007년생으로 생일 미경과자)의 경우
+★ 미성년자(만 19세 이하, 만 19세 생일이 지나지 않은 분)의 경우
 진료 전 보호자 전화 녹음 동의 확인 후 처방합니다.</div></div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">2</div><div class="shead-txt"><strong>시술 설문지 발송</strong><span>외국인 시술 설문지</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">施術をスムーズに行うため、事前にアンケートをお送りしております。
 可能でしたら、ご来院前にあらかじめご記入をお願いいたします😊
 ▶ <span class="lnk">https://script.google.com/macros/s/AKfycbwjiS-wutd1-AZ7aGS4f8AWfnd__yoWWKtsPKprqOzUR_ClttV6hM41VaH8azYf8C4hkA/exec</span></div><div class="s-en script">To make your treatment smoother, we're sending a pre-visit questionnaire.
@@ -266,25 +880,25 @@ If you refer someone to Acro Clinic, you'll receive a 30,000 KRW discount per re
 ダイエット診療はご来院後、診療からご帰宅まで約1時間ほどお時間をいただきます。
 また、服用中のお薬や基礎疾患がある場合、診療後に医師の判断により処方ができないことがございます。
 その際は診療および検査費として3万ウォンが発生する場合がございます。
-★未成年者（2007年生まれで誕生日を迎えていない方）の場合
+★未成年者（満19歳以下、満19歳の誕生日を迎えていない方）の場合
 診療前に保護者様へ電話録音による同意確認を行った上で処方いたします。</div><div class="s-en script">Hello 😊 This is Acro Korean Medicine Clinic.
 We have reserved your diet consultation + lifting treatment for <span class="ph">○/○ at ○:○○</span>.
 The consultation takes approximately 1 hour. If a prescription is not possible, a fee of 30,000 KRW may apply.
-★ For minors (born in 2007 and birthday not yet passed): Parental consent via recorded phone call is required before prescription.</div><div class="s-zh script">您好 😊 这里是Acro韩医院。
+★ For minors (aged 19 or under, whose 19th birthday has not yet passed): Parental consent via recorded phone call is required before prescription.</div><div class="s-zh script">您好 😊 这里是Acro韩医院。
 已为您预约了 <span class="ph">○月○日○时</span> 的减肥诊疗及提升施术。
 减肥诊疗约需1小时。若无法开具处方，将收取诊察费3万韩元。
-★ 未成年人（2007年出生且生日未过者）须在诊察前通过保护者电话录音同意后方可开具处方。</div><div class="s-tw script">您好 😊 這裡是Acro韓醫院。
+★ 未成年人（未满19周岁，尚未过19周岁生日者）须在诊察前通过保护者电话录音同意后方可开具处方。</div><div class="s-tw script">您好 😊 這裡是Acro韓醫院。
 已為您預約了 <span class="ph">○月○日○時</span> 的減肥診療及提升施術。
 減肥診療約需1小時。若無法開立處方，將收取診察費3萬韓元。
-★ 未成年人（2007年出生且生日未過者）須在診察前透過監護人電話錄音同意後方可開立處方。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
+★ 未成年人（未滿19歲，尚未過19歲生日者）須在診察前透過監護人電話錄音同意後方可開立處方。</div><div class="s-th script">สวัสดีครับ/ค่ะ 😊 นี่คือคลินิก Acro Korean Medicine
 เราได้จองการปรึกษาด้านการลดน้ำหนัก + การรักษา Lifting ให้คุณในวันที่ <span class="ph">○/○ เวลา ○:○○</span>
 การปรึกษาใช้เวลาประมาณ 1 ชั่วโมง หากไม่สามารถสั่งจ่ายยาได้ อาจมีค่าปรึกษา 30,000 วอน
-★ สำหรับผู้เยาว์ (เกิดปี 2007 และยังไม่ถึงวันเกิด) ต้องได้รับความยินยอมจากผู้ปกครองผ่านการบันทึกเสียงทางโทรศัพท์ก่อนการตรวจ จึงจะสั่งจ่ายยาได้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요 😊 아크로 한의원입니다.
+★ สำหรับผู้เยาว์ (อายุไม่เกิน 19 ปี และยังไม่ถึงวันเกิดอายุครบ 19 ปี) ต้องได้รับความยินยอมจากผู้ปกครองผ่านการบันทึกเสียงทางโทรศัพท์ก่อนการตรวจ จึงจะสั่งจ่ายยาได้</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">안녕하세요 😊 아크로 한의원입니다.
 
 [○월○일 ○시]에 다이어트 진료 + 리프팅 시술 예약을 잡아드렸습니다.
 다이어트 진료는 내원 후 약 1시간 소요됩니다.
 복용 약물이나 기저질환이 있는 경우 처방이 불가할 수 있으며, 이 경우 3만 원이 발생할 수 있습니다.
-★ 미성년자(2007년생으로 생일 미경과자)의 경우
+★ 미성년자(만 19세 이하, 만 19세 생일이 지나지 않은 분)의 경우
 진료 전 보호자 전화 녹음 동의 확인 후 처방합니다.</div></div></div></div></div></div><div class="card"><div class="shead a"><div class="snum a">2</div><div class="shead-txt"><strong>설문지 2종 발송</strong><span>대면 초진 설문지 + 시술 설문지</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script">ご来院時にスムーズに診療・施術を行うため、2種類のアンケートをお送りしております。
 可能でしたら、ご来院前にあらかじめご記入をお願いいたします😊
 ▶ ダイエット問診票:
@@ -465,50 +1079,68 @@ https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div></div><div class
 링크 확인 후 궁금한 점은 언제든지 편하게 연락 주세요. 감사합니다 😊
 https://acrohani75-dot.github.io/acro/acro_diet_guide.html</div></div></div></div></div></div><div class="card"><div class="shead b"><div class="snum b">5</div><div class="shead-txt"><strong>결제 안내</strong><span>경로 확인 → 가격 → 카드/계좌 선택</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script"><span class="lbl">(A) 가격 + 결제 방법</span><span class="ph">○ヶ月</span>パッケージ料金 <span class="ph">○○○,○○○</span>ウォン＋EMS送料 <span class="ph">○○○</span>ウォン＝合計 <span class="ph">○○○,○○○</span>ウォンとなります。
 お支払いはカード・口座振込のどちらも可能ですが、カード決済の場合は手数料4%が追加となります点、ご了承ください。
-ご希望のお支払い方法をお知らせいただけましたら、お手続きを進めさせていただきます</div><div class="s-ja script"><span class="lbl">(B) 계좌이체</span>▶ アクロ韓医院 口座情報 ◀
+ご希望のお支払い方法をお知らせいただけましたら、お手続きを進めさせていただきます</div><div class="s-ja script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ アクロ韓医院 口座情報 ◀
 入金額：<span class="ph">○○○,○○○ウォン</span>
-口座名義：임주혁
-口座：企業銀行 / 089-084316-01-012
+口座名義：JuHyuk Yim
+口座：
+受取人の生年月日：
+受取人の電話番号：
+メールアドレス：
 
 追加の情報が必要でしたら、お気軽にお申し付けください！
 お振込後にご連絡いただけますと、受付完了となります 😊</div><div class="s-ja script"><span class="lbl">(C-1) 카드결제 안내</span>ダイエットプログラム＋EMS＋カード手数料4%　合計 <span class="ph">○○○,○○○</span>ウォンとなります。<br>決済リンクをSMSにてお送りしますので、リンクよりお手続きをお願いいたします 🙏</div><div class="s-ja script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로 접속 → 결제 링크 생성 → <strong>업무폰으로 환자 전화번호에 문자 발송</strong> → 업무폰 수신 문자에서 <strong>링크만 복사</strong> → LINE으로 환자에게 전송 → 결제 완료 확인 후 매출전표 캡처 → LINE으로 전송<br><br><a href="https://ebppoffice.smartropay.co.kr" target="_blank" style="color:#2563eb;">ebppoffice.smartropay.co.kr</a><br>국내카드/해외카드 아이디/비번은 노션확인<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-en script"><span class="lbl">(A) 가격 + 결제 방법</span>The <span class="ph">○-month</span> package is <span class="ph">○○○,○○○</span> KRW + EMS shipping <span class="ph">○○○</span> KRW = Total <span class="ph">○○○,○○○</span> KRW.
 Payment can be made by card or bank transfer; please note that a 4% card fee applies to card payments.
-Let us know your preferred method and we will proceed with the payment</div><div class="s-en script"><span class="lbl">(B) 계좌이체</span>▶ Acro Korean Medicine Clinic — Bank Info ◀
+Let us know your preferred method and we will proceed with the payment</div><div class="s-en script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ Acro Korean Medicine Clinic — Bank Info ◀
 Amount: <span class="ph">○○○,○○○ KRW</span>
-Account holder: 임주혁 (Lim Joo-hyuk)
-Bank account: IBK Industrial Bank / 089-084316-01-012
+Account holder: JuHyuk Yim
+Bank account:
+Recipient's date of birth:
+Recipient's phone number:
+Email:
 
 If you need any additional information, just let us know!
 Please contact us after transferring — your registration will then be complete 😊</div><div class="s-en script"><span class="lbl">(C-1) 카드결제 안내</span>Diet program + EMS + Card fee 4% = Total <span class="ph">○○○,○○○</span> KRW.<br>We will send you a payment link via SMS — please complete the payment using the link. 🙏</div><div class="s-en script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-zh script"><span class="lbl">(A) 가격 + 결제 방법</span><span class="ph">○个月</span>套餐费用 <span class="ph">○○○,○○○</span>韩元＋EMS运费 <span class="ph">○○○</span>韩元＝合计 <span class="ph">○○○,○○○</span>韩元。
 付款方式可选择刷卡或银行转账，但刷卡时将额外收取4%手续费，敬请知悉。
-请告知您希望的付款方式，我们将为您办理付款</div><div class="s-zh script"><span class="lbl">(B) 계좌이체</span>▶ Acro韩医院 账户信息 ◀
+请告知您希望的付款方式，我们将为您办理付款</div><div class="s-zh script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ Acro韩医院 账户信息 ◀
 汇款金额：<span class="ph">○○○,○○○韩元</span>
-账户名义：임주혁
-账户：企业银行 / 089-084316-01-012
+账户名义：JuHyuk Yim
+账户：
+收款人出生日期：
+收款人电话号码：
+电子邮箱：
 
 如需其他信息，请随时告诉我们！
 汇款后请联系我们，即可完成受理 😊</div><div class="s-zh script"><span class="lbl">(C-1) 카드결제 안내</span>减肥项目＋EMS＋刷卡手续费4%＝合计 <span class="ph">○○○,○○○</span>韩元。<br>我们将通过短信向您发送付款链接，烦请通过链接完成付款 🙏</div><div class="s-zh script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-tw script"><span class="lbl">(A) 가격 + 결제 방법</span><span class="ph">○個月</span>套餐費用 <span class="ph">○○○,○○○</span>韓元＋EMS運費 <span class="ph">○○○</span>韓元＝合計 <span class="ph">○○○,○○○</span>韓元。
 付款方式可選擇刷卡或銀行轉帳，但刷卡時將額外收取4%手續費，敬請知悉。
-請告知您希望的付款方式，我們將為您辦理付款</div><div class="s-tw script"><span class="lbl">(B) 계좌이체</span>▶ Acro韓醫院 帳戶資訊 ◀
+請告知您希望的付款方式，我們將為您辦理付款</div><div class="s-tw script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ Acro韓醫院 帳戶資訊 ◀
 匯款金額：<span class="ph">○○○,○○○韓元</span>
-帳戶名義：임주혁
-帳戶：企業銀行 / 089-084316-01-012
+帳戶名義：JuHyuk Yim
+帳戶：
+收款人出生日期：
+收款人電話號碼：
+電子郵箱：
 
 如需其他資訊，請隨時告訴我們！
 匯款後請聯繫我們，即可完成受理 😊</div><div class="s-tw script"><span class="lbl">(C-1) 카드결제 안내</span>減肥療程＋EMS＋刷卡手續費4%＝合計 <span class="ph">○○○,○○○</span>韓元。<br>我們將透過簡訊向您發送付款連結，煩請透過連結完成付款 🙏</div><div class="s-tw script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-th script"><span class="lbl">(A) 가격 + 결제 방법</span>แพ็คเกจ <span class="ph">○ เดือน</span> ราคา <span class="ph">○○○,○○○</span> วอน + ค่าจัดส่ง EMS <span class="ph">○○○</span> วอน = รวม <span class="ph">○○○,○○○</span> วอนครับ/ค่ะ
 ชำระเงินได้ทั้งบัตรเครดิตและโอนเงิน แต่หากชำระด้วยบัตรจะมีค่าธรรมเนียมบัตร 4% เพิ่มเติม กรุณาทราบด้วยครับ/ค่ะ
-แจ้งวิธีชำระเงินที่ต้องการ แล้วเราจะดำเนินการชำระเงินให้ครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(B) 계좌이체</span>▶ ข้อมูลบัญชี Acro Korean Medicine Clinic ◀
+แจ้งวิธีชำระเงินที่ต้องการ แล้วเราจะดำเนินการชำระเงินให้ครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ ข้อมูลบัญชี Acro Korean Medicine Clinic ◀
 ยอดโอน: <span class="ph">○○○,○○○ วอน</span>
-ชื่อบัญชี: 임주혁
-บัญชี: IBK Industrial Bank / 089-084316-01-012
+ชื่อบัญชี: JuHyuk Yim
+บัญชี:
+วันเกิดผู้รับเงิน:
+เบอร์โทรศัพท์ผู้รับเงิน:
+อีเมล:
 
 หากต้องการข้อมูลเพิ่มเติม แจ้งได้เลยนะครับ/ค่ะ!
 โอนเงินแล้วรบกวนแจ้งเราด้วยนะครับ/ค่ะ ถือว่าการลงทะเบียนเสร็จสมบูรณ์ 😊</div><div class="s-th script"><span class="lbl">(C-1) 카드결제 안내</span>โปรแกรมลดน้ำหนัก + EMS + ค่าธรรมเนียมบัตร 4% รวม <span class="ph">○○○,○○○</span> วอน<br>เราจะส่งลิงก์ชำระเงินทาง SMS กรุณาดำเนินการชำระเงินผ่านลิงก์ดังกล่าว 🙏</div><div class="s-th script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">(A) 가격 + 결제 방법</span><div class="ko-trans-body">[○개월] 프로그램 [○○○,○○○]원 + EMS 비용 [○○○]원 = 합계 [○○○,○○○]원입니다.
 결제는 카드/계좌이체 모두 가능합니다만, 카드결제 시 카드수수료 4%가 추가되는 점 참고 부탁드립니다.
-희망하시는 방법을 알려주시면 결제 진행해드리겠습니다.</div></div><div class="ko-trans-case"><span class="lbl-case">(B) 계좌이체</span><div class="ko-trans-body">▶ 아크로 한의원 계좌 정보 ◀
+희망하시는 방법을 알려주시면 결제 진행해드리겠습니다.</div></div><div class="ko-trans-case"><span class="lbl-case">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:8px 0 4px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div><div class="ko-trans-body">▶ 아크로 한의원 계좌 정보 ◀
 입금액: [○○○,○○○]원
-계좌명의: 임주혁
-계좌: 기업은행 / 089-084316-01-012
+계좌명의: JuHyuk Yim
+계좌:
+수취인 생년월일:
+수취인 전화번호:
+이메일:
 
 추가 정보가 필요하시면 말씀주세요!
 입금 후 연락 주시면 접수 완료됩니다 😊</div></div><div class="ko-trans-case"><span class="lbl-case">(C-1) 카드결제 안내</span><div class="ko-trans-body">다이어트 프로그램 + EMS + 카드수수료4% 총 [○○]원
@@ -608,50 +1240,68 @@ If your delivery is delayed or you have any questions, please feel free to conta
 
 [○○] 님, 원장님 멘트 전달드립니다.</div><div class="ko-trans-case"><span class="lbl-case">[원장님 멘트 전달]</span><div class="ko-trans-body">이번에 말씀주신 [○개월] 패키지로 결제 도와드리겠습니다.</div></div></div></div></div></div></div><div class="card"><div class="shead d"><div class="snum d">5</div><div class="shead-txt"><strong>결제 안내</strong><span>경로 확인 → 가격 → 카드/계좌 선택</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script"><span class="lbl">(A) 가격 + 결제 방법</span><span class="ph">○ヶ月</span>パッケージ料金 <span class="ph">○○○,○○○</span>ウォン＋EMS送料 <span class="ph">○○○</span>ウォン＝合計 <span class="ph">○○○,○○○</span>ウォンとなります。
 お支払いはカード・口座振込のどちらも可能ですが、カード決済の場合は手数料4%が追加となります点、ご了承ください。
-ご希望のお支払い方法をお知らせいただけましたら、お手続きを進めさせていただきます</div><div class="s-ja script"><span class="lbl">(B) 계좌이체</span>▶ アクロ韓医院 口座情報 ◀
+ご希望のお支払い方法をお知らせいただけましたら、お手続きを進めさせていただきます</div><div class="s-ja script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ アクロ韓医院 口座情報 ◀
 入金額：<span class="ph">○○○,○○○ウォン</span>
-口座名義：임주혁
-口座：企業銀行 / 089-084316-01-012
+口座名義：JuHyuk Yim
+口座：
+受取人の生年月日：
+受取人の電話番号：
+メールアドレス：
 
 追加の情報が必要でしたら、お気軽にお申し付けください！
 お振込後にご連絡いただけますと、受付完了となります 😊</div><div class="s-ja script"><span class="lbl">(C-1) 카드결제 안내</span>ダイエットプログラム＋EMS＋カード手数料4%　合計 <span class="ph">○○○,○○○</span>ウォンとなります。<br>決済リンクをSMSにてお送りしますので、リンクよりお手続きをお願いいたします 🙏</div><div class="s-ja script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로 접속 → 결제 링크 생성 → <strong>업무폰으로 환자 전화번호에 문자 발송</strong> → 업무폰 수신 문자에서 <strong>링크만 복사</strong> → LINE으로 환자에게 전송 → 결제 완료 확인 후 매출전표 캡처 → LINE으로 전송<br><br><a href="https://ebppoffice.smartropay.co.kr" target="_blank" style="color:#2563eb;">ebppoffice.smartropay.co.kr</a><br>국내카드/해외카드 아이디/비번은 노션확인<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-en script"><span class="lbl">(A) 가격 + 결제 방법</span>The <span class="ph">○-month</span> package is <span class="ph">○○○,○○○</span> KRW + EMS shipping <span class="ph">○○○</span> KRW = Total <span class="ph">○○○,○○○</span> KRW.
 Payment can be made by card or bank transfer; please note that a 4% card fee applies to card payments.
-Let us know your preferred method and we will proceed with the payment</div><div class="s-en script"><span class="lbl">(B) 계좌이체</span>▶ Acro Korean Medicine Clinic — Bank Info ◀
+Let us know your preferred method and we will proceed with the payment</div><div class="s-en script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ Acro Korean Medicine Clinic — Bank Info ◀
 Amount: <span class="ph">○○○,○○○ KRW</span>
-Account holder: 임주혁 (Lim Joo-hyuk)
-Bank account: IBK Industrial Bank / 089-084316-01-012
+Account holder: JuHyuk Yim
+Bank account:
+Recipient's date of birth:
+Recipient's phone number:
+Email:
 
 If you need any additional information, just let us know!
 Please contact us after transferring — your registration will then be complete 😊</div><div class="s-en script"><span class="lbl">(C-1) 카드결제 안내</span>Diet program + EMS + Card fee 4% = Total <span class="ph">○○○,○○○</span> KRW.<br>We will send you a payment link via SMS — please complete the payment using the link. 🙏</div><div class="s-en script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-zh script"><span class="lbl">(A) 가격 + 결제 방법</span><span class="ph">○个月</span>套餐费用 <span class="ph">○○○,○○○</span>韩元＋EMS运费 <span class="ph">○○○</span>韩元＝合计 <span class="ph">○○○,○○○</span>韩元。
 付款方式可选择刷卡或银行转账，但刷卡时将额外收取4%手续费，敬请知悉。
-请告知您希望的付款方式，我们将为您办理付款</div><div class="s-zh script"><span class="lbl">(B) 계좌이체</span>▶ Acro韩医院 账户信息 ◀
+请告知您希望的付款方式，我们将为您办理付款</div><div class="s-zh script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ Acro韩医院 账户信息 ◀
 汇款金额：<span class="ph">○○○,○○○韩元</span>
-账户名义：임주혁
-账户：企业银行 / 089-084316-01-012
+账户名义：JuHyuk Yim
+账户：
+收款人出生日期：
+收款人电话号码：
+电子邮箱：
 
 如需其他信息，请随时告诉我们！
 汇款后请联系我们，即可完成受理 😊</div><div class="s-zh script"><span class="lbl">(C-1) 카드결제 안내</span>减肥项目＋EMS＋刷卡手续费4%＝合计 <span class="ph">○○○,○○○</span>韩元。<br>我们将通过短信向您发送付款链接，烦请通过链接完成付款 🙏</div><div class="s-zh script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-tw script"><span class="lbl">(A) 가격 + 결제 방법</span><span class="ph">○個月</span>套餐費用 <span class="ph">○○○,○○○</span>韓元＋EMS運費 <span class="ph">○○○</span>韓元＝合計 <span class="ph">○○○,○○○</span>韓元。
 付款方式可選擇刷卡或銀行轉帳，但刷卡時將額外收取4%手續費，敬請知悉。
-請告知您希望的付款方式，我們將為您辦理付款</div><div class="s-tw script"><span class="lbl">(B) 계좌이체</span>▶ Acro韓醫院 帳戶資訊 ◀
+請告知您希望的付款方式，我們將為您辦理付款</div><div class="s-tw script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ Acro韓醫院 帳戶資訊 ◀
 匯款金額：<span class="ph">○○○,○○○韓元</span>
-帳戶名義：임주혁
-帳戶：企業銀行 / 089-084316-01-012
+帳戶名義：JuHyuk Yim
+帳戶：
+收款人出生日期：
+收款人電話號碼：
+電子郵箱：
 
 如需其他資訊，請隨時告訴我們！
 匯款後請聯繫我們，即可完成受理 😊</div><div class="s-tw script"><span class="lbl">(C-1) 카드결제 안내</span>減肥療程＋EMS＋刷卡手續費4%＝合計 <span class="ph">○○○,○○○</span>韓元。<br>我們將透過簡訊向您發送付款連結，煩請透過連結完成付款 🙏</div><div class="s-tw script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div><div class="s-th script"><span class="lbl">(A) 가격 + 결제 방법</span>แพ็คเกจ <span class="ph">○ เดือน</span> ราคา <span class="ph">○○○,○○○</span> วอน + ค่าจัดส่ง EMS <span class="ph">○○○</span> วอน = รวม <span class="ph">○○○,○○○</span> วอนครับ/ค่ะ
 ชำระเงินได้ทั้งบัตรเครดิตและโอนเงิน แต่หากชำระด้วยบัตรจะมีค่าธรรมเนียมบัตร 4% เพิ่มเติม กรุณาทราบด้วยครับ/ค่ะ
-แจ้งวิธีชำระเงินที่ต้องการ แล้วเราจะดำเนินการชำระเงินให้ครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(B) 계좌이체</span>▶ ข้อมูลบัญชี Acro Korean Medicine Clinic ◀
+แจ้งวิธีชำระเงินที่ต้องการ แล้วเราจะดำเนินการชำระเงินให้ครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:2px 0 10px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div>▶ ข้อมูลบัญชี Acro Korean Medicine Clinic ◀
 ยอดโอน: <span class="ph">○○○,○○○ วอน</span>
-ชื่อบัญชี: 임주혁
-บัญชี: IBK Industrial Bank / 089-084316-01-012
+ชื่อบัญชี: JuHyuk Yim
+บัญชี:
+วันเกิดผู้รับเงิน:
+เบอร์โทรศัพท์ผู้รับเงิน:
+อีเมล:
 
 หากต้องการข้อมูลเพิ่มเติม แจ้งได้เลยนะครับ/ค่ะ!
 โอนเงินแล้วรบกวนแจ้งเราด้วยนะครับ/ค่ะ ถือว่าการลงทะเบียนเสร็จสมบูรณ์ 😊</div><div class="s-th script"><span class="lbl">(C-1) 카드결제 안내</span>โปรแกรมลดน้ำหนัก + EMS + ค่าธรรมเนียมบัตร 4% รวม <span class="ph">○○○,○○○</span> วอน<br>เราจะส่งลิงก์ชำระเงินทาง SMS กรุณาดำเนินการชำระเงินผ่านลิงก์ดังกล่าว 🙏</div><div class="s-th script"><span class="lbl">(C-2) 카드결제 링크 발송</span>⚠️ 스마트로에서 결제 링크 생성 → 업무폰 문자로 환자 전화번호에 발송 → 결제 완료 후 매출전표 캡처 → LINE으로 환자에게 전송<br>📎 <strong style="background:#fff3cd;padding:1px 5px;border-radius:3px;color:#8a5a00;">스마트로 결제 안내 참고</strong>: <a href="https://acrohani75-dot.github.io/acro/acro_guide_ems.html" target="_blank" style="color:#2563eb;">https://acrohani75-dot.github.io/acro/acro_guide_ems.html</a></div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">(A) 가격 + 결제 방법</span><div class="ko-trans-body">[○개월] 프로그램 [○○○,○○○]원 + EMS 비용 [○○○]원 = 합계 [○○○,○○○]원입니다.
 결제는 카드/계좌이체 모두 가능합니다만, 카드결제 시 카드수수료 4%가 추가되는 점 참고 부탁드립니다.
-희망하시는 방법을 알려주시면 결제 진행해드리겠습니다.</div></div><div class="ko-trans-case"><span class="lbl-case">(B) 계좌이체</span><div class="ko-trans-body">▶ 아크로 한의원 계좌 정보 ◀
+희망하시는 방법을 알려주시면 결제 진행해드리겠습니다.</div></div><div class="ko-trans-case"><span class="lbl-case">(B) 계좌이체</span><div style="background:#fff4f4;border:1.5px solid #f0b0b0;border-left:4px solid #b83030;border-radius:6px;padding:9px 13px;margin:8px 0 4px;font-size:13px;font-weight:800;color:#b3251a;line-height:1.6;">⚠️ 직원 주의 — 이 양식은 개인정보(계좌·생년월일·연락처)가 포함되어 있어 직접 입력하지 말고 반드시 라인 '빠른답변' 기능으로 발송할 것</div><div class="ko-trans-body">▶ 아크로 한의원 계좌 정보 ◀
 입금액: [○○○,○○○]원
-계좌명의: 임주혁
-계좌: 기업은행 / 089-084316-01-012
+계좌명의: JuHyuk Yim
+계좌:
+수취인 생년월일:
+수취인 전화번호:
+이메일:
 
 추가 정보가 필요하시면 말씀주세요!
 입금 후 연락 주시면 접수 완료됩니다 😊</div></div><div class="ko-trans-case"><span class="lbl-case">(C-1) 카드결제 안내</span><div class="ko-trans-body">다이어트 프로그램 + EMS + 카드수수료4% 총 [○○]원
@@ -742,10 +1392,22 @@ If your delivery is delayed or you have any questions, please feel free to conta
 ▶ EMS 송장번호(추적번호): 【EE 000 000 000 KR】
 ▶ 배송조회: https://ems.epost.go.kr
 배송은 보통 【○~○일】 정도 소요되며, 통관 상황에 따라 다소 지연될 수 있습니다.
-배송이 늦어지거나 궁금한 점이 있으시면 언제든지 편하게 연락 주세요</div></div></div></div></div></div></div></div></div><div class="page p4"><div class="section"><div class="sec-label">공통 — 복용 중 관리</div><div class="banner c"><div class="bnum c">🌡</div><div><div class="btitle c">복용 중 · 종료 후 케어</div><div class="bsub">부작용 · 중간상담 · Y캡슐 · 재처방 · 종료 후</div></div></div><div class="card"><div class="shead c"><div class="snum c">①</div><div class="shead-txt"><strong>부작용 문의 접수</strong></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="bi-label">1단계 — 접수 즉시</div><div class="s-ja script">こんにちは、<span class="ph">○○</span>様。
+배송이 늦어지거나 궁금한 점이 있으시면 언제든지 편하게 연락 주세요</div></div></div></div></div></div></div></div></div><div class="page p4"><div class="section"><div class="sec-label">공통 — 복용 중 관리</div><div class="banner c"><div class="bnum c">🌡</div><div><div class="btitle c">복용 중 · 종료 후 케어</div><div class="bsub">부작용 · 중간상담 · Y캡슐 · 재처방 · 종료 후</div></div></div><div class="note warn" style="margin:12px 0 4px;">⚠️ <b>영어·중국어·태국어 복용관리 문구는 자작 문구(초안)입니다.</b> 일본어는 가이드 정본, 영어·번체는 엑셀 원문, 간체·태국어는 번역본이므로 발송 전 번역·원장 검수를 권장합니다.</div><div class="card"><div class="shead c"><div class="snum c">①</div><div class="shead-txt"><strong>부작용 문의 접수</strong></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="bi-label">1단계 — 접수 즉시</div><div class="s-ja script">こんにちは、<span class="ph">○○</span>様。
 お辛かったことと思います。
-院長に確認のうえご回答いたしますので、少々お待ちくださいませ！</div><div class="bi-label">2단계 — 원장 답변 전달</div><div class="s-ja script">お待たせいたしました！院長からの回答をお伝えいたします。
-「<span class="ph">院長のコメントをそのままお伝えください</span>」</div><div class="s-en s-zh s-tw s-th" style="display:none;"></div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">[1단계 - 접수 즉시]</span><div class="ko-trans-body">안녕하세요, [○○] 님.
+院長に確認のうえご回答いたしますので、少々お待ちくださいませ！</div><div class="s-en script">Hello, ○○.
+We are sorry to hear that — it must have been uncomfortable.
+We will check with our director and get back to you, so please wait just a moment!</div><div class="s-zh script">您好，○○。
+想必让您很不舒服了。
+我们会向院长确认后回复您，请稍候片刻！</div><div class="s-tw script">您好，○○。
+想必讓您很不舒服了。
+我們會向院長確認後回覆您，請稍候片刻！</div><div class="s-th script">สวัสดีครับ/ค่ะ ○○
+เราเสียใจที่ได้ทราบเรื่องนี้ คงทำให้คุณรู้สึกไม่สบายตัว
+เราจะตรวจสอบกับผู้อำนวยการ (แพทย์) แล้วติดต่อกลับ กรุณารอสักครู่นะครับ/ค่ะ</div><div class="bi-label">2단계 — 원장 답변 전달</div><div class="s-ja script">お待たせいたしました！院長からの回答をお伝えいたします。
+「<span class="ph">院長のコメントをそのままお伝えください</span>」</div><div class="s-en script">Thank you for waiting! Here is the answer from our director.
+[원장 멘트 그대로 전달]</div><div class="s-zh script">让您久等了！为您转达院长的回复。
+[원장 멘트 그대로 전달]</div><div class="s-tw script">讓您久等了！為您轉達院長的回覆。
+[원장 멘트 그대로 전달]</div><div class="s-th script">ขอบคุณที่รอครับ/ค่ะ นี่คือคำตอบจากผู้อำนวยการ (แพทย์) ของเรา
+[ข้อความจากแพทย์ ใส่ตามที่แพทย์แจ้ง]</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">[1단계 - 접수 즉시]</span><div class="ko-trans-body">안녕하세요, [○○] 님.
 많이 힘드셨을 것 같습니다.
 원장님께 확인 후 답변드릴 테니 잠시만 기다려 주세요!</div></div><div class="ko-trans-case"><span class="lbl-case">[2단계 - 원장 답변 전달]</span><div class="ko-trans-body">기다려 주셔서 감사합니다! 원장님 답변을 전달드립니다.
 「원장님 멘트 그대로 전달」</div></div></div></div></div></div></div><div class="card"><div class="shead c"><div class="snum c">②</div><div class="shead-txt"><strong>중간 상담 권유</strong><span>복용 1개월 전후 정기 발송</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script"><span class="ph">○○</span>様、こんにちは
@@ -753,7 +1415,27 @@ If your delivery is delayed or you have any questions, please feel free to conta
 ご不便な点がないか確認のためご連絡いたしました。
 ダイエット中に院長との中間カウンセリングを一度受けていただくと、より効果的に管理することができます。
 ご希望の場合は、下記リンクよりアンケートをご記入ください
-▶ <span class="lnk">https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</span></div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">[○○] 님, 안녕하세요.
+▶ <span class="lnk">https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</span></div><div class="s-en script">Hello, ○○.
+Are you taking your medicine without any issues?
+We are reaching out to check that everything is going well.
+A mid-program consultation with our director can help you manage your diet even more effectively.
+If you would like one, please fill out the questionnaire below
+▶ https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</div><div class="s-zh script">○○您好。
+药物服用上是否一切顺利呢？
+我们与您联系是想确认有无不便之处。
+减重期间与院长进行一次中间咨询，可以更有效地进行管理。
+如有需要，请填写以下问卷
+▶ https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</div><div class="s-tw script">○○您好。
+藥物服用上是否一切順利呢？
+我們與您聯繫是想確認有無不便之處。
+減重期間與院長進行一次中間諮詢，可以更有效地進行管理。
+如有需要，請填寫以下問卷
+▶ https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</div><div class="s-th script">สวัสดีครับ/ค่ะ ○○
+คุณรับประทานยาได้เรียบร้อยดีไหมครับ/ค่ะ?
+เราติดต่อมาเพื่อสอบถามว่าทุกอย่างเป็นไปด้วยดีหรือไม่
+การปรึกษาระหว่างโปรแกรมกับผู้อำนวยการ (แพทย์) จะช่วยให้คุณจัดการการลดน้ำหนักได้อย่างมีประสิทธิภาพยิ่งขึ้น
+หากสนใจ กรุณากรอกแบบสอบถามด้านล่าง
+▶ https://script.google.com/macros/s/AKfycbx6uazCgs4KJb2LTKHLexBLO6d1gQBBzzbR1KtZji5YDdcRnVbc-It1EsIeocXYOv2M/exec</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">[○○] 님, 안녕하세요.
 약은 문제없이 복용 중이신가요?
 불편한 점이 없으신지 확인차 연락드렸습니다.
 다이어트 중 원장님과 중간 상담을 한 번 받으시면 더욱 효과적으로 관리하실 수 있습니다.
@@ -765,7 +1447,35 @@ If your delivery is delayed or you have any questions, please feel free to conta
 （1日1回、2カプセルをまとめて服用しても可）
 【注意事項】
 ・健康診断・検査の2日前から服用中止
-・妊娠中・授乳中は服用中止</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">▶ Y캡슐 복용 방법
+・妊娠中・授乳中は服用中止</div><div class="s-en script">▶ How to take Y Capsule
+【Function】A capsule-type herbal medicine that supports weight maintenance.
+【How to take】
+Twice a day: 1 capsule on an empty stomach in the morning and evening.
+(You may also take 2 capsules at once, once a day.)
+【Precautions】
+· Stop taking 2 days before a health checkup or medical test
+· Do not take during pregnancy or breastfeeding</div><div class="s-zh script">▶ Y胶囊服用方法
+【功能】帮助维持体重的胶囊型汉方药。
+【服用方法】
+一天2次，早晚空腹时各服用1颗。
+（也可以一天1次、一次服用2颗）
+【注意事项】
+· 健康检查·检验前2天起停止服用
+· 怀孕·哺乳期间停止服用</div><div class="s-tw script">▶ Y膠囊服用方法
+【功能】幫助維持體重的膠囊型漢方藥。
+【服用方法】
+一天2次，早晚空腹時各服用1顆。
+（也可以一天1次、一次服用2顆）
+【注意事項】
+· 健康檢查·檢驗前2天起停止服用
+· 懷孕·哺乳期間停止服用</div><div class="s-th script">▶ วิธีรับประทาน Y Capsule
+【สรรพคุณ】ยาสมุนไพรชนิดแคปซูลที่ช่วยรักษาน้ำหนัก
+【วิธีรับประทาน】
+วันละ 2 ครั้ง: ครั้งละ 1 แคปซูล ตอนท้องว่างในตอนเช้าและตอนเย็น
+(หรือจะรับประทานวันละ 1 ครั้ง ครั้งละ 2 แคปซูลพร้อมกันก็ได้)
+【ข้อควรระวัง】
+· หยุดรับประทาน 2 วันก่อนการตรวจสุขภาพหรือตรวจทางการแพทย์
+· ห้ามรับประทานระหว่างตั้งครรภ์หรือให้นมบุตร</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">▶ Y캡슐 복용 방법
 【기능】 체중 유지를 도와주는 캡슐 형태의 한약입니다.
 【복용 방법】
 하루 2회, 아침과 저녁 공복에 1캡슐.
@@ -776,168 +1486,196 @@ If your delivery is delayed or you have any questions, please feel free to conta
 ご相談の時期となりましたので、ご連絡いたしました。
 ダイエット薬の追加処方や体重維持に関するご相談について、院長とのカウンセリングをご案内しております。
 ご希望の日時がございましたら、お気軽にお知らせください。
-どうぞよろしくお願いいたします。</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">[○○] 님, 안녕하세요.
+どうぞよろしくお願いいたします。</div><div class="s-en script">Hello, ○○.
+It is time for your follow-up, so we are reaching out.
+We offer consultations with our director regarding additional diet prescriptions or weight maintenance.
+If you have a preferred date and time, please feel free to let us know.
+Thank you.</div><div class="s-zh script">○○您好。
+咨询的时间到了，因此与您联系。
+我们提供与院长咨询减重药追加处方或体重维持的服务。
+如有希望的日期和时间，请随时告诉我们。
+谢谢。</div><div class="s-tw script">○○您好。
+諮詢的時間到了，因此與您聯繫。
+我們提供與院長諮詢減重藥追加處方或體重維持的服務。
+如有希望的日期和時間，請隨時告訴我們。
+謝謝。</div><div class="s-th script">สวัสดีครับ/ค่ะ ○○
+ถึงเวลาปรึกษาติดตามผลแล้ว เราจึงติดต่อมา
+เรามีบริการปรึกษากับผู้อำนวยการ (แพทย์) เกี่ยวกับการสั่งยาลดน้ำหนักเพิ่มเติมหรือการรักษาน้ำหนัก
+หากมีวันและเวลาที่สะดวก แจ้งเราได้เลยนะครับ/ค่ะ
+ขอบคุณครับ/ค่ะ</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">[○○] 님, 안녕하세요.
 상담 시기가 되어 연락드렸습니다.
 다이어트 약 추가 처방 또는 체중 유지 관련 상담을 원장님과 진행해 드리고 있습니다.
 희망하시는 일시가 있으시면 편하게 알려주세요.</div></div></div></div></div></div><div class="card"><div class="shead c"><div class="snum c">⑤</div><div class="shead-txt"><strong>복용 완전 중단 후 케어</strong></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="s-ja script"><span class="ph">○○</span>様、こんにちは
 ダイエット薬の服用を継続されない場合でも、ダイエットの仕上げや今後の体重管理について、院長先生とのご相談が可能です。
 ご相談のお手伝いをさせていただきますので、ご都合のよろしいお時間をお知らせください。
-よろしくお願いいたします</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">[○○] 님, 안녕하세요.
+よろしくお願いいたします</div><div class="s-en script">Hello, ○○.
+Even if you decide not to continue the diet medicine, you can still consult our director about wrapping up your diet and managing your weight going forward.
+We would be happy to help — please let us know a convenient time.
+Thank you.</div><div class="s-zh script">○○您好。
+即使不继续服用减重药，也可以与院长咨询减重收尾及日后的体重管理。
+我们很乐意为您协助，请告诉我们您方便的时间。
+谢谢。</div><div class="s-tw script">○○您好。
+即使不繼續服用減重藥，也可以與院長諮詢減重收尾及日後的體重管理。
+我們很樂意為您協助，請告訴我們您方便的時間。
+謝謝。</div><div class="s-th script">สวัสดีครับ/ค่ะ ○○
+แม้คุณจะตัดสินใจไม่รับประทานยาลดน้ำหนักต่อ คุณก็ยังสามารถปรึกษาผู้อำนวยการ (แพทย์) เกี่ยวกับการสรุปการลดน้ำหนักและการดูแลน้ำหนักต่อไปได้
+เรายินดีช่วยเหลือ กรุณาแจ้งเวลาที่สะดวกครับ/ค่ะ
+ขอบคุณครับ/ค่ะ</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans">[○○] 님, 안녕하세요.
 다이어트 약 복용을 계속하지 않으시더라도 다이어트 마무리 및 향후 체중 관리에 대해 원장님과 상담하실 수 있습니다.
 도움을 드릴 수 있으니 편하신 시간을 알려주세요.
-잘 부탁드립니다</div></div></div></div></div></div></div></div><div class="page p5"><div class="section"><div class="sec-label">EMS 배송 관련 문의 대응</div><div class="banner c"><div class="bnum c">📦</div><div><div class="btitle c">EMS 배송 문의</div><div class="bsub">추가 비용·미수령 등 배송 트러블 대응 (전 루트 공통)</div></div></div><div class="card"><div class="shead c"><div class="snum c">1</div><div class="shead-txt"><strong>EMS 추가 비용(관세) 문의 대응</strong><span>추가 청구 문의 → EMS 내역 확인·사진 요청 → 관세/세금 안내</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="action">⚠️ 직원 처리: ① (A) 접수·사진 요청 발송 → ② 발송 당시 EMS 결제 내역 확인 → ③ (B) 관세/세금 안내 발송</div><div class="s-ja script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span><span class="ph">○○</span>様、予期せぬ追加費用が発生し、ご不安をおかけして申し訳ございません😥
+잘 부탁드립니다</div></div></div></div></div></div></div></div><div class="page p5"><div class="section"><div class="sec-label">EMS 배송 관련 문의 대응</div><div class="banner c"><div class="bnum c">📦</div><div><div class="btitle c">EMS 배송 문의</div><div class="bsub">추가 비용·미수령 등 배송 트러블 대응 (전 루트 공통)</div></div></div><div class="card"><div class="shead c"><div class="snum c">1</div><div class="shead-txt"><strong>EMS 추가 비용(관세) 문의 대응</strong><span>추가 청구 문의 → EMS 내역 확인·사진 요청 → 관세/세금 안내</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="action">⚠️ 직원 처리: ① (A) 접수·사진 요청 발송 → ② 발송 당시 EMS 결제 내역 확인 → ③ (B) 관세/세금 안내 발송</div><div class="s-ja script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span><span class="ph">○○</span>様、予期せぬ追加費用が発生し、ご不安をおかけして申し訳ございません
 こちらでも発送時のEMS送料のお支払い内容を再度確認いたします。
 正確な確認のため、追加で請求された部分の写真（請求書またはご案内）をお送りいただけますでしょうか？
-確認が取れ次第、改めてご連絡いたします😊</div><div class="s-ja script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span><span class="ph">○○</span>様、ご確認いただきありがとうございます。発送内容を確認しましたのでご案内いたします。
+確認が取れ次第、改めてご連絡いたします</div><div class="s-ja script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span><span class="ph">○○</span>様、ご確認いただきありがとうございます。発送内容を確認しましたのでご案内いたします。
 発送時にお支払いいただいたEMS送料とは別に、現地の通関手続きの過程で関税または消費税などが課されたものと思われます。
 これは受取国の税関が課す税金であり、送料が二重に請求されたわけではございませんので、ご安心ください。
 正確な課税内容は、郵便物に同封される課税通知書でご確認いただけます。
-お手数ですが、お受け取り後に当該書類をご確認のうえご連絡いただけますと幸いです🙏</div><div class="s-en script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span>Hello <span class="ph">○○</span> 😊 We're sorry for the concern caused by the unexpected additional charge.
+お手数ですが、お受け取り後に当該書類をご確認のうえご連絡いただけますと幸いです</div><div class="s-en script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span>Hello <span class="ph">○○</span> We're sorry for the concern caused by the unexpected additional charge.
 We will re-check the EMS shipping fee that was paid at dispatch.
 To confirm accurately, could you please send us a photo of the additional charge (the invoice or notice)?
-We'll get back to you as soon as we've checked. Thank you 🙏</div><div class="s-en script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span>Hello <span class="ph">○○</span>. Thank you for confirming. Here is what we found after checking the shipment.
+We'll get back to you as soon as we've checked. Thank you</div><div class="s-en script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span>Hello <span class="ph">○○</span>. Thank you for confirming. Here is what we found after checking the shipment.
 Separately from the EMS shipping fee you paid at dispatch, it appears that customs duty or consumption tax was charged during local customs clearance.
 This is a tax imposed by the destination country's customs office, so please rest assured the shipping fee was not double-charged.
 You can find the exact details on the tax notice enclosed with the parcel.
-We're sorry for the trouble, but please check that document after receiving it and let us know 🙏</div><div class="s-zh script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span><span class="ph">○○</span>您好😊 因意外产生的额外费用给您带来困扰，我们深表歉意。
+We're sorry for the trouble, but please check that document after receiving it and let us know</div><div class="s-zh script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span><span class="ph">○○</span>您好因意外产生的额外费用给您带来困扰，我们深表歉意。
 我们也会再次核对发货时EMS运费的支付记录。
 为了准确核实，能否请您将额外收费部分的照片（账单或通知单）发给我们？
-核实完成后会立即再与您联系。谢谢🙏</div><div class="s-zh script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span><span class="ph">○○</span>您好，感谢您的确认。为您汇报核实发货内容的结果。
+核实完成后会立即再与您联系。谢谢</div><div class="s-zh script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span><span class="ph">○○</span>您好，感谢您的确认。为您汇报核实发货内容的结果。
 除了发货时您支付的EMS运费之外，很可能是在当地通关过程中被征收了关税或消费税等。
 这是由收件国海关征收的税费，运费并非被重复收取，请您放心。
 准确的征收明细可在随邮件附上的完税通知书中查看。
-麻烦您在收到后确认该文件并与我们联系，谢谢🙏</div><div class="s-tw script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span><span class="ph">○○</span>您好😊 因意外產生的額外費用造成您的困擾，我們深感抱歉。
+麻烦您在收到后确认该文件并与我们联系，谢谢</div><div class="s-tw script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span><span class="ph">○○</span>您好因意外產生的額外費用造成您的困擾，我們深感抱歉。
 我們也會再次核對寄送時EMS運費的付款紀錄。
 為了準確核實，能否請您將額外收費部分的照片（帳單或通知單）傳給我們？
-核實完成後會立即再與您聯繫。謝謝🙏</div><div class="s-tw script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span><span class="ph">○○</span>您好，感謝您的確認。為您說明核實寄送內容的結果。
+核實完成後會立即再與您聯繫。謝謝</div><div class="s-tw script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span><span class="ph">○○</span>您好，感謝您的確認。為您說明核實寄送內容的結果。
 除了寄送時您支付的EMS運費之外，很可能是在當地通關過程中被課徵了關稅或消費稅等。
 這是由收件國海關課徵的稅費，運費並非重複收取，請您放心。
 準確的課徵明細可在隨郵件附上的完稅通知書中查看。
-麻煩您於收到後確認該文件並與我們聯繫，謝謝🙏</div><div class="s-th script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> 😊 ต้องขออภัยที่มีค่าใช้จ่ายเพิ่มเติมโดยไม่คาดคิด ทำให้คุณกังวลครับ/ค่ะ
+麻煩您於收到後確認該文件並與我們聯繫，謝謝</div><div class="s-th script"><span class="lbl">(A) 접수 + 확인 예정 + 사진 요청</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> ต้องขออภัยที่มีค่าใช้จ่ายเพิ่มเติมโดยไม่คาดคิด ทำให้คุณกังวลครับ/ค่ะ
 ทางเราจะตรวจสอบรายการชำระค่าส่ง EMS ตอนจัดส่งอีกครั้งครับ/ค่ะ
 เพื่อการตรวจสอบที่ถูกต้อง รบกวนส่งรูปภาพส่วนที่ถูกเรียกเก็บเพิ่ม (ใบเรียกเก็บเงินหรือใบแจ้ง) มาให้เราได้ไหมครับ/ค่ะ?
-เมื่อตรวจสอบเสร็จจะติดต่อกลับทันทีครับ/ค่ะ ขอบคุณครับ/ค่ะ🙏</div><div class="s-th script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> ขอบคุณที่ยืนยันครับ/ค่ะ ขอแจ้งผลการตรวจสอบการจัดส่งครับ/ค่ะ
+เมื่อตรวจสอบเสร็จจะติดต่อกลับทันทีครับ/ค่ะ ขอบคุณครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(B) 확인 후 — 관세/세금 안내</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> ขอบคุณที่ยืนยันครับ/ค่ะ ขอแจ้งผลการตรวจสอบการจัดส่งครับ/ค่ะ
 นอกเหนือจากค่าส่ง EMS ที่ชำระตอนจัดส่งแล้ว มีความเป็นไปได้สูงว่าถูกเรียกเก็บภาษีศุลกากรหรือภาษีบริโภคในขั้นตอนพิธีการศุลกากรของประเทศปลายทางครับ/ค่ะ
 นี่เป็นภาษีที่ศุลกากรของประเทศผู้รับเรียกเก็บ ไม่ใช่การเรียกเก็บค่าส่งซ้ำ จึงขอให้วางใจได้ครับ/ค่ะ
 รายละเอียดที่ถูกต้องดูได้จากใบแจ้งภาษีที่แนบมากับพัสดุครับ/ค่ะ
-รบกวนหลังรับพัสดุแล้วตรวจสอบเอกสารและติดต่อกลับด้วยครับ/ค่ะ🙏</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">(A) 접수 + 확인 예정 + 사진 요청</span><div class="ko-trans-body">[○○] 님, 예상치 못한 추가 비용으로 놀라셨을 텐데 불편을 드려 죄송합니다.
+รบกวนหลังรับพัสดุแล้วตรวจสอบเอกสารและติดต่อกลับด้วยครับ/ค่ะ</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">(A) 접수 + 확인 예정 + 사진 요청</span><div class="ko-trans-body">[○○] 님, 예상치 못한 추가 비용으로 놀라셨을 텐데 불편을 드려 죄송합니다.
 저희도 발송 당시 EMS 배송비 결제 내역을 다시 확인해보겠습니다.
 정확한 확인을 위해, 추가로 청구된 부분의 사진(청구서 또는 안내문)을 보내주실 수 있을까요?
-확인이 끝나는 대로 다시 안내드리겠습니다. 감사합니다 😊</div></div><div class="ko-trans-case"><span class="lbl-case">(B) 확인 후 — 관세/세금 안내</span><div class="ko-trans-body">[○○] 님, 확인해주셔서 감사합니다. 발송 내역을 확인한 결과 안내드립니다.
+확인이 끝나는 대로 다시 안내드리겠습니다. 감사합니다</div></div><div class="ko-trans-case"><span class="lbl-case">(B) 확인 후 — 관세/세금 안내</span><div class="ko-trans-body">[○○] 님, 확인해주셔서 감사합니다. 발송 내역을 확인한 결과 안내드립니다.
 발송 시 결제해주신 EMS 배송비와는 별도로, 현지 통관 과정에서 관세 또는 소비세 등이 부과된 것으로 보입니다.
 이는 수취인 국가 세관에서 부과하는 세금으로, 배송비가 중복 청구된 것은 아니니 안심하셔도 됩니다.
 정확한 부과 내역은 우편물에 함께 첨부되는 과세통지서에서 확인하실 수 있습니다.
-번거로우시겠지만 수령하신 후 해당 서류를 확인해 연락 주시면 감사하겠습니다 🙏</div></div></div></div></div></div></div><div class="card"><div class="shead c"><div class="snum c">2</div><div class="shead-txt"><strong>EMS 미수령 대응</strong><span>미수령 → 주소확인 → 추적 → 재배달 / 재발송</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="action">⚠️ 직원 처리: ① 추적번호로 <a href="https://www.epost.go.kr/main.retrieveMainPage.comm" target="_blank" style="color:#2563eb;">한국 우체국 EMS 조회</a> → 상태 확인 → ② 케이스별 대응</div><div class="s-ja script"><span class="lbl">(A) 미수령 + 주소 재확인</span><span class="ph">○○</span>様、こんにちは😊
+번거로우시겠지만 수령하신 후 해당 서류를 확인해 연락 주시면 감사하겠습니다</div></div></div></div></div></div></div><div class="card"><div class="shead c"><div class="snum c">2</div><div class="shead-txt"><strong>EMS 미수령 대응</strong><span>미수령 → 주소확인 → 추적 → 재배달 / 재발송</span></div></div><div class="sbody"><div class="bi-row"><div class="bi-ja"><div class="col-head ja">전송 스크립트</div><div class="action">⚠️ 직원 처리: ① 추적번호로 <a href="https://www.epost.go.kr/main.retrieveMainPage.comm" target="_blank" style="color:#2563eb;">한국 우체국 EMS 조회</a> → 상태 확인 → ② 케이스별 대응</div><div class="s-ja script"><span class="lbl">(A) 미수령 + 주소 재확인</span><span class="ph">○○</span>様、こんにちは
 お薬が届いていないとのこと、ご心配をおかけして申し訳ございません。
 まず、発送先のご住所を確認させていただきます。
 【<span class="ph">発送先住所</span>】
-こちらのご住所でお間違いないでしょうか？ご確認をお願いいたします🙏
+こちらのご住所でお間違いないでしょうか？ご確認をお願いいたします
 担当者が発送履歴と配送状況を確認のうえ、改めてご連絡いたします。</div><div class="s-ja script"><span class="lbl">(B) 추적 결과 — 부재 / 반송 예정</span><span class="ph">○○</span>様、確認結果をご連絡いたします。
-<span class="ph">○月○日</span>に配達を試みましたが、ご不在のためお届けができず、発送元へ返送予定との通知を受けております😥
+<span class="ph">○月○日</span>に配達を試みましたが、ご不在のためお届けができず、発送元へ返送予定との通知を受けております
 発送先のご住所にお間違いがないか、もう一度ご確認いただけますでしょうか。</div><div class="action">⚠️ <strong>직원 처리 (평일 기준)</strong>: 한국 우체국 EMS 추적 확인 후 → 환자분께 현지 우체국에 직접 전화문의하실 수 있도록 안내드리기<br><span style="color:#666;font-size:12px;">단, 우체국 사이트에서 배송지 근처의 현지 우체국명과 전화번호를 찾아 환자분께 전달드릴 것</span></div><div class="s-ja script"><span class="lbl">(C) 부재 불배달 → 현지 우체국 안내</span><span class="ph">○○</span>様、こんにちは。郵便局に確認いたしましたところ、<span class="ph">○月○日</span>にご不在のため配達できなかったことが確認されました。
-お手数ですが、下記の郵便局へ直接ご連絡いただき、再配達のご依頼をお願いいたします。 📞 <span class="ph">【現地郵便局名】 【電話番号】</span>
-日本郵便に関しましては、日本側でご確認いただく必要があり、韓国からの確認が難しい点、何卒ご理解いただけますと幸いでございます。大変申し訳ございません🙇‍♀️
+お手数ですが、下記の郵便局へ直接ご連絡いただき、再配達のご依頼をお願いいたします。 <span class="ph">【現地郵便局名】 【電話番号】</span>
+日本郵便に関しましては、日本側でご確認いただく必要があり、韓国からの確認が難しい点、何卒ご理解いただけますと幸いでございます。大変申し訳ございません
 もしお薬が韓国へ返送されている場合は、確認のうえ再発送させていただきます。</div><div class="s-ja script"><span class="lbl">(D) 주말·공휴일 — 다음 영업일 확인</span>日曜日・祝日は韓国の郵便局が休業のため、月曜日の午前中に確認後、すぐにご連絡させていただきます。
 月曜日の午前中にご連絡してもよろしいでしょうか？
-もしお薬が韓国へ返送されていた場合は、確認のうえ再発送させていただきます😊</div><div class="s-ja script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span><span class="ph">○○</span>様、こんにちは😊
+もしお薬が韓国へ返送されていた場合は、確認のうえ再発送させていただきます</div><div class="s-ja script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span><span class="ph">○○</span>様、こんにちは
 郵便局に確認したところ、お荷物を受け取るためには、受取人様ご本人から郵便局へ配送依頼を改めてお願いする必要があるとの案内を受けました。
-お手数をおかけして誠に申し訳ございませんが、下記の郵便局へご連絡いただき、再配達のご依頼をしていただけますでしょうか🙏
+お手数をおかけして誠に申し訳ございませんが、下記の郵便局へご連絡いただき、再配達のご依頼をしていただけますでしょうか
 <span class="ph">【現地郵便局名】 【電話番号】</span>
-何度もご不便をおかけしてしまい、本当に申し訳ございません😥</div><div class="s-ja script"><span class="lbl">(F) 반송 확인 → 재발송</span><span class="ph">○○</span>様、確認の結果、お薬が韓国へ返送されていることが確認できました。
+何度もご不便をおかけしてしまい、本当に申し訳ございません</div><div class="s-ja script"><span class="lbl">(F) 반송 확인 → 재발송</span><span class="ph">○○</span>様、確認の結果、お薬が韓国へ返送されていることが確認できました。
 再発送の手配をさせていただきます。
-念のため、発送先のご住所を改めてご確認いただけますでしょうか？</div><div class="s-en script"><span class="lbl">(A) 미수령 + 주소 재확인</span>Hello, <span class="ph">○○</span>😊
+念のため、発送先のご住所を改めてご確認いただけますでしょうか？</div><div class="s-en script"><span class="lbl">(A) 미수령 + 주소 재확인</span>Hello, <span class="ph">○○</span>
 We're sorry to hear that your package hasn't arrived. We apologize for the inconvenience.
 First, let us confirm the shipping address we have on file:
 【<span class="ph">Shipping Address</span>】
-Could you please confirm if this address is correct? 🙏
+Could you please confirm if this address is correct?
 Our staff will check the shipment records and delivery status and get back to you shortly.</div><div class="s-en script"><span class="lbl">(B) 추적 결과 — 부재 / 반송 예정</span>Hello, <span class="ph">○○</span>. Here is an update on your shipment.
-We received a notification that delivery was attempted on <span class="ph">Month/Day</span>, but could not be completed as the recipient was absent. The package is scheduled to be returned to the sender😥
+We received a notification that delivery was attempted on <span class="ph">Month/Day</span>, but could not be completed as the recipient was absent. The package is scheduled to be returned to the sender
 Could you please double-check that the shipping address is correct?</div><div class="s-en script"><span class="lbl">(C) 부재 불배달 → 현지 우체국 안내</span>Hello, <span class="ph">○○</span>. We have confirmed with the post office that delivery was attempted on <span class="ph">Month/Day</span> but could not be completed due to your absence.
-Please kindly contact the local post office directly to arrange redelivery: 📞 <span class="ph">【Post Office Name】 【Phone Number】</span>
-As matters with the local post office need to be handled on your end, we regret that we are unable to follow up from Korea. We sincerely apologize for the inconvenience🙇‍♀️
+Please kindly contact the local post office directly to arrange redelivery: <span class="ph">【Post Office Name】 【Phone Number】</span>
+As matters with the local post office need to be handled on your end, we regret that we are unable to follow up from Korea. We sincerely apologize for the inconvenience
 If your package has already been returned to Korea, we will confirm and resend it.</div><div class="s-en script"><span class="lbl">(D) 주말·공휴일 — 다음 영업일 확인</span>Korean post offices are closed on Sundays and public holidays.
 We will check with the post office on Monday morning and contact you right away.
 Would it be okay if we reach out to you on Monday morning?
-If your medication has been returned to Korea, we will confirm and arrange reshipping for you😊</div><div class="s-en script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span>Hello, <span class="ph">○○</span>😊
+If your medication has been returned to Korea, we will confirm and arrange reshipping for you</div><div class="s-en script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span>Hello, <span class="ph">○○</span>
 We checked with the post office and were informed that in order to receive the package, you will need to contact the post office directly to request redelivery.
-We sincerely apologize for the repeated inconvenience. Could you please contact the post office at the number below to arrange delivery? 🙏
+We sincerely apologize for the repeated inconvenience. Could you please contact the post office at the number below to arrange delivery?
 <span class="ph">【Post Office Name】 【Phone Number】</span>
-We are truly sorry for all the trouble this has caused😥</div><div class="s-en script"><span class="lbl">(F) 반송 확인 → 재발송</span>Hello, <span class="ph">○○</span>. We have confirmed that your medication has been returned to Korea.
+We are truly sorry for all the trouble this has caused</div><div class="s-en script"><span class="lbl">(F) 반송 확인 → 재발송</span>Hello, <span class="ph">○○</span>. We have confirmed that your medication has been returned to Korea.
 We will proceed with reshipping right away.
-Could you please re-confirm your shipping address?</div><div class="s-zh script"><span class="lbl">(A) 미수령 + 주소 재확인</span><span class="ph">○○</span>您好😊
+Could you please re-confirm your shipping address?</div><div class="s-zh script"><span class="lbl">(A) 미수령 + 주소 재확인</span><span class="ph">○○</span>您好
 得知药物未送达，非常抱歉给您带来了不便。
 首先，请确认一下我们记录的发货地址：
 【<span class="ph">发货地址</span>】
-请问地址是否正确？烦请确认一下🙏
+请问地址是否正确？烦请确认一下
 工作人员将核查发货记录及配送状态后，再与您联系。</div><div class="s-zh script"><span class="lbl">(B) 추적 결과 — 부재 / 반송 예정</span><span class="ph">○○</span>您好，为您汇报配送情况。
-我们收到通知，<span class="ph">○月○日</span>尝试配送时因收件人不在，未能送达，包裹预计将被退回寄件人😥
+我们收到通知，<span class="ph">○月○日</span>尝试配送时因收件人不在，未能送达，包裹预计将被退回寄件人
 请您再次确认收货地址是否正确。</div><div class="s-zh script"><span class="lbl">(C) 부재 불배달 → 현지 우체국 안내</span><span class="ph">○○</span>您好。经向邮局确认，<span class="ph">○月○日</span>曾因收件人不在而无法完成配送。
-烦请直接联系当地邮局，申请重新配送：📞 <span class="ph">【当地邮局名称】 【电话号码】</span>
-有关当地邮政的事宜需在当地进行确认，韩国方面难以跟进，对此深感抱歉，还请您谅解🙇‍♀️
+烦请直接联系当地邮局，申请重新配送：<span class="ph">【当地邮局名称】 【电话号码】</span>
+有关当地邮政的事宜需在当地进行确认，韩国方面难以跟进，对此深感抱歉，还请您谅解
 如果药品已退回韩国，我们确认后将为您重新发送。</div><div class="s-zh script"><span class="lbl">(D) 주말·공휴일 — 다음 영업일 확인</span>周日及公共假日韩国邮局休息，我们将于周一上午确认后立即与您联系。
 请问周一上午联系您是否方便？
-如果药品已被退回韩国，确认后我们将为您重新发货😊</div><div class="s-zh script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span><span class="ph">○○</span>您好😊
+如果药品已被退回韩国，确认后我们将为您重新发货</div><div class="s-zh script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span><span class="ph">○○</span>您好
 向邮局确认后，得知您需要亲自联系邮局申请重新配送，才能收到包裹。
-给您带来多次不便，深感抱歉。烦请拨打以下邮局电话，申请配送服务🙏
+给您带来多次不便，深感抱歉。烦请拨打以下邮局电话，申请配送服务
 <span class="ph">【当地邮局名称】 【电话号码】</span>
-多次造成不便，深表歉意😥</div><div class="s-zh script"><span class="lbl">(F) 반송 확인 → 재발송</span><span class="ph">○○</span>您好，经确认，药品已被退回韩国。
+多次造成不便，深表歉意</div><div class="s-zh script"><span class="lbl">(F) 반송 확인 → 재발송</span><span class="ph">○○</span>您好，经确认，药品已被退回韩国。
 我们将立即为您安排重新发货。
-烦请再次确认收货地址是否正确？</div><div class="s-tw script"><span class="lbl">(A) 미수령 + 주소 재확인</span><span class="ph">○○</span>您好😊
+烦请再次确认收货地址是否正确？</div><div class="s-tw script"><span class="lbl">(A) 미수령 + 주소 재확인</span><span class="ph">○○</span>您好
 得知藥物未送達，非常抱歉給您帶來了不便。
 首先，請確認一下我們記錄的發貨地址：
 【<span class="ph">發貨地址</span>】
-請問地址是否正確？煩請確認一下🙏
+請問地址是否正確？煩請確認一下
 工作人員將核查發貨記錄及配送狀態後，再與您聯繫。</div><div class="s-tw script"><span class="lbl">(B) 추적 결과 — 부재 / 반송 예정</span><span class="ph">○○</span>您好，為您匯報配送情況。
-我們收到通知，<span class="ph">○月○日</span>嘗試配送時因收件人不在，未能送達，包裹預計將被退回寄件人😥
+我們收到通知，<span class="ph">○月○日</span>嘗試配送時因收件人不在，未能送達，包裹預計將被退回寄件人
 請您再次確認收貨地址是否正確。</div><div class="s-tw script"><span class="lbl">(C) 부재 불배달 → 현지 우체국 안내</span><span class="ph">○○</span>您好。經向郵局確認，<span class="ph">○月○日</span>曾因收件人不在而無法完成配送。
-煩請直接聯繫當地郵局，申請重新配送：📞 <span class="ph">【當地郵局名稱】 【電話號碼】</span>
-有關當地郵政的事宜需在當地進行確認，韓國方面難以跟進，對此深感抱歉，還請您諒解🙇‍♀️
+煩請直接聯繫當地郵局，申請重新配送：<span class="ph">【當地郵局名稱】 【電話號碼】</span>
+有關當地郵政的事宜需在當地進行確認，韓國方面難以跟進，對此深感抱歉，還請您諒解
 如果藥品已退回韓國，我們確認後將為您重新寄送。</div><div class="s-tw script"><span class="lbl">(D) 주말·공휴일 — 다음 영업일 확인</span>週日及公共假日韓國郵局休息，我們將於週一上午確認後立即與您聯繫。
 請問週一上午聯繫您是否方便？
-如果藥品已被退回韓國，確認後我們將為您重新發貨😊</div><div class="s-tw script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span><span class="ph">○○</span>您好😊
+如果藥品已被退回韓國，確認後我們將為您重新發貨</div><div class="s-tw script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span><span class="ph">○○</span>您好
 向郵局確認後，得知您需要親自聯繫郵局申請重新配送，才能收到包裹。
-給您帶來多次不便，深感抱歉。煩請撥打以下郵局電話，申請配送服務🙏
+給您帶來多次不便，深感抱歉。煩請撥打以下郵局電話，申請配送服務
 <span class="ph">【當地郵局名稱】 【電話號碼】</span>
-多次造成不便，深表歉意😥</div><div class="s-tw script"><span class="lbl">(F) 반송 확인 → 재발송</span><span class="ph">○○</span>您好，經確認，藥品已被退回韓國。
+多次造成不便，深表歉意</div><div class="s-tw script"><span class="lbl">(F) 반송 확인 → 재발송</span><span class="ph">○○</span>您好，經確認，藥品已被退回韓國。
 我們將立即為您安排重新發貨。
-煩請再次確認收貨地址是否正確？</div><div class="s-th script"><span class="lbl">(A) 미수령 + 주소 재확인</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span>😊
+煩請再次確認收貨地址是否正確？</div><div class="s-th script"><span class="lbl">(A) 미수령 + 주소 재확인</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span>
 ขออภัยที่ยาไม่ได้รับ ทำให้คุณเป็นห่วงครับ/ค่ะ
 ขอตรวจสอบที่อยู่จัดส่งที่เราบันทึกไว้ก่อนนะครับ/ค่ะ
 【<span class="ph">ที่อยู่จัดส่ง</span>】
-ที่อยู่นี้ถูกต้องไหมครับ/ค่ะ? กรุณายืนยันด้วยครับ/ค่ะ🙏
+ที่อยู่นี้ถูกต้องไหมครับ/ค่ะ? กรุณายืนยันด้วยครับ/ค่ะ
 เจ้าหน้าที่จะตรวจสอบประวัติการจัดส่งและสถานะแล้วติดต่อกลับครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(B) 추적 결과 — 부재 / 반송 예정</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> ขอแจ้งผลการตรวจสอบครับ/ค่ะ
-ได้รับแจ้งว่าวัน<span class="ph">○ เดือน ○</span>พยายามจัดส่ง แต่ไม่สามารถส่งได้เนื่องจากผู้รับไม่อยู่ พัสดุจะถูกส่งคืนผู้ส่ง😥
+ได้รับแจ้งว่าวัน<span class="ph">○ เดือน ○</span>พยายามจัดส่ง แต่ไม่สามารถส่งได้เนื่องจากผู้รับไม่อยู่ พัสดุจะถูกส่งคืนผู้ส่ง
 กรุณายืนยันที่อยู่จัดส่งอีกครั้งว่าถูกต้องไหมครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(C) 부재 불배달 → 현지 우체국 안내</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> ได้ยืนยันกับที่ทำการไปรษณีย์แล้วว่าวันที่ <span class="ph">○ เดือน ○</span> ไม่สามารถจัดส่งได้เนื่องจากไม่มีผู้รับ
-กรุณาติดต่อที่ทำการไปรษณีย์ท้องถิ่นโดยตรงเพื่อนัดส่งใหม่ครับ/ค่ะ: 📞 <span class="ph">【ชื่อที่ทำการไปรษณีย์】 【หมายเลขโทรศัพท์】</span>
-เรื่องของที่ทำการไปรษณีย์ในพื้นที่จำเป็นต้องดำเนินการจากฝั่งนั้น ทางเกาหลีไม่สามารถติดตามได้ ขออภัยเป็นอย่างยิ่งครับ/ค่ะ🙇‍♀️
+กรุณาติดต่อที่ทำการไปรษณีย์ท้องถิ่นโดยตรงเพื่อนัดส่งใหม่ครับ/ค่ะ: <span class="ph">【ชื่อที่ทำการไปรษณีย์】 【หมายเลขโทรศัพท์】</span>
+เรื่องของที่ทำการไปรษณีย์ในพื้นที่จำเป็นต้องดำเนินการจากฝั่งนั้น ทางเกาหลีไม่สามารถติดตามได้ ขออภัยเป็นอย่างยิ่งครับ/ค่ะ
 หากพัสดุถูกส่งคืนมาที่เกาหลีแล้ว เราจะยืนยันและจัดส่งใหม่ให้ครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(D) 주말·공휴일 — 다음 영업일 확인</span>ที่ทำการไปรษณีย์เกาหลีหยุดทำการในวันอาทิตย์และวันหยุดนักขัตฤกษ์
 เราจะตรวจสอบในเช้าวันจันทร์แล้วติดต่อกลับทันทีครับ/ค่ะ
 ติดต่อในเช้าวันจันทร์ได้สะดวกไหมครับ/ค่ะ?
-หากยาถูกส่งคืนมาที่เกาหลี เราจะยืนยันและจัดส่งใหม่ให้ครับ/ค่ะ😊</div><div class="s-th script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span>😊
+หากยาถูกส่งคืนมาที่เกาหลี เราจะยืนยันและจัดส่งใหม่ให้ครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(E) 수취인 재배달 의뢰 필요</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span>
 ได้ตรวจสอบกับที่ทำการไปรษณีย์แล้ว ทราบว่าเพื่อรับพัสดุ ผู้รับต้องติดต่อที่ทำการไปรษณีย์โดยตรงเพื่อขอจัดส่งใหม่
-ขออภัยที่สร้างความไม่สะดวกหลายครั้งครับ/ค่ะ กรุณาโทรติดต่อที่ทำการไปรษณีย์ตามหมายเลขด้านล่างเพื่อขอจัดส่งด้วยครับ/ค่ะ🙏
+ขออภัยที่สร้างความไม่สะดวกหลายครั้งครับ/ค่ะ กรุณาโทรติดต่อที่ทำการไปรษณีย์ตามหมายเลขด้านล่างเพื่อขอจัดส่งด้วยครับ/ค่ะ
 <span class="ph">【ชื่อที่ทำการไปรษณีย์】 【หมายเลขโทรศัพท์】</span>
-ขออภัยในความไม่สะดวกอย่างมากครับ/ค่ะ😥</div><div class="s-th script"><span class="lbl">(F) 반송 확인 → 재발송</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> ได้ตรวจสอบแล้วพบว่ายาถูกส่งคืนมาที่เกาหลีแล้วครับ/ค่ะ
+ขออภัยในความไม่สะดวกอย่างมากครับ/ค่ะ</div><div class="s-th script"><span class="lbl">(F) 반송 확인 → 재발송</span>สวัสดีครับ/ค่ะ <span class="ph">○○</span> ได้ตรวจสอบแล้วพบว่ายาถูกส่งคืนมาที่เกาหลีแล้วครับ/ค่ะ
 เราจะดำเนินการจัดส่งใหม่ให้ทันทีครับ/ค่ะ
-กรุณายืนยันที่อยู่จัดส่งอีกครั้งด้วยครับ/ค่ะ</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">(A) 미수령 + 주소 재확인</span><div class="ko-trans-body">[○○] 님, 안녕하세요😊
+กรุณายืนยันที่อยู่จัดส่งอีกครั้งด้วยครับ/ค่ะ</div></div><div class="bi-note"><div class="ko-trans-wrap"><div class="ko-trans-head">🇰🇷 한국어 번역</div><div class="ko-trans-case"><span class="lbl-case">(A) 미수령 + 주소 재확인</span><div class="ko-trans-body">[○○] 님, 안녕하세요
 약이 도착하지 않았다니 걱정을 드려 죄송합니다.
 우선 발송 주소를 확인드리겠습니다.
 【발송 주소 기재】
-위 주소가 맞으신가요? 확인 부탁드립니다🙏
+위 주소가 맞으신가요? 확인 부탁드립니다
 담당자가 발송 이력과 배송 상황을 확인 후 다시 연락드리겠습니다.</div></div><div class="ko-trans-case"><span class="lbl-case">(B) 추적 결과 — 부재 / 반송 예정</span><div class="ko-trans-body">[○○] 님, 확인 결과를 알려드립니다.
 
-[○월○일]에 배달을 시도했으나 수취인 부재로 배달이 불가하여, 발송인에게 반송 예정이라는 통보를 받았습니다😥
+[○월○일]에 배달을 시도했으나 수취인 부재로 배달이 불가하여, 발송인에게 반송 예정이라는 통보를 받았습니다
 발송 주소가 맞는지 다시 한번 확인 부탁드립니다.</div></div><div class="ko-trans-case"><span class="lbl-case">(C) 부재 불배달 → 현지 우체국 안내</span><div class="ko-trans-body">[○○] 님, 안녕하세요. 우체국에 확인해보니 [○월 ○일]에 부재로 인해 배달되지 않은 것으로 확인되었습니다.
-아래 우체국으로 직접 연락하셔서 재배달 신청 부탁드립니다. 📞 【현지 우체국명】 【전화번호】
-일본 우체국 관련 건은 일본 측에서 확인해야 하는 부분이라 한국에서는 확인이 어려운 점, 너그러이 이해해 주시면 감사하겠습니다. 정말 죄송합니다🙇‍♀️
+아래 우체국으로 직접 연락하셔서 재배달 신청 부탁드립니다. 【현지 우체국명】 【전화번호】
+일본 우체국 관련 건은 일본 측에서 확인해야 하는 부분이라 한국에서는 확인이 어려운 점, 너그러이 이해해 주시면 감사하겠습니다. 정말 죄송합니다
 만약 약이 한국으로 반송된 경우에는 확인 후 재발송해드리겠습니다.</div></div><div class="ko-trans-case"><span class="lbl-case">(D) 주말·공휴일 — 다음 영업일 확인</span><div class="ko-trans-body">일요일·공휴일에는 한국 우체국이 휴무입니다.
 월요일 오전에 확인 후 바로 연락드리겠습니다.
 월요일 오전 중에 연락드려도 괜찮으실까요?
-처방 약이 한국으로 반송된 경우에는 확인 후 재발송해드리겠습니다😊</div></div><div class="ko-trans-case"><span class="lbl-case">(E) 수취인 재배달 의뢰 필요</span><div class="ko-trans-body">[○○] 님, 안녕하세요😊
+처방 약이 한국으로 반송된 경우에는 확인 후 재발송해드리겠습니다</div></div><div class="ko-trans-case"><span class="lbl-case">(E) 수취인 재배달 의뢰 필요</span><div class="ko-trans-body">[○○] 님, 안녕하세요
 우체국에 확인한 결과, 소포를 받으시려면 수취인께서 직접 우체국에 재배달 의뢰를 해주셔야 한다는 안내를 받았습니다.
-번거로우시겠지만 아래 우체국 번호로 연락하시어 재배달 의뢰를 해주시겠습니까🙏
+번거로우시겠지만 아래 우체국 번호로 연락하시어 재배달 의뢰를 해주시겠습니까
 【현지 우체국명】 【전화번호】
-몇 번이나 불편을 드려 정말 죄송합니다😥</div></div><div class="ko-trans-case"><span class="lbl-case">(F) 반송 확인 → 재발송</span><div class="ko-trans-body">[○○] 님, 확인 결과 약이 한국으로 반송된 것을 확인했습니다.
+몇 번이나 불편을 드려 정말 죄송합니다</div></div><div class="ko-trans-case"><span class="lbl-case">(F) 반송 확인 → 재발송</span><div class="ko-trans-body">[○○] 님, 확인 결과 약이 한국으로 반송된 것을 확인했습니다.
 재발송을 진행하겠습니다.
 발송 주소를 다시 한번 확인해 주시겠습니까?</div></div></div></div></div></div></div></div></div></div></div><script>
 const input = document.getElementById('searchInput');
