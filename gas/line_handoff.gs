@@ -21,8 +21,9 @@
 
 var ALH_CFG = {
   TTL_MS: 2 * 60 * 60 * 1000,   // 직원 마지막 활동 후 2시간 지나면 AI 자동 복귀
-  CMD_HOLD: ['!잠깐', '!멈춤'],   // AI 침묵 (직원 이어받기 / LINE 앱 응대 예고)
-  CMD_RELEASE: ['!완료', '!재개'], // AI 복귀
+  CMD_TOGGLE: '!!',              // 온오프 버튼 (원장 확정 260814) — 멈춤↔재개 전환
+  CMD_HOLD: ['!잠깐', '!멈춤'],   // 토글 대신 명시하고 싶을 때의 동의어 (백업)
+  CMD_RELEASE: ['!완료', '!재개'],
   CMD_SEND: '!발송'               // 이 접두어 뒤 텍스트만 환자에게 나간다
 };
 
@@ -57,6 +58,7 @@ function alhRelease_(userId) {
 function alhParseCommand_(raw) {
   var t = String(raw || '').trim();
   var i;
+  if (t === ALH_CFG.CMD_TOGGLE) return { type: 'toggle' };   // 정확히 !! 만 — 뒤에 말 붙으면 메모
   for (i = 0; i < ALH_CFG.CMD_HOLD.length; i++)
     if (t === ALH_CFG.CMD_HOLD[i]) return { type: 'hold' };
   for (i = 0; i < ALH_CFG.CMD_RELEASE.length; i++)
@@ -72,10 +74,16 @@ function alhParseCommand_(raw) {
 /**
  * 판정 + 상태 반영까지 한 번에 (허브 doPost가 부르는 진입점).
  * send도 홀드를 건다/갱신한다 — 직원이 직접 답하는 동안 AI가 끼어들지 않게.
+ * toggle(!!)은 현재 상태를 보고 hold/release로 **해소해서** 반환한다 — 호출부는
+ * hold/release/send/note 4종만 처리하면 된다.
+ * ⚠ 토글은 지금 상태가 안 보이면 헷갈린다 — 호출부(허브)는 반환 type이 hold면
+ *   "⏸ AI 멈춤", release면 "▶ AI 재개"를 스레드에 1줄 답글로 남길 것(필수).
  * 반환값의 type이 'send'면 호출부가 text를 LINE push로 보낸다.
  */
 function alhHandleSlackCommand_(raw, userId, staffName, nowMs) {
   var a = alhParseCommand_(raw);
+  if (a.type === 'toggle')
+    a = { type: alhIsHeld_(userId, nowMs) ? 'release' : 'hold', via: 'toggle' };
   if (a.type === 'hold' || a.type === 'send') alhHold_(userId, staffName, nowMs);
   if (a.type === 'release') alhRelease_(userId);
   return a;

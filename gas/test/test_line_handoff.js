@@ -31,6 +31,24 @@ ok('!발송 + 텍스트 = send, 접두어 제거', a.type==='send' && a.text==='
 ok('!발송만 치면 note(빈 발송 방지)', sandbox.alhParseCommand_('!발송').type==='note');
 ok('!잠깐 뒤에 말이 붙으면 note(오발동 방지)', sandbox.alhParseCommand_('!잠깐만요 다들').type==='note');
 
+console.log('1b) !! 토글 — 온오프 버튼 (원장 확정 260814)');
+ok('!! 단독 = toggle', sandbox.alhParseCommand_('!!').type==='toggle');
+ok('공백 허용', sandbox.alhParseCommand_(' !! ').type==='toggle');
+ok('!! 뒤에 말 붙으면 note(오발동 방지)', sandbox.alhParseCommand_('!! 잠깐만').type==='note');
+ok('!!!는 note', sandbox.alhParseCommand_('!!!').type==='note');
+propsStore={};
+let tg=sandbox.alhHandleSlackCommand_('!!','U9','김실장',T0);
+ok('첫 !! = 멈춤(hold로 해소)', tg.type==='hold' && tg.via==='toggle'
+   && sandbox.alhIsHeld_('U9',T0+1)===true);
+tg=sandbox.alhHandleSlackCommand_('!!','U9','김실장',T0+1000);
+ok('두 번째 !! = 재개(release로 해소)', tg.type==='release'
+   && sandbox.alhIsHeld_('U9',T0+2000)===false);
+tg=sandbox.alhHandleSlackCommand_('!!','U9','김실장',T0+3000);
+ok('세 번째 !! = 다시 멈춤', tg.type==='hold' && sandbox.alhIsHeld_('U9',T0+4000)===true);
+tg=sandbox.alhHandleSlackCommand_('!!','U9','김실장',T0+3000+TTL+1);
+ok('TTL로 이미 풀린 뒤 !! = 멈춤(재개 아님)', tg.type==='hold'
+   && sandbox.alhIsHeld_('U9',T0+3000+TTL+2)===true);
+
 console.log('2) 홀드 생명주기');
 propsStore={};
 ok('초기 상태 = 홀드 아님', sandbox.alhIsHeld_('U1',T0)===false);
