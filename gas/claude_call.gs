@@ -86,9 +86,13 @@ function accFlushPrefix() {
  * 반환: 응대 문자열. 실패·거부는 null (호출부가 사람 인계로 전환할 것)
  */
 function accAsk_(staticTask, kbText, userText) {
-  var key = PropertiesService.getScriptProperties().getProperty('ANTHROPIC_API_KEY');
+  var props = PropertiesService.getScriptProperties();
+  var key = props.getProperty('ANTHROPIC_API_KEY');
   var prefix = accLoadPrefix_();
   if (!key || !prefix) return null;
+  // fast mode 스위치 — 속성 ACC_FAST='1'이면 같은 오퍼스를 더 빠른 출력으로 뽑는다.
+  // 단가가 2배라 기본은 꺼짐. 캐싱 적용 실측 후에도 느리면 원장 판단으로 켠다.
+  var fast = props.getProperty('ACC_FAST') === '1';
 
   // 정적 블록만 system에. 마지막 블록에 cache_control — 여기까지가 캐시 구간이다.
   var system = [
@@ -98,17 +102,21 @@ function accAsk_(staticTask, kbText, userText) {
   // 변하는 것은 전부 캐시 경계 뒤(사용자 메시지)로
   var user = (kbText ? '## 정본 히트\n' + kbText + '\n\n' : '') + '## 환자 메시지\n' + String(userText || '');
 
+  var headers = { 'x-api-key': key, 'anthropic-version': '2023-06-01' };
+  if (fast) headers['anthropic-beta'] = 'fast-mode-2026-02-01';
+  var body = {
+    model: ACC_CFG.MODEL,
+    max_tokens: ACC_CFG.MAX_TOKENS,
+    output_config: { effort: ACC_CFG.EFFORT },
+    system: system,
+    messages: [{ role: 'user', content: user }]
+  };
+  if (fast) body.speed = 'fast';
   var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
     method: 'post',
     contentType: 'application/json',
-    headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-    payload: JSON.stringify({
-      model: ACC_CFG.MODEL,
-      max_tokens: ACC_CFG.MAX_TOKENS,
-      output_config: { effort: ACC_CFG.EFFORT },
-      system: system,
-      messages: [{ role: 'user', content: user }]
-    }),
+    headers: headers,
+    payload: JSON.stringify(body),
     muteHttpExceptions: true
   });
   if (res.getResponseCode() !== 200) return null;
