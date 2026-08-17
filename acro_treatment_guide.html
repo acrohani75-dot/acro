@@ -198,7 +198,16 @@
   .toc-item .n{font-size:.82rem; font-weight:700; color:var(--ink-faint); min-width:34px;}
   .toc-item .t{font-size:1.02rem;}
 
-  @media(max-width:600px){.btn .lbl{display:none;}}
+  @media(max-width:900px){.bar{gap:8px; padding:0 12px;} .langsel{padding:0 6px; font-size:.86rem;}}
+  @media(max-width:600px){
+    .btn .lbl{display:none;} .pagetag{display:none;}
+    .counter{min-width:44px; font-size:.9rem;}
+    .bar{height:auto; flex-wrap:wrap; row-gap:8px; padding:9px 10px; gap:7px;}
+    .spacer{display:none;}
+    .btn{height:38px; min-width:38px; padding:0 10px;} .btn.icon{width:38px;}
+    .langsel{height:38px; font-size:.82rem; padding:0 4px;}
+    .stage{padding-bottom:118px;}
+  }
 
   /* per-sentence voice buttons */
   .say{display:inline-flex; align-items:center; justify-content:center; vertical-align:middle;
@@ -224,6 +233,20 @@
   <span class="counter"><span id="cur">1</span> <span class="total">/ <span id="tot">11</span></span></span>
   <span class="spacer"></span>
   <span class="pagetag" id="pagetag"></span>
+  <select class="langsel" id="rate" aria-label="음성 속도 / Speech speed" title="음성 읽기 속도">
+    <option value="0.7">🔊 0.7×</option>
+    <option value="0.85">🔊 0.85×</option>
+    <option value="1" selected>🔊 1×</option>
+    <option value="1.25">🔊 1.25×</option>
+    <option value="1.5">🔊 1.5×</option>
+  </select>
+  <select class="langsel" id="tsize" aria-label="글씨 크기 / Text size" title="글씨 크기">
+    <option value="1" selected>🔠 100%</option>
+    <option value="1.15">🔠 115%</option>
+    <option value="1.3">🔠 130%</option>
+    <option value="1.5">🔠 150%</option>
+    <option value="1.75">🔠 175%</option>
+  </select>
   <select class="langsel" id="lang" aria-label="언어 / Language">
     <option value="ko">한국어</option>
     <option value="ja">日本語</option>
@@ -258,6 +281,8 @@ const UI = {
   doctorLabel:{ko:"의료진", ja:"担当医", en:"Doctor", "zh-cn":"主治医师", "zh-tw":"主治醫師", th:"แพทย์"},
   doctorPh:{ko:"의료진 성함", ja:"担当医名", en:"Doctor name", "zh-cn":"医师姓名", "zh-tw":"醫師姓名", th:"ชื่อแพทย์"},
   readAria:{ko:"이 문장 듣기", ja:"この文を読み上げ", en:"Read this", "zh-cn":"朗读此句", "zh-tw":"朗讀此句", th:"อ่านประโยคนี้"},
+  rateAria:{ko:"음성 읽기 속도", ja:"読み上げ速度", en:"Speech speed", "zh-cn":"朗读速度", "zh-tw":"朗讀速度", th:"ความเร็วเสียงอ่าน"},
+  sizeAria:{ko:"글씨 크기", ja:"文字サイズ", en:"Text size", "zh-cn":"字体大小", "zh-tw":"字體大小", th:"ขนาดตัวอักษร"},
   voiceNA:{ko:"이 브라우저는 음성 읽기를 지원하지 않습니다.", ja:"このブラウザは音声読み上げに対応していません。", en:"This browser does not support speech.", "zh-cn":"此浏览器不支持语音朗读。", "zh-tw":"此瀏覽器不支援語音朗讀。", th:"เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง"}
 };
 
@@ -720,15 +745,27 @@ function buildStage(){
 const elCur=document.getElementById('cur'), elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
 
 /* ---------- 화면에 맞춰 슬라이드 자동 축소(내용 잘림 방지) ---------- */
+let TEXT_SCALE=1;  // 글씨 확대 배율(1 = 기본, 자동 맞춤)
 function fitActive(){
   const act=stage.querySelector('.slide.active');
   if(!act) return;
   // 측정을 위해 높이 제한/변형 초기화
   act.style.transform='none';
   act.style.maxHeight='none';
+  act.style.width='';
   const cs=getComputedStyle(stage);
   const availH=stage.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
   const availW=stage.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  if(TEXT_SCALE>1){
+    // 글씨 확대: 슬라이드를 좁게 배치한 뒤 통째로 확대 → 넘치는 내용은 슬라이드 안에서 스크롤
+    // 화면이 좁으면 글자가 잘리지 않도록 배율을 자동으로 제한(최소 단 너비 260px 확보)
+    const eff=Math.max(1, Math.min(TEXT_SCALE, availW/260));
+    act.style.width=(availW/eff)+'px';
+    act.style.maxHeight=(availH/eff)+'px';
+    act.style.transformOrigin='center center';
+    act.style.transform='scale('+eff+')';
+    return;
+  }
   const natH=act.offsetHeight, natW=act.offsetWidth;
   if(!natH||!natW) return;
   let scale=Math.min(1, availH/natH, availW/natW);
@@ -747,7 +784,7 @@ function fitSoon(){
 function render(){
   sayStopAll();
   const slides=stage.querySelectorAll('.slide');
-  slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); if(i!==idx){ s.style.transform='none'; s.style.maxHeight=''; } });
+  slides.forEach(function(s,i){ s.classList.toggle('active', i===idx); if(i!==idx){ s.style.transform='none'; s.style.maxHeight=''; s.style.width=''; } });
   elCur.textContent=idx+1;
   elTag.textContent=pageLabel(SLIDES[idx]).txt;
   elProg.style.width=((idx+1)/total*100)+'%';
@@ -767,6 +804,9 @@ function applyUILabels(){
   document.getElementById('fsLbl').textContent=' '+L(UI.fullscreen);
   document.getElementById('tocTitle').textContent=L(UI.tocTitle);
   document.getElementById('tocHint').textContent=L(UI.tocHint);
+  const r=document.getElementById('rate'), t=document.getElementById('tsize');
+  r.setAttribute('aria-label', L(UI.rateAria)); r.title=L(UI.rateAria);
+  t.setAttribute('aria-label', L(UI.sizeAria)); t.title=L(UI.sizeAria);
 }
 
 function changeLang(nl){ sayStopAll(); lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); }
@@ -838,8 +878,10 @@ function ttsPickVoice(code){
       || TTS_VOICES.find(v=>v.lang && v.lang.toLowerCase().indexOf(base)===0)
       || null;
 }
-let sayCur=null;
-function sayReset(){ if(sayCur){ sayCur.classList.remove('on'); sayCur.firstChild.nodeValue='🔊'; sayCur=null; } }
+let sayCur=null, sayCurEl=null;
+const TTS_BASE_RATE=0.95;      // 기존 기본 속도
+let TTS_RATE_MUL=1;            // 사용자가 고른 배속
+function sayReset(){ if(sayCur){ sayCur.classList.remove('on'); sayCur.firstChild.nodeValue='🔊'; sayCur=null; sayCurEl=null; } }
 function sayStopAll(){ if(ttsSupported){ try{ window.speechSynthesis.cancel(); }catch(e){} } sayReset(); }
 function elText(el){
   const c=el.cloneNode(true);
@@ -859,12 +901,12 @@ function sayThis(btn, el){
   parts.forEach(function(p){
     p=p.trim(); if(!p) return;
     const u=new SpeechSynthesisUtterance(p);
-    u.lang=code; if(v) u.voice=v; u.rate=0.95; u.pitch=1;
+    u.lang=code; if(v) u.voice=v; u.rate=Math.min(4, Math.max(.3, TTS_BASE_RATE*TTS_RATE_MUL)); u.pitch=1;
     u.onend=function(){ if(!window.speechSynthesis.pending && !window.speechSynthesis.speaking) sayReset(); };
     u.onerror=function(){ sayReset(); };
     window.speechSynthesis.speak(u); spoke=true;
   });
-  if(spoke){ sayCur=btn; btn.classList.add('on'); btn.firstChild.nodeValue='⏹'; }
+  if(spoke){ sayCur=btn; sayCurEl=el; btn.classList.add('on'); btn.firstChild.nodeValue='⏹'; }
 }
 function injectSay(){
   if(!ttsSupported) return;
@@ -881,6 +923,29 @@ function injectSay(){
   });
 }
 window.addEventListener('beforeunload', function(){ if(ttsSupported){ try{ window.speechSynthesis.cancel(); }catch(e){} } });
+
+// ---------- 음성 속도 · 글씨 크기 선택 ----------
+function prefGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+function prefSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+
+const elRate=document.getElementById('rate'), elSize=document.getElementById('tsize');
+
+function setRate(mul){
+  TTS_RATE_MUL=mul; prefSet('acroTtsRate', mul);
+  // 읽는 중이면 바뀐 속도로 이어서 다시 읽어준다
+  if(sayCur && sayCurEl){ const b=sayCur, e=sayCurEl; sayStopAll(); sayThis(b,e); }
+}
+function setTextScale(v){ TEXT_SCALE=v; prefSet('acroTextScale', v); fitSoon(); }
+
+elRate.addEventListener('change', function(e){ setRate(parseFloat(e.target.value)||1); });
+elSize.addEventListener('change', function(e){ setTextScale(parseFloat(e.target.value)||1); });
+if(!ttsSupported) elRate.style.display='none';
+
+(function restorePrefs(){
+  const r=prefGet('acroTtsRate'), s=prefGet('acroTextScale');
+  if(r && elRate.querySelector('option[value="'+r+'"]')){ elRate.value=r; TTS_RATE_MUL=parseFloat(r); }
+  if(s && elSize.querySelector('option[value="'+s+'"]')){ elSize.value=s; TEXT_SCALE=parseFloat(s); }
+})();
 
 buildStage(); render(); applyUILabels(); buildTOC();
 </script>
