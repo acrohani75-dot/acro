@@ -99,12 +99,13 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
 <body>
 <!-- ================= 직원 화면 ================= -->
 <div id="staffMode" class="wrap">
-  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.4</span></h1>
+  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.5</span></h1>
   <p class="lead">필요한 동의서만 체크하고 [환자 모드 시작]을 누르면, 선택한 문서만 순서대로 서명받습니다.</p>
   <div class="saveWarn" id="saveWarn">
-    ⚠ 자동저장이 꺼져 있습니다 — 서명해도 구글 드라이브에 저장되지 않습니다.<br>
-    주소 끝에 <code>#w=배포ID</code> 를 붙여서 한 번만 열어 주세요. 그 뒤로는 이 아이패드에 기억됩니다.<br>
-    이 상태로 받으시려면 완료 화면에서 <b>반드시 [인쇄 / PDF 저장]</b>을 누르셔야 기록이 남습니다.
+    ⚠ 지금 서명하면 구글 드라이브에 저장되지 않습니다.<br>
+    이 기기가 저장 주소를 잊어버렸습니다. 아래 버튼을 눌러 한 번만 다시 넣어 주세요 (그 뒤로는 계속 기억합니다).<br>
+    <button class="btn warn sm" style="margin-top:10px" onclick="turnOnAutosave()">자동저장 켜기</button>
+    <span style="font-weight:600"> · 지금 급하시면 그대로 받으시되, 완료 화면에서 <b>반드시 [인쇄 / PDF 저장]</b>을 누르세요.</span>
   </div>
   <div class="card">
     <h2>1. 환자 정보</h2>
@@ -430,10 +431,10 @@ function patient(){
 function startPatient(){
   /* [v1.4] 자동저장이 꺼진 채로 서명받는 사고를 막는다 — 저장 안 되는데 완료 화면만 뜨던 문제 */
   if (!CONFIG.webhookUrl && !confirm(
-      "⚠ 자동저장이 꺼져 있습니다.\n\n" +
-      "서명해도 구글 드라이브에 저장되지 않습니다.\n" +
-      "주소 끝에 #w=배포ID 가 있는지 확인해 주세요.\n\n" +
-      "그래도 진행하시겠습니까? (완료 후 반드시 [인쇄/PDF 저장]을 눌러야 기록이 남습니다)")) return;
+      "⚠ 지금 서명하면 구글 드라이브에 저장되지 않습니다.\n\n" +
+      "위의 [자동저장 켜기] 버튼으로 먼저 켜시는 것을 권합니다.\n\n" +
+      "그래도 지금 받으시겠습니까?\n" +
+      "(받으신 뒤 완료 화면에서 반드시 [인쇄/PDF 저장]을 눌러야 기록이 남습니다)")) return;
   cur = 0; results = {};
   document.getElementById("staffMode").style.display = "none";
   document.getElementById("doneMode").style.display = "none";
@@ -647,16 +648,54 @@ function resetAll(){
 }
 renderStaff(); syncPick();
 /* 자동저장 ON/OFF 를 헤더와 배너에 실제 상태로 표시 — 직원이 주소를 잘못 열면 즉시 보이게 */
-(function(){
+function refreshSaveState(){
   var on = !!CONFIG.webhookUrl;
   var b = document.getElementById("verBadge");
   if (b){
-    b.textContent = "v1.4 · 자동저장 " + (on ? "ON" : "OFF");
+    b.textContent = "v1.5 · 자동저장 " + (on ? "ON" : "OFF");
     b.className = "badge " + (on ? "v" : "d");
   }
   var w = document.getElementById("saveWarn");
   if (w) w.classList.toggle("on", !on);
-})();
+}
+refreshSaveState();
+
+/* [v1.5] 화면에서 바로 자동저장을 되살린다.
+   기존에는 #w=배포ID 가 붙은 북마크로 여는 방법뿐이라, 그 주소를 못 찾으면 되살릴 길이 없었다.
+   (iOS 사파리가 저장분을 지우거나 홈화면 바로가기가 해시 없이 열리면 조용히 꺼진다.)
+   배포ID는 public 리포에 넣을 수 없으므로(CLAUDE.md §1) 여기서 입력받아 이 기기에만 저장한다.
+   직원 PIN으로 잠근다 — 환자가 만질 수 있는 기기다. */
+function turnOnAutosave(){
+  var pin = prompt("직원 PIN을 입력하세요.");
+  if (pin === null) return;
+  if (String(pin).trim() !== CONFIG.staffPin){ alert("PIN이 맞지 않습니다."); return; }
+  var v = prompt(
+    "저장 주소를 붙여넣으세요.\n\n" +
+    "· 데스크 북마크 주소 전체를 붙여넣어도 되고\n" +
+    "· https://script.google.com/macros/s/... 주소 전체도 됩니다.\n" +
+    "· 배포ID만 알면 그것만 붙여넣으셔도 됩니다.");
+  if (v === null) return;
+  var id = extractDeployId(String(v));
+  if (!id){ alert("주소에서 배포ID를 찾지 못했습니다.\n주소를 다시 확인해 주세요."); return; }
+  try { localStorage.setItem("acro_consent_w", id); } catch(e){
+    alert("이 기기에 저장할 수 없습니다.\n사파리 '프라이빗 브라우징' 중이면 일반 창에서 다시 시도해 주세요.");
+    return;
+  }
+  CONFIG.webhookUrl = "https://script.google.com/macros/s/" + id + "/exec";
+  refreshSaveState();
+  alert("자동저장을 켰습니다.\n이제 서명하면 구글 드라이브에 저장됩니다.");
+}
+
+/* 붙여넣은 값에서 배포ID만 뽑아낸다 — 전체 URL·해시 주소·ID 단독 전부 허용 */
+function extractDeployId(v){
+  v = v.trim();
+  var m = v.match(/\/macros\/s\/([A-Za-z0-9_-]+)/);      // 전체 GAS 주소
+  if (m) return m[1];
+  m = v.match(/[#&]w=([A-Za-z0-9_-]+)/);                    // consent.html#w=... 북마크
+  if (m) return m[1];
+  if (/^[A-Za-z0-9_-]{20,}$/.test(v)) return v;             // 배포ID 단독
+  return "";
+}
 </script>
 </body>
 </html>
