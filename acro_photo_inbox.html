@@ -98,7 +98,8 @@
     <input id="fFilesGal" type="file" accept="image/*" multiple hidden>
     <div id="thumbs"></div>
     <div id="prog"><div id="progBar"></div></div>
-    <button class="btn" id="btnUp" type="button">업로드</button>
+    <div id="unsentBox" style="display:none;background:#3a2a10;border:1.5px solid #a0752a;color:#ffcc80;border-radius:10px;padding:10px 12px;margin:10px 0;font-weight:700;font-size:.9rem"></div>
+  <button class="btn" id="btnUp" type="button">업로드</button>
     <div id="result"></div>
   </div>
 
@@ -299,10 +300,31 @@ function addPhoto(file) {
   img.src = URL.createObjectURL(file);
 }
 
+/* [260820] 미전송 사진 보호 — 업로드 안 된 사진이 있는 채로 창을 닫으면 그대로 소실된다.
+   전후사진은 환자가 가고 나면 다시 못 찍는 자료라, 닫기 전에 반드시 한 번 막는다.
+   (사진 1장이 수 MB라 동의서처럼 기기에 보관하는 방식은 용량 한계로 쓰지 않는다 —
+    대신 "닫지 못하게" 막고, 남은 장수를 화면에 항상 보이게 한다.) */
+function unsentCount() {
+  var n = 0;
+  for (var i = 0; i < photos.length; i++) if (photos[i].status !== "완료") n++;
+  return n;
+}
+function refreshUnsent() {
+  var n = unsentCount(), el = document.getElementById("unsentBox");
+  if (!el) return;
+  if (!n) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.textContent = "⚠ 아직 업로드되지 않은 사진 " + n + "장 — 창을 닫으면 사라집니다. [업로드]를 눌러 주세요.";
+}
+window.addEventListener("beforeunload", function (e) {
+  if (unsentCount() > 0) { e.preventDefault(); e.returnValue = ""; return ""; }
+});
+
 function pushPhoto(b64, dataUrl) {
   var item = { b64: b64, mime: "image/jpeg", status: "대기" };
   photos.push(item);
   renderThumb(item, dataUrl);
+  refreshUnsent();
   $("btnUp").style.display = "block";
   if ($("camModal").style.display === "block") camFeedback();
 }
@@ -372,9 +394,11 @@ function uploadAll(chart, name, ymd, meta) {
       return postRetry(payload, 3).then(function (j) {
         if (!j.ok) throw j.error;
         x.p.status = "완료"; x.p.el.textContent = "완료"; x.p.xBtn.style.display = "none";
+        refreshUnsent();
       }).catch(function (e) {
         x.p.status = "실패"; x.p.el.textContent = "실패";
         lastErr = e;
+        refreshUnsent();
       }).then(function () {
         done++;
         $("progBar").style.width = Math.round(done / pending.length * 100) + "%";
