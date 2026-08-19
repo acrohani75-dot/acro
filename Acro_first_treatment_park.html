@@ -17,11 +17,12 @@
     --green:#2f6b54; --green-deep:#1d4636; --green-soft:#e4efe9;
     --amber:#cf7f33; --amber-soft:#f6ead9;
     --line:#d6dedb; --line-strong:#bcc8c3;
-    --radius:18px; --maxw:980px;
+    --radius:18px; --maxw:1240px;
     --kr:'Pretendard','Pretendard Variable',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
     --jp:'Noto Sans JP','Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
+  html{font-size:calc(100% * var(--fs, 1));}
   html,body{height:100%;}
   body{font-family:var(--kr); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; line-height:1.6; overflow:hidden;}
   body[data-lang="ja"]{font-family:var(--jp);}
@@ -30,7 +31,7 @@
   body[data-lang="th"]{font-family:'Noto Sans Thai',var(--kr);}
   .gloss, body[data-lang] .gloss{font-family:var(--kr);}
 
-  .stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:clamp(16px,3.5vw,48px) clamp(16px,4vw,64px) 92px;}
+  .stage{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; padding:clamp(16px,3.5vw,48px) clamp(12px,2.2vw,32px) 92px;}
   .slide{display:none; width:100%; max-width:var(--maxw); max-height:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 18px 48px -28px rgba(20,40,32,.35); padding:clamp(28px,4.4vw,60px); overflow-y:auto; animation:fade .42s ease both;}
   .slide.active{display:block;}
   @keyframes fade{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
@@ -80,6 +81,27 @@
 
   .note{font-size:.92rem!important; color:var(--ink-faint)!important; border-top:1px dashed var(--line-strong); padding-top:12px; margin-top:16px;}
 
+  .ulist{list-style:none; margin:12px 0 14px; padding:0;}
+  .ulist li{position:relative; padding-left:22px; font-size:clamp(1.02rem,1.55vw,1.18rem); color:var(--ink-soft); margin-bottom:9px;}
+  .ulist li:last-child{margin-bottom:0;}
+  .ulist li::before{content:""; position:absolute; left:4px; top:.62em; width:7px; height:7px; border-radius:50%; background:var(--green);}
+  .ulist li strong{color:var(--ink); font-weight:700;}
+  .ulist li .gloss{margin:2px 0 0;}
+
+  /* emphasised notice box */
+  .notice{background:var(--amber-soft); border:1px solid #e7cba3; border-left:5px solid var(--amber); border-radius:12px; padding:14px 18px; margin:18px 0;}
+  .notice p{font-size:clamp(1.06rem,1.75vw,1.28rem)!important; font-weight:700; color:#8a4d0b!important; line-height:1.5; margin:0!important;}
+  .notice strong{color:#7a3f05; font-weight:800;}
+  .notice .gloss{margin:6px 0 0;}
+
+  /* symptom items: name and text on one line, but each read aloud separately */
+  .sitem{position:relative; margin:10px 0; padding-left:22px; font-size:clamp(1.02rem,1.55vw,1.18rem);}
+  .sitem::before{content:""; position:absolute; left:4px; top:.58em; width:7px; height:7px; border-radius:50%; background:var(--green);}
+  .sitem .sline{font-size:1em; color:var(--ink-soft); margin:0; line-height:1.55;}
+  .sitem .sname{font-weight:800; color:var(--green-deep);}
+  .sitem .sdash{color:var(--ink-faint); padding:0 2px;}
+  .sitem .gloss{margin:2px 0 0;}
+
   .cover{text-align:center;}
   .cover .mark{font-size:.9rem; font-weight:700; letter-spacing:.22em; color:var(--green); text-transform:uppercase; margin-bottom:22px;}
   .cover .rule{width:54px; height:3px; background:var(--amber); border-radius:2px; margin:0 auto 22px;}
@@ -99,15 +121,17 @@
 
   .bar{position:fixed; left:0; right:0; bottom:0; height:64px; display:flex; align-items:center; gap:12px; padding:0 clamp(14px,3vw,28px); background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border-top:1px solid var(--line); z-index:30;}
   .progress{position:absolute; top:0; left:0; height:3px; background:var(--green); transition:width .3s ease;}
-  .btn{appearance:none; border:1px solid var(--line-strong); background:#fff; color:var(--ink); font-family:inherit; font-weight:600; font-size:.95rem; height:40px; min-width:40px; padding:0 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+  .btn{appearance:none; border:1px solid var(--line-strong); background:#fff; color:var(--ink); font-family:inherit; font-weight:600; font-size:15px; height:40px; min-width:40px; padding:0 14px; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
   .btn:hover{background:var(--green-soft); border-color:#bcd5ca;}
   .btn:focus-visible{outline:3px solid #94c4b1; outline-offset:2px;}
   .btn.icon{padding:0; width:40px;}
-  .langsel{height:40px; border:1px solid var(--line-strong); border-radius:10px; background:#fff; font-family:inherit; font-weight:700; font-size:.92rem; color:var(--green-deep); padding:0 10px; cursor:pointer;}
-  .counter{font-size:.92rem; font-weight:700; min-width:58px; text-align:center;}
+  .langsel{height:40px; border:1px solid var(--line-strong); border-radius:10px; background:#fff; font-family:inherit; font-weight:700; font-size:15px; color:var(--green-deep); padding:0 10px; cursor:pointer;}
+  .spdsel{height:40px; border:1px solid var(--line-strong); border-radius:10px; background:#fff; font-family:inherit; font-weight:700; font-size:14px; color:var(--green-deep); padding:0 6px; cursor:pointer;}
+  .spdsel:focus-visible{outline:3px solid #94c4b1; outline-offset:2px;}
+  .counter{font-size:15px; font-weight:700; min-width:58px; text-align:center;}
   .counter .total{color:var(--ink-faint); font-weight:600;}
   .spacer{flex:1;}
-  .pagetag{font-size:.82rem; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 11px; border-radius:999px;}
+  .pagetag{font-size:13px; font-weight:700; color:var(--green-deep); background:var(--green-soft); border:1px solid #cfe0d8; padding:5px 11px; border-radius:999px;}
 
   .toc-backdrop{position:fixed; inset:0; background:rgba(16,30,24,.5); display:none; z-index:40; align-items:center; justify-content:center; padding:20px;}
   .toc-backdrop.open{display:flex;}
@@ -121,7 +145,7 @@
   .toc-item .n{font-size:.78rem; font-weight:700; color:var(--ink-faint); min-width:30px;}
   .toc-item .t{font-size:.96rem;}
 
-  @media(max-width:600px){.btn .lbl{display:none;}}
+  @media(max-width:600px){.btn .lbl{display:none;} .langsel{padding:0 4px; font-size:.84rem;} .spdsel{padding:0 2px; font-size:.8rem;}}
 
 .photos{display:flex;flex-direction:column;gap:16px;margin-top:8px}
 .photos figure{margin:0;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fafcfb;box-shadow:0 2px 10px rgba(0,0,0,.06)}
@@ -160,6 +184,24 @@
     <option value="zh-tw">繁體中文</option>
     <option value="th">ภาษาไทย</option>
   </select>
+  <select class="spdsel" id="fontSel" aria-label="글씨 크기 / Text size" title="글씨 크기">
+    <option value="0.9">가 90%</option>
+    <option value="1">가 100%</option>
+    <option value="1.15">가 115%</option>
+    <option value="1.3">가 130%</option>
+    <option value="1.45">가 145%</option>
+    <option value="1.6">가 160%</option>
+  </select>
+  <select class="spdsel" id="spd" aria-label="읽기 속도 / Speech speed" title="읽기 속도">
+    <option value="0.8">🔊 0.8×</option>
+    <option value="0.9">🔊 0.9×</option>
+    <option value="1">🔊 1.0×</option>
+    <option value="1.15">🔊 1.15×</option>
+    <option value="1.3">🔊 1.3×</option>
+    <option value="1.5">🔊 1.5×</option>
+    <option value="1.75">🔊 1.75×</option>
+    <option value="2">🔊 2.0×</option>
+  </select>
   <button class="btn" id="tocBtn">☰<span class="lbl" id="tocLbl"> 목차</span></button>
   <button class="btn" id="fsBtn">⤢<span class="lbl" id="fsLbl"> 전체화면</span></button>
 </div>
@@ -186,7 +228,10 @@ const UI = {
   doctorLabel:{ko:"의료진", ja:"担当医", en:"Doctor", "zh-cn":"主治医师", "zh-tw":"主治醫師", th:"แพทย์"},
   doctorPh:{ko:"박지선", ja:"パク・ジソン", en:"Park Ji-sun", "zh-cn":"朴智善", "zh-tw":"朴智善", th:"พัก จีซอน"},
   readAria:{ko:"이 문장 듣기", ja:"この文を読み上げ", en:"Read this", "zh-cn":"朗读此句", "zh-tw":"朗讀此句", th:"อ่านประโยคนี้"},
-  voiceNA:{ko:"이 브라우저는 음성 읽기를 지원하지 않습니다.", ja:"このブラウザは音声読み上げに対応していません。", en:"This browser does not support speech.", "zh-cn":"此浏览器不支持语音朗读。", "zh-tw":"此瀏覽器不支援語音朗讀。", th:"เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง"}
+  voiceNA:{ko:"이 브라우저는 음성 읽기를 지원하지 않습니다.", ja:"このブラウザは音声読み上げに対応していません。", en:"This browser does not support speech.", "zh-cn":"此浏览器不支持语音朗读。", "zh-tw":"此瀏覽器不支援語音朗讀。", th:"เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง"},
+  speedAria:{ko:"읽기 속도", ja:"読み上げ速度", en:"Speech speed", "zh-cn":"朗读速度", "zh-tw":"朗讀速度", th:"ความเร็วการอ่าน"},
+  cautionPh:{ko:"증상", ja:"症状", en:"symptom", "zh-cn":"症状", "zh-tw":"症狀", th:"อาการ"},
+  fontAria:{ko:"글씨 크기", ja:"文字サイズ", en:"Text size", "zh-cn":"字体大小", "zh-tw":"字體大小", th:"ขนาดตัวอักษร"}
 };
 
 const PAGES = {
@@ -276,29 +321,53 @@ const SLIDES = [
   h2:{ko:`식욕이 올라온 날엔<br><span class="accent">이렇게</span> 하면 됩니다`, ja:`食欲が上がった日は<br><span class="accent">こうすれば</span>OK`, en:`On days appetite spikes,<br>do <span class="accent">this</span>`, "zh-cn":`食欲上来的日子<br><span class="accent">这样</span>做就行`, "zh-tw":`食慾上來的日子<br><span class="accent">這樣</span>做就行`, th:`วันที่ความอยากพุ่ง<br>ทำ <span class="accent">แบบนี้</span>`},
   body:[
     {t:"p", v:{ko:`1,200kcal로 잘하다가 어느 날 식욕이 올라 3~4,000kcal를 드실 수 있습니다. 그럴 땐 당황하지 말고 <strong>2일 정도 800kcal</strong>로 해주세요. 칼로리도 만회되고, 신기하게 식욕도 가라앉습니다.`, ja:`1,200kcalで続けていても、ある日食欲が上がって3〜4,000kcal食べてしまうことがあります。慌てず<strong>2日ほど800kcal</strong>に。カロリーを取り戻せ、不思議と食欲も落ち着きます。`, en:`You may keep to 1,200 kcal, then one day appetite spikes and you eat 3–4,000 kcal. Don't panic — go <strong>~800 kcal for about 2 days</strong>. You make up the calories, and oddly, appetite settles too.`, "zh-cn":`一直保持1,200kcal，某天食欲上来吃到3~4,000kcal也正常。别慌，<strong>用2天左右800kcal</strong>，热量补回来，食欲也会奇妙地平复。`, "zh-tw":`一直保持1,200kcal，某天食慾上來吃到3~4,000kcal也正常。別慌，<strong>用2天左右800kcal</strong>，熱量補回來，食慾也會奇妙地平復。`, th:`อาจคุม 1,200 kcal ได้ดี แล้ววันหนึ่งความอยากพุ่งจนกิน 3–4,000 kcal ไม่ต้องตกใจ ใช้ <strong>ราว 800 kcal สัก 2 วัน</strong> ชดเชยแคลอรีได้ และความอยากก็สงบลงด้วย`}},
-    {t:"p", v:{ko:`1,200kcal 안에서는 음식을 특별히 제한하지 않습니다. 예) <span class="hl-amber">400·400·400</span>도, <span class="hl-amber">200·500·500</span>도 좋고, 외식·모임 날은 <span class="hl-amber">200·200·800</span>으로요. 치킨은 한 마리 2,000kcal 정도라 <strong>1/4만</strong> 드셔도 빠집니다.`, ja:`1,200kcal以内なら食べ物は特に制限しません。例）<span class="hl-amber">400・400・400</span>でも<span class="hl-amber">200・500・500</span>でもOK、外食・会食の日は<span class="hl-amber">200・200・800</span>に。チキンは1羽約2,000kcalなので<strong>1/4だけ</strong>でも痩せます。`, en:`Within 1,200 kcal there's no special food ban. e.g. <span class="hl-amber">400·400·400</span> or <span class="hl-amber">200·500·500</span>; dining-out days <span class="hl-amber">200·200·800</span>. A whole fried chicken is ~2,000 kcal, so <strong>just 1/4</strong> still lets you lose.`, "zh-cn":`在1,200kcal内不特别限制食物。例如<span class="hl-amber">400·400·400</span>或<span class="hl-amber">200·500·500</span>；外食聚会日<span class="hl-amber">200·200·800</span>。整只炸鸡约2,000kcal，<strong>只吃1/4</strong>也能掉。`, "zh-tw":`在1,200kcal內不特別限制食物。例如<span class="hl-amber">400·400·400</span>或<span class="hl-amber">200·500·500</span>；外食聚會日<span class="hl-amber">200·200·800</span>。整隻炸雞約2,000kcal，<strong>只吃1/4</strong>也能掉。`, th:`ภายใน 1,200 kcal ไม่ห้ามอาหารเป็นพิเศษ เช่น <span class="hl-amber">400·400·400</span> หรือ <span class="hl-amber">200·500·500</span> วันออกไปกินข้างนอก <span class="hl-amber">200·200·800</span> ไก่ทอดทั้งตัวราว 2,000 kcal กินแค่ <strong>1/4</strong> ก็ยังลดได้`}},
+    {t:"p", v:{ko:`<span class="hl">1,200kcal</span> 안에서는 음식을 특별히 제한하지 않습니다.`, ja:`<span class="hl">1,200kcal</span>以内なら、食べ物は特に制限しません。`, en:`Within <span class="hl">1,200 kcal</span>, there's no special restriction on what you eat.`, "zh-cn":`在<span class="hl">1,200kcal</span>以内，不特别限制食物。`, "zh-tw":`在<span class="hl">1,200kcal</span>以內，不特別限制食物。`, th:`ภายใน <span class="hl">1,200 kcal</span> ไม่จำกัดชนิดอาหารเป็นพิเศษ`}},
+    {t:"list", items:[
+      {ko:`<span class="hl-amber">400·400·400</span>도, <span class="hl-amber">200·500·500</span>도 좋아요 <strong>(1끼 일반식 1/2만 기억해주세요!)</strong>`, ja:`<span class="hl-amber">400・400・400</span>でも、<span class="hl-amber">200・500・500</span>でもOKです <strong>（1食は普通の食事の1/2だけ、と覚えてください！）</strong>`, en:`<span class="hl-amber">400·400·400</span> works, and so does <span class="hl-amber">200·500·500</span> <strong>(just remember: half a regular meal each time!)</strong>`, "zh-cn":`<span class="hl-amber">400·400·400</span>可以，<span class="hl-amber">200·500·500</span>也可以 <strong>（记住：每餐只吃普通餐的1/2！）</strong>`, "zh-tw":`<span class="hl-amber">400·400·400</span>可以，<span class="hl-amber">200·500·500</span>也可以 <strong>（記住：每餐只吃普通餐的1/2！）</strong>`, th:`<span class="hl-amber">400·400·400</span> ก็ได้ <span class="hl-amber">200·500·500</span> ก็ได้ <strong>(จำไว้ว่ามื้อหนึ่งกินแค่ครึ่งของมื้อปกติ!)</strong>`},
+      {ko:`모임이 있을 땐 <span class="hl-amber">200·200·800</span>도 가능합니다.`, ja:`会食がある日は <span class="hl-amber">200・200・800</span> も可能です。`, en:`On days with a gathering, <span class="hl-amber">200·200·800</span> is fine too.`, "zh-cn":`有聚餐的日子，<span class="hl-amber">200·200·800</span>也可以。`, "zh-tw":`有聚餐的日子，<span class="hl-amber">200·200·800</span>也可以。`, th:`วันที่มีนัดสังสรรค์ <span class="hl-amber">200·200·800</span> ก็ทำได้`}
+    ]},
+    {t:"p", v:{ko:`예) 치킨은 한 마리 2,000kcal 정도라 1/4만 드셔도 빠집니다.`, ja:`例）チキンは1羽で約2,000kcalなので、1/4だけ召し上がっても痩せます。`, en:`e.g. A whole fried chicken is about 2,000 kcal, so even just 1/4 still lets you lose weight.`, "zh-cn":`例）一整只炸鸡约2,000kcal，所以只吃1/4也能继续掉秤。`, "zh-tw":`例）一整隻炸雞約2,000kcal，所以只吃1/4也能繼續掉秤。`, th:`เช่น ไก่ทอดทั้งตัวราว 2,000 kcal ดังนั้นกินแค่ 1/4 ก็ยังลดได้`}},
     {t:"lead", v:{ko:`감량 전, <strong>영상 자료</strong>를 보내드리니 꼭 한 번 봐주세요. (식이 관련 궁금한 점 있으실까요?)`, ja:`減量を始める前に<strong>動画資料</strong>をお送りしますので必ずご覧ください。（食事についてご質問は？）`, en:`Before starting, I'll send a <strong>video guide</strong> — please watch it. (Any questions about diet?)`, "zh-cn":`开始减重前我会发<strong>视频资料</strong>，请务必观看。（关于饮食有疑问吗？）`, "zh-tw":`開始減重前我會發<strong>影片資料</strong>，請務必觀看。（關於飲食有疑問嗎？）`, th:`ก่อนเริ่มลด จะส่ง <strong>วิดีโอแนะนำ</strong> ให้ โปรดดูสักครั้ง (มีคำถามเรื่องอาหารไหมคะ?)`}}
   ]},
 
 { id:"S10", page:"symp", kicker:{ko:"불편증상", ja:"不快症状", en:"Side effects", "zh-cn":"不适症状", "zh-tw":"不適症狀", th:"อาการไม่สบาย"},
   h2:{ko:`불편증상은 대부분<br>약의 <span class="accent">대사 효과</span> 때문입니다`, ja:`不快症状の多くは<br>薬の <span class="accent">代謝効果</span>によるものです`, en:`Most side effects come<br>from the medicine's <span class="accent">metabolic effect</span>`, "zh-cn":`不适大多源于<br>药物的 <span class="accent">代谢作用</span>`, "zh-tw":`不適大多源於<br>藥物的 <span class="accent">代謝作用</span>`, th:`อาการไม่สบายส่วนใหญ่มาจาก<br><span class="accent">ผลด้านเมตาบอลิซึม</span>ของยา`},
   body:[
-    {t:"p", v:{ko:`① <strong>열감·땀·입마름</strong> — 운동한 것처럼 더울 수 있습니다. <span class="hl-amber">물 하루 2L</span> 충분히, 카페인은 줄이면 훨씬 나아집니다.`, ja:`① <strong>ほてり・発汗・口の渇き</strong> — 運動後のように暑く感じることが。<span class="hl-amber">水を1日2L</span>しっかり、カフェインを控えるとかなり楽に。`, en:`① <strong>Heat, sweating, dry mouth</strong> — you may feel hot like after exercise. Drink <span class="hl-amber">2L of water/day</span> and cut caffeine for relief.`, "zh-cn":`① <strong>燥热·出汗·口干</strong> — 会像运动后那样发热。<span class="hl-amber">每天喝2L水</span>，少喝咖啡因会好很多。`, "zh-tw":`① <strong>燥熱·出汗·口乾</strong> — 會像運動後那樣發熱。<span class="hl-amber">每天喝2L水</span>，少喝咖啡因會好很多。`, th:`① <strong>ร้อนวูบวาบ เหงื่อ ปากแห้ง</strong> — อาจรู้สึกร้อนเหมือนหลังออกกำลังกาย ดื่ม <span class="hl-amber">น้ำวันละ 2L</span> และลดคาเฟอีนจะดีขึ้นมาก`}},
-    {t:"p", v:{ko:`② <strong>불면</strong> — 약을 너무 늦게 드시면 잠이 안 올 수 있습니다. <strong>취침 6시간 전</strong>까지, 지나면 저녁약은 안 드셔도 됩니다.`, ja:`② <strong>不眠</strong> — 薬が遅すぎると眠れないことが。<strong>就寝6時間前</strong>までに、過ぎたら夜の分は飲まなくてOK。`, en:`② <strong>Insomnia</strong> — taking it too late can keep you up. Take by <strong>6 hours before bed</strong>; if it's past that, skip the evening dose.`, "zh-cn":`② <strong>失眠</strong> — 服药太晚可能睡不着。<strong>睡前6小时</strong>前服用，过了就别吃晚上那次。`, "zh-tw":`② <strong>失眠</strong> — 服藥太晚可能睡不著。<strong>睡前6小時</strong>前服用，過了就別吃晚上那次。`, th:`② <strong>นอนไม่หลับ</strong> — ทานดึกไปอาจนอนไม่หลับ ทานก่อน <strong>เข้านอน 6 ชม.</strong> ถ้าเลยเวลาให้งดมื้อเย็น`}},
-    {t:"p", v:{ko:`③ <strong>손떨림·두통</strong> — 뒷목·어깨 긴장에서 옵니다. 자주 마사지로 풀어주세요.`, ja:`③ <strong>手の震え・頭痛</strong> — 首・肩の緊張から。こまめにマッサージでほぐしてください。`, en:`③ <strong>Hand tremor, headache</strong> — from neck and shoulder tension. Massage them often to loosen up.`, "zh-cn":`③ <strong>手抖·头痛</strong> — 来自颈肩紧张。常按摩放松即可。`, "zh-tw":`③ <strong>手抖·頭痛</strong> — 來自頸肩緊張。常按摩放鬆即可。`, th:`③ <strong>มือสั่น ปวดหัว</strong> — มาจากความตึงคอ-บ่า นวดคลายบ่อย ๆ`}},
+    {t:"notice", v:{ko:`불편증상이 힘드실 땐 약을 <strong>1~2알로 줄여</strong> 드시거나, <strong>약을 쉬셔도</strong> 됩니다.`, ja:`不快症状がつらいときは、薬を<strong>1〜2錠に減らす</strong>か、<strong>お休みしても</strong>大丈夫です。`, en:`If side effects feel hard, you can <strong>cut down to 1–2 tablets</strong> or <strong>take a break</strong> from the medicine.`, "zh-cn":`不适明显时，可以<strong>减到1~2粒</strong>，或者<strong>暂停服药</strong>也没关系。`, "zh-tw":`不適明顯時，可以<strong>減到1~2粒</strong>，或者<strong>暫停服藥</strong>也沒關係。`, th:`ถ้าอาการไม่สบายรบกวนมาก จะ<strong>ลดเหลือ 1–2 เม็ด</strong> หรือ<strong>พักยา</strong>ก็ได้`}},
+    {t:"item",
+      n:{ko:`열감 · 땀 · 입마름 · 두근거림`, ja:`ほてり・発汗・口の渇き・動悸`, en:`Heat, sweating, dry mouth, palpitations`, "zh-cn":`燥热 · 出汗 · 口干 · 心悸`, "zh-tw":`燥熱 · 出汗 · 口乾 · 心悸`, th:`ร้อนวูบวาบ · เหงื่อ · ปากแห้ง · ใจสั่น`},
+      v:{ko:`운동한 것과 비슷한 증상입니다. <span class="hl-amber">물 하루 2L</span> 드시고, 카페인을 줄이면 훨씬 나아집니다.`, ja:`運動したときと似た症状です。<span class="hl-amber">水を1日2L</span>飲み、カフェインを控えるとかなり楽になります。`, en:`These feel much like the effects of exercise. Drink <span class="hl-amber">2L of water a day</span> and cut back on caffeine — it helps a lot.`, "zh-cn":`这与运动后的反应类似。<span class="hl-amber">每天喝2L水</span>、少喝咖啡因会好很多。`, "zh-tw":`這與運動後的反應類似。<span class="hl-amber">每天喝2L水</span>、少喝咖啡因會好很多。`, th:`เป็นอาการคล้ายกับตอนออกกำลังกาย ดื่ม <span class="hl-amber">น้ำวันละ 2L</span> และลดคาเฟอีนจะดีขึ้นมาก`}},
+    {t:"item",
+      n:{ko:`불면`, ja:`不眠`, en:`Insomnia`, "zh-cn":`失眠`, "zh-tw":`失眠`, th:`นอนไม่หลับ`},
+      v:{ko:`약을 너무 늦게 드시면 잠이 안 올 수 있습니다. <strong>취침 6시간 전</strong>까지, 지나면 저녁약은 안 드셔도 됩니다.`, ja:`薬が遅すぎると眠れないことがあります。<strong>就寝6時間前</strong>までに、過ぎたら夜の分は飲まなくてOKです。`, en:`Taking it too late can keep you up. Take it by <strong>6 hours before bed</strong>; if it's past that, skip the evening dose.`, "zh-cn":`服药太晚可能睡不着。请在<strong>睡前6小时</strong>前服用，过了就别吃晚上那次。`, "zh-tw":`服藥太晚可能睡不著。請在<strong>睡前6小時</strong>前服用，過了就別吃晚上那次。`, th:`ทานดึกเกินไปอาจนอนไม่หลับ ทานก่อน <strong>เข้านอน 6 ชม.</strong> ถ้าเลยเวลาให้งดมื้อเย็น`}},
+    {t:"item",
+      n:{ko:`손떨림 · 두통`, ja:`手の震え・頭痛`, en:`Hand tremor, headache`, "zh-cn":`手抖 · 头痛`, "zh-tw":`手抖 · 頭痛`, th:`มือสั่น · ปวดหัว`},
+      v:{ko:`뒷목·어깨 긴장에서 옵니다. 자주 마사지로 풀어주세요.`, ja:`首・肩の緊張から来ます。こまめにマッサージでほぐしてください。`, en:`These come from neck and shoulder tension. Massage them often to loosen up.`, "zh-cn":`来自颈肩紧张。常按摩放松即可。`, "zh-tw":`來自頸肩緊張。常按摩放鬆即可。`, th:`มาจากความตึงคอ-บ่า นวดคลายบ่อย ๆ`}},
     {t:"dose"}
   ]},
 
 { id:"S11", page:"symp",
   h2:{ko:`불편증상 — <span class="accent">이런 경우</span>엔`, ja:`不快症状 — <span class="accent">こんなとき</span>は`, en:`Side effects — <span class="accent">in these cases</span>`, "zh-cn":`不适 — <span class="accent">这些情况</span>`, "zh-tw":`不適 — <span class="accent">這些情況</span>`, th:`อาการไม่สบาย — <span class="accent">กรณีเหล่านี้</span>`},
   body:[
-    {t:"p", v:{ko:`④ <strong>속쓰림·울렁임</strong> — 위장이 불편하면 식후에 드세요.`, ja:`④ <strong>胃のむかつき・胸やけ</strong> — 胃が不快なら<strong>食後</strong>に。`, en:`④ <strong>Heartburn, nausea</strong> — if your stomach is upset, take it <strong>after meals</strong>.`, "zh-cn":`④ <strong>烧心·恶心</strong> — 肠胃不适就<strong>饭后</strong>服。`, "zh-tw":`④ <strong>燒心·噁心</strong> — 腸胃不適就<strong>飯後</strong>服。`, th:`④ <strong>แสบท้อง คลื่นไส้</strong> — ถ้ากระเพาะไม่สบายให้ทาน<strong>หลังอาหาร</strong>`}},
-    {t:"p", v:{ko:`⑤ <strong>어지럼증</strong> — 공복이 길면 <span class="hl-amber">저혈당</span>이니 당분(주스·사탕)을, 식후 일어날 때 어지러우면 <span class="hl-amber">기립성 저혈압</span>이니 물·종아리 운동을 해주세요.`, ja:`⑤ <strong>めまい</strong> — 空腹が長ければ<span class="hl-amber">低血糖</span>なので糖分（ジュース・飴）を、食後に立ち上がってめまいなら<span class="hl-amber">起立性低血圧</span>なので水分とふくらはぎ運動を。`, en:`⑤ <strong>Dizziness</strong> — if long without food it's <span class="hl-amber">low blood sugar</span>, take sugar (juice/candy); if dizzy on standing after meals it's <span class="hl-amber">orthostatic hypotension</span>, drink water and do calf raises.`, "zh-cn":`⑤ <strong>头晕</strong> — 空腹久了是<span class="hl-amber">低血糖</span>，补糖（果汁·糖果）；饭后起身头晕是<span class="hl-amber">体位性低血压</span>，多喝水并做提踵运动。`, "zh-tw":`⑤ <strong>頭暈</strong> — 空腹久了是<span class="hl-amber">低血糖</span>，補糖（果汁·糖果）；飯後起身頭暈是<span class="hl-amber">姿勢性低血壓</span>，多喝水並做提踵運動。`, th:`⑤ <strong>เวียนหัว</strong> — ถ้าท้องว่างนานคือ<span class="hl-amber">น้ำตาลต่ำ</span> ให้ทานน้ำตาล (น้ำผลไม้/ลูกอม) ถ้าลุกแล้วเวียนหลังอาหารคือ<span class="hl-amber">ความดันตกเวลาลุก</span> ดื่มน้ำและเขย่งปลายเท้า`}},
-    {t:"p", v:{ko:`⑥ <strong>음주</strong> — 술 드시는 날은 저녁약을 빼주세요.`, ja:`⑥ <strong>飲酒</strong> — お酒の日は夜の薬を抜いてください。`, en:`⑥ <strong>Alcohol</strong> — on drinking days, skip the evening dose.`, "zh-cn":`⑥ <strong>饮酒</strong> — 喝酒的日子请停晚上那次药。`, "zh-tw":`⑥ <strong>飲酒</strong> — 喝酒的日子請停晚上那次藥。`, th:`⑥ <strong>ดื่มแอลกอฮอล์</strong> — วันที่ดื่มให้งดยามื้อเย็น`}},
-    {t:"p", v:{ko:`⑦ <strong>운동</strong> — 가벼운 산책은 괜찮고, 고강도(런닝·헬스)는 운동 후에 드세요.`, ja:`⑦ <strong>運動</strong> — 軽い散歩はOK、強い運動（ランニング・ジム）は運動後に。`, en:`⑦ <strong>Exercise</strong> — light walks are fine; for intense workouts (running, gym), take it after exercising.`, "zh-cn":`⑦ <strong>运动</strong> — 轻度散步无妨；高强度（跑步·健身）请运动后再服。`, "zh-tw":`⑦ <strong>運動</strong> — 輕度散步無妨；高強度（跑步·健身）請運動後再服。`, th:`⑦ <strong>ออกกำลังกาย</strong> — เดินเบา ๆ ได้ ส่วนหนัก (วิ่ง/ฟิตเนส) ให้ทานหลังออกกำลังกาย`}},
-    {t:"p", v:{ko:`⑧ <strong>월경불순</strong> — 일시적이고 감량이 끝나면 돌아옵니다.`, ja:`⑧ <strong>月経不順</strong> — 一時的で、減量が終われば戻ります。`, en:`⑧ <strong>Irregular periods</strong> — temporary; they return once weight loss ends.`, "zh-cn":`⑧ <strong>月经不调</strong> — 暂时的，减重结束后会恢复。`, "zh-tw":`⑧ <strong>月經不調</strong> — 暫時的，減重結束後會恢復。`, th:`⑧ <strong>ประจำเดือนผิดปกติ</strong> — ชั่วคราว จะกลับมาปกติเมื่อลดน้ำหนักเสร็จ`}},
-    {t:"p", v:{ko:`⑨ <strong>알러지</strong> — 알러지약을 같이 드셔도 되고, 심하면 잠시 중단하고 연락 주세요.`, ja:`⑨ <strong>アレルギー</strong> — 抗アレルギー薬を併用してもOK、ひどければ中止してご連絡を。`, en:`⑨ <strong>Allergy</strong> — you may take an antihistamine alongside; if severe, stop and contact us.`, "zh-cn":`⑨ <strong>过敏</strong> — 可同时服抗过敏药；严重时请暂停并联系我们。`, "zh-tw":`⑨ <strong>過敏</strong> — 可同時服抗過敏藥；嚴重時請暫停並聯絡我們。`, th:`⑨ <strong>แพ้ยา</strong> — ทานยาแก้แพ้ร่วมได้ ถ้ารุนแรงให้หยุดและติดต่อเรา`}},
-    {t:"caution", a:{ko:`OO님은 특히 `, ja:`○○様は特に `, en:`Please be especially careful with no. `, "zh-cn":`您要特别注意第 `, "zh-tw":`您要特別注意第 `, th:`โปรดระวังเป็นพิเศษข้อ `}, b:{ko:`번을 조심해 주세요. 약 드시다 불편한 증상이 생기면 중단하시고 꼭 연락 주세요.`, ja:`番にお気をつけください。服用中に不快な症状が出たら中止してご連絡ください。`, en:`. If any discomfort arises while taking it, stop and contact us.`, "zh-cn":` 项。服药中如有不适，请停药并联系我们。`, "zh-tw":` 項。服藥中如有不適，請停藥並聯絡我們。`, th:` หากมีอาการไม่สบายระหว่างทานยา ให้หยุดและติดต่อเรา`}}
+    {t:"item",
+      n:{ko:`속쓰림 · 울렁임`, ja:`胃のむかつき・胸やけ`, en:`Heartburn, nausea`, "zh-cn":`烧心 · 恶心`, "zh-tw":`燒心 · 噁心`, th:`แสบท้อง · คลื่นไส้`},
+      v:{ko:`위장이 불편하면 <strong>식후</strong>에 드세요.`, ja:`胃が不快なら<strong>食後</strong>にお飲みください。`, en:`If your stomach is upset, take it <strong>after meals</strong>.`, "zh-cn":`肠胃不适就<strong>饭后</strong>服。`, "zh-tw":`腸胃不適就<strong>飯後</strong>服。`, th:`ถ้ากระเพาะไม่สบายให้ทาน<strong>หลังอาหาร</strong>`}},
+    {t:"item",
+      n:{ko:`어지럼증`, ja:`めまい`, en:`Dizziness`, "zh-cn":`头晕`, "zh-tw":`頭暈`, th:`เวียนหัว`},
+      v:{ko:`공복이 길면 <span class="hl-amber">저혈당</span>이니 당분(주스·사탕)을, 식후 일어날 때 어지러우면 <span class="hl-amber">기립성 저혈압</span>이니 물 많이 드시고, 천천히 일어나주세요.`, ja:`空腹が長ければ<span class="hl-amber">低血糖</span>なので糖分（ジュース・飴）を、食後に立ち上がってめまいがするなら<span class="hl-amber">起立性低血圧</span>なので、水分をたっぷり摂ってゆっくり立ち上がってください。`, en:`If you've gone long without food it's <span class="hl-amber">low blood sugar</span> — take sugar (juice/candy). If you're dizzy on standing after meals it's <span class="hl-amber">orthostatic hypotension</span> — drink plenty of water and stand up slowly.`, "zh-cn":`空腹久了是<span class="hl-amber">低血糖</span>，补糖（果汁·糖果）；饭后起身头晕是<span class="hl-amber">体位性低血压</span>，请多喝水、慢慢起身。`, "zh-tw":`空腹久了是<span class="hl-amber">低血糖</span>，補糖（果汁·糖果）；飯後起身頭暈是<span class="hl-amber">姿勢性低血壓</span>，請多喝水、慢慢起身。`, th:`ถ้าท้องว่างนานคือ<span class="hl-amber">น้ำตาลต่ำ</span> ให้ทานน้ำตาล (น้ำผลไม้/ลูกอม) ถ้าลุกแล้วเวียนหลังอาหารคือ<span class="hl-amber">ความดันตกเวลาลุก</span> ให้ดื่มน้ำมาก ๆ และค่อย ๆ ลุกขึ้น`}},
+    {t:"item",
+      n:{ko:`음주`, ja:`飲酒`, en:`Alcohol`, "zh-cn":`饮酒`, "zh-tw":`飲酒`, th:`ดื่มแอลกอฮอล์`},
+      v:{ko:`술 드시는 날은 저녁약을 빼주세요.`, ja:`お酒を飲む日は夜の薬を抜いてください。`, en:`On days you drink, skip the evening dose.`, "zh-cn":`喝酒的日子请停晚上那次药。`, "zh-tw":`喝酒的日子請停晚上那次藥。`, th:`วันที่ดื่มให้งดยามื้อเย็น`}},
+    {t:"item",
+      n:{ko:`운동`, ja:`運動`, en:`Exercise`, "zh-cn":`运动`, "zh-tw":`運動`, th:`ออกกำลังกาย`},
+      v:{ko:`가벼운 산책은 괜찮고, 고강도(런닝·헬스)는 운동 후에 드세요.`, ja:`軽い散歩はOK、強い運動（ランニング・ジム）は運動後にお飲みください。`, en:`Light walks are fine; for intense workouts (running, gym), take it after exercising.`, "zh-cn":`轻度散步无妨；高强度（跑步·健身）请运动后再服。`, "zh-tw":`輕度散步無妨；高強度（跑步·健身）請運動後再服。`, th:`เดินเบา ๆ ได้ ส่วนหนัก (วิ่ง/ฟิตเนส) ให้ทานหลังออกกำลังกาย`}},
+    {t:"item",
+      n:{ko:`월경불순`, ja:`月経不順`, en:`Irregular periods`, "zh-cn":`月经不调`, "zh-tw":`月經不調`, th:`ประจำเดือนผิดปกติ`},
+      v:{ko:`일시적이고 감량이 끝나면 돌아옵니다.`, ja:`一時的で、減量が終われば戻ります。`, en:`This is temporary — it returns to normal once weight loss ends.`, "zh-cn":`暂时的，减重结束后会恢复。`, "zh-tw":`暫時的，減重結束後會恢復。`, th:`เป็นชั่วคราว จะกลับมาปกติเมื่อลดน้ำหนักเสร็จ`}},
+    {t:"item",
+      n:{ko:`알러지`, ja:`アレルギー`, en:`Allergy`, "zh-cn":`过敏`, "zh-tw":`過敏`, th:`อาการแพ้`},
+      v:{ko:`알러지 반응이 있을 땐 <strong>약 복용을 중단</strong>하고 연락주세요. 알러지약은 드셔도 됩니다.`, ja:`アレルギー反応が出たら<strong>服用を中止</strong>してご連絡ください。アレルギーの薬は飲んでも大丈夫です。`, en:`If you have an allergic reaction, <strong>stop taking the medicine</strong> and contact us. Allergy medication is fine to take.`, "zh-cn":`出现过敏反应时请<strong>停止服药</strong>并联系我们。抗过敏药可以服用。`, "zh-tw":`出現過敏反應時請<strong>停止服藥</strong>並聯絡我們。抗過敏藥可以服用。`, th:`หากมีอาการแพ้ ให้<strong>หยุดยา</strong>แล้วติดต่อเรา ยาแก้แพ้ทานได้`}},
+    {t:"caution", a:{ko:`OO님은 특히 `, ja:`○○様は特に `, en:`Please be especially careful with `, "zh-cn":`您要特别注意 `, "zh-tw":`您要特別注意 `, th:`โปรดระวังเป็นพิเศษเรื่อง `}, b:{ko:` 증상을 조심해 주세요. 약 드시다 불편한 증상이 생기면 중단하시고 꼭 연락 주세요.`, ja:` の症状にお気をつけください。服用中に不快な症状が出たら中止してご連絡ください。`, en:`. If any discomfort arises while taking it, stop and contact us.`, "zh-cn":` 这一项。服药中如有不适，请停药并联系我们。`, "zh-tw":` 這一項。服藥中如有不適，請停藥並聯絡我們。`, th:` หากมีอาการไม่สบายระหว่างทานยา ให้หยุดและติดต่อเรา`}}
   ]},
 
 { id:"S12", page:"goal", kicker:{ko:"감량 목표", ja:"減量目標", en:"Weight goal", "zh-cn":"减重目标", "zh-tw":"減重目標", th:"เป้าหมายลดน้ำหนัก"},
@@ -314,7 +383,7 @@ const SLIDES = [
     {t:"p", v:{ko:`전체 감량뿐 아니라 특정 부위를 원하시면 시술을 같이 하면 더 효과적입니다.`, ja:`全体の減量だけでなく、特定の部位を望むなら施術を併用するとより効果的です。`, en:`Beyond overall loss, if you want a specific area, combining a procedure is more effective.`, "zh-cn":`除了整体减重，想针对特定部位，配合疗程会更有效。`, "zh-tw":`除了整體減重，想針對特定部位，搭配療程會更有效。`, th:`นอกจากลดทั้งตัว ถ้าต้องการเฉพาะจุด การทำหัตถการร่วมด้วยจะได้ผลดีกว่า`}},
     {t:"duo", cols:2, cards:[
       {h4:{ko:"아크로컷",ja:"アクロカット",en:"Acro Cut","zh-cn":"Acro Cut","zh-tw":"Acro Cut",th:"Acro Cut"}, p:{ko:`생약 약침으로 <strong>지방을 분해</strong>합니다. 살 빼도 잘 안 빠지는 팔·허벅지 안쪽·복부에 좋습니다.`, ja:`生薬の薬鍼で<strong>脂肪を分解</strong>。痩せても落ちにくい腕・太もも内側・お腹のサイズに。`, en:`Herbal pharmacopuncture that <strong>breaks down fat</strong> — great for stubborn arms, inner thighs, and belly.`, "zh-cn":`以生药药针<strong>分解脂肪</strong>，适合减重也难掉的手臂·大腿内侧·腹部。`, "zh-tw":`以生藥藥針<strong>分解脂肪</strong>，適合減重也難掉的手臂·大腿內側·腹部。`, th:`ฝังเข็มสมุนไพรที่ช่วย<strong>สลายไขมัน</strong> เหมาะกับแขน ต้นขาด้านใน หน้าท้องที่ลดยาก`}},
-      {h4:{ko:"아크로웨이브",ja:"アクロウェーブ",en:"Acro Wave","zh-cn":"Acro Wave","zh-tw":"Acro Wave",th:"Acro Wave"}, p:{ko:`지방 분해와 함께 <strong>리프팅</strong> 효과가 있습니다. 감량 후 처진 살, 산후 복부·팔 라인에 좋습니다.`, ja:`脂肪分解と<strong>リフティング</strong>効果。減量後のたるみ、産後のお腹・腕ラインに。`, en:`Fat breakdown plus a <strong>lifting</strong> effect — good for post-loss sagging and post-partum belly/arm lines.`, "zh-cn":`分解脂肪并带<strong>提拉</strong>效果，适合减重后松弛、产后腹部·手臂线条。`, "zh-tw":`分解脂肪並帶<strong>提拉</strong>效果，適合減重後鬆弛、產後腹部·手臂線條。`, th:`สลายไขมันพร้อมผล<strong>ยกกระชับ</strong> เหมาะกับผิวหย่อนหลังลด หน้าท้อง/แขนหลังคลอด`}}
+      {h4:{ko:"온다, 아크로웨이브",ja:"オンダ、アクロウェーブ",en:"ONDA, Acro Wave","zh-cn":"ONDA、Acro Wave","zh-tw":"ONDA、Acro Wave",th:"ONDA, Acro Wave"}, p:{ko:`지방 분해와 함께 <strong>리프팅</strong> 효과가 있습니다. 감량 후 처진 살, 산후 복부·팔 라인에 좋습니다.`, ja:`脂肪分解と<strong>リフティング</strong>効果。減量後のたるみ、産後のお腹・腕ラインに。`, en:`Fat breakdown plus a <strong>lifting</strong> effect — good for post-loss sagging and post-partum belly/arm lines.`, "zh-cn":`分解脂肪并带<strong>提拉</strong>效果，适合减重后松弛、产后腹部·手臂线条。`, "zh-tw":`分解脂肪並帶<strong>提拉</strong>效果，適合減重後鬆弛、產後腹部·手臂線條。`, th:`สลายไขมันพร้อมผล<strong>ยกกระชับ</strong> เหมาะกับผิวหย่อนหลังลด หน้าท้อง/แขนหลังคลอด`}}
     ]},
     {t:"lead", v:{ko:`두 가지를 함께 하면 <strong>지방 분해와 탄력</strong>을 같이 잡을 수 있습니다. 부위·상태에 맞춰 조합해 드립니다.`, ja:`2つを併用すると<strong>脂肪分解とハリ</strong>を同時に。部位・状態に合わせて組み合わせます。`, en:`Together they tackle <strong>fat breakdown and firmness</strong> at once. We combine them to fit your area and condition.`, "zh-cn":`两者并用可同时兼顾<strong>分解脂肪与紧致</strong>，按部位·状态为您搭配。`, "zh-tw":`兩者並用可同時兼顧<strong>分解脂肪與緊緻</strong>，按部位·狀態為您搭配。`, th:`ทำคู่กันจะได้ทั้ง<strong>สลายไขมันและความกระชับ</strong> เราจัดให้เหมาะกับจุดและสภาพผิว`}}
   ]},
@@ -377,31 +446,37 @@ function updateGreet(){
 function curWake(){ const w=STATE.wake; return (w===""||w==null||isNaN(w))?8:(((w%24)+24)%24); }
 function doseTimes(w, sep){ return [w,(w+4)%24,(w+8)%24].join(sep); }
 const DOSE = {
-  ko:{ tag:"복용법", pre:"기상 ", mid:"시 기준 → ", sep:"·",
-       post:"시, 4시간 간격으로 3알씩 3번. 마지막 약이 남으면 불면을 유발할 수 있어 저녁약은 줄이거나 안 드셔도 됩니다. 잠은 충분히.",
+  ko:{ tag:"복용법", pre:"기상 ", mid:"시 기준 → ", sep:", ", post:"시 복용",
+       l2:`<strong>4시간 간격</strong>으로 <strong>3알씩 3번</strong>`,
+       l3:`마지막 약이 남으면 불면을 유발할 수 있어 저녁약은 줄이거나 안 드셔도 됩니다.`,
        p2:`처음엔 <strong>1~2알</strong>부터, 괜찮으면 3알씩. 특히 <span class="hl-amber">초반 2주</span>에 불편증상이 생기기 쉬우니 조심하세요.` },
-  ja:{ tag:"服用法", pre:"起床 ", mid:"時を基準に → ", sep:"・",
-       post:"時、4時間おきに3錠ずつ3回。最後の薬が残ると不眠を招くことがあるので、夜の薬は減らすか飲まなくてもOK。睡眠は十分に。",
+  ja:{ tag:"服用法", pre:"起床 ", mid:"時を基準に → ", sep:"、", post:"時に服用",
+       l2:`<strong>4時間おき</strong>に<strong>3錠ずつ3回</strong>`,
+       l3:`最後の薬が残ると不眠を招くことがあるので、夜の薬は減らすか飲まなくても大丈夫です。`,
        p2:`最初は<strong>1〜2錠</strong>から、大丈夫なら3錠ずつ。特に<span class="hl-amber">最初の2週間</span>に不快な症状が出やすいので注意してください。` },
-  en:{ tag:"How to take", pre:"Wake-up at ", mid:":00 → take at ", sep:":00, ",
-       post:":00 — 3 tablets each, 3 times a day, 4 hours apart. If the last dose runs too late it may cause insomnia, so feel free to reduce or skip the evening dose. Be sure to sleep well.",
+  en:{ tag:"How to take", pre:"Wake-up at ", mid:":00 → take at ", sep:":00, ", post:":00",
+       l2:`<strong>3 tablets</strong> each, <strong>3 times</strong> a day, <strong>4 hours apart</strong>`,
+       l3:`If the last dose stays too late it may cause insomnia, so you can reduce or skip the evening dose.`,
        p2:`Start with <strong>1–2 tablets</strong>, and 3 if you tolerate it. Side effects are most likely in the <span class="hl-amber">first 2 weeks</span>, so take care.` },
-  "zh-cn":{ tag:"服用方法", pre:"起床 ", mid:"点为准 → ", sep:"·",
-       post:"点，每隔4小时3粒、共3次。最后一次太晚可能影响睡眠，晚上那次可减量或不服。请保证充足睡眠。",
+  "zh-cn":{ tag:"服用方法", pre:"起床 ", mid:"点为准 → ", sep:"、", post:"点服用",
+       l2:`<strong>每隔4小时</strong>，<strong>每次3粒、共3次</strong>`,
+       l3:`最后一次太晚可能引起失眠，晚上那次可减量或不服。`,
        p2:`先从<strong>1~2粒</strong>开始，适应后每次3粒。<span class="hl-amber">前两周</span>最容易出现不适，请多留意。` },
-  "zh-tw":{ tag:"服用方式", pre:"起床 ", mid:"點為準 → ", sep:"·",
-       post:"點，每隔4小時3粒、共3次。最後一次太晚可能影響睡眠，晚上那次可減量或不服。請保持充足睡眠。",
+  "zh-tw":{ tag:"服用方式", pre:"起床 ", mid:"點為準 → ", sep:"、", post:"點服用",
+       l2:`<strong>每隔4小時</strong>，<strong>每次3粒、共3次</strong>`,
+       l3:`最後一次太晚可能引起失眠，晚上那次可減量或不服。`,
        p2:`先從<strong>1~2粒</strong>開始，適應後每次3粒。<span class="hl-amber">前兩週</span>最容易出現不適，請多留意。` },
-  th:{ tag:"วิธีรับประทาน", pre:"ตื่นนอน ", mid:" น. เป็นเกณฑ์ → ", sep:" น., ",
-       post:" น. ห่างกัน 4 ชม. ครั้งละ 3 เม็ด วันละ 3 ครั้ง หากมื้อสุดท้ายดึกเกินไปอาจนอนไม่หลับ มื้อเย็นลดหรืองดได้ พักผ่อนให้เพียงพอ",
+  th:{ tag:"วิธีรับประทาน", pre:"ตื่นนอน ", mid:" น. เป็นเกณฑ์ → ", sep:", ", post:" น.",
+       l2:`ครั้งละ <strong>3 เม็ด</strong> วันละ <strong>3 ครั้ง</strong> ห่างกัน <strong>4 ชม.</strong>`,
+       l3:`หากมื้อสุดท้ายดึกเกินไปอาจนอนไม่หลับ มื้อเย็นลดหรืองดได้`,
        p2:`เริ่มจาก <strong>1–2 เม็ด</strong> ถ้าไหวค่อยเพิ่มเป็น 3 เม็ด ช่วง <span class="hl-amber">2 สัปดาห์แรก</span> มักมีอาการไม่สบายตัว โปรดระวัง` }
 };
-function doseGlossKo(w){ return "기상 <span id=\"wakeKo\">"+w+"</span>시 기준 → <span id=\"doseTimesKo\">"+doseTimes(w,"·")+"</span>시, 4시간 간격으로 3알씩 3번. 마지막 약이 남으면 불면을 유발할 수 있어 저녁약은 줄이거나 안 드셔도 됩니다. 잠은 충분히."; }
+function doseGlossKo(w){ return "기상 <span id=\"wakeKo\">"+w+"</span>시 기준 → <span id=\"doseTimesKo\">"+doseTimes(w,", ")+"</span>시 복용"; }
 function updateDose(){
-  const w=curWake(), sep=(lang==="ja"?DOSE.ja.sep:DOSE.ko.sep);
-  const a=document.getElementById('doseTimes'); if(a) a.textContent=doseTimes(w,sep);
+  const w=curWake(), d=DOSE[lang]||DOSE.ko;
+  const a=document.getElementById('doseTimes'); if(a) a.textContent=doseTimes(w,d.sep);
   const wk=document.getElementById('wakeKo'); if(wk) wk.textContent=w;
-  const dk=document.getElementById('doseTimesKo'); if(dk) dk.textContent=doseTimes(w,"·");
+  const dk=document.getElementById('doseTimesKo'); if(dk) dk.textContent=doseTimes(w,", ");
 }
 
 // 감량 목표 (개월·kg 연동, 월 단위 자동 계산)
@@ -428,7 +503,9 @@ function trNodes(s){
   if(s.kicker) o.push(s.kicker);
   o.push(s.h2);
   s.body.forEach(function(b){
-    if(b.t==='p'||b.t==='lead'||b.t==='note') o.push(b.v);
+    if(b.t==='p'||b.t==='lead'||b.t==='note'||b.t==='notice') o.push(b.v);
+    else if(b.t==='item'){ o.push(b.n); o.push(b.v); }
+    else if(b.t==='list'){ b.items.forEach(function(c){o.push(c);}); }
     else if(b.t==='case'){ o.push(b.tag); b.ps.forEach(function(p){o.push(p);}); }
     else if(b.t==='duo'){ b.cards.forEach(function(c){o.push(c.h4);o.push(c.p);}); }
     else if(b.t==='chips'){ b.items.forEach(function(c){o.push(c);}); }
@@ -447,7 +524,7 @@ document.getElementById('tot').textContent = total;
 
 function L(obj){ return obj[lang] || obj.ko; }
 function gloss(obj, cls){ if(lang==="ko") return ""; return '<div class="gloss '+(cls||'')+'">'+strip(obj.ko)+'</div>'; }
-function inl(id, val){ return '<input id="'+id+'" class="inl" type="text" value="'+esc(val)+'" placeholder="N">'; }
+function inl(id, val, ph){ return '<input id="'+id+'" class="inl" type="text" value="'+esc(val)+'" placeholder="'+esc(ph||'N')+'">'; }
 
 function renderBlock(b){
   if(b.t==="p")    return '<p>'+L(b.v)+'</p>'+gloss(b.v);
@@ -468,6 +545,17 @@ function renderBlock(b){
     b.items.forEach(function(p){ var c=L(p.cap), st=p.mw?' style="max-width:'+p.mw+';margin-left:auto;margin-right:auto"':''; h+='<figure'+st+'><img src="'+p.src+'" alt="">'+(c?'<figcaption>'+c+'</figcaption>':'')+'</figure>'; });
     return h+'</div>';
   }
+  if(b.t==="notice") return '<div class="notice"><p>'+L(b.v)+'</p>'+gloss(b.v)+'</div>';
+  if(b.t==="item"){
+    let h='<div class="sitem"><p class="sline"><span class="sname">'+L(b.n)+'</span><span class="sdash"> — </span><span class="sbody">'+L(b.v)+'</span></p>';
+    if(lang!=="ko") h+='<div class="gloss">'+strip(b.n.ko)+' — '+strip(b.v.ko)+'</div>';
+    return h+'</div>';
+  }
+  if(b.t==="list"){
+    let h='<ul class="ulist">';
+    b.items.forEach(function(it){ h+='<li>'+L(it)+gloss(it)+'</li>'; });
+    return h+'</ul>';
+  }
   if(b.t==="chips"){
     let h='<div class="chips">';
     b.items.forEach(function(c){ h+='<span class="chip'+(b.warn?' warn':'')+'">'+L(c)+'</span>'; });
@@ -486,12 +574,16 @@ function renderBlock(b){
     let h='<div class="case"><div class="tag">'+d.tag+'</div>';
     h+='<p>'+d.pre+'<input id="inWake" class="inl" type="number" min="0" max="23" value="'+w+'">'+d.mid+'<span id="doseTimes">'+doseTimes(w,d.sep)+'</span>'+d.post+'</p>';
     if(lang!=="ko") h+='<div class="gloss">'+doseGlossKo(w)+'</div>';
+    h+='<p>'+d.l2+'</p>';
+    if(lang!=="ko") h+='<div class="gloss">'+strip(DOSE.ko.l2)+'</div>';
+    h+='<p>'+d.l3+'</p>';
+    if(lang!=="ko") h+='<div class="gloss">'+strip(DOSE.ko.l3)+'</div>';
     h+='<p>'+d.p2+'</p>';
     if(lang!=="ko") h+='<div class="gloss">'+strip(DOSE.ko.p2)+'</div>';
     return h+'</div>';
   }
   if(b.t==="caution"){
-    return '<p class="lead">'+L(b.a)+inl('inCaution',STATE.caution)+L(b.b)+'</p>';
+    return '<p class="lead">'+L(b.a)+inl('inCaution',STATE.caution,L(UI.cautionPh))+L(b.b)+'</p>';
   }
   if(b.t==="goal"){
     const g=GOAL[lang]||GOAL.ko;
@@ -557,6 +649,10 @@ function applyUILabels(){
   document.getElementById('fsLbl').textContent=' '+L(UI.fullscreen);
   document.getElementById('tocTitle').textContent=L(UI.tocTitle);
   document.getElementById('tocHint').textContent=L(UI.tocHint);
+  const sp=document.getElementById('spd');
+  sp.setAttribute('aria-label', L(UI.speedAria)); sp.title=L(UI.speedAria);
+  const fb=document.getElementById('fontSel');
+  fb.setAttribute('aria-label', L(UI.fontAria)); fb.title=L(UI.fontAria);
 }
 
 function changeLang(nl){ sayStopAll(); lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); }
@@ -635,12 +731,43 @@ function ttsPickVoice(code){
       || TTS_VOICES.find(v=>v.lang && v.lang.toLowerCase().indexOf(base)===0)
       || null;
 }
-let sayCur=null;
-function sayReset(){ if(sayCur){ sayCur.classList.remove('on'); sayCur.firstChild.nodeValue='🔊'; sayCur=null; } }
-function sayStopAll(){ if(ttsSupported){ try{ window.speechSynthesis.cancel(); }catch(e){} } sayReset(); }
+// speech rate: default slightly faster than 1.0, remembered between visits
+let ttsRate = 1.15;
+try{ const _r=parseFloat(localStorage.getItem('acroTtsRate')); if(_r>=0.5 && _r<=3) ttsRate=_r; }catch(e){}
+
+let sayCur=null, sayQueue=[], sayPos=0, sayToken=0, sayCode="ko-KR", sayVoice=null;
+function sayReset(){ sayToken++; sayQueue=[]; sayPos=0; if(sayCur){ sayCur.classList.remove('on'); sayCur.firstChild.nodeValue='🔊'; sayCur=null; } }
+function sayStopAll(){ sayToken++; if(ttsSupported){ try{ window.speechSynthesis.cancel(); }catch(e){} } sayReset(); }
+function sayFrom(i){
+  if(i>=sayQueue.length){ sayReset(); return; }
+  sayPos=i;
+  const myToken=sayToken;
+  const u=new SpeechSynthesisUtterance(sayQueue[i]);
+  u.lang=sayCode; if(sayVoice) u.voice=sayVoice; u.rate=ttsRate; u.pitch=1;
+  u.onend=function(){ if(myToken!==sayToken) return; sayFrom(i+1); };
+  u.onerror=function(){ if(myToken!==sayToken) return; sayReset(); };
+  window.speechSynthesis.speak(u);
+}
+function setTtsRate(r){
+  const prev=ttsRate;
+  ttsRate=r;
+  try{ localStorage.setItem('acroTtsRate', String(r)); }catch(e){}
+  if(prev===r) return;
+  // if something is being read, restart the current sentence at the new speed
+  if(sayCur && sayQueue.length){
+    const btn=sayCur, from=sayPos, q=sayQueue.slice();
+    sayToken++;                                  // invalidate pending callbacks
+    try{ window.speechSynthesis.cancel(); }catch(e){}
+    sayQueue=q; sayCur=btn;
+    setTimeout(function(){ if(sayCur===btn) sayFrom(from); }, 80);
+  }
+}
 function elText(el){
   const c=el.cloneNode(true);
   c.querySelectorAll('.say,.gloss').forEach(function(n){ n.remove(); });
+  // read the values typed into inline inputs (wake-up hour, goals…) instead of skipping them
+  const src=el.querySelectorAll('input'), cp=c.querySelectorAll('input');
+  for(let i=0;i<cp.length;i++){ cp[i].parentNode.replaceChild(document.createTextNode(' '+(src[i]?src[i].value:'')+' '), cp[i]); }
   return (c.innerText || c.textContent || "").replace(/\s+/g,' ').trim();
 }
 function sayThis(btn, el){
@@ -649,23 +776,18 @@ function sayThis(btn, el){
   sayStopAll();
   if(wasOn) return;                    // second click on same button = stop
   const text=elText(el); if(!text) return;
-  const code=TTS_LANG[lang]||"ko-KR";
-  const v=ttsPickVoice(code);
-  const parts=text.match(/[^.!?。！？\n]+[.!?。！？]?/g) || [text];
-  let spoke=false;
-  parts.forEach(function(p){
-    p=p.trim(); if(!p) return;
-    const u=new SpeechSynthesisUtterance(p);
-    u.lang=code; if(v) u.voice=v; u.rate=0.95; u.pitch=1;
-    u.onend=function(){ if(!window.speechSynthesis.pending && !window.speechSynthesis.speaking) sayReset(); };
-    u.onerror=function(){ sayReset(); };
-    window.speechSynthesis.speak(u); spoke=true;
-  });
-  if(spoke){ sayCur=btn; btn.classList.add('on'); btn.firstChild.nodeValue='⏹'; }
+  sayCode = TTS_LANG[lang]||"ko-KR";
+  sayVoice = ttsPickVoice(sayCode);
+  sayQueue = (text.match(/[^.!?。！？\n]+[.!?。！？]?/g) || [text])
+             .map(function(p){ return p.trim(); })
+             .filter(function(p){ return p.replace(/[\s.,!?;:。！？、，…·・()（）\[\]「」『』“”"'’\-–—~／\/]/g,'').length > 0; });
+  if(!sayQueue.length) return;
+  sayCur=btn; btn.classList.add('on'); btn.firstChild.nodeValue='⏹';
+  sayFrom(0);
 }
 function injectSay(){
   if(!ttsSupported) return;
-  const els=stage.querySelectorAll('.slide h1, .slide h2, .slide h4, .slide p, .slide .chip');
+  const els=stage.querySelectorAll('.slide h1, .slide h2, .slide h4, .slide p:not(.sline), .slide .chip, .slide .ulist li, .slide .sname, .slide .sbody');
   els.forEach(function(el){
     if(el.querySelector(':scope > .say')) return;
     if((el.textContent||"").trim().length < 2) return;
@@ -674,10 +796,38 @@ function injectSay(){
     b.setAttribute('aria-label', L(UI.readAria));
     b.appendChild(document.createTextNode('🔊'));
     b.addEventListener('click', function(ev){ ev.stopPropagation(); sayThis(b, el); });
-    el.appendChild(b);
+    // keep the button inline with the text: if a Korean gloss sits inside, insert before it
+    const g=el.querySelector(':scope > .gloss');
+    if(g) el.insertBefore(b, g); else el.appendChild(b);
   });
 }
 window.addEventListener('beforeunload', function(){ if(ttsSupported){ try{ window.speechSynthesis.cancel(); }catch(e){} } });
+
+// ---------- text size ----------
+(function(){
+  const sel=document.getElementById('fontSel');
+  let fs=1;
+  try{ const _f=parseFloat(localStorage.getItem('acroFontScale')); if(_f>=0.5 && _f<=3) fs=_f; }catch(e){}
+  const opt=Array.prototype.find.call(sel.options, function(o){ return parseFloat(o.value)===fs; });
+  if(!opt) fs=1;
+  sel.value = String(fs);
+  document.documentElement.style.setProperty('--fs', fs);
+  sel.addEventListener('change', function(e){
+    const v=parseFloat(e.target.value);
+    document.documentElement.style.setProperty('--fs', v);
+    try{ localStorage.setItem('acroFontScale', String(v)); }catch(e){}
+  });
+})();
+
+// speed selector
+(function(){
+  const sel=document.getElementById('spd');
+  if(!ttsSupported){ sel.style.display='none'; return; }
+  const opt=Array.prototype.find.call(sel.options, function(o){ return parseFloat(o.value)===ttsRate; });
+  sel.value = opt ? opt.value : '1.15';
+  if(!opt) ttsRate=1.15;
+  sel.addEventListener('change', function(e){ setTtsRate(parseFloat(e.target.value)); });
+})();
 
 buildStage(); render(); applyUILabels(); buildTOC();
 </script>
