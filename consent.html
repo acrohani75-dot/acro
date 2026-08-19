@@ -99,7 +99,7 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
 <body>
 <!-- ================= 직원 화면 ================= -->
 <div id="staffMode" class="wrap">
-  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.6</span></h1>
+  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.7</span></h1>
   <p class="lead">필요한 동의서만 체크하고 [환자 모드 시작]을 누르면, 선택한 문서만 순서대로 서명받습니다.</p>
   <div class="saveWarn" id="saveWarn">
     ⚠ 지금은 구글 드라이브에 자동 저장되지 않습니다.<br>
@@ -108,6 +108,7 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
     <span style="font-weight:600;color:#8a6d3b">※ 이 표시가 계속 보이면 원장님께 알려 주세요 (기기에 저장 주소를 다시 넣어야 합니다).</span><br>
     <button class="btn warn sm" style="margin-top:10px" onclick="turnOnAutosave()">자동저장 켜기 (주소 아는 사람만)</button>
   </div>
+  <div class="saveWarn" id="pendingBox" style="display:none;background:#fff7e6;border-color:#f0d4a4;color:#8a6d3b"></div>
   <div class="card">
     <h2>1. 환자 정보</h2>
     <div class="row" style="margin-top:10px">
@@ -614,21 +615,26 @@ function printAll(){ window.print(); }
 function sendWebhook(){
   var el = document.getElementById("sendStatus");
   function fail(msg){
+    /* [v1.7] 실패해도 버리지 않는다 — 기기에 넣어두고 나중에 자동 재전송 */
+    queueSave(buildPayload());
+    refreshPending();
     el.innerHTML = '<span style="color:var(--danger);font-weight:800">✗ 저장 실패 — ' + esc(String(msg)) + '</span>' +
-      '<br><button class="btn warn sm" style="margin-top:8px" onclick="sendWebhook()">다시 전송</button>' +
+      '<br><span style="font-weight:700">이 기기에 보관해 두었습니다. 연결이 되면 자동으로 다시 보냅니다.</span>' +
+      '<br><button class="btn warn sm" style="margin-top:8px" onclick="queueFlush(true)">지금 다시 전송</button>' +
       ' <button class="btn ghost sm" style="margin-top:8px" onclick="printAll()">인쇄/PDF로 보관</button>';
   }
+  var payload = buildPayload();
   if (!CONFIG.webhookUrl){
-    el.innerHTML = '<span style="color:var(--danger);font-weight:800">⚠ 자동저장 꺼짐 — 저장되지 않았습니다. 반드시 [인쇄/PDF 저장]을 눌러 주세요.</span>';
+    /* [v1.7] 저장 주소가 없어도 **버리지 않는다** — 이 기기에 넣어두고, 자동저장이 켜지는
+       순간 전부 자동 전송된다. 예전에는 여기서 그냥 사라져 PDF에만 의존했다. */
+    var kept = queueSave(payload);
+    el.innerHTML = kept
+      ? '<span style="color:var(--warn);font-weight:800">◷ 이 기기에 보관했습니다 — 자동저장이 켜지면 드라이브로 자동 전송됩니다.</span>'
+      : '<span style="color:var(--danger);font-weight:800">⚠ 보관 공간이 부족합니다 — 반드시 [인쇄/PDF 저장]을 눌러 주세요.</span>';
+    refreshPending();
     return;
   }
   el.textContent = "전송 중...";
-  var p = patient();
-  var payload = { type: "consent", patient: p, forms: picked.map(function(id){
-    var r = results[id] || {};
-    return { id: id, title: formById(id).title, agreed: r.agreed !== false,
-             inputs: r.inputs, bodyHtml: r.bodyHtml, sig: r.sig, sig2: r.sig2 || null };
-  }) };
   var body = JSON.stringify(payload);
   fetch(CONFIG.webhookUrl, { method: "POST", body: body })
     .then(function(res){ return res.text(); })
@@ -658,18 +664,84 @@ function resetAll(){
   window.scrollTo(0,0);
 }
 renderStaff(); syncPick();
+/* ================================================================
+   [v1.7] 미전송 보관함 — "무조건 드라이브로" 를 보장하는 장치
+   저장 주소가 없거나 전송이 실패해도 동의서를 버리지 않고 이 기기에 쌓아둔다.
+   자동저장이 켜지는 순간(또는 페이지를 열 때마다) 쌓인 것을 전부 자동 전송한다.
+   → 직원은 아무것도 몰라도 되고, 원장이 나중에 주소를 넣어주기만 하면 소급 저장된다.
+================================================================ */
+var PENDING_KEY = "acro_consent_pending";
+
+function buildPayload(){
+  return { type: "consent", patient: patient(), forms: picked.map(function(id){
+    var r = results[id] || {};
+    return { id: id, title: formById(id).title, agreed: r.agreed !== false,
+             inputs: r.inputs, bodyHtml: r.bodyHtml, sig: r.sig, sig2: r.sig2 || null };
+  }) };
+}
+function queueRead(){
+  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || "[]") || []; } catch(e){ return []; }
+}
+function queueWrite(arr){
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(arr)); return true; }
+  catch(e){ return false; }   /* 용량 초과 — 조용히 실패하지 않고 호출부가 PDF를 강제한다 */
+}
+/* 같은 동의서를 두 번 쌓지 않는다(다시 전송 버튼 연타 등) */
+function queueSave(payload){
+  var arr = queueRead();
+  var key = payload.patient.name + "|" + payload.patient.chart + "|" + payload.patient.date +
+            "|" + payload.forms.map(function(f){ return f.id; }).join(",");
+  for (var i = 0; i < arr.length; i++) if (arr[i].key === key) return true;
+  arr.push({ key: key, at: new Date().toISOString(), payload: payload });
+  return queueWrite(arr);
+}
+/* 쌓인 것을 순서대로 전송. 성공한 것만 지운다(실패분은 다음 기회에 다시). */
+function queueFlush(loud){
+  var arr = queueRead();
+  if (!CONFIG.webhookUrl || !arr.length){ if (loud) refreshPending(); return; }
+  var item = arr[0];
+  fetch(CONFIG.webhookUrl, { method: "POST", body: JSON.stringify(item.payload) })
+    .then(function(res){ return res.text(); })
+    .then(function(t){
+      var d = null; try { d = JSON.parse(t); } catch(e){}
+      if (d && d.ok){
+        var cur = queueRead().filter(function(x){ return x.key !== item.key; });
+        queueWrite(cur);
+        refreshPending();
+        queueFlush(loud);           /* 다음 건 이어서 */
+      } else {
+        refreshPending();           /* 서버가 거부 — 보관은 유지 */
+      }
+    })
+    .catch(function(){ refreshPending(); });
+}
+/* 직원 화면에 "미전송 N건" 을 보여준다 — 숨기지 않는다 */
+function refreshPending(){
+  var n = queueRead().length;
+  var el = document.getElementById("pendingBox");
+  if (!el) return;
+  if (!n){ el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.innerHTML = "◷ 아직 드라이브로 못 보낸 동의서 <b>" + n + "건</b>이 이 기기에 보관돼 있습니다."
+    + (CONFIG.webhookUrl
+        ? ' <button class="btn warn sm" style="margin-left:8px" onclick="queueFlush(true)">지금 보내기</button>'
+        : "<br><span style=\"font-weight:600\">자동저장이 켜지면 전부 자동으로 전송됩니다. 원장님께 알려 주세요.</span>");
+}
+
 /* 자동저장 ON/OFF 를 헤더와 배너에 실제 상태로 표시 — 직원이 주소를 잘못 열면 즉시 보이게 */
 function refreshSaveState(){
   var on = !!CONFIG.webhookUrl;
   var b = document.getElementById("verBadge");
   if (b){
-    b.textContent = "v1.6 · 자동저장 " + (on ? "ON" : "OFF");
+    b.textContent = "v1.7 · 자동저장 " + (on ? "ON" : "OFF");
     b.className = "badge " + (on ? "v" : "d");
   }
   var w = document.getElementById("saveWarn");
   if (w) w.classList.toggle("on", !on);
 }
 refreshSaveState();
+refreshPending();
+queueFlush(false);   /* [v1.7] 열 때마다 밀린 동의서를 조용히 재전송 */
 
 /* [v1.5] 화면에서 바로 자동저장을 되살린다.
    기존에는 #w=배포ID 가 붙은 북마크로 여는 방법뿐이라, 그 주소를 못 찾으면 되살릴 길이 없었다.
@@ -694,7 +766,10 @@ function turnOnAutosave(){
   }
   CONFIG.webhookUrl = "https://script.google.com/macros/s/" + id + "/exec";
   refreshSaveState();
-  alert("자동저장을 켰습니다.\n이제 서명하면 구글 드라이브에 저장됩니다.");
+  var n = queueRead().length;
+  queueFlush(true);   /* [v1.7] 켜는 즉시 그동안 밀린 동의서를 소급 전송 */
+  alert("자동저장을 켰습니다.\n이제 서명하면 구글 드라이브에 저장됩니다." +
+        (n ? "\n\n보관돼 있던 " + n + "건도 지금 전송합니다." : ""));
 }
 
 /* 붙여넣은 값에서 배포ID만 뽑아낸다 — 전체 URL·해시 주소·ID 단독 전부 허용 */
