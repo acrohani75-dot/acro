@@ -99,13 +99,14 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
 <body>
 <!-- ================= 직원 화면 ================= -->
 <div id="staffMode" class="wrap">
-  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.5</span></h1>
+  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.6</span></h1>
   <p class="lead">필요한 동의서만 체크하고 [환자 모드 시작]을 누르면, 선택한 문서만 순서대로 서명받습니다.</p>
   <div class="saveWarn" id="saveWarn">
-    ⚠ 지금 서명하면 구글 드라이브에 저장되지 않습니다.<br>
-    이 기기가 저장 주소를 잊어버렸습니다. 아래 버튼을 눌러 한 번만 다시 넣어 주세요 (그 뒤로는 계속 기억합니다).<br>
-    <button class="btn warn sm" style="margin-top:10px" onclick="turnOnAutosave()">자동저장 켜기</button>
-    <span style="font-weight:600"> · 지금 급하시면 그대로 받으시되, 완료 화면에서 <b>반드시 [인쇄 / PDF 저장]</b>을 누르세요.</span>
+    ⚠ 지금은 구글 드라이브에 자동 저장되지 않습니다.<br>
+    <span style="font-weight:600">서명은 그대로 받으셔도 됩니다 — 다 끝나면 저장 화면이 자동으로 열립니다.
+    [PDF로 저장]만 눌러 주세요.</span><br>
+    <span style="font-weight:600;color:#8a6d3b">※ 이 표시가 계속 보이면 원장님께 알려 주세요 (기기에 저장 주소를 다시 넣어야 합니다).</span><br>
+    <button class="btn warn sm" style="margin-top:10px" onclick="turnOnAutosave()">자동저장 켜기 (주소 아는 사람만)</button>
   </div>
   <div class="card">
     <h2>1. 환자 정보</h2>
@@ -431,10 +432,10 @@ function patient(){
 function startPatient(){
   /* [v1.4] 자동저장이 꺼진 채로 서명받는 사고를 막는다 — 저장 안 되는데 완료 화면만 뜨던 문제 */
   if (!CONFIG.webhookUrl && !confirm(
-      "⚠ 지금 서명하면 구글 드라이브에 저장되지 않습니다.\n\n" +
-      "위의 [자동저장 켜기] 버튼으로 먼저 켜시는 것을 권합니다.\n\n" +
-      "그래도 지금 받으시겠습니까?\n" +
-      "(받으신 뒤 완료 화면에서 반드시 [인쇄/PDF 저장]을 눌러야 기록이 남습니다)")) return;
+      "지금은 구글 드라이브에 자동 저장되지 않습니다.\n\n" +
+      "서명은 그대로 받으셔도 됩니다.\n" +
+      "끝나면 저장 화면이 자동으로 열리니 [PDF로 저장]만 눌러 주세요.\n\n" +
+      "계속하시겠습니까?")) return;
   cur = 0; results = {};
   document.getElementById("staffMode").style.display = "none";
   document.getElementById("doneMode").style.display = "none";
@@ -579,6 +580,16 @@ function finish(){
   buildPrint();
   sendWebhook();
   window.scrollTo(0,0);
+  /* [v1.6] 자동저장이 꺼져 있으면 인쇄/PDF 창을 **자동으로** 띄운다.
+     직원이 [인쇄/PDF 저장]을 기억해서 눌러야만 기록이 남던 구조라, 한 번 잊으면 그대로 소실됐다.
+     저장 주소를 모르는 직원도 아무것도 기억할 필요가 없게 만드는 것이 목적. */
+  if (!CONFIG.webhookUrl){
+    setTimeout(function(){
+      alert("자동저장이 꺼져 있어 이 동의서는 아직 저장되지 않았습니다.\n\n" +
+            "이어서 저장 화면이 열립니다. [PDF로 저장]을 눌러 보관해 주세요.");
+      printAll();
+    }, 600);
+  }
 }
 function buildPrint(){
   var p = patient(), area = document.getElementById("printArea"); area.innerHTML = "";
@@ -652,7 +663,7 @@ function refreshSaveState(){
   var on = !!CONFIG.webhookUrl;
   var b = document.getElementById("verBadge");
   if (b){
-    b.textContent = "v1.5 · 자동저장 " + (on ? "ON" : "OFF");
+    b.textContent = "v1.6 · 자동저장 " + (on ? "ON" : "OFF");
     b.className = "badge " + (on ? "v" : "d");
   }
   var w = document.getElementById("saveWarn");
