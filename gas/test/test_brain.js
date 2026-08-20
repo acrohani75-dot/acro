@@ -126,6 +126,13 @@ ok('실측 블록이 다이제스트 뒤에 결합', capturedUser.includes('## O
 ok('게시 정상', posted.length===1);
 ok('정본 현황 블록도 결합', capturedUser.includes('## 정본 현황') && capturedUser.includes('v2.19'));
 ok('작업 지시에 적체 항목', sandbox.acbTaskPrompt_().includes('정본 적체'));
+// 원장 지시 260820 — 원내 채널이므로 이름을 가리지 않는다
+const TP=sandbox.acbTaskPrompt_();
+ok('★이니셜 축약 금지 지시 있음', TP.includes('이름은 그대로 쓴다'));
+ok('★"이름 언급 금지" 옛 지시 제거됨', !TP.includes('환자 이름·차트번호 언급'));
+ok('이니셜 예시로 무엇이 문제인지 명시', TP.includes('H님') && TP.includes('업무를 방해'));
+ok('차트번호도 함께 쓰라고 지시', TP.includes('차트번호가 보이면'));
+ok('추측 금지·영업성 금지는 유지', TP.includes('추측으로 채우기') && TP.includes('영업성 문구'));
 // 슬랙이 비어도 feed만으로 돈다
 propsStore={CANON_REPO:'x/c',GH_TOKEN:'t',SLACK_TOKEN:'x',
             ANTHROPIC_API_KEY:'k',BRAIN_POST_CHANNEL:'CMEET'};  // BRAIN_READ_CHANNELS 없음
