@@ -40,6 +40,43 @@ var ARG_ALT = {
   }
 };
 
+
+/** 네이버 블로그(한국어) → 아메블로(일본어) 대응표 — 자산인덱스 v1.2 C-JA 표가 정본.
+ *  키는 네이버 글 번호. 일본 채널에서 한국어 블로그가 실리면 같은 주제의 일본어 글로 바꾼다.
+ *  ⚠ 여기 없는 글은 일본어판이 **없는 것**이다 — 임의로 다른 글로 바꾸지 않고 발송을 멈춘다.
+ *  (예: 두드러기·색소성 양진은 일본어판 미작성 — 원장 확인 260820) */
+var ARG_BLOG_JA = {
+  '223507990270': 'https://ameblo.jp/acrohani-jp/page-7.html',   // 다이어트 기본개념
+  '224230512872': 'https://ameblo.jp/acrohani-jp/page-6.html',   // 과소보고
+  '223875452115': 'https://ameblo.jp/acrohani-jp/entry-12964439451.html',   // 다이어트 중 운동
+  '224151878306': 'https://ameblo.jp/acrohani-jp/entry-12961393191.html',   // 위고비·마운자로 비반응군
+  '224230434401': 'https://ameblo.jp/acrohani-jp/entry-12963619625.html',   // 위고비·마운자로 리바운드
+  '224260258665': 'https://ameblo.jp/acrohani-jp/entry-12963724798.html',   // 리바운드 비교
+  '224231753342': 'https://ameblo.jp/acrohani-jp/entry-12961511903.html',   // 맞춤치료·식이 실패 패턴
+  '224228040197': 'https://ameblo.jp/acrohani-jp/entry-12963632851.html',   // 오젬픽페이스
+  '224302519114': 'https://ameblo.jp/acrohani-jp/entry-12969312660.html',   // 담석증
+  '224231814018': 'https://ameblo.jp/acrohani-jp/entry-12963629278.html',   // 근육량 감소
+  '224221968994': 'https://ameblo.jp/acrohani-jp/entry-12963714509.html',   // 체중 변동
+  '223449732136': 'https://ameblo.jp/acrohani-jp/page-8.html',   // 저혈당
+  '223164503669': 'https://ameblo.jp/acrohani-jp/entry-12964543137.html',   // 이관개방증
+  '224242854136': 'https://ameblo.jp/acrohani-jp/entry-12963826448.html',   // 단백질 섭취 기준
+  '224257456557': 'https://ameblo.jp/acrohani-jp/entry-12964549846.html',   // 단백질 섭취량 계산
+  '223555701470': 'https://ameblo.jp/acrohani-jp/entry-12963833106.html',   // 수분 섭취량
+  '223721574902': 'https://ameblo.jp/acrohani-jp/entry-12964447030.html',   // 감량 후 유지
+  '223193036680': 'https://ameblo.jp/acrohani-jp/entry-12964454360.html',   // 복용 중 임신
+  '223387097468': 'https://ameblo.jp/acrohani-jp/entry-12969327182.html',   // 초저열량식
+};
+
+/** 이 URL의 대체본. 없으면 빈 문자열. */
+function argAltFor_(url, pat, ch) {
+  if (pat === 'blog.naver.com') {
+    if (ch !== 'jp') return '';                       // 대만·기타 언어판 없음
+    var m = String(url).match(/acrohani01\/(\d+)/);
+    return (m && ARG_BLOG_JA[m[1]]) || '';
+  }
+  return (ARG_ALT[pat] && ARG_ALT[pat][ch]) || '';
+}
+
 /** 텍스트에서 URL만 뽑는다 */
 function argUrls_(text) {
   var m = String(text || '').match(/https?:\/\/[^\s<>()\[\]"']+/g);
@@ -78,7 +115,7 @@ function argLang_(text, chKey) {
       var pat = ARG_KO_ONLY[k];
       if (urls[i].indexOf(pat) < 0) continue;
       hits.push(urls[i]);
-      var alt = ARG_ALT[pat] && ARG_ALT[pat][ch];
+      var alt = argAltFor_(urls[i], pat, ch);
       if (alt) out = out.split(urls[i]).join(alt);
       else allFixed = false;
       break;

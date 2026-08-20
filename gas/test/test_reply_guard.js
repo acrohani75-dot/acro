@@ -39,6 +39,22 @@ ok('링크 없는 순수 답변은 통과', sandbox.argLang_('こんにちは、
 ok('외국인 설문(script.google.com)은 통과',
    sandbox.argLang_('https://script.google.com/macros/s/AKfycbzQ7IB/exec','jp').ok===true);
 
+console.log('3b) 네이버 → 아메블로 자동 치환 (자산인덱스 v1.2 C-JA)');
+let b=sandbox.argLang_('참고하세요 https://blog.naver.com/acrohani01/224231814018 감사합니다','jp');
+ok('★근육량 글 → 일본어판으로 교체', b.ok===false && b.fixed
+   && b.fixed.includes('ameblo.jp/acrohani-jp/entry-12963629278.html')
+   && !b.fixed.includes('blog.naver.com'));
+ok('앞뒤 문장 보존', b.fixed.startsWith('참고하세요') && b.fixed.endsWith('감사합니다'));
+ok('page형 링크도 교체(저혈당)',
+   sandbox.argLang_('https://blog.naver.com/acrohani01/223449732136','jp').fixed.includes('page-8.html'));
+ok('★일본어판 없는 글(두드러기)은 교체 안 하고 차단',
+   sandbox.argLang_('https://blog.naver.com/acrohani01/223253617836','jp').fixed===null);
+ok('대만 채널은 블로그 대체본 없음 → 차단',
+   sandbox.argLang_('https://blog.naver.com/acrohani01/224231814018','tw').fixed===null);
+ok('대응표에 19주제 등재', Object.keys(sandbox.ARG_BLOG_JA).length===19);
+let c2=sandbox.argCheck_('https://blog.naver.com/acrohani01/224228040197','jp','bx1');
+ok('통합 관문도 치환 후 발송', c2.send===true && c2.text.includes('entry-12963632851'));
+
 console.log('4) 통합 관문');
 cache={};
 let c=sandbox.argCheck_('네 확인했습니다','jp','x1');
