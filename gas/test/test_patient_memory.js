@@ -3,7 +3,8 @@
 const fs=require('fs'),vm=require('vm'),path=require('path');
 let props={APM_SHEET_ID:'sid',ANTHROPIC_API_KEY:'k'};
 let rows=[], lastPayload=null, apiRes=null, apiCode=200;
-let mapRows=[], slackReply=null;              // 라인환자맵 · 슬랙 conversations.replies 스텁
+let mapRows=[], slackReply=null, slackCalls=0;
+let cacheStore={}, cachePuts=[];              // 라인환자맵 · 슬랙 conversations.replies 스텁
 function mkSheet(src){return {
   getLastRow:()=>src.length,
   getRange:(r,c,nr,nc)=>({
@@ -19,10 +20,15 @@ const sandbox={
     getSheetByName:n=>mkSheet(n==='라인환자맵'?mapRows:rows),
     insertSheet:n=>mkSheet(rows)})},
   UrlFetchApp:{fetch:(url,opt)=>{
-    if(String(url).includes('slack.com'))
-      return {getResponseCode:()=>(slackReply?200:500),getContentText:()=>JSON.stringify(slackReply||{})};
+    if(String(url).includes('slack.com')){slackCalls++;
+      return {getResponseCode:()=>(slackReply?200:500),getContentText:()=>JSON.stringify(slackReply||{})};}
     lastPayload=JSON.parse(opt.payload);
     return {getResponseCode:()=>apiCode,getContentText:()=>JSON.stringify(apiRes)};}},
+  CacheService:{getScriptCache:()=>({
+    get:k=>(k in cacheStore?cacheStore[k]:null),
+    put:(k,v,sec)=>{cacheStore[k]=v;cachePuts.push([k,sec]);},
+    remove:k=>{delete cacheStore[k];}
+  })},
   encodeURIComponent,
   JSON,Object,String,Array,Math,Number,RegExp,Error,console
 };
@@ -161,15 +167,30 @@ console.log('11) 이력 조회 실패는 전부 조용히 ""');
 props = {APM_SHEET_ID:'S1', SLACK_BOT_TOKEN:'x', APM_SLACK_CH_JP:'C1'};
 slackReply = {ok:true, messages:[FRIEND, AI_OUT]};
 ok('정상 경로', sandbox.apmHistoryFor_('Uabc').includes('아크로드(나)'));
+cacheStore={};                       // 캐시를 비워야 실패 경로를 본다(캐시가 살아 있으면 옛 이력이 나온다)
 slackReply = {ok:false, error:'channel_not_found'};
 ok('슬랙 실패면 ""', sandbox.apmHistoryFor_('Uabc')==='');
 slackReply = {ok:true, messages:[FRIEND, AI_OUT]};
+cacheStore={};
 delete props.APM_SLACK_CH_JP;
 ok('채널ID 속성 없으면 ""', sandbox.apmHistoryFor_('Uabc')==='');
 props.APM_SLACK_CH_JP='C1'; delete props.SLACK_BOT_TOKEN;
 ok('토큰 없으면 ""', sandbox.apmHistoryFor_('Uabc')==='');
 props.SLACK_BOT_TOKEN='x';
 ok('환자맵에 없으면 ""', sandbox.apmHistoryFor_('U000')==='');
+
+console.log('11b) UrlFetch 예산 — 같은 스레드를 반복해서 읽지 않는다');
+cacheStore={};cachePuts=[];slackCalls=0;
+props = {APM_SHEET_ID:'S1', SLACK_BOT_TOKEN:'x', APM_SLACK_CH_JP:'C1'};
+slackReply = {ok:true, messages:[FRIEND, AI_OUT]};
+sandbox.apmHistoryFor_('Uabc');
+ok('첫 조회는 슬랙 왕복 1회', slackCalls===1);
+sandbox.apmHistoryFor_('Uabc'); sandbox.apmHistoryFor_('Uabc');
+ok('★환자 3연타여도 왕복은 그대로 1회(캐시)', slackCalls===1);
+ok('캐시 TTL 90초', cachePuts.length===1 && cachePuts[0][1]===90);
+ok('캐시에서도 같은 이력이 나온다', sandbox.apmHistoryFor_('Uabc').includes('아크로드(나)'));
+cacheStore={};
+ok('캐시 만료 후에는 다시 읽는다', (sandbox.apmHistoryFor_('Uabc'), slackCalls===2));
 
 console.log('12) 차트번호 줍기 — 직원이 스레드에 적은 것을 환자맵에 기록');
 const PC = t => sandbox.apmParseChartNote_(t);
@@ -195,6 +216,9 @@ ok('★이미 있는 이름은 덮어쓰지 않는다', mapRows[2][8]==='기존�
 ok('모르는 스레드는 무시', sandbox.apmNoteChartFromThread_('9999.9','차트 20193')===null);
 ok('차트 문구 아니면 시트를 건드리지 않음',
    sandbox.apmNoteChartFromThread_('1787383849.881109','오늘 예약 확인함')===null);
+slackCalls=0;
+sandbox.apmNoteChartFromThread_('1787383849.881109','차트 20193 GIMAMIYUKI');
+ok('★차트 줍기는 UrlFetch를 쓰지 않는다(외부 왕복 0회)', slackCalls===0);
 
 console.log('13) 메모 언어 — 직원이 읽는 문서다');
 ok('★기록원 지시가 한국어를 강제', sandbox.APM_SCRIBE.includes('반드시 한국어로 쓴다'));
