@@ -38,7 +38,7 @@ var APM_CFG = {
 };
 
 /** 라인환자맵 열 위치(1-based). 실측 260822: userId·채널·번호·스레드ts·첫수신·최근수신… */
-var APM_MAP_COL = { USER: 1, CH: 2, NO: 3, TS: 4 };
+var APM_MAP_COL = { USER: 1, CH: 2, NO: 3, TS: 4, CHART: 8, NAME: 9 };
 
 /** 채널 표기(환자맵 B열) → 슬랙 채널ID를 담은 속성 이름. ID는 코드에 적지 않는다. */
 var APM_CH_PROP = { '일본': 'APM_SLACK_CH_JP', '대만': 'APM_SLACK_CH_TW' };
@@ -214,12 +214,12 @@ function apmClassify_(msg) {
 
   var tag = raw.match(APM_MARK.PATIENT_TAG);
   if (tag) {
-    var body = apmStripGloss_(raw.replace(APM_MARK.PATIENT_TAG, ''), APM_MARK.IN_GLOSS);
+    var body = raw.replace(APM_MARK.PATIENT_TAG, '').trim();
     return body ? { who: 'patient', text: body } : null;
   }
 
   if (APM_MARK.AI_HEAD.test(lines[0])) {                  // 아웃바운드
-    var rest = lines.slice(1).join('\n').replace(APM_MARK.AI_GLOSS, '').trim();
+    var rest = lines.slice(1).join('\n').trim();          // 머리글만 떼고 번역은 남긴다
     return rest ? { who: 'ai', text: rest } : null;
   }
 
@@ -229,20 +229,15 @@ function apmClassify_(msg) {
     return { who: 'note', text: raw };
   }
 
-  // 봇이 올린 글에 인바운드 번역 표시가 있으면 환자 발화다
+  // 봇이 올린 글에 인바운드 번역 표시가 있으면 환자 발화다.
+  // ⚠ 한국어 번역을 떼지 않는다 (원장 지시 260822: "한국어랑 같이 들어와야 우리가 보고 알 수 있어").
+  //   이 이력은 AI만 읽는 게 아니라 사람이 검토하는 자리에도 그대로 실린다. 원문만 남기면
+  //   일본어·중국어를 못 읽는 사람에게는 이력이 없는 것과 같다. 토큰보다 읽히는 게 먼저다.
   for (var i = 1; i < lines.length; i++)
     if (APM_MARK.IN_GLOSS.test(lines[i].trim()))
-      return { who: 'patient', text: lines.slice(0, i).join('\n').trim() };
+      return { who: 'patient', text: raw };
 
   return { who: 'kept', text: raw };                       // 모르면 '기록' — 환자로 찍지 않는다
-}
-
-/** 원문 + `(한국어) 번역` 이 붙어 있으면 원문만 남긴다(같은 말을 두 번 넣지 않는다). */
-function apmStripGloss_(text, re) {
-  var lines = String(text || '').split('\n');
-  for (var i = 1; i < lines.length; i++)
-    if (re.test(lines[i].trim())) return lines.slice(0, i).join('\n').trim();
-  return String(text || '').trim();
 }
 
 /** 스레드 메시지 배열(시간순) → turns. */
@@ -319,4 +314,62 @@ function apmKeyFor_(userId) {
   if (!m || !m.no) return null;
   var pre = m.ch === '일본' ? 'jp' : (m.ch === '대만' ? 'tw' : m.ch);
   return pre + '#' + m.no;
+}
+
+
+/** ── 직원이 스레드에 적은 차트번호 줍기 ────────────────────────────────
+ *
+ * 실측 260822: 직원들은 이미 슬랙에 "차트 20193 GIMAMIYUKI" 라고 적고 있다.
+ * 그런데 **아무 데도 기록되지 않는다** — 환자맵 140행 중 차트번호가 있는 건 34행뿐이고,
+ * 그 34건도 전부 환자가 LINE 표시이름을 숫자로 시작하게 해둔 자동매칭이다.
+ * 사람이 알아낸 차트번호가 시스템에 안 들어오면 차트 조회(2순위)도 못 돈다.
+ *
+ * 그래서 줍는다. 판정은 보수적으로:
+ *   · 스레드 안에서만 받는다 — 어느 환자 얘긴지 알아야 쓴다(채널 바닥글은 무시).
+ *   · 4~6자리 숫자만 차트번호로 본다(전화번호·금액 오인 방지).
+ *   · 이름은 비어 있을 때만 채운다 — 이미 있는 이름을 덮어쓰지 않는다.
+ */
+var APM_CHART_RE = /^\s*(?:차트|챠트|카르테|chart)\s*(?:번호)?\s*[:#]?\s*(\d{4,6})\b\s*(.*)$/i;
+
+/** "차트 20193 GIMAMIYUKI" → {chart:'20193', name:'GIMAMIYUKI'} · 아니면 null. 순수 함수. */
+function apmParseChartNote_(text) {
+  var m = String(text || '').trim().match(APM_CHART_RE);
+  if (!m) return null;
+  var name = String(m[2] || '').replace(/^[·\-–—:,\s]+/, '').trim();
+  return { chart: m[1], name: name };
+}
+
+/** 스레드ts로 환자맵 행을 찾는다. → {row, no} | null */
+function apmMapRowByThread_(threadTs) {
+  try {
+    var id = PropertiesService.getScriptProperties().getProperty('APM_SHEET_ID');
+    if (!id || !threadTs) return null;
+    var sh = SpreadsheetApp.openById(id).getSheetByName(APM_CFG.MAP_SHEET_NAME);
+    if (!sh || sh.getLastRow() < 1) return null;
+    var vals = sh.getRange(1, 1, sh.getLastRow(), APM_MAP_COL.NAME).getValues();
+    for (var i = vals.length - 1; i >= 0; i--)
+      if (String(vals[i][APM_MAP_COL.TS - 1]) === String(threadTs))
+        return { row: i + 1, no: String(vals[i][APM_MAP_COL.NO - 1] || ''),
+                 hadName: !!String(vals[i][APM_MAP_COL.NAME - 1] || '') };
+    return null;
+  } catch (e) { return null; }
+}
+
+/**
+ * 진입점 — 스레드에 올라온 직원 글 1건에서 차트번호를 주워 환자맵에 기록한다.
+ * 반환: {no, chart, name} (기록함) | null (차트 문구가 아니거나 환자를 못 찾음).
+ * 실패는 조용히 null — 이 기능이 죽어도 응대는 그대로 돈다.
+ */
+function apmNoteChartFromThread_(threadTs, text) {
+  var p = apmParseChartNote_(text);
+  if (!p) return null;
+  var hit = apmMapRowByThread_(threadTs);
+  if (!hit) return null;
+  try {
+    var id = PropertiesService.getScriptProperties().getProperty('APM_SHEET_ID');
+    var sh = SpreadsheetApp.openById(id).getSheetByName(APM_CFG.MAP_SHEET_NAME);
+    sh.getRange(hit.row, APM_MAP_COL.CHART).setValue(p.chart);
+    if (p.name && !hit.hadName) sh.getRange(hit.row, APM_MAP_COL.NAME).setValue(p.name);
+    return { no: hit.no, chart: p.chart, name: p.name };
+  } catch (e) { return null; }
 }
