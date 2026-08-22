@@ -34,7 +34,8 @@ var APM_CFG = {
   MAX_TOKENS: 300,
   SHEET_NAME: '환자메모',
   MAP_SHEET_NAME: '라인환자맵',   // 같은 파일(인입원장)의 탭
-  SLACK_LIMIT: 60                // 스레드에서 끌어올 최대 메시지(그중 최근 MAX_TURNS만 남는다)
+  SLACK_LIMIT: 60,               // 스레드에서 끌어올 최대 메시지(그중 최근 MAX_TURNS만 남는다)
+  THREAD_CACHE_SEC: 90           // 같은 스레드 반복 조회 방지 — UrlFetch 예산 보호
 };
 
 /** 라인환자맵 열 위치(1-based). 실측 260822: userId·채널·번호·스레드ts·첫수신·최근수신… */
@@ -274,12 +275,23 @@ function apmMapLookup_(userId) {
   } catch (e) { return null; }
 }
 
-/** 슬랙 스레드 읽기(읽기 전용). 실패는 null — 이력이 없어도 응대는 돈다. */
+/**
+ * 슬랙 스레드 읽기(읽기 전용). 실패는 null — 이력이 없어도 응대는 돈다.
+ *
+ * ⚠ UrlFetch 예산: 이 모듈에서 외부를 호출하는 곳은 여기와 apmUpdateMemo_ 둘뿐이다.
+ *   환자 메시지 1건당 최대 2회(이력 1 + 발송 후 메모 1). 환자가 연달아 보내면 같은
+ *   스레드를 반복해서 읽게 되므로 **90초 캐시**를 둔다 — 3연타가 1회로 줄어든다.
+ *   이력이 90초 뒤처져도 무해하다: 방금 온 환자 메시지는 프롬프트에 따로 실린다.
+ */
 function apmSlackReplies_(channelId, threadTs) {
   try {
     var props = PropertiesService.getScriptProperties();
     var tok = props.getProperty('SLACK_BOT_TOKEN') || props.getProperty('SLACK_TOKEN');
     if (!tok || !channelId || !threadTs) return null;
+    var ck = 'APM_TH_' + threadTs;
+    var cache = CacheService.getScriptCache();
+    var hit = cache.get(ck);
+    if (hit) { try { return JSON.parse(hit); } catch (e2) {} }
     var url = 'https://slack.com/api/conversations.replies?channel=' + encodeURIComponent(channelId)
       + '&ts=' + encodeURIComponent(threadTs) + '&limit=' + APM_CFG.SLACK_LIMIT;
     var res = UrlFetchApp.fetch(url, {
@@ -287,7 +299,9 @@ function apmSlackReplies_(channelId, threadTs) {
     });
     if (res.getResponseCode() !== 200) return null;
     var j = JSON.parse(res.getContentText());
-    return j && j.ok && j.messages ? j.messages : null;
+    if (!(j && j.ok && j.messages)) return null;
+    try { cache.put(ck, JSON.stringify(j.messages), APM_CFG.THREAD_CACHE_SEC); } catch (e3) {}
+    return j.messages;
   } catch (e) { return null; }
 }
 
@@ -339,12 +353,18 @@ function apmParseChartNote_(text) {
   return { chart: m[1], name: name };
 }
 
-/** 스레드ts로 환자맵 행을 찾는다. → {row, no} | null */
-function apmMapRowByThread_(threadTs) {
+/** 환자맵 시트 핸들 (없으면 null). */
+function apmMapSheet_() {
+  var id = PropertiesService.getScriptProperties().getProperty('APM_SHEET_ID');
+  if (!id) return null;
+  return SpreadsheetApp.openById(id).getSheetByName(APM_CFG.MAP_SHEET_NAME) || null;
+}
+
+/** 스레드ts로 환자맵 행을 찾는다. → {row, no, hadName} | null */
+function apmMapRowByThread_(threadTs, sheet) {
   try {
-    var id = PropertiesService.getScriptProperties().getProperty('APM_SHEET_ID');
-    if (!id || !threadTs) return null;
-    var sh = SpreadsheetApp.openById(id).getSheetByName(APM_CFG.MAP_SHEET_NAME);
+    if (!threadTs) return null;
+    var sh = sheet || apmMapSheet_();
     if (!sh || sh.getLastRow() < 1) return null;
     var vals = sh.getRange(1, 1, sh.getLastRow(), APM_MAP_COL.NAME).getValues();
     for (var i = vals.length - 1; i >= 0; i--)
@@ -361,13 +381,13 @@ function apmMapRowByThread_(threadTs) {
  * 실패는 조용히 null — 이 기능이 죽어도 응대는 그대로 돈다.
  */
 function apmNoteChartFromThread_(threadTs, text) {
-  var p = apmParseChartNote_(text);
+  var p = apmParseChartNote_(text);       // 여기서 걸러지면 시트를 열지도 않는다
   if (!p) return null;
-  var hit = apmMapRowByThread_(threadTs);
-  if (!hit) return null;
   try {
-    var id = PropertiesService.getScriptProperties().getProperty('APM_SHEET_ID');
-    var sh = SpreadsheetApp.openById(id).getSheetByName(APM_CFG.MAP_SHEET_NAME);
+    var sh = apmMapSheet_();
+    if (!sh) return null;
+    var hit = apmMapRowByThread_(threadTs, sh);
+    if (!hit) return null;
     sh.getRange(hit.row, APM_MAP_COL.CHART).setValue(p.chart);
     if (p.name && !hit.hadName) sh.getRange(hit.row, APM_MAP_COL.NAME).setValue(p.name);
     return { no: hit.no, chart: p.chart, name: p.name };
