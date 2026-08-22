@@ -84,7 +84,7 @@
   .duo .card:not(.has-img) img{width:100%; margin:6px 0 0;}
   .duo .card.has-img{display:flex; align-items:center; gap:26px;}
   .duo .card.has-img .txt{flex:1; min-width:0;}
-  .duo .card.has-img img{flex:none; width:44%; max-width:500px; margin:0;}
+  .duo .card.has-img img{flex:none; width:52%; max-width:620px; margin:0;}
   @media(max-width:680px){
     .duo{grid-template-columns:1fr;}
     .duo .card.has-img{flex-direction:column; align-items:stretch; gap:14px;}
@@ -115,16 +115,17 @@
   .flow .step .desc{font-size:calc(clamp(1.04rem,1.6vw,1.24rem) * var(--fs)); color:var(--ink-soft); line-height:1.55;}
   .flow .step .gloss{margin:5px 0 0;}
 
-  .figure{margin:22px 0; text-align:center;}
-  .figure img{max-width:100%; max-height:min(380px,44vh); object-fit:contain; border-radius:14px; border:1px solid var(--line); box-shadow:0 14px 32px -18px rgba(12,40,28,.5);}
+  .figure{margin:14px 0; text-align:center;}
+  .figure img{max-width:100%; max-height:min(620px,60vh); object-fit:contain; border-radius:14px; border:1px solid var(--line); box-shadow:0 14px 32px -18px rgba(12,40,28,.5);}
   .figure .cap{font-size:calc(.92rem * var(--fs)); color:var(--ink-faint); margin-top:10px;}
 
-  .gallery{display:grid; gap:16px; margin:22px 0; grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
+  .gallery{display:grid; gap:13px; margin:14px 0; grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
   .gallery.g3{grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
+  .gallery.g4, .gallery.g2w{grid-template-columns:repeat(2,1fr);}
   .gallery .gi{display:flex; flex-direction:column;}
   .gallery img{width:100%; border-radius:14px; border:1px solid var(--line); box-shadow:0 12px 28px -18px rgba(12,40,28,.5);}
   .gallery .gcap{font-size:calc(.82rem * var(--fs)); color:var(--ink-faint); text-align:center; margin-top:8px;}
-  @media(max-width:640px){.gallery,.gallery.g3{grid-template-columns:1fr;}}
+  @media(max-width:640px){.gallery,.gallery.g3,.gallery.g4,.gallery.g2w{grid-template-columns:1fr;}}
 
   .tbl{margin:20px 0; overflow-x:auto; -webkit-overflow-scrolling:touch; border-radius:14px; box-shadow:0 12px 32px -24px rgba(12,40,28,.5);}
   .tbl table{width:100%; border-collapse:separate; border-spacing:0; font-size:calc(clamp(1.08rem,1.7vw,1.34rem) * var(--fs)); overflow:hidden; border-radius:14px;}
@@ -220,7 +221,17 @@
   .say:focus-visible{outline:2px solid #94c4b1; outline-offset:2px; opacity:1;}
   .say.on{opacity:1; background:var(--green); color:#fff; border-color:var(--green);}
   .chip .say, .stat .say, .cap .say{margin-left:5px; width:1.4em; height:1.4em; font-size:.68em;}
-  @media print{.say{display:none!important;}}
+  /* 사진 클릭 확대 */
+  .slide .figure img, .slide .gallery img, .slide .card img{cursor:zoom-in;}
+  .lightbox{position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center;
+    background:rgba(8,20,15,.94); padding:16px; cursor:zoom-out;}
+  .lightbox.open{display:flex;}
+  .lightbox img{max-width:97vw; max-height:93vh; border-radius:12px; box-shadow:0 30px 80px -30px rgba(0,0,0,.8); background:#fff;}
+  .lightbox .lbclose{position:absolute; top:14px; right:18px; width:44px; height:44px; border-radius:50%;
+    border:none; background:rgba(255,255,255,.92); color:#0f1f18; font-size:1.5rem; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;}
+  .lightbox .lbhint{position:absolute; bottom:16px; left:0; right:0; text-align:center; color:rgba(255,255,255,.72); font-size:.92rem;}
+  @media print{.say{display:none!important;} .lightbox{display:none!important;}}
 </style>
 </head>
 <body data-lang="ko">
@@ -263,6 +274,12 @@
   <button class="btn" id="fsBtn">⤢<span class="lbl" id="fsLbl"> 전체화면</span></button>
 </div>
 
+<div class="lightbox" id="lightbox">
+  <button class="lbclose" id="lbClose" aria-label="닫기">✕</button>
+  <img id="lightboxImg" alt="">
+  <div class="lbhint" id="lbHint"></div>
+</div>
+
 <div class="toc-backdrop" id="tocBackdrop">
   <div class="toc" role="dialog">
     <h3 id="tocTitle"></h3>
@@ -287,6 +304,8 @@ const UI = {
   readAria:{ko:"이 문장 듣기", ja:"この文を読み上げ", en:"Read this", "zh-cn":"朗读此句", "zh-tw":"朗讀此句", th:"อ่านประโยคนี้"},
   rateAria:{ko:"음성 읽기 속도", ja:"読み上げ速度", en:"Speech speed", "zh-cn":"朗读速度", "zh-tw":"朗讀速度", th:"ความเร็วเสียงอ่าน"},
   sizeAria:{ko:"글씨 크기", ja:"文字サイズ", en:"Text size", "zh-cn":"字体大小", "zh-tw":"字體大小", th:"ขนาดตัวอักษร"},
+  zoomHint:{ko:"사진을 누르면 크게 볼 수 있어요", ja:"写真をタップすると拡大できます", en:"Tap a photo to enlarge", "zh-cn":"点击照片可放大查看", "zh-tw":"點擊照片可放大檢視", th:"แตะที่รูปเพื่อขยาย"},
+  lbClose:{ko:"닫기", ja:"閉じる", en:"Close", "zh-cn":"关闭", "zh-tw":"關閉", th:"ปิด"},
   voiceNA:{ko:"이 브라우저는 음성 읽기를 지원하지 않습니다.", ja:"このブラウザは音声読み上げに対応していません。", en:"This browser does not support speech.", "zh-cn":"此浏览器不支持语音朗读。", "zh-tw":"此瀏覽器不支援語音朗讀。", th:"เบราว์เซอร์นี้ไม่รองรับการอ่านออกเสียง"}
 };
 
@@ -667,7 +686,7 @@ function renderBlock(b){
     return '<div class="figure"><img src="'+IMG[b.k]+'" alt=""></div>';
   }
   if(b.t==="gallery"){
-    let h='<div class="gallery'+(b.ks.length>=3?' g3':'')+'">';
+    let h='<div class="gallery'+(b.ks.length===4?' g4':(b.ks.length>=3?' g3':''))+'">';
     b.ks.forEach(function(k){ h+='<img src="'+IMG[k]+'" alt="">'; });
     return h+'</div>';
   }
@@ -744,6 +763,8 @@ function buildStage(){
   });
   stage.innerHTML=html;
   injectSay();
+  tagImages();
+  tuneGalleries();
 }
 
 const elCur=document.getElementById('cur'), elTag=document.getElementById('pagetag'), elProg=document.getElementById('progress');
@@ -806,6 +827,8 @@ function applyUILabels(){
   const r=document.getElementById('rate'), t=document.getElementById('tsize');
   r.setAttribute('aria-label', L(UI.rateAria)); r.title=L(UI.rateAria);
   t.setAttribute('aria-label', L(UI.sizeAria)); t.title=L(UI.sizeAria);
+  document.getElementById('lbHint').textContent=L(UI.zoomHint);
+  document.getElementById('lbClose').setAttribute('aria-label', L(UI.lbClose));
 }
 
 function changeLang(nl){ sayStopAll(); lang=nl; document.body.dataset.lang=lang; document.documentElement.lang=lang; buildStage(); render(); applyUILabels(); buildTOC(); }
@@ -815,6 +838,10 @@ document.getElementById('prev').addEventListener('click', prev);
 document.getElementById('lang').addEventListener('change', function(e){ changeLang(e.target.value); });
 
 document.addEventListener('keydown', function(e){
+  if(document.getElementById('lightbox').classList.contains('open')){
+    if(e.key==='Escape'||e.key==='Enter'||e.key===' '){ e.preventDefault(); closeLightbox(); }
+    return;
+  }
   if(document.getElementById('tocBackdrop').classList.contains('open')){ if(e.key==='Escape') closeToc(); return; }
   if(e.target && (e.target.tagName==='INPUT'||e.target.tagName==='SELECT')) { if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return; }
   if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ e.preventDefault(); next(); }
@@ -950,6 +977,51 @@ if(!ttsSupported) elRate.style.display='none';
   if(r && elRate.querySelector('option[value="'+r+'"]')){ elRate.value=r; TTS_RATE_MUL=parseFloat(r); }
   if(s && elSize.querySelector('option[value="'+s+'"]')){ elSize.value=s; setTextScale(parseFloat(s)); }
 })();
+
+// ---------- 사진 클릭 확대(라이트박스) ----------
+const lb=document.getElementById('lightbox'), lbImg=document.getElementById('lightboxImg');
+function lbSize(){
+  const w=lbImg.naturalWidth, h=lbImg.naturalHeight;
+  if(!w||!h) return;
+  const availW=window.innerWidth*0.97, availH=window.innerHeight*0.93;
+  // 작은 사진도 화면에 맞게 키운다(과도한 확대는 흐려지므로 2배까지만)
+  const k=Math.min(availW/w, availH/h, 2);
+  lbImg.style.width=Math.round(w*k)+'px';
+  lbImg.style.height='auto';
+}
+function openLightbox(src){
+  if(!src) return;
+  sayStopAll();
+  lbImg.style.width=''; lbImg.style.height='';
+  lbImg.src=src;
+  lb.classList.add('open');
+  if(lbImg.complete) lbSize(); else lbImg.addEventListener('load', lbSize, {once:true});
+}
+function closeLightbox(){ lb.classList.remove('open'); lbImg.removeAttribute('src'); }
+// 사진 비율에 맞춰 갤러리 열 수 조정: 가로로 긴 사진은 2열(크게), 세로 사진은 기본(한 줄)
+function tuneGalleries(){
+  stage.querySelectorAll('.gallery').forEach(function(g){
+    const ims=[].slice.call(g.querySelectorAll('img'));
+    if(ims.length<3) return;
+    if(!ims.every(function(m){ return m.naturalWidth>0; })){
+      ims.forEach(function(m){ if(!m.naturalWidth) m.addEventListener('load', tuneGalleries, {once:true}); });
+      return;
+    }
+    const avg=ims.reduce(function(a,m){ return a+m.naturalWidth/m.naturalHeight; },0)/ims.length;
+    g.classList.toggle('g2w', avg>=1.9);
+  });
+  fitSoon();
+}
+function tagImages(){
+  stage.querySelectorAll('.figure img, .gallery img, .card img').forEach(function(im){ im.title=L(UI.zoomHint); });
+}
+stage.addEventListener('click', function(e){
+  const im=e.target.closest('img');
+  if(!im || im.closest('.coverimg')) return;
+  openLightbox(im.currentSrc||im.src);
+});
+lb.addEventListener('click', closeLightbox);
+window.addEventListener('resize', function(){ if(lb.classList.contains('open')) lbSize(); });
 
 buildStage(); render(); applyUILabels(); buildTOC();
 </script>
