@@ -7,8 +7,9 @@ let mapRows=[], slackReply=null;              // 라인환자맵 · 슬랙 conve
 function mkSheet(src){return {
   getLastRow:()=>src.length,
   getRange:(r,c,nr,nc)=>({
-    getValues:()=>src.slice(r-1,r-1+nr).map(x=>x.slice(c-1,c-1+nc)),
-    setValues:v=>{for(let i=0;i<v.length;i++)for(let j=0;j<v[i].length;j++)src[r-1+i][c-1+j]=v[i][j];}
+    getValues:()=>src.slice(r-1,r-1+(nr||1)).map(x=>x.slice(c-1,c-1+(nc||1))),
+    setValues:v=>{for(let i=0;i<v.length;i++)for(let j=0;j<v[i].length;j++)src[r-1+i][c-1+j]=v[i][j];},
+    setValue:v=>{while(src[r-1].length<c)src[r-1].push('');src[r-1][c-1]=v;}
   }),
   appendRow:a=>{src.push(a.slice());}
 };}
@@ -118,18 +119,21 @@ ok('★정체불명 봇 메시지는 환자가 아니라 기록', C(M('진행 �
 
 console.log('8) 본문 정리 — 같은 말을 두 번 넣지 않는다');
 ok('태그는 떼고 본문만', sandbox.apmClassify_(FRIEND).text==='[친구 추가]');
-ok('인바운드는 원문만(한국어 대역 제거)',
-   sandbox.apmClassify_(INBOUND).text==='現地でカードで払った場合も25000 KRW発生しますか？');
-ok('AI 응답은 헤더 떼고 본문만',
-   sandbox.apmClassify_(AI_OUT).text==='안녕하세요, 아크로 한의원입니다. AI 상담 스탭이 안내드리고 있습니다.');
+ok('★인바운드는 원문+한국어 둘 다 남긴다(원장 지시 — 사람이 읽어야 한다)',
+   sandbox.apmClassify_(INBOUND).text.includes('現地でカードで払った場合')
+   && sandbox.apmClassify_(INBOUND).text.includes('현지에서 카드로 지불한 경우'));
+ok('AI 응답은 머리글만 떼고 한국어 대역은 남긴다',
+   !sandbox.apmClassify_(AI_OUT).text.includes('대화응답')
+   && sandbox.apmClassify_(AI_OUT).text.includes('(한국어 대역) 안녕하세요'));
 ok('발송 접두어 제거', sandbox.apmClassify_(STAFF_SEND).text==='미유키님은 예약표에 반영해뒀습니다');
 
 console.log('9) 스레드 → 이력 문자열');
 let turns = sandbox.apmTurnsFromSlack_([CARD, FRIEND, AI_OUT, INBOUND, NOTE, STAFF_SEND]);
 ok('버릴 것 빼고 6턴', turns.length===6);
 h = sandbox.apmFormatHistory_(turns);
-ok('환자 줄에 라벨', h.includes('환자: 現地でカードで払った場合も25000 KRW発生しますか？'));
-ok('AI 줄은 "아크로드(나)"', h.includes('아크로드(나): 안녕하세요'));
+ok('환자 줄에 라벨 + 한국어 병기', h.includes('환자: 現地でカードで払った場合')
+   && h.includes('현지에서 카드로 지불한 경우'));
+ok('AI 줄은 "아크로드(나)"', h.includes('아크로드(나): (한국어 대역) 안녕하세요'));
 ok('★내부 메모는 "환자에게 안 나감"이라고 못박힘',
    h.includes('직원 메모(환자에게 안 나감): 차트 20193 GIMAMIYUKI'));
 ok('실제 발송은 "환자에게 발송함"', h.includes('직원(환자에게 발송함): 미유키님은'));
@@ -167,7 +171,32 @@ ok('토큰 없으면 ""', sandbox.apmHistoryFor_('Uabc')==='');
 props.SLACK_BOT_TOKEN='x';
 ok('환자맵에 없으면 ""', sandbox.apmHistoryFor_('U000')==='');
 
-console.log('12) 메모 언어 — 직원이 읽는 문서다');
+console.log('12) 차트번호 줍기 — 직원이 스레드에 적은 것을 환자맵에 기록');
+const PC = t => sandbox.apmParseChartNote_(t);
+ok('실측 원문 파싱', JSON.stringify(PC('차트 20193 GIMAMIYUKI'))==='{"chart":"20193","name":"GIMAMIYUKI"}');
+ok('띄어쓰기 없는 형태', PC('차트20191 MINAMOTOSAKI').chart==='20191');
+ok('콜론·샵 표기', PC('차트#19756').chart==='19756' && PC('차트: 19756').chart==='19756');
+ok('이름 없이 번호만', PC('차트 0022').chart==='0022' && PC('차트 0022').name==='');
+ok('★4자리 미만은 안 줍는다(전화·금액 오인 방지)', PC('차트 22')===null);
+ok('★차트 얘기가 아니면 null', PC('예약표에 반영해뒀습니다')===null && PC('25000원 결제')===null);
+ok('구분자 붙은 이름 정리', PC('차트 20193 · GIMA MIYUKI').name==='GIMA MIYUKI');
+
+mapRows = [
+  ['userId','채널','번호','스레드ts','','','','차트','이름'],
+  ['Uabc','일본','J160','1787383849.881109','','','','',''],
+  ['Udup','일본','J161','1787000000.000000','','','','19811','기존이름']
+];
+let w = sandbox.apmNoteChartFromThread_('1787383849.881109','차트 20193 GIMAMIYUKI');
+ok('스레드로 환자를 찾아 기록', w && w.no==='J160' && w.chart==='20193');
+ok('환자맵에 실제로 써짐', mapRows[1][7]==='20193' && mapRows[1][8]==='GIMAMIYUKI');
+sandbox.apmNoteChartFromThread_('1787000000.000000','차트 20999 새이름');
+ok('차트번호는 갱신되고', mapRows[2][7]==='20999');
+ok('★이미 있는 이름은 덮어쓰지 않는다', mapRows[2][8]==='기존이름');
+ok('모르는 스레드는 무시', sandbox.apmNoteChartFromThread_('9999.9','차트 20193')===null);
+ok('차트 문구 아니면 시트를 건드리지 않음',
+   sandbox.apmNoteChartFromThread_('1787383849.881109','오늘 예약 확인함')===null);
+
+console.log('13) 메모 언어 — 직원이 읽는 문서다');
 ok('★기록원 지시가 한국어를 강제', sandbox.APM_SCRIBE.includes('반드시 한국어로 쓴다'));
 
 console.log('\n'+(f?`❌ ${p}/${p+f}`:`✅ 전부 통과 — ${p}케이스`));process.exit(f?1:0);
