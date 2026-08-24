@@ -119,6 +119,18 @@
   .figure img{max-width:100%; max-height:min(620px,60vh); object-fit:contain; border-radius:14px; border:1px solid var(--line); box-shadow:0 14px 32px -18px rgba(12,40,28,.5);}
   .figure .cap{font-size:calc(.92rem * var(--fs)); color:var(--ink-faint); margin-top:10px;}
 
+  .cyc{margin:10px 0;}
+  .cyc + .stats{margin:14px 0 16px;}
+  .cyc svg{width:100%; height:auto; max-height:min(460px,48vh); display:block;}
+  .cyc .ax{stroke:var(--line-strong); stroke-width:2; fill:none;}
+  .cyc .axf{fill:var(--line-strong);}
+  .cyc .ln{stroke:var(--sec); stroke-width:4; fill:none; stroke-linejoin:round; stroke-linecap:round;}
+  .cyc .dot{fill:var(--sec);}
+  .cyc .dn{fill:#fff; font-weight:800;}
+  .cyc .lbl{fill:var(--sec-deep); font-weight:700;}
+  .cyc .top{fill:var(--sec-deep); font-weight:800;}
+  .cyc .mut{fill:var(--ink-faint);}
+
   .gallery{display:grid; gap:13px; margin:14px 0; grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
   .gallery.g3{grid-template-columns:repeat(auto-fit,minmax(340px,1fr));}
   .gallery.g4, .gallery.g2w{grid-template-columns:repeat(2,1fr);}
@@ -416,7 +428,19 @@ const SLIDES = [
       {h4:{ko:"시술 6~12주 후",ja:"施術6〜12週間後"}, p:{ko:`지속적인 지방분해와 콜라겐 생성으로 효과가 가장 확실하게 보이는 시기입니다.`,ja:`継続的な脂肪分解とコラーゲン生成で、効果が最もはっきり現れる時期です。`}}
     ]},
     {t:"case", tag:{ko:"시술 주기", ja:"施術の周期"}, ps:[
-      {ko:`<strong>3~4주 간격으로 최소 3회</strong> 시술 시 가장 최적의 효과를 보실 수 있으며, 효과는 최대 <span class="hl-amber">9~12개월</span>간 유지됩니다.`, ja:`<strong>3〜4週間おきに最低3回</strong>施術すると最も良い効果が得られ、効果は最大<span class="hl-amber">9〜12か月</span>持続します。`}
+      {ko:`<strong>3~4주 간격으로 3~5회</strong> 시술 시 가장 최적의 효과를 보실 수 있으며, 효과는 최대 <span class="hl-amber">9~12개월</span>간 유지됩니다.`, ja:`<strong>3〜4週間おきに3〜5回</strong>施術すると最も良い効果が得られ、効果は最大<span class="hl-amber">9〜12か月</span>持続します。`}
+    ]}
+  ]},
+
+{ id:"S07b", page:"p2", kicker:{ko:"2-1. 시술 주기와 횟수", ja:"2-1. 施術の周期と回数"},
+  h2:{ko:`온다 리프팅은 <span class="accent">쌓이는 시술</span>입니다`, ja:`オンダリフティングは<span class="accent">積み重ねる施術</span>です`},
+  body:[
+    {t:"lead", v:{ko:`한 번에 완성되지 않습니다. <strong>3~4주 간격</strong>으로 반복할 때마다 효과가 계단처럼 누적됩니다.`, ja:`一度では完成しません。<strong>3〜4週間おき</strong>に繰り返すたびに、効果が階段のように積み重なります。`}},
+    {t:"cycle"},
+    {t:"stats", items:[
+      {v:{ko:"3~4주", ja:"3〜4週", en:"3–4 wks", "zh-cn":"3~4周", "zh-tw":"3~4週", th:"3-4 สัปดาห์"}, t:{ko:"간격으로 시술", ja:"おきに施術"}},
+      {v:{ko:"3~5회", ja:"3〜5回", en:"3–5", "zh-cn":"3~5次", "zh-tw":"3~5次", th:"3-5 ครั้ง"}, t:{ko:"리프팅 완성", ja:"でリフティング完成"}},
+      {v:{ko:"2~3개월", ja:"2〜3か月", en:"2–3 mo", "zh-cn":"2~3个月", "zh-tw":"2~3個月", th:"2-3 เดือน"}, t:{ko:"혹은 계절별 1회", ja:"または季節ごとに1回"}}
     ]}
   ]},
 
@@ -583,7 +607,8 @@ S03:{en:[`ACRO Cut — <span class="accent">changes confirmed in research</span>
 S04:{en:[`Fat breakdown happens in <span class="accent">5 stages</span>`,`Preparation (Defibrosis)`,`Loosens hardened connective tissue to prepare for fat breakdown.`,`Breakdown (Lipolysis)`,`Breaks down the fat inside fat cells.`,`Drainage`,`Drains the broken-down fat into the lymphatic and vascular systems.`,`Burning`,`Diet control + S-capsules burn off the drained fat.`,`Watch for re-synthesis (Lipogenesis)`,`Fat that isn't burned is re-synthesized into the liver and fat cells.`,`Since unburned fat builds back up, it's important to fully burn the drained fat with <span class="hl">diet control and S-capsules</span>.`]},
 S05:{en:[`2. Onda · ACRO Wave (microwave)`,`Microwaves improve <span class="accent">fat reduction, skin elasticity, and cellulite</span>`,`A procedure using 2.45GHz microwaves — <span class="hl">nearly painless, done without anesthesia</span>.`,`The microwaves don't damage the skin — they <strong>penetrate deep into the subcutaneous fat layer</strong>, rapidly vibrating the water inside fat cells to generate heat. (Dielectric Heating)`,`This heat <span class="hl">selectively destroys fat cells</span> while stimulating collagen production to support skin elasticity and regeneration.`]},
 S06:{en:[`Onda & ACRO Wave's <span class="accent">3 actions</span>`,`① Promotes fat-cell breakdown`,`It vibrates the water inside fat cells to create heat, and the broken-down cells are cleared by macrophages.`,`② Dissolves & contracts collagen fibers`,`It contracts existing collagen to improve skin elasticity and cellulite.`,`③ Promotes new collagen synthesis`,`It stimulates the creation of new, elastic collagen. (Neo-collagenesis)`]},
-S07:{en:[`Results appear <span class="accent">over time</span>`,`Right after`,`Lymph circulation improves, swelling goes down, and elasticity improves immediately. (But temporary swelling may make size reduction harder to feel right after.)`,`2–3 weeks after`,`As macrophages clear fat and collagen forms, you start to feel size reduction and body-shape improvement.`,`6–12 weeks after`,`With ongoing fat breakdown and collagen formation, this is when results show most clearly.`,`Treatment schedule`,`<strong>At least 3 sessions, 3–4 weeks apart</strong> gives the best results, and effects last up to <span class="hl-amber">9–12 months</span>.`]},
+S07b:{en:[`2-1. Treatment schedule & number of sessions`,`Onda lifting is a <span class="accent">cumulative treatment</span>`,`It isn't finished in one session. Each time you repeat it at <strong>3–4 week intervals</strong>, the effect builds up like steps.`,`between sessions`,`sessions to complete`,`or once a season`]},
+S07:{en:[`Results appear <span class="accent">over time</span>`,`Right after`,`Lymph circulation improves, swelling goes down, and elasticity improves immediately. (But temporary swelling may make size reduction harder to feel right after.)`,`2–3 weeks after`,`As macrophages clear fat and collagen forms, you start to feel size reduction and body-shape improvement.`,`6–12 weeks after`,`With ongoing fat breakdown and collagen formation, this is when results show most clearly.`,`Treatment schedule`,`<strong>3–5 sessions, 3–4 weeks apart</strong> gives the best results, and effects last up to <span class="hl-amber">9–12 months</span>.`]},
 S08:{en:[`<span class="accent">Before & after</span> cases`,`Let me show you the actual before-and-after changes by area.`,`Arms`,`Abdomen`,`Double chin`,`Thighs · cellulite`,`Calves`,`Accessory breast · back`,`※ Before/after photos vary by individual and don't guarantee the same result.`]},
 S09:{en:[`3. Side effects (ACRO Cut)`,`Symptoms that <span class="accent">may occur</span> after ACRO Cut`,`The treated area may have temporary <strong>bruising, swelling, warmth, lumps, dull pain, or itching</strong>, which fade in 2–3 days, or up to 7–10 days.`,`Rarely, depending on your condition, temporary <strong>dizziness, weakness, or fatigue</strong> may occur, and very rarely <span class="hl-amber">shock from an allergic reaction</span>.`,`Our clinic is equipped with medication and medical measures for such reactions. If discomfort is severe, <strong>contact the clinic right away</strong>.`]},
 S10:{en:[`3. Side effects (Onda & ACRO Wave) · contraindications`,`Onda & ACRO Wave are devices with <span class="accent">proven safety</span>`,`Mild side effects such as <strong>skin redness</strong> are possible, but they typically ease within a week.<br><span class="ex">e.g. itching, numbness, skin hardening, warmth, tenderness, redness, swelling, burns, bruising, nodules, blisters</span>`,`During treatment we <span class="hl">adjust output in real time based on skin temperature and pain</span>, so the chance of major side effects is very low.<br>If it feels too hot during treatment, please tell us right away.`,`Pregnant or breastfeeding`,`Cancer history within 5 years`,`Severe metabolic disease (diabetes, hypothyroidism, etc.)`,`Cardiovascular disease`,`Circulatory disorders`,`Pacemaker · metal implants`]},
@@ -598,7 +623,8 @@ S03:[`ACRO Cut，<span class="accent">研究证实的变化</span>`,`这是本�
 S04:[`脂肪分解分<span class="accent">5个阶段</span>进行`,`准备阶段 (Defibrosis)`,`松解变硬的结缔组织，为脂肪分解做准备。`,`分解阶段 (Lipolysis)`,`分解脂肪细胞内的脂肪。`,`排出阶段 (Drainage)`,`将分解后的脂肪排入淋巴系统与血管系统。`,`燃烧阶段 (Burning)`,`通过饮食控制＋S胶囊燃烧排出的脂肪。`,`注意再合成 (Lipogenesis)`,`未被燃烧的脂肪会再合成到肝脏与脂肪细胞。`,`未燃烧的脂肪会再次堆积，因此用<span class="hl">饮食控制与S胶囊</span>把排出的脂肪确实烧掉很重要。`],
 S05:[`2. Onda · ACRO Wave（极超短波）`,`极超短波改善<span class="accent">脂肪分解·皮肤弹性·橘皮</span>`,`使用2.45GHz极超短波（微波）的施术，<span class="hl">几乎无痛，无需麻醉</span>即可进行。`,`极超短波不损伤皮肤，<strong>深入渗透至皮下脂肪层</strong>，使脂肪细胞内部水分快速振动而产生热量。（介电加热，Dielectric Heating）`,`此热量<span class="hl">选择性破坏脂肪细胞</span>，同时刺激胶原蛋白生成，帮助皮肤弹性与再生。`],
 S06:[`Onda & ACRO Wave的<span class="accent">3种作用</span>`,`① 促进脂肪细胞分解`,`使脂肪细胞内部水分振动产生热量，分解后的细胞由巨噬细胞清除。`,`② 溶解＆收缩胶原纤维`,`收缩既有胶原，改善皮肤弹性与橘皮。`,`③ 促进新生胶原合成`,`促进新的、有弹性的胶原生成。（Neo-collagenesis）`],
-S07:[`效果会<span class="accent">随时间</span>显现`,`施术直后`,`促进淋巴循环、消除浮肿、即时改善弹性。（但因暂时浮肿，直后可能不太感觉到尺寸减少。）`,`施术2~3周后`,`随着巨噬细胞清除脂肪与胶原生成，开始感受到尺寸减少、体型改善。`,`施术6~12周后`,`持续的脂肪分解与胶原生成，是效果最明显的时期。`,`施术周期`,`<strong>每隔3~4周、至少3次</strong>施术可获得最佳效果，效果最长维持<span class="hl-amber">9~12个月</span>。`],
+S07:[`效果会<span class="accent">随时间</span>显现`,`施术直后`,`促进淋巴循环、消除浮肿、即时改善弹性。（但因暂时浮肿，直后可能不太感觉到尺寸减少。）`,`施术2~3周后`,`随着巨噬细胞清除脂肪与胶原生成，开始感受到尺寸减少、体型改善。`,`施术6~12周后`,`持续的脂肪分解与胶原生成，是效果最明显的时期。`,`施术周期`,`<strong>每隔3~4周、3~5次</strong>施术可获得最佳效果，效果最长维持<span class="hl-amber">9~12个月</span>。`],
+S07b:[`2-1. 施术周期与次数`,`Onda提升是<span class="accent">逐次累积</span>的施术`,`不是一次完成。每隔<strong>3~4周</strong>重复一次，效果就像台阶一样累积。`,`施术一次`,`完成提升效果`,`或每季1次`],
 S08:[`<span class="accent">术前术后</span>案例`,`下面按部位为您展示实际的术前术后变化。`,`手臂`,`腹部`,`双下巴`,`大腿·橘皮`,`小腿`,`副乳·背部`,`※ 术前术后照片因人而异，不保证相同结果。`],
 S09:[`3. 不适症状（ACRO Cut）`,`ACRO Cut后<span class="accent">可能出现的症状</span>`,`施术部位可能出现暂时性<strong>淤青、浮肿、热感、硬块、酸胀痛、瘙痒</strong>等，短则2~3天、长则7~10天消退。`,`不常见，但视情况可能出现暂时性<strong>头晕·乏力·体力下降</strong>，极罕见会出现<span class="hl-amber">过敏反应引起的休克</span>。`,`本院备有应对这些反应的药物与医疗处置。若不适严重，请<strong>立即联系本院</strong>。`],
 S10:[`3. 不适症状（Onda & ACRO Wave）·禁忌`,`Onda & ACRO Wave是<span class="accent">安全性获证</span>的设备`,`可能出现<strong>皮肤发红</strong>等轻微副作用，但一般一周内缓解。<br><span class="ex">例：瘙痒·麻木·皮肤硬化·温热感·压痛·红斑·浮肿·烫伤·淤青·结节·水泡</span>`,`施术中<span class="hl">实时反映皮肤温度与疼痛</span>来调节输出，因此发生重大副作用的可能性极低。<br>施术中若感觉太烫，请立即告诉我们。`,`妊娠·哺乳期`,`近5年内有癌症病史`,`严重代谢疾病（糖尿病·甲状腺功能减退等）`,`心血管疾病`,`血液循环障碍`,`心脏起搏器·金属植入物`],
@@ -612,7 +638,8 @@ S03:[`ACRO Cut，<span class="accent">研究證實的變化</span>`,`這是本�
 S04:[`脂肪分解分<span class="accent">5個階段</span>進行`,`準備階段 (Defibrosis)`,`鬆解變硬的結締組織，為脂肪分解做準備。`,`分解階段 (Lipolysis)`,`分解脂肪細胞內的脂肪。`,`排出階段 (Drainage)`,`將分解後的脂肪排入淋巴系統與血管系統。`,`燃燒階段 (Burning)`,`透過飲食控制＋S膠囊燃燒排出的脂肪。`,`注意再合成 (Lipogenesis)`,`未被燃燒的脂肪會再合成到肝臟與脂肪細胞。`,`未燃燒的脂肪會再次堆積，因此用<span class="hl">飲食控制與S膠囊</span>把排出的脂肪確實燒掉很重要。`],
 S05:[`2. Onda · ACRO Wave（極超短波）`,`極超短波改善<span class="accent">脂肪分解·肌膚彈性·橘皮</span>`,`使用2.45GHz極超短波（微波）的施術，<span class="hl">幾乎無痛，無需麻醉</span>即可進行。`,`極超短波不損傷肌膚，<strong>深入滲透至皮下脂肪層</strong>，使脂肪細胞內部水分快速振動而產生熱量。（介電加熱，Dielectric Heating）`,`此熱量<span class="hl">選擇性破壞脂肪細胞</span>，同時刺激膠原蛋白生成，幫助肌膚彈性與再生。`],
 S06:[`Onda & ACRO Wave的<span class="accent">3種作用</span>`,`① 促進脂肪細胞分解`,`使脂肪細胞內部水分振動產生熱量，分解後的細胞由巨噬細胞清除。`,`② 溶解＆收縮膠原纖維`,`收縮既有膠原，改善肌膚彈性與橘皮。`,`③ 促進新生膠原合成`,`促進新的、有彈性的膠原生成。（Neo-collagenesis）`],
-S07:[`效果會<span class="accent">隨時間</span>顯現`,`施術直後`,`促進淋巴循環、消除浮腫、即時改善彈性。（但因暫時浮腫，直後可能不太感覺到尺寸減少。）`,`施術2~3週後`,`隨著巨噬細胞清除脂肪與膠原生成，開始感受到尺寸減少、體型改善。`,`施術6~12週後`,`持續的脂肪分解與膠原生成，是效果最明顯的時期。`,`施術週期`,`<strong>每隔3~4週、至少3次</strong>施術可獲得最佳效果，效果最長維持<span class="hl-amber">9~12個月</span>。`],
+S07:[`效果會<span class="accent">隨時間</span>顯現`,`施術直後`,`促進淋巴循環、消除浮腫、即時改善彈性。（但因暫時浮腫，直後可能不太感覺到尺寸減少。）`,`施術2~3週後`,`隨著巨噬細胞清除脂肪與膠原生成，開始感受到尺寸減少、體型改善。`,`施術6~12週後`,`持續的脂肪分解與膠原生成，是效果最明顯的時期。`,`施術週期`,`<strong>每隔3~4週、3~5次</strong>施術可獲得最佳效果，效果最長維持<span class="hl-amber">9~12個月</span>。`],
+S07b:[`2-1. 施術週期與次數`,`Onda提升是<span class="accent">逐次累積</span>的施術`,`不是一次完成。每隔<strong>3~4週</strong>重複一次，效果就像階梯一樣累積。`,`施術一次`,`完成提升效果`,`或每季1次`],
 S08:[`<span class="accent">術前術後</span>案例`,`以下按部位為您展示實際的術前術後變化。`,`手臂`,`腹部`,`雙下巴`,`大腿·橘皮`,`小腿`,`副乳·背部`,`※ 術前術後照片因人而異，不保證相同結果。`],
 S09:[`3. 不適症狀（ACRO Cut）`,`ACRO Cut後<span class="accent">可能出現的症狀</span>`,`施術部位可能出現暫時性<strong>瘀青、浮腫、熱感、硬塊、痠脹痛、搔癢</strong>等，短則2~3天、長則7~10天消退。`,`不常見，但視情況可能出現暫時性<strong>頭暈·乏力·體力下降</strong>，極罕見會出現<span class="hl-amber">過敏反應引起的休克</span>。`,`本院備有應對這些反應的藥物與醫療處置。若不適嚴重，請<strong>立即聯絡本院</strong>。`],
 S10:[`3. 不適症狀（Onda & ACRO Wave）·禁忌`,`Onda & ACRO Wave是<span class="accent">安全性獲證</span>的設備`,`可能出現<strong>皮膚發紅</strong>等輕微副作用，但一般一週內緩解。<br><span class="ex">例：搔癢·麻木·皮膚硬化·溫熱感·壓痛·紅斑·浮腫·燙傷·瘀青·結節·水泡</span>`,`施術中<span class="hl">即時反映肌膚溫度與疼痛</span>來調節輸出，因此發生重大副作用的可能性極低。<br>施術中若感覺太燙，請立即告訴我們。`,`妊娠·哺乳期`,`近5年內有癌症病史`,`嚴重代謝疾病（糖尿病·甲狀腺功能低下等）`,`心血管疾病`,`血液循環障礙`,`心臟節律器·金屬植入物`],
@@ -626,7 +653,8 @@ S03:[`ACRO Cut <span class="accent">การเปลี่ยนแปลง�
 S04:[`การสลายไขมันดำเนินไปใน <span class="accent">5 ขั้นตอน</span>`,`ขั้นเตรียม (Defibrosis)`,`คลายเนื้อเยื่อเกี่ยวพันที่แข็งตัว เพื่อเตรียมการสลายไขมัน`,`ขั้นสลาย (Lipolysis)`,`สลายไขมันภายในเซลล์ไขมัน`,`ขั้นขับออก (Drainage)`,`ขับไขมันที่สลายแล้วเข้าสู่ระบบน้ำเหลืองและหลอดเลือด`,`ขั้นเผาผลาญ (Burning)`,`คุมอาหาร + แคปซูล S เผาผลาญไขมันที่ขับออกมา`,`ระวังการสร้างใหม่ (Lipogenesis)`,`ไขมันที่ไม่ถูกเผาผลาญจะถูกสร้างใหม่ไปยังตับและเซลล์ไขมัน`,`ไขมันที่ไม่ถูกเผาผลาญจะสะสมอีกครั้ง จึงสำคัญที่จะเผาไขมันที่ขับออกมาให้หมดด้วย<span class="hl">การคุมอาหารและแคปซูล S</span>`],
 S05:[`2. Onda · ACRO Wave (คลื่นไมโครเวฟ)`,`คลื่นไมโครเวฟช่วย<span class="accent">สลายไขมัน·เพิ่มความยืดหยุ่นผิว·ลดเซลลูไลต์</span>`,`หัตถการที่ใช้คลื่นไมโครเวฟ 2.45GHz <span class="hl">แทบไม่เจ็บ ทำได้โดยไม่ต้องดมยา</span>`,`คลื่นไมโครเวฟไม่ทำลายผิว แต่<strong>แทรกซึมลึกถึงชั้นไขมันใต้ผิวหนัง</strong> ทำให้น้ำในเซลล์ไขมันสั่นอย่างรวดเร็วจนเกิดความร้อน (การให้ความร้อนแบบไดอิเล็กทริก, Dielectric Heating)`,`ความร้อนนี้<span class="hl">ทำลายเซลล์ไขมันแบบเลือกจุด</span> พร้อมกระตุ้นการสร้างคอลลาเจน ช่วยความยืดหยุ่นและการฟื้นฟูผิว`],
 S06:[`3 การทำงานของ <span class="accent">Onda & ACRO Wave</span>`,`① กระตุ้นการสลายเซลล์ไขมัน`,`ทำให้น้ำในเซลล์ไขมันสั่นจนเกิดความร้อน เซลล์ที่สลายแล้วจะถูกกำจัดโดยแมคโครฟาจ`,`② ละลาย＆หดตัวเส้นใยคอลลาเจน`,`หดคอลลาเจนเดิม เพื่อปรับปรุงความยืดหยุ่นผิวและเซลลูไลต์`,`③ กระตุ้นการสร้างคอลลาเจนใหม่`,`กระตุ้นการสร้างคอลลาเจนใหม่ที่ยืดหยุ่น (Neo-collagenesis)`],
-S07:[`ผลลัพธ์จะปรากฏ<span class="accent">ตามเวลา</span>`,`ทันทีหลังหัตถการ`,`ระบบน้ำเหลืองไหลเวียนดีขึ้น ยุบบวม และความยืดหยุ่นดีขึ้นทันที (แต่ด้วยอาการบวมชั่วคราว อาจรู้สึกถึงการลดขนาดได้น้อยในช่วงแรก)`,`2-3 สัปดาห์หลังหัตถการ`,`เมื่อแมคโครฟาจกำจัดไขมันและคอลลาเจนก่อตัว จะเริ่มรู้สึกถึงการลดขนาดและรูปร่างที่ดีขึ้น`,`6-12 สัปดาห์หลังหัตถการ`,`ด้วยการสลายไขมันและการสร้างคอลลาเจนอย่างต่อเนื่อง เป็นช่วงที่ผลลัพธ์ชัดเจนที่สุด`,`รอบการทำหัตถการ`,`<strong>อย่างน้อย 3 ครั้ง ห่างกัน 3-4 สัปดาห์</strong> ให้ผลดีที่สุด และผลคงอยู่ได้นานถึง <span class="hl-amber">9-12 เดือน</span>`],
+S07:[`ผลลัพธ์จะปรากฏ<span class="accent">ตามเวลา</span>`,`ทันทีหลังหัตถการ`,`ระบบน้ำเหลืองไหลเวียนดีขึ้น ยุบบวม และความยืดหยุ่นดีขึ้นทันที (แต่ด้วยอาการบวมชั่วคราว อาจรู้สึกถึงการลดขนาดได้น้อยในช่วงแรก)`,`2-3 สัปดาห์หลังหัตถการ`,`เมื่อแมคโครฟาจกำจัดไขมันและคอลลาเจนก่อตัว จะเริ่มรู้สึกถึงการลดขนาดและรูปร่างที่ดีขึ้น`,`6-12 สัปดาห์หลังหัตถการ`,`ด้วยการสลายไขมันและการสร้างคอลลาเจนอย่างต่อเนื่อง เป็นช่วงที่ผลลัพธ์ชัดเจนที่สุด`,`รอบการทำหัตถการ`,`<strong>3-5 ครั้ง ห่างกัน 3-4 สัปดาห์</strong> ให้ผลดีที่สุด และผลคงอยู่ได้นานถึง <span class="hl-amber">9-12 เดือน</span>`],
+S07b:[`2-1. รอบและจำนวนครั้งของหัตถการ`,`ออนดาลิฟติ้งเป็นหัตถการที่<span class="accent">สะสมผลลัพธ์</span>`,`ไม่เสร็จในครั้งเดียว ทำซ้ำทุก <strong>3-4 สัปดาห์</strong> ผลลัพธ์จะสะสมขึ้นเป็นขั้นบันได`,`ต่อครั้ง`,`ผลยกกระชับสมบูรณ์`,`หรือฤดูกาลละ 1 ครั้ง`],
 S08:[`เคส<span class="accent">ก่อน-หลัง</span>`,`จะแสดงการเปลี่ยนแปลงก่อน-หลังจริงตามแต่ละส่วนให้คุณดู`,`แขน`,`ช่องท้อง`,`เหนียงคาง`,`ต้นขา · เซลลูไลต์`,`น่อง`,`เต้านมเสริม · หลัง`,`※ ภาพก่อน-หลังต่างกันในแต่ละบุคคล ไม่รับประกันผลลัพธ์ที่เหมือนกัน`],
 S09:[`3. อาการไม่สบายตัว (ACRO Cut)`,`อาการที่<span class="accent">อาจเกิด</span>หลัง ACRO Cut`,`บริเวณที่ทำอาจมี<strong>รอยช้ำ บวม ร้อนวูบวาบ ก้อนแข็ง ปวดตื้อ คัน</strong> ชั่วคราว ซึ่งจะหายใน 2-3 วัน หรือนานสุด 7-10 วัน`,`ไม่บ่อย แต่ขึ้นกับสภาพร่างกายอาจมี<strong>เวียนศีรษะ·อ่อนเพลีย·เรี่ยวแรงลด</strong>ชั่วคราว และพบได้ยากมากคือ<span class="hl-amber">ภาวะช็อกจากอาการแพ้</span>`,`คลินิกเรามียาและการดูแลทางการแพทย์สำหรับรับมือปฏิกิริยาเหล่านี้ หากอาการรุนแรง<strong>กรุณาติดต่อคลินิกทันที</strong>`],
 S10:[`3. อาการไม่สบายตัว (Onda & ACRO Wave) · ข้อห้าม`,`Onda & ACRO Wave เป็นเครื่องมือที่<span class="accent">พิสูจน์ความปลอดภัยแล้ว</span>`,`อาจมี<strong>ผิวแดง</strong>และผลข้างเคียงเล็กน้อย แต่มักทุเลาภายในหนึ่งสัปดาห์<br><span class="ex">เช่น คัน ชา ผิวแข็ง ความอุ่น กดเจ็บ ผื่นแดง บวม แผลไหม้ รอยช้ำ ตุ่ม ตุ่มน้ำ</span>`,`ระหว่างทำเรา<span class="hl">ปรับกำลังตามอุณหภูมิผิวและความเจ็บแบบเรียลไทม์</span> โอกาสเกิดผลข้างเคียงรุนแรงจึงต่ำมาก<br>หากรู้สึกร้อนเกินไประหว่างทำ กรุณาบอกเราทันที`,`ตั้งครรภ์·ให้นมบุตร`,`มีประวัติมะเร็งภายใน 5 ปี`,`โรคเมตาบอลิกรุนแรง (เบาหวาน·ไทรอยด์ต่ำ ฯลฯ)`,`โรคหัวใจและหลอดเลือด`,`ความผิดปกติของการไหลเวียนเลือด`,`เครื่องกระตุ้นหัวใจ·โลหะฝังในร่างกาย`],
@@ -653,6 +681,52 @@ document.getElementById('tot').textContent = total;
 function L(obj){ return obj[lang] || obj.ko; }
 function gloss(obj, cls){ if(lang==="ko") return ""; return '<div class="gloss '+(cls||'')+'">'+strip(obj.ko)+'</div>'; }
 
+// ---------- 계단식 누적효과 차트 ----------
+const CYC={
+  y:{ko:"리프팅 누적효과", ja:"リフティング累積効果", en:"Cumulative lifting effect", "zh-cn":"提升累积效果", "zh-tw":"提升累積效果", th:"ผลยกกระชับสะสม"},
+  x:{ko:"기간", ja:"期間", en:"Time", "zh-cn":"时间", "zh-tw":"時間", th:"ระยะเวลา"},
+  gap:{ko:"3~4주", ja:"3〜4週", en:"3–4 wks", "zh-cn":"3~4周", "zh-tw":"3~4週", th:"3-4 สัปดาห์"},
+  drop:{ko:"유지력 하락", ja:"維持力の低下", en:"Effect fades", "zh-cn":"维持力下降", "zh-tw":"維持力下降", th:"ผลเริ่มลดลง"},
+  done:{ko:"3~5회 완성", ja:"3〜5回で完成", en:"Complete in 3–5", "zh-cn":"3~5次完成", "zh-tw":"3~5次完成", th:"ครบใน 3-5 ครั้ง"},
+  keep:{ko:"리프팅 효과 유지", ja:"リフティング効果を維持", en:"Lifting effect maintained", "zh-cn":"维持提升效果", "zh-tw":"維持提升效果", th:"คงผลยกกระชับ"}
+};
+function cycleChart(){
+  const P=[], TP=[], rise=[], flat=[];
+  let x=150, y=330;
+  P.push([x,y]); TP.push([x,y]);
+  for(let i=0;i<5;i++){
+    const bx=x, by=y;
+    x+=44; y-=62; P.push([x,y]);
+    rise.push([(bx+x)/2, (by+y)/2]);          // 올라가는 구간(= 3~4주 뒤 재시술)
+    if(i<4){
+      const sx=x, sy=y;
+      x+=100; y+=14; P.push([x,y]); TP.push([x,y]);
+      flat.push([(sx+x)/2, (sy+y)/2]);        // 유지력이 서서히 떨어지는 구간
+    }
+  }
+  x+=80; P.push([x,y]);
+  const last=P[P.length-1], cx=(TP[4][0]+last[0])/2;
+  let g='<div class="figure cyc"><svg viewBox="0 0 900 400" role="img" aria-label="'+esc(strip(L(CYC.y)))+'">';
+  g+='<path class="ax" d="M70 348 L70 26"/><path class="ax" d="M70 344 L862 344"/>';
+  g+='<path class="axf" d="M70 18 l7 14 h-14 z"/><path class="axf" d="M872 344 l-14 7 v-14 z"/>';
+  g+='<text class="lbl" x="70" y="16" font-size="15">'+L(CYC.y)+'</text>';
+  g+='<text class="mut" x="862" y="370" font-size="15" text-anchor="end">'+L(CYC.x)+'</text>';
+  g+='<polyline class="ln" points="'+P.map(function(q){return q[0]+','+q[1];}).join(' ')+'"/>';
+  rise.forEach(function(m){
+    g+='<text class="lbl" x="'+(m[0]-22)+'" y="'+(m[1]+4)+'" font-size="14" text-anchor="end">'+L(CYC.gap)+'</text>';
+  });
+  flat.forEach(function(m){
+    g+='<text class="mut" x="'+m[0]+'" y="'+(m[1]+28)+'" font-size="13" text-anchor="middle">'+L(CYC.drop)+'</text>';
+  });
+  TP.forEach(function(q,i){
+    g+='<circle class="dot" cx="'+q[0]+'" cy="'+q[1]+'" r="13"/>';
+    g+='<text class="dn" x="'+q[0]+'" y="'+(q[1]+5)+'" font-size="13" text-anchor="middle">'+(i+1)+'</text>';
+  });
+  g+='<text class="top" x="'+cx+'" y="'+(last[1]-42)+'" font-size="18" text-anchor="middle">'+L(CYC.done)+'</text>';
+  g+='<text class="mut" x="'+cx+'" y="'+(last[1]-20)+'" font-size="13" text-anchor="middle">'+L(CYC.keep)+'</text>';
+  g+='</svg></div>';
+  return g;
+}
 function renderBlock(b){
   if(b.t==="p")    return '<p>'+L(b.v)+'</p>'+gloss(b.v);
   if(b.t==="lead") return '<p class="lead">'+L(b.v)+'</p>'+gloss(b.v);
@@ -674,7 +748,7 @@ function renderBlock(b){
   }
   if(b.t==="stats"){
     let h='<div class="stats">';
-    b.items.forEach(function(c){ h+='<div class="stat"><div class="v">'+c.v+'</div><div class="t">'+L(c.t)+gloss(c.t)+'</div></div>'; });
+    b.items.forEach(function(c){ const vv=(c.v&&typeof c.v==='object')?L(c.v):c.v; h+='<div class="stat"><div class="v">'+vv+'</div><div class="t">'+L(c.t)+gloss(c.t)+'</div></div>'; });
     return h+'</div>';
   }
   if(b.t==="flow"){
@@ -682,6 +756,7 @@ function renderBlock(b){
     b.items.forEach(function(c,i){ h+='<div class="step'+(c.warn?' warn':'')+'"><div class="n">'+(i+1)+'</div><div class="c"><div class="label">'+L(c.label)+'</div>'+gloss(c.label,'kg')+'<div class="desc">'+L(c.desc)+'</div>'+gloss(c.desc)+'</div></div>'; });
     return h+'</div>';
   }
+  if(b.t==="cycle") return cycleChart();
   if(b.t==="img"){
     return '<div class="figure"><img src="'+IMG[b.k]+'" alt=""></div>';
   }
