@@ -103,6 +103,24 @@ var ACD_CFG = {
 function acdBuildDryRun() { return acdRun_(true); }
 function acdBuildAll() { return acdRun_(false); }
 
+/**
+ * 자동 빌드 트리거 설치 — 한 번만 실행. 이미 있으면 지우고 다시 건다(중복 방지).
+ *
+ * ⚠ 왜 생겼나 (260824 실측): 이 파일에는 **트리거 설치 함수가 아예 없었다.**
+ *   `acdBuildAll()`은 사람이 손으로 부르는 함수였고, 마지막 실행이 260805다.
+ *   그 19일 동안 정본은 확정 475건 → 504건으로 갔는데 시트·qa374는 475건에 멈춰 있었다.
+ *   감사(03시)는 매일 정확히 보고했으나 어긋남 목록에 묻혔다.
+ *   원장 결재 260804 "자동빌드 허용"은 받았는데 **거는 사람이 없었다.**
+ *
+ * 감사보다 한 시간 앞선 02시에 건다 — 빌드가 먼저 맞춰놓고 감사가 확인하는 순서.
+ */
+function acdBuildInstall() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'acdBuildAll') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('acdBuildAll').timeBased().everyDays(1).atHour(2).create();
+}
+
 /** 슬랙만 따로 시험한다. 빌드 전에 이걸 먼저 통과시키면 경보가 죽어 있는 상태를 피할 수 있다. */
 function acdTestSlack() {
   acdCheckSlack_();
