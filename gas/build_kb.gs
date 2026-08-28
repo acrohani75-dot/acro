@@ -209,6 +209,25 @@ function acdRun_(dry) {
     var all = parsed.items;
     var held = all.filter(function (it) { return it['상태'] !== ACD_CFG.PUBLISH_STATE; });
     var items = all.filter(function (it) { return it['상태'] === ACD_CFG.PUBLISH_STATE; });
+
+    // 답변이 한 언어도 없는 항목은 말단으로 내리지 않는다 (260828 실측 사고).
+    //   정본에는 「**부작용 우려**」 같은 **구분행**이 섞여 있다. 질문 자리에 섹션 머리글이
+    //   들어가고 답변은 비어 있다. 이런 것이 `상태: 확정`으로 바뀌면 답변 없는 항목이
+    //   qa374·시트에 실려 AI가 빈 답을 후보로 본다.
+    //   (260828 19:55 빌드에서 KB-0022·0025·0046·0056·0068 5건이 실제로 들어갔다.
+    //    그전까지는 상태가 확정이 아니라 "말단 제외"로 걸러지고 있었다.)
+    //   ⚠ 어느 한 언어라도 답변이 있으면 내린다 — 일본어만 있는 항목을 떨어뜨리지 않기 위해.
+    var ansCols = ['답변_KO', '답변_JA', '답변_ZH_CN', '답변_ZH_TW', '답변_TH', '답변_EN'];
+    var empty = items.filter(function (it) {
+      for (var i = 0; i < ansCols.length; i++)
+        if (acdTrimEnd_(String(it[ansCols[i]] || ''))) return false;
+      return true;
+    });
+    if (empty.length) {
+      items = items.filter(function (it) { return empty.indexOf(it) < 0; });
+      log.push('답변 없는 확정 항목 ' + empty.length + '건 제외(구분행으로 보인다): ' +
+        empty.map(function (it) { return it['KB']; }).join(', '));
+    }
     if (held.length) {
       log.push('말단 제외 ' + held.length + '건 (상태≠' + ACD_CFG.PUBLISH_STATE + '): ' +
         held.map(function (it) { return it['KB'] + '(' + (it['상태'] || '상태없음') + ')'; }).join(', '));
