@@ -51,6 +51,10 @@ let f=sandbox.abtCodi_(d);
 ok('상담자는 아크로드', f.counselor==='아크로드');
 ok('유입은 바비톡(추정 아님)', f.inflow==='바비톡');
 ok('차트번호는 비운다 — 여기서 추측하지 않는다', f.chart==='');
+ok('차트 빈 칸은 정상이라 표시한다(진료 전엔 번호가 없다 — 원장 판정 260829)',
+   f.chartExpected===false && f.needs.indexOf('차트번호')<0);
+ok('차트번호 꼬리표는 어느 카드에도 안 붙는다',
+   [DB,KAKAO,SALE].every(x=>sandbox.abtCodi_(sandbox.abtParse_(x)).content.indexOf('차트')<0));
 ok('내용에 종류·이벤트·희망시간', f.content.includes('바비톡 신규DB(전화)')
    && f.content.includes('ONDA 페이스 리프팅') && f.content.includes('상담요청 오후 상담'));
 ok('아는 칸만 있으면 꼬리표 없음', f.needs.length===0 && f.content.indexOf('(코디 확인 필요)')<0);
