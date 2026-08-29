@@ -102,8 +102,13 @@ function abtWon_(v) {
 
 /**
  * 파싱 결과 → 모든코디 기입안 필드 (순수 함수).
- * 반환: {name, chart, phone, inflow, counselor, content, needs:[...]}
- *   chart는 항상 '' — 명부 대조는 허브가 한다(여기서 추측하면 남의 차트에 붙는다).
+ * 반환: {name, chart, chartExpected:false, phone, inflow, counselor, content, needs:[...]}
+ *
+ * chart는 항상 '' 이고 needs에도 넣지 않는다.
+ * 원장 판정 260829: **차트번호는 진료를 해야 부여된다 — 인입 단계에 없는 게 정상이다.**
+ * 그래서 차트 빈 칸에 (코디 확인 필요) 꼬리표를 붙이지 않는다. 매 건 달리면 그냥 소음이 되고,
+ * 진짜 확인이 필요한 칸의 꼬리표까지 같이 무시당한다.
+ * (재구매 환자라 명부에 있으면 허브가 대조해 채운다 — 못 찾아도 경고 없이 그냥 비운다.)
  */
 function abtCodi_(p) {
   var needs = [];
@@ -128,7 +133,7 @@ function abtCodi_(p) {
   if (needs.length) content += ' ' + ABT_CFG.NEED_TAG + ': ' + needs.join(' · ');
 
   return {
-    name: p.name, chart: '', phone: p.phone,
+    name: p.name, chart: '', chartExpected: false, phone: p.phone,
     inflow: ABT_CFG.INFLOW, counselor: ABT_CFG.COUNSELOR,
     content: content, needs: needs
   };
@@ -156,6 +161,10 @@ function abtSeen_(key) {
 /**
  * 진입점 (허브 doPost가 #cs_인콜 봇 메시지마다 부른다).
  * 반환: null(무동작) | {fields, command, dedupeKey, kind}
+ *
+ * ⚠ 슬랙 `ㄱ` 승인 단계는 **없다**(원장 확정 260829). 인입 카드 건은 바로 기입하고,
+ *   판정은 모든코디 화면에서 한다 — 코디가 상담자 칸을 본인 이름으로 바꾸는 게 검수 완료다.
+ *   승인 대기 카드를 슬랙에 쌓는 건 같은 판정을 두 곳에서 두 번 하게 만드는 짓이다.
  *
  * 허브 결선 — 둘 중 하나만 고른다:
  *   (권장) fields를 기존 모든코디 기입 함수에 그대로 넘긴다. 문자열 왕복이 없어 오독이 없다.
