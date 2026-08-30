@@ -103,6 +103,24 @@ var ACD_CFG = {
 function acdBuildDryRun() { return acdRun_(true); }
 function acdBuildAll() { return acdRun_(false); }
 
+/**
+ * 자동 빌드 트리거 설치 — 한 번만 실행. 이미 있으면 지우고 다시 건다(중복 방지).
+ *
+ * ⚠ 왜 생겼나 (260824 실측): 이 파일에는 **트리거 설치 함수가 아예 없었다.**
+ *   `acdBuildAll()`은 사람이 손으로 부르는 함수였고, 마지막 실행이 260805다.
+ *   그 19일 동안 정본은 확정 475건 → 504건으로 갔는데 시트·qa374는 475건에 멈춰 있었다.
+ *   감사(03시)는 매일 정확히 보고했으나 어긋남 목록에 묻혔다.
+ *   원장 결재 260804 "자동빌드 허용"은 받았는데 **거는 사람이 없었다.**
+ *
+ * 감사보다 한 시간 앞선 02시에 건다 — 빌드가 먼저 맞춰놓고 감사가 확인하는 순서.
+ */
+function acdBuildInstall() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'acdBuildAll') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('acdBuildAll').timeBased().everyDays(1).atHour(2).create();
+}
+
 /** 슬랙만 따로 시험한다. 빌드 전에 이걸 먼저 통과시키면 경보가 죽어 있는 상태를 피할 수 있다. */
 function acdTestSlack() {
   acdCheckSlack_();
@@ -191,6 +209,25 @@ function acdRun_(dry) {
     var all = parsed.items;
     var held = all.filter(function (it) { return it['상태'] !== ACD_CFG.PUBLISH_STATE; });
     var items = all.filter(function (it) { return it['상태'] === ACD_CFG.PUBLISH_STATE; });
+
+    // 답변이 한 언어도 없는 항목은 말단으로 내리지 않는다 (260828 실측 사고).
+    //   정본에는 「**부작용 우려**」 같은 **구분행**이 섞여 있다. 질문 자리에 섹션 머리글이
+    //   들어가고 답변은 비어 있다. 이런 것이 `상태: 확정`으로 바뀌면 답변 없는 항목이
+    //   qa374·시트에 실려 AI가 빈 답을 후보로 본다.
+    //   (260828 19:55 빌드에서 KB-0022·0025·0046·0056·0068 5건이 실제로 들어갔다.
+    //    그전까지는 상태가 확정이 아니라 "말단 제외"로 걸러지고 있었다.)
+    //   ⚠ 어느 한 언어라도 답변이 있으면 내린다 — 일본어만 있는 항목을 떨어뜨리지 않기 위해.
+    var ansCols = ['답변_KO', '답변_JA', '답변_ZH_CN', '답변_ZH_TW', '답변_TH', '답변_EN'];
+    var empty = items.filter(function (it) {
+      for (var i = 0; i < ansCols.length; i++)
+        if (acdTrimEnd_(String(it[ansCols[i]] || ''))) return false;
+      return true;
+    });
+    if (empty.length) {
+      items = items.filter(function (it) { return empty.indexOf(it) < 0; });
+      log.push('답변 없는 확정 항목 ' + empty.length + '건 제외(구분행으로 보인다): ' +
+        empty.map(function (it) { return it['KB']; }).join(', '));
+    }
     if (held.length) {
       log.push('말단 제외 ' + held.length + '건 (상태≠' + ACD_CFG.PUBLISH_STATE + '): ' +
         held.map(function (it) { return it['KB'] + '(' + (it['상태'] || '상태없음') + ')'; }).join(', '));

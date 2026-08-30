@@ -95,7 +95,7 @@ ok('KB 히트는 system이 아니라 사용자 메시지',
    && lastPayload.messages[0].content.includes('KB-0484'));
 ok('환자 메시지가 KB 뒤(변동분은 뒤로)',
    lastPayload.messages[0].content.indexOf('KB-0484')<lastPayload.messages[0].content.indexOf('속이 쓰려요'));
-ok('effort·max_tokens 지정', lastPayload.output_config.effort==='low' && lastPayload.max_tokens===1200);
+ok('effort·max_tokens 지정', lastPayload.output_config.effort==='low' && lastPayload.max_tokens===2000);
 ok('캐시 적중 로그 남김', logs.some(l=>l.includes('cache_read=7000')));
 
 console.log('4b) 같은 접점 두 번째 호출 — 정적 구간이 바이트 동일');
@@ -103,10 +103,44 @@ let sys1=JSON.stringify(lastPayload.system);
 sandbox.accAsk_('작업지시 고정문','다른 KB 히트','다른 질문');
 ok('KB·질문이 바뀌어도 system 불변', JSON.stringify(lastPayload.system)===sys1);
 
+console.log('4c) 기억 블록 — 순서: 기억 → KB히트 → 환자 메시지');
+reset();
+anthropicResponse={stop_reason:'end_turn',content:[{type:'text',text:'네'}]};
+sandbox.accAsk_('작업지시','KB-0001 배송','언제 와요?','## 지난 대화\n환자: 2호 주문했어요');
+let c=lastPayload.messages[0].content;
+ok('기억이 맨 앞', c.indexOf('## 지난 대화')===0);
+ok('KB히트가 기억 뒤', c.indexOf('KB-0001')>c.indexOf('지난 대화'));
+ok('환자 메시지가 맨 끝(그것에 먼저 답한다)',
+   c.indexOf('언제 와요?')>c.indexOf('KB-0001'));
+ok('기억도 캐시 경계 뒤 — system 불변',
+   !JSON.stringify(lastPayload.system).includes('지난 대화'));
+reset();
+sandbox.accAsk_('작업지시','KB-0001 배송','언제 와요?');
+ok('기억 없이 부르던 기존 호출은 그대로 동작(3인자 호환)',
+   !lastPayload.messages[0].content.includes('지난 대화')
+   && lastPayload.messages[0].content.includes('언제 와요?'));
+
+console.log('4d) 추론 강도 — 속성으로 올린다(코드 수정 없이)');
+reset();
+sandbox.accAsk_('t',null,'u');
+ok('기본은 low', lastPayload.output_config.effort==='low');
+propsStore.ACC_EFFORT='medium';
+sandbox.accAsk_('t',null,'u');
+ok('ACC_EFFORT=medium이면 medium', lastPayload.output_config.effort==='medium');
+propsStore.ACC_EFFORT='엉뚱한값';
+sandbox.accAsk_('t',null,'u');
+ok('알 수 없는 값은 기본값으로 되돌림', lastPayload.output_config.effort==='low');
+
 console.log('5) 실패·거부 — 지어내지 않고 null');
 reset();
 anthropicResponse={stop_reason:'refusal',content:[]};
 ok('refusal은 null', sandbox.accAsk_('t',null,'u')===null);
+reset();
+anthropicResponse={stop_reason:'max_tokens',content:[{type:'text',text:'배송은 보통 3~4일 정도 걸리며, 통관에서'}]};
+ok('★말이 끊긴 응답은 발송 금지(null) — 끊긴 안내는 안 보낸 것보다 나쁘다',
+   sandbox.accAsk_('t',null,'u')===null);
+ok('절단은 로그로 남긴다', logs.some(l=>l.includes('ACC_TRUNCATED')));
+anthropicStatus=200;
 anthropicStatus=529; anthropicResponse={};
 ok('HTTP 오류는 null', sandbox.accAsk_('t',null,'u')===null);
 reset(); anthropicResponse={stop_reason:'end_turn',content:[]};
