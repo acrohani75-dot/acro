@@ -1,7 +1,8 @@
 /**
  * OK차트 클라우드 큐 클라이언트 — 접점 GAS 공용 모듈 (게이트웨이 v2 §2.6)
  *
- * 경로: 접점 GAS → okchart-queue 웹앱 → [원장 PC 워커 v1.9.1] → SQL Server(읽기전용)
+ * 경로: 접점 GAS → okchart-queue 웹앱 → [원내 PC 워커 v1.9.1] → SQL Server(읽기전용)
+ *   원내 PC = 201PC 또는 진료실PC — 어느 쪽인지 ___[확인 필요] (호칭 개편 260830)
  * named_query만 허용(자유 SQL은 워커가 차단):
  *   patient_verify / reservations / package_status / recent_treatments / recent_rx
  *
