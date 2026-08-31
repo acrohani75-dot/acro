@@ -959,14 +959,17 @@ $('exportBtn').addEventListener('click',()=>{
 // 안내 멘트
 function buildMsg(){
   const chart=(S.chart||'').trim(), name=(S.name||'').trim();
-  const idname=(chart+name)||'환자';
+  const idname=name||'환자';
   const part=S.part||'시술';
   const sameDay=(S.dateB&&S.dateA&&S.dateB===S.dateA);
-  const cmp=sameDay?"'당일' 비교임에도":"전후 비교상";
-  return `'${idname}'님 안녕하세요! 오늘 시술 받느라 고생 많으셨습니다.
+  const cmp=sameDay?"당일 비교임에도":"전후 비교상";
+  return `${idname}님 안녕하세요! 오늘 시술 받느라 고생 많으셨습니다.
 시술 부위 사진 보내드립니다.
-손으로 잡아보셔서 아셨겠지만, ${cmp} 시술받은 '${part}' 라인의 차이가 뚜렷하게 납니다.
+손으로 잡아보셔서 아셨겠지만, ${cmp} 시술받은 ${part} 라인의 차이가 뚜렷하게 납니다.
 단, 살짝 튀어나온 곳은 전체적인 라인을 잡으면서 더 지켜봐야겠습니다.
+지방 분해와 콜라겐 재합성은 시술 후 약 2-3주에 걸쳐 본격적으로 진행되므로,
+앞으로 더욱 좋은 변화를 기대하셔도 좋습니다.
+단, 누적 효과를 위해 3-4주 간격으로 1~2회 정도 추가 시술 받아보시는 것을 권장드립니다.
 앞으로도 꾸준히 잘 도와드리겠습니다.
 다음에 또 뵙겠습니다. 감사합니다!`;
 }
