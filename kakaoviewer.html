@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>아크로 카톡 8년 조회기</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif; background:#9bbbd4; height:100vh; display:flex; flex-direction:column; }
+  header { background:#a9c3d8; padding:10px 16px; display:flex; gap:10px; align-items:center; border-bottom:1px solid #8fb0c9; }
+  header h1 { font-size:15px; color:#333; white-space:nowrap; }
+  header input { flex:1; max-width:420px; padding:8px 12px; border:none; border-radius:18px; font-size:14px; outline:none; }
+  header .stat { font-size:12px; color:#456; margin-left:auto; white-space:nowrap; }
+  .wrap { flex:1; display:flex; overflow:hidden; }
+  aside { width:290px; background:#fff; overflow-y:auto; border-right:1px solid #ddd; }
+  .room { padding:10px 14px; border-bottom:1px solid #f2f2f2; cursor:pointer; }
+  .room:hover { background:#f7f7f7; }
+  .room.on { background:#fff3c9; }
+  .room .nm { font-size:14px; font-weight:bold; color:#222; }
+  .room .pv { font-size:12px; color:#888; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .room .ct { font-size:11px; color:#b96; }
+  main { flex:1; overflow-y:auto; padding:16px 20px 40px; }
+  .day { text-align:center; margin:14px 0 8px; }
+  .day span { background:rgba(0,0,0,.25); color:#fff; font-size:11px; padding:3px 12px; border-radius:12px; }
+  .row { display:flex; margin:4px 0; align-items:flex-end; gap:6px; }
+  .row.me { flex-direction:row-reverse; }
+  .bub { max-width:62%; padding:8px 11px; border-radius:12px; font-size:13.5px; line-height:1.45; white-space:pre-wrap; word-break:break-word; background:#fff; }
+  .row.me .bub { background:#fee500; }
+  .meta { font-size:10px; color:#5b7everyone; color:#557; }
+  .who { font-size:11px; color:#446; margin:8px 0 2px 4px; }
+  .empty { color:#fff; text-align:center; margin-top:80px; font-size:14px; }
+  mark { background:#ff6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🏥 아크로 카톡 조회기</h1>
+  <input id="q" placeholder="이름 · 차트번호 · 키워드 검색 (예: 이아름, 20060, 다이어트)" autofocus>
+  <span class="stat" id="stat"></span>
+</header>
+<div style="background:#fff8d6;color:#665;font-size:11px;padding:4px 16px;border-bottom:1px solid #e0d090;">
+  ⚠ 파트너센터 보존기간은 3년입니다. 이 백업은 2023-08-27 ~ 2026-08-26 대화만 담고 있습니다 — 그 이전 대화는 원천이 없어 검색되지 않습니다.
+</div>
+<div class="wrap">
+  <aside id="rooms"></aside>
+  <main id="chat"><div class="empty">← 방을 선택하거나 검색하세요</div></main>
+</div>
+<script src="data.js" charset="utf-8"></script>
+<script>
+const byRoom = {};
+(typeof LOGS!=='undefined'?LOGS:[]).forEach(l => {
+  (byRoom[l.room_id] = byRoom[l.room_id] || []).push(l);
+});
+Object.values(byRoom).forEach(a => a.sort((x,y)=>new Date(x.at)-new Date(y.at)));
+const roomIds = Object.keys(byRoom).sort((a,b)=>{
+  const A=byRoom[a], B=byRoom[b];
+  return new Date(B[B.length-1].at)-new Date(A[A.length-1].at);
+});
+const stat = document.getElementById('stat');
+stat.textContent = roomIds.length+'방 · '+(typeof LOGS!=='undefined'?LOGS.length:0)+'메시지 (2018~2026 전체, 백업 완료)';
+const roomsEl = document.getElementById('rooms'), chatEl = document.getElementById('chat');
+let cur = null, term = '';
+function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function hl(s){ if(!term) return esc(s); return esc(s).replace(new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi'),m=>'<mark>'+m+'</mark>'); }
+function renderRooms(){
+  roomsEl.innerHTML='';
+  const t = term.toLowerCase();
+  roomIds.filter(id=>{
+    if(!t) return true;
+    const a=byRoom[id], head=a[0];
+    return (head.room||'').toLowerCase().includes(t) || (head.chart||'').includes(t)
+      || a.some(l=>(l.text||'').toLowerCase().includes(t));
+  }).slice(0,300).forEach(id=>{
+    const a=byRoom[id], head=a[0], last=a[a.length-1];
+    const d=document.createElement('div');
+    d.className='room'+(id===cur?' on':'');
+    d.innerHTML='<div class="nm">'+hl(head.room||'(이름없음)')+' <span class="ct">'+(head.chart?'#'+head.chart:'')+'</span></div>'
+      +'<div class="pv">'+esc((last.text||'').slice(0,40))+'</div>';
+    d.onclick=()=>{cur=id; renderRooms(); renderChat();};
+    roomsEl.appendChild(d);
+  });
+}
+function renderChat(){
+  if(!cur){ chatEl.innerHTML='<div class="empty">← 방을 선택하세요</div>'; return; }
+  const a=byRoom[cur]; let prevDay=''; let html='';
+  a.forEach(l=>{
+    const dt=new Date(l.at), day=dt.getFullYear()+'년 '+(dt.getMonth()+1)+'월 '+dt.getDate()+'일';
+    if(day!==prevDay){ html+='<div class="day"><span>'+day+'</span></div>'; prevDay=day; }
+    const me = l.dir==='직원';
+    const hm = ('0'+dt.getHours()).slice(-2)+':'+('0'+dt.getMinutes()).slice(-2);
+    html+='<div class="row'+(me?' me':'')+'"><div class="bub">'+hl(l.text||'('+(l.type||'첨부')+')')+'</div><span class="meta">'+hm+(me&&l.mgr?' '+esc(l.mgr):'')+'</span></div>';
+  });
+  chatEl.innerHTML=html; chatEl.scrollTop=chatEl.scrollHeight;
+}
+let deb;
+document.getElementById('q').addEventListener('input',e=>{
+  clearTimeout(deb);
+  deb=setTimeout(()=>{ term=e.target.value.trim(); renderRooms(); if(cur) renderChat(); },200);
+});
+renderRooms();
+</script>
+</body>
+</html>
