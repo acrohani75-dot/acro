@@ -958,8 +958,9 @@ $('exportBtn').addEventListener('click',()=>{
 });
 // 안내 멘트
 function buildMsg(){
-  const chart=(S.chart||'').trim(), name=(S.name||'').trim();
-  const idname=name||'환자';
+  // 환자명·차트번호 어느 칸에 무엇이 들어왔든, 숫자를 뺀 '이름'만 호칭으로 사용
+  const nameOnly=[(S.name||''),(S.chart||'')].join(' ').replace(/[0-9]+/g,' ').replace(/\s+/g,' ').trim();
+  const idname=nameOnly||'환자';
   const part=S.part||'시술';
   const sameDay=(S.dateB&&S.dateA&&S.dateB===S.dateA);
   const cmp=sameDay?"당일 비교임에도":"전후 비교상";
