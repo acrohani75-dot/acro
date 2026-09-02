@@ -958,13 +958,16 @@ $('exportBtn').addEventListener('click',()=>{
 });
 // 안내 멘트
 function buildMsg(){
-  // 환자명·차트번호 어느 칸에 무엇이 들어왔든, 숫자를 뺀 '이름'만 호칭으로 사용
-  const nameOnly=[(S.name||''),(S.chart||'')].join(' ').replace(/[0-9]+/g,' ').replace(/\s+/g,' ').trim();
+  // 환자명·차트번호 어느 칸에 무엇이 들어왔든, 숫자=차트번호 / 나머지 글자=이름 으로 분리
+  const both=[(S.name||''),(S.chart||'')].join(' ');
+  const nameOnly=both.replace(/[0-9]+/g,' ').replace(/\s+/g,' ').trim();
+  const chartOnly=(both.match(/[0-9]+/g)||[]).join('');
   const idname=nameOnly||'환자';
+  const head=[chartOnly,nameOnly].filter(Boolean).join(' ');
   const part=S.part||'시술';
   const sameDay=(S.dateB&&S.dateA&&S.dateB===S.dateA);
   const cmp=sameDay?"당일 비교임에도":"전후 비교상";
-  return `${idname}님 안녕하세요! 오늘 시술 받느라 고생 많으셨습니다.
+  return `${head?head+'\n\n':''}${idname}님 안녕하세요! 오늘 시술 받느라 고생 많으셨습니다.
 시술 부위 사진 보내드립니다.
 손으로 잡아보셔서 아셨겠지만, ${cmp} 시술받은 ${part} 라인의 차이가 뚜렷하게 납니다.
 단, 살짝 튀어나온 곳은 전체적인 라인을 잡으면서 더 지켜봐야겠습니다.
