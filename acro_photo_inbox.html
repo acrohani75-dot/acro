@@ -385,28 +385,36 @@ function uploadAll(chart, name, ymd, meta) {
   };
   var pending = photos.map(function (p, i) { return { p: p, seq: i + 1 }; })
     .filter(function (x) { return x.p.status !== "완료"; });
-  var done = 0;
-  var chain = Promise.resolve();
-  pending.forEach(function (x) {
-    chain = chain.then(function () {
-      x.p.el.textContent = "전송중";
-      var payload = Object.assign({ action: "upload", seq: x.seq, total: photos.length, mime: x.p.mime, b64: x.p.b64 }, base);
-      return postRetry(payload, 3).then(function (j) {
-        if (!j.ok) throw j.error;
-        x.p.status = "완료"; x.p.el.textContent = "완료"; x.p.xBtn.style.display = "none";
-        refreshUnsent();
-      }).catch(function (e) {
-        x.p.status = "실패"; x.p.el.textContent = "실패";
-        lastErr = e;
-        refreshUnsent();
-      }).then(function () {
-        done++;
-        $("progBar").style.width = Math.round(done / pending.length * 100) + "%";
-      });
+  var done = 0, folderId = null, PAR = 3;   // [260912 속도] 첫 장은 혼자(폴더 만들고 folderId 받음), 나머지는 3장 동시 + folderId 동봉(서버 폴더 조회 0회)
+  function sendOne(x) {
+    x.p.el.textContent = "전송중";
+    var payload = Object.assign({ action: "upload", seq: x.seq, total: photos.length, mime: x.p.mime, b64: x.p.b64 }, base);
+    if (folderId) payload.folderId = folderId;
+    return postRetry(payload, 3).then(function (j) {
+      if (!j.ok) throw j.error;
+      if (j.folderId) folderId = j.folderId;
+      x.p.status = "완료"; x.p.el.textContent = "완료"; x.p.xBtn.style.display = "none";
+      refreshUnsent();
+    }).catch(function (e) {
+      x.p.status = "실패"; x.p.el.textContent = "실패";
+      lastErr = e;
+      refreshUnsent();
+    }).then(function () {
+      done++;
+      $("progBar").style.width = Math.round(done / pending.length * 100) + "%";
     });
+  }
+  var first = pending.length ? sendOne(pending[0]) : Promise.resolve();
+  var chain = first.then(function () {
+    var rest = pending.slice(1), idx = 0;
+    function worker() { if (idx >= rest.length) return Promise.resolve(); var x = rest[idx++]; return sendOne(x).then(worker); }
+    var ws = []; for (var w = 0; w < PAR; w++) ws.push(worker());
+    return Promise.all(ws);
   });
   return chain.then(function () {
-    return post(Object.assign({ action: "finalize", total: photos.length }, base));
+    var fin = Object.assign({ action: "finalize", total: photos.length }, base);
+    if (folderId) fin.folderId = folderId;
+    return post(fin);
   }).then(function (j) {
     if (!j.ok) throw j.error;
     return j;
