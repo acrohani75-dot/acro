@@ -127,7 +127,7 @@ var GAS_URL = "https://script.google.com/macros/s/AKfycbypKSEXsX0IzNm-GvPPBtK4b7
 var TREATMENTS = ["온다", "웨이브", "컷"];
 var BODY_PARTS = ["안면", "복부", "위팔", "허벅지", "종아리", "전신", "직접입력"];
 var TIMINGS = ["시술전", "시술후", "직접입력"];
-var MAX_EDGE = 4096, JPEG_Q = 0.92, PASS_MAX_BYTES = 10 * 1024 * 1024;
+var MAX_EDGE = 2560, JPEG_Q = 0.88, PASS_MAX_BYTES = 1.5 * 1024 * 1024;   // [260913 원장] 4096·92%·원본10MB통과 → 2560·88%·1.5MB 넘으면 재압축 (업로드 속도)
 
 var photos = []; // {b64, mime, status, el}
 var selTreats = {}, selPart = null;
