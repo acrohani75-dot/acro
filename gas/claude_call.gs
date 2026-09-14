@@ -20,8 +20,8 @@
 
 var ACC_CFG = {
   MODEL: 'claude-opus-5',
-  MAX_TOKENS: 1200,        // 환자 응대는 짧다. 넉넉하되 과하지 않게
-  EFFORT: 'low',           // 응대는 깊은 추론이 아니라 정확한 인용 — 지연을 줄인다
+  MAX_TOKENS: 2000,        // 260822 상향 — 1200은 일본어 장문 안내에서 문장이 끊겼다
+  EFFORT: 'low',           // 기본값. 속성 ACC_EFFORT로 덮어쓴다(아래 accEffort_)
   CACHE_SEC: 21600,        // CacheService 최대 6시간
   PREFIXES: ['L0_헌법_v', 'L2_자산인덱스_v', 'L2_응대예시_v']
 };
@@ -73,6 +73,16 @@ function accLoadPrefix_() {
   return prefix;
 }
 
+/**
+ * 추론 강도. 기본 low(지연 최소)지만 속성 ACC_EFFORT로 코드 수정 없이 올릴 수 있다.
+ * 원장 지적 260822: "생각을 하고 대답해야 하는데" — 되묻기·겉도는 답이 계속되면
+ * 여기를 'medium'으로 올려 같은 대화를 재현해 보고 판단한다(지연은 늘어난다).
+ */
+function accEffort_() {
+  var v = PropertiesService.getScriptProperties().getProperty('ACC_EFFORT');
+  return (v === 'medium' || v === 'high') ? v : ACC_CFG.EFFORT;
+}
+
 /** 정본 갱신 즉시 반영용 — 등재 후 한 번 호출하면 다음 요청부터 새 정본을 쓴다 */
 function accFlushPrefix() {
   CacheService.getScriptCache().remove('ACC_PREFIX');
@@ -83,9 +93,12 @@ function accFlushPrefix() {
  *   staticTask : 접점별 작업 지시 + 출력 계약 (접점마다 고정 문자열이어야 캐시가 산다)
  *   kbText     : 이번 질문의 정본 히트 (질문마다 다름 → 캐시 뒤쪽)
  *   userText   : 환자 메시지
- * 반환: 응대 문자열. 실패·거부는 null (호출부가 사람 인계로 전환할 것)
+ *   memoryText : 이 환자의 지난 대화·연속성 메모 (apmContextBlock_ 결과). 선택.
+ *                ⚠ 이걸 안 주면 매 메시지가 첫 대화가 된다 — 방금 들은 걸 또 묻는
+ *                원인이 여기다(원장 지적 260822). 기억이 있는 접점은 반드시 넘길 것.
+ * 반환: 응대 문자열. 실패·거부·중도절단은 null (호출부가 사람 인계로 전환할 것)
  */
-function accAsk_(staticTask, kbText, userText) {
+function accAsk_(staticTask, kbText, userText, memoryText) {
   var props = PropertiesService.getScriptProperties();
   var key = props.getProperty('ANTHROPIC_API_KEY');
   var prefix = accLoadPrefix_();
@@ -99,15 +112,18 @@ function accAsk_(staticTask, kbText, userText) {
     { type: 'text', text: prefix },
     { type: 'text', text: String(staticTask || ''), cache_control: { type: 'ephemeral' } }
   ];
-  // 변하는 것은 전부 캐시 경계 뒤(사용자 메시지)로
-  var user = (kbText ? '## 정본 히트\n' + kbText + '\n\n' : '') + '## 환자 메시지\n' + String(userText || '');
+  // 변하는 것은 전부 캐시 경계 뒤(사용자 메시지)로.
+  // 순서: 기억 → 정본 히트 → 환자 메시지. 환자 메시지가 맨 끝이어야 그것에 먼저 답한다.
+  var user = (memoryText ? String(memoryText) + '\n\n' : '')
+    + (kbText ? '## 정본 히트\n' + kbText + '\n\n' : '')
+    + '## 환자 메시지\n' + String(userText || '');
 
   var headers = { 'x-api-key': key, 'anthropic-version': '2023-06-01' };
   if (fast) headers['anthropic-beta'] = 'fast-mode-2026-02-01';
   var body = {
     model: ACC_CFG.MODEL,
     max_tokens: ACC_CFG.MAX_TOKENS,
-    output_config: { effort: ACC_CFG.EFFORT },
+    output_config: { effort: accEffort_() },
     system: system,
     messages: [{ role: 'user', content: user }]
   };
@@ -122,6 +138,11 @@ function accAsk_(staticTask, kbText, userText) {
   if (res.getResponseCode() !== 200) return null;
   var j = JSON.parse(res.getContentText());
   if (j.stop_reason === 'refusal') return null;   // 조용히 지어내지 않는다 — 사람에게 넘긴다
+  // 중도 절단은 발송하지 않는다. 말이 끊긴 안내는 안 보낸 것보다 나쁘다 — 사람에게 넘긴다.
+  if (j.stop_reason === 'max_tokens') {
+    try { Logger.log('ACC_TRUNCATED max_tokens=' + ACC_CFG.MAX_TOKENS + ' — 상한 상향 검토'); } catch (e) {}
+    return null;
+  }
 
   // 캐시 적중 확인용 (0이 계속 나오면 프리픽스가 매번 바뀌고 있다는 뜻)
   try {
