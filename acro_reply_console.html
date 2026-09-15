@@ -288,7 +288,7 @@ async function refineDraft(){
     const data = await callClaude({model:(hasF?MODEL_INTL:MODEL_MAIN), max_tokens:1500, system:sys, /* 원어 발송문 재작성 포함 시 INTL */
       messages:[{role:"user",content:`[현재 한국어 초안]\n${d.innerText.trim()}${hasF?`\n\n[현재 원어 발송문]\n${df.innerText.trim()}`:''}\n\n[근거 QA]\n${window.lastCtx||'(없음)'}\n\n[직원 지시]\n${cmd}`}]});
     const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
-    let obj; try{ obj = JSON.parse(text.replace(/```json|```/g,"").trim()); }catch(e){ obj = {draft:text, draft_foreign:""}; }
+    let obj; try{ obj = parseLooseJson(text); }catch(e){ obj = {draft:text, draft_foreign:""}; }
     if(obj.draft){
       const hits = f034Check(obj.draft);
       if(hits.length){ d.innerHTML = highlight(obj.draft, hits);
@@ -385,7 +385,32 @@ function detectLang(s){
   if(/[a-zA-Z]/.test(s)) return 'en';
   return 'ko';
 }
-async function callClaude(payload, _retried){
+/* [260915] 모델이 JSON 문자열 안에 줄바꿈을 그대로 넣으면 JSON.parse 가 실패해 "JSON 파싱 실패 — 원문 표시" 가 떴다.
+   코드펜스 제거 → 첫 { ~ 마지막 } 만 → 그대로 시도 → 실패하면 따옴표 안의 줄바꿈·탭만 이스케이프해 다시 시도. */
+function parseLooseJson(text){
+  let t = String(text||'').replace(/```json|```/g,'').trim();
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if(a>=0 && b>a) t = t.slice(a, b+1);
+  try{ return JSON.parse(t); }catch(e){}
+  const BS = String.fromCharCode(92), QT = String.fromCharCode(34);
+  let out = '', inStr = false, esc = false;
+  for(const ch of t){
+    if(inStr){
+      if(esc){ out += ch; esc = false; continue; }
+      if(ch===BS){ out += ch; esc = true; continue; }
+      if(ch===QT){ out += ch; inStr = false; continue; }
+      if(ch==='\n'){ out += BS+'n'; continue; }
+      if(ch==='\r'){ out += BS+'r'; continue; }
+      if(ch==='\t'){ out += BS+'t'; continue; }
+      out += ch;
+    }else{
+      if(ch===QT) inStr = true;
+      out += ch;
+    }
+  }
+  return JSON.parse(out);
+}
+async function callClaude(payload, _retried, _htmlRetried){
   let res;
   if(GAS_PROXY_URL){
     const prompt = (payload.system ? payload.system + "\n\n---\n\n" : "") + payload.messages.map(m=>m.content).join("\n");
@@ -393,7 +418,20 @@ async function callClaude(payload, _retried){
   }else{
     res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
   }
-  const data = await res.json();
+  /* [260915] 구글이 JSON 대신 오류 페이지(<!DOCTYPE…)를 주면 res.json() 이 "Unexpected token '<'" 로 죽었다(직원 보고).
+     본문을 글자로 먼저 받고, HTML 이면 1.5초 뒤 1회 재시도 → 그래도 아니면 HTTP 번호·페이지 제목을 보여 준다(원인 추적용). */
+  const raw = await res.text();
+  let data;
+  try{ data = JSON.parse(raw); }
+  catch(e){
+    if(!_htmlRetried){
+      await new Promise(r=>setTimeout(r,1500));
+      return callClaude(payload, _retried, true);
+    }
+    const m = raw.match(/<title>([^<]*)<\/title>/i);
+    const t = (m ? m[1] : raw.slice(0,80)).trim();
+    throw new Error('프록시 응답이 JSON 이 아님 (HTTP '+res.status+') — '+t+' · 잠시 뒤 다시 누르거나, 크롬에 구글 계정이 여러 개 로그인돼 있으면 시크릿 창에서 열어 보세요');
+  }
   if(data.error){
     /* [260806] 모델 장애 폴백 — 1회에 한해 haiku로 재시도 (품질 약간 양보, 응대 중단 방지) */
     if(!_retried && payload.model !== 'claude-haiku-4-5-20251001'){
@@ -567,7 +605,7 @@ async function run(){
     });
     const text = (data.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("\n");
     let obj;
-    try{ obj = JSON.parse(text.replace(/```json|```/g,"").trim()); }
+    try{ obj = parseLooseJson(text); }
     catch(e){ obj = {draft:text, draft_foreign:"", used:[], category:"", escalate:false, note:"JSON 파싱 실패 — 원문 표시"}; }
 
     const hits = f034Check(obj.draft||"");
