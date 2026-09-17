@@ -410,11 +410,20 @@ function parseLooseJson(text){
   }
   return JSON.parse(out);
 }
+const PROXY_FAIL_MSG = "프록시 연결 실패 — 잠시 뒤 다시 눌러 주세요. 계속되면 크롬 시크릿 창에서 콘솔을 열거나(구글 계정 여러 개 로그인 시), 광고차단 확장을 꺼 보세요";
 async function callClaude(payload, _retried, _htmlRetried){
   let res;
   if(GAS_PROXY_URL){
     const prompt = (payload.system ? payload.system + "\n\n---\n\n" : "") + payload.messages.map(m=>m.content).join("\n");
-    res = await fetch(GAS_PROXY_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({model:payload.model, max_tokens:payload.max_tokens, prompt:prompt})});
+    /* [260917] 구글이 CORS 헤더 없는 오류 페이지를 주거나 연결이 잠깐 끊기면 fetch 자체가 "Failed to fetch" 로 던진다
+       (응답 본문에 닿지도 못해 아래 HTML 재시도가 안 걸림). 1.5초 뒤 1회 다시 부르고, 그래도 안 되면 원인 안내 문구로 바꿔 던진다. */
+    const req = {method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({model:payload.model, max_tokens:payload.max_tokens, prompt:prompt})};
+    try{ res = await fetch(GAS_PROXY_URL, req); }
+    catch(e1){
+      await new Promise(r=>setTimeout(r,1500));
+      try{ res = await fetch(GAS_PROXY_URL, req); }
+      catch(e2){ throw new Error(PROXY_FAIL_MSG + " (" + e2.message + ")"); }
+    }
   }else{
     res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
   }
@@ -638,7 +647,7 @@ async function run(){
     document.getElementById('meta').textContent =
       `근거 QA: ${(obj.used||[]).join(', ')||'없음'} · 분류: ${obj.category||'-'}${lang!=='ko'?' · 언어: '+LANGNAME[lang]:''}${obj.note?' · 주의: '+obj.note:''}`;
   }catch(err){
-    draftEl.textContent = "생성 실패: " + err.message + "\n(GAS_PROXY_URL 미설정 시 claude.ai 환경에서만 동작합니다)";
+    draftEl.textContent = "생성 실패: " + err.message;
   }
   btn.disabled = false; btn.textContent = 'AI 초안 생성';
 }
