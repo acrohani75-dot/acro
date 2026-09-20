@@ -1165,7 +1165,7 @@ function renderSurvey(){
     });
     html+='</div>';
   });
-  html+='<div class="submit-row"><button class="btn" onclick="submitSurvey()">'+T().ui.submit+'</button>'+
+  html+='<div class="submit-row"><button class="btn" onclick="submitSurvey(this)">'+T().ui.submit+'</button>'+
         '<button class="btn ghost" onclick="copySummary()">'+T().ui.copy+'</button>'+
         '<span id="sendState" style="font-size:14px"></span></div>'+
         '<div id="surveyResult"><pre id="summaryPre"></pre></div>';
@@ -1214,7 +1214,41 @@ function validateSurvey(){
   return miss;
 }
 
-function submitSurvey(){
+/* [260920 원장 "안면비대칭 설문이 7~8번 반복해서 들어와"] 한 번 누르면 한 번만 간다.
+   원인: 전송 버튼에 잠금이 없어, 응답(Apps Script 2~5초)을 기다리는 동안 다시 누르면 그때마다 새 POST 가 나갔다.
+   9/20 10:17~10:21 #설문지_시술 실측 — 같은 사람 6건·7건, 제출 시각이 1~2초씩 달랐다(서버 재시도가 아니라 사람 연타).
+   ① 전송 중에는 버튼을 잠그고 ② 성공하면 잠근 채 완료 표시 ③ 실패하면 풀어 다시 누를 수 있게 한다. */
+var ASYM_SENDING = false;
+function asymBtnLock_(btn, mark){
+  if(!btn) return;
+  if(!btn.getAttribute("data-orig")) btn.setAttribute("data-orig", btn.textContent);
+  btn.disabled = true; btn.style.opacity = "0.6"; btn.style.cursor = "default";
+  btn.textContent = mark + " " + btn.getAttribute("data-orig");
+}
+function asymBtnUnlock_(btn){
+  if(!btn) return;
+  btn.disabled = false; btn.style.opacity = ""; btn.style.cursor = "";
+  if(btn.getAttribute("data-orig")) btn.textContent = btn.getAttribute("data-orig");
+}
+/* 전송 한 번 — 성공·실패 표시까지 여기서 끝낸다 */
+function asymSendOnce_(btn, st, summary){
+  ASYM_SENDING = true; asymBtnLock_(btn, "⏳");
+  var okMsg = function(){ st.innerHTML = '<span class="ok-msg">' + T().ui.sentOk + '</span>'; asymBtnLock_(btn, "✔"); };
+  var failMsg = function(){ st.innerHTML = '<span class="err-msg">' + T().ui.sentFail + '</span>'; ASYM_SENDING = false; asymBtnUnlock_(btn); };
+  if(ENDPOINT_URL.indexOf("script.google") >= 0){
+    fetch(ENDPOINT_URL,{method:"POST",body:JSON.stringify({token:SHARED_TOKEN,lang:cur.lang,text:summary})})
+      .then(function(r){return r.json();})
+      .then(function(j){ if(j && j.ok) okMsg(); else failMsg(); })
+      .catch(function(){ failMsg(); });
+  } else {
+    fetch(ENDPOINT_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({text:summary})})
+      .then(function(){ okMsg(); })
+      .catch(function(){ failMsg(); });
+  }
+}
+
+function submitSurvey(btn){
+  if(ASYM_SENDING) return;   /* 전송 중 재클릭 무시 — 중복 제출의 원인이었다 */
   var st=document.getElementById("sendState");
   var miss=validateSurvey();
   if(miss.length){ st.innerHTML='<span class="err-msg">'+T().ui.required+miss.join(", ")+'</span>'; return; }
@@ -1224,16 +1258,7 @@ function submitSurvey(){
   if(!ENDPOINT_URL){
     st.innerHTML='<span class="err-msg">'+T().ui.noHook+'</span>'; return;
   }
-  if(ENDPOINT_URL.indexOf("script.google")>=0){
-    fetch(ENDPOINT_URL,{method:"POST",body:JSON.stringify({token:SHARED_TOKEN,lang:cur.lang,text:summary})})
-      .then(function(r){return r.json();})
-      .then(function(j){ st.innerHTML = j&&j.ok ? '<span class="ok-msg">'+T().ui.sentOk+'</span>' : '<span class="err-msg">'+T().ui.sentFail+'</span>'; })
-      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
-  } else {
-    fetch(ENDPOINT_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({text:summary})})
-      .then(function(){ st.innerHTML='<span class="ok-msg">'+T().ui.sentOk+'</span>'; })
-      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
-  }
+  asymSendOnce_(btn, st, summary);
 }
 
 function copySummary(){
@@ -1320,7 +1345,7 @@ function renderRevisit(){
     });
     html+='</div>';
   });
-  html+='<div class="submit-row"><button class="btn" onclick="submitRevisit()">'+T().ui.submit+'</button>'+
+  html+='<div class="submit-row"><button class="btn" onclick="submitRevisit(this)">'+T().ui.submit+'</button>'+
         '<button class="btn ghost" onclick="copyRevisit()">'+T().ui.copy+'</button>'+
         '<span id="sendStateR" style="font-size:14px"></span></div>'+
         '<div id="revisitResult"><pre id="summaryPreR"></pre></div>';
@@ -1364,7 +1389,8 @@ function validateRevisit(){
   return miss;
 }
 
-function submitRevisit(){
+function submitRevisit(btn){
+  if(ASYM_SENDING) return;   /* 전송 중 재클릭 무시 */
   var st=document.getElementById("sendStateR");
   var miss=validateRevisit();
   if(miss.length){ st.innerHTML='<span class="err-msg">'+T().ui.required+miss.join(", ")+'</span>'; return; }
@@ -1372,16 +1398,7 @@ function submitRevisit(){
   document.getElementById("summaryPreR").textContent=summary;
   document.getElementById("revisitResult").style.display="block";
   if(!ENDPOINT_URL){ st.innerHTML='<span class="err-msg">'+T().ui.noHook+'</span>'; return; }
-  if(ENDPOINT_URL.indexOf("script.google")>=0){
-    fetch(ENDPOINT_URL,{method:"POST",body:JSON.stringify({token:SHARED_TOKEN,lang:cur.lang,text:summary})})
-      .then(function(r){return r.json();})
-      .then(function(j){ st.innerHTML = j&&j.ok ? '<span class="ok-msg">'+T().ui.sentOk+'</span>' : '<span class="err-msg">'+T().ui.sentFail+'</span>'; })
-      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
-  } else {
-    fetch(ENDPOINT_URL,{method:"POST",mode:"no-cors",body:JSON.stringify({text:summary})})
-      .then(function(){ st.innerHTML='<span class="ok-msg">'+T().ui.sentOk+'</span>'; })
-      .catch(function(){ st.innerHTML='<span class="err-msg">'+T().ui.sentFail+'</span>'; });
-  }
+  asymSendOnce_(btn, st, summary);
 }
 
 function copyRevisit(){
