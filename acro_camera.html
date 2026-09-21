@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="아크로 촬영">
+<meta name="theme-color" content="#161B26">
+<title>아크로 전후사진 카메라</title>
+<style>
+:root{
+  --ink:#161B26; --ink2:#1F2633; --ink3:#2B3445; --line:#3A4458;
+  --text:#F2F4F8; --sub:#9CA7BA;
+  --guide:#FFD23F;   /* 발 스티커 노랑 = 가이드 색 */
+  --ok:#3DDC97; --bad:#FF6B6B;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--ink);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;
+  -webkit-text-size-adjust:100%;touch-action:manipulation;overscroll-behavior:none}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--guide);outline-offset:2px}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.screen.on{display:flex}
+
+/* ---------- 홈 ---------- */
+#home{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.home-in{width:100%;max-width:560px;margin:0 auto;padding:22px 18px 40px}
+h1{font-size:22px;line-height:1.25;margin:0 0 4px;letter-spacing:-.02em}
+.lead{color:var(--sub);font-size:14px;margin:0 0 20px;line-height:1.5}
+h2{font-size:14px;color:var(--sub);font-weight:600;margin:26px 0 10px}
+.consent{display:flex;gap:10px;align-items:flex-start;background:#3a2a12;border:1px solid #7a5a1c;border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.5}
+.consent b{color:var(--guide)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.field{flex:1 1 130px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--sub)}
+.field input{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:16px;color:var(--text);width:100%}
+.seg{display:flex;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;padding:10px 6px;border-radius:8px;font-size:15px;color:var(--sub);white-space:nowrap}
+.seg button.on{background:var(--guide);color:#1b1500;font-weight:700}
+.hint{font-size:12.5px;color:var(--sub);margin:8px 2px 0;line-height:1.5}
+.regions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.region{background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:4px;min-height:74px}
+.region:active{background:var(--ink3)}
+.region .n{font-size:16px;font-weight:700;letter-spacing:-.01em}
+.region .m{font-size:12.5px;color:var(--sub);line-height:1.4}
+.checks{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:13.5px;line-height:1.5}
+.checks li{padding-left:18px;position:relative;color:#d6dbe6}
+.checks li::before{content:"";position:absolute;left:3px;top:.62em;width:6px;height:6px;border-radius:50%;background:var(--guide)}
+
+/* ---------- 카메라 ---------- */
+#cam{background:#0b0e14}
+.top{display:flex;align-items:center;gap:6px;padding:6px 8px;min-height:48px}
+.ico{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:20px;flex:none}
+.ico:active{background:var(--ink3)}
+.ttl{flex:1;min-width:0}
+.ttl .a{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttl .b{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cuts{display:flex;gap:6px;overflow-x:auto;padding:2px 10px 8px;scrollbar-width:none;flex:none}
+.cuts::-webkit-scrollbar{display:none}
+.cut{flex:none;padding:8px 12px;border-radius:999px;background:var(--ink2);border:1px solid var(--line);font-size:13.5px;color:var(--sub);white-space:nowrap;display:flex;gap:6px;align-items:center}
+.cut .n[hidden]{display:none}
+.cut.on{background:var(--text);color:#10141c;border-color:var(--text);font-weight:700}
+.cut .n{font-size:11px;background:var(--ok);color:#06281a;border-radius:999px;min-width:17px;height:17px;display:grid;place-items:center;font-weight:700;padding:0 4px}
+.stage-wrap{flex:1;min-height:0;display:grid;place-items:center;position:relative}
+#stage{position:relative;overflow:hidden;background:#000;border-radius:6px}
+#video,#ghost,#sil,#grid{position:absolute;inset:0;width:100%;height:100%}
+#video,#ghost{object-fit:cover}
+#video.mirror{transform:scaleX(-1)}
+#ghost{display:none;pointer-events:none}
+#sil,#grid{pointer-events:none}
+#sil{color:var(--guide);transition:color .15s}
+#stage.level #sil{color:var(--ok)}
+#grid line{stroke:rgba(255,255,255,.28);stroke-width:1}
+/* 수평계 */
+#horizon{position:absolute;left:50%;top:50%;width:46%;height:0;pointer-events:none}
+#horizon i{position:absolute;left:-50%;top:-1px;width:100%;height:2px;background:var(--bad);border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+#horizon-ref{position:absolute;left:0;right:0;top:50%;height:0;pointer-events:none}
+#horizon-ref::before,#horizon-ref::after{content:"";position:absolute;top:-1px;height:2px;width:9%;background:rgba(255,255,255,.85);box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+#horizon-ref::before{left:6%}#horizon-ref::after{right:6%}
+#stage.level #horizon i{background:var(--ok)}
+#pitch{position:absolute;right:8px;top:30%;bottom:30%;width:14px;border-radius:7px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.4);pointer-events:none}
+#pitch::before{content:"";position:absolute;left:-4px;right:-4px;top:50%;height:2px;margin-top:-1px;background:#fff}
+#pitch i{position:absolute;left:1px;width:10px;height:10px;border-radius:50%;background:var(--bad);top:50%;margin-top:-5px}
+#pitch.ok i{background:var(--ok)}
+#lvl{position:absolute;left:50%;top:8px;transform:translateX(-50%);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(0,0,0,.6);color:var(--bad);white-space:nowrap;pointer-events:none;max-width:94%}
+#stage.level #lvl{color:#06281a;background:var(--ok)}
+#lvl.off{color:var(--sub)}
+#tip{flex:none;font-size:13px;line-height:1.4;color:#fff;padding:0 14px 8px;min-height:26px}
+#tip b{color:var(--guide)}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#flash.go{animation:fl .22s ease-out}
+@keyframes fl{from{opacity:.8}to{opacity:0}}
+#ghost-bar{display:none;align-items:center;gap:10px;padding:6px 14px;font-size:12.5px;color:var(--sub)}
+#ghost-bar.on{display:flex}
+#ghost-bar input{flex:1;accent-color:var(--guide)}
+#ghost-bar button{color:var(--bad);font-size:13px;padding:6px}
+.tools{display:flex;gap:6px;justify-content:center;padding:6px 8px 0;flex-wrap:wrap}
+.tool{padding:7px 11px;border-radius:999px;font-size:12.5px;background:var(--ink2);border:1px solid var(--line);color:var(--sub)}
+.tool.on{color:var(--text);border-color:var(--guide)}
+.bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 14px 12px;gap:8px}
+.side-btn{justify-self:start;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--text);padding:6px 8px;border-radius:12px;min-width:76px}
+.side-btn:last-child{justify-self:end}
+.side-btn .t{width:46px;height:46px;border-radius:10px;background:var(--ink2);border:1px solid var(--line);display:grid;place-items:center;font-size:18px;background-size:cover;background-position:center;font-weight:700}
+#shutter{width:74px;height:74px;border-radius:50%;background:#fff;border:5px solid #0b0e14;box-shadow:0 0 0 3px #fff;transition:transform .08s,opacity .15s}
+#shutter:active{transform:scale(.93)}
+#shutter.locked{opacity:.35}
+#toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translateX(-50%);background:rgba(0,0,0,.85);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50;white-space:nowrap}
+#toast.on{opacity:1}
+
+/* ---------- 시트 ---------- */
+.sheet{position:fixed;inset:0;z-index:40;display:none;background:rgba(0,0,0,.6)}
+.sheet.on{display:flex;align-items:flex-end;justify-content:center}
+.sheet-in{background:var(--ink);width:100%;max-width:560px;max-height:88%;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom))}
+.sheet-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sheet-h h3{margin:0;font-size:18px}
+.kv{display:grid;grid-template-columns:76px 1fr;gap:8px 10px;font-size:14px;line-height:1.5;margin:0 0 14px}
+.kv dt{color:var(--sub)}.kv dd{margin:0}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.thumb{position:relative;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:3/4}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb span{position:absolute;left:0;right:0;bottom:0;font-size:11px;padding:14px 6px 5px;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+.thumb button{position:absolute;right:4px;top:4px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:15px}
+.primary{width:100%;padding:15px;border-radius:14px;background:var(--guide);color:#1b1500;font-weight:800;font-size:16px;margin-top:14px}
+.primary:disabled{opacity:.4}
+.ghostbtn{width:100%;padding:13px;border-radius:14px;border:1px solid var(--line);color:var(--text);font-size:15px;margin-top:8px}
+.empty{color:var(--sub);font-size:14px;text-align:center;padding:26px 0}
+#err{display:none;position:absolute;inset:0;background:#0b0e14;padding:24px;font-size:14.5px;line-height:1.6;color:#d6dbe6;overflow:auto}
+#err.on{display:block}
+#err b{color:var(--guide)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ================= 홈 ================= -->
+<section id="home" class="screen on">
+ <div class="home-in">
+  <h1>아크로 전후사진 카메라</h1>
+  <p class="lead">폰을 세우고, 실루엣에 환자를 맞추면 누가 찍어도 같은 각도·높이·거리가 됩니다.</p>
+
+  <div class="consent"><span>⚠️</span><span>촬영 전 <b>마케팅 활용 동의</b>를 확실히 여쭤보고, 동의 시 차트 주치의 메모에 <b>★전,후 사진 마케팅 이용 동의 완료★</b> 기재.</span></div>
+
+  <h2>촬영 정보 (파일 이름에 들어갑니다)</h2>
+  <div class="row">
+   <label class="field">차트번호<input id="f-chart" inputmode="numeric" autocomplete="off" placeholder="예: 12345"></label>
+   <label class="field">회차<input id="f-round" inputmode="numeric" autocomplete="off" placeholder="예: 1"></label>
+  </div>
+  <div class="seg" id="f-phase" style="margin-top:8px" role="group" aria-label="전후 구분">
+   <button data-v="전" class="on">시술 전</button><button data-v="후">시술 후</button>
+  </div>
+  <p class="hint" id="phase-hint"></p>
+
+  <h2>촬영 부위</h2>
+  <div class="regions" id="regions"></div>
+
+  <h2>공통 체크</h2>
+  <ul class="checks">
+   <li>시술실(3진료실) 불 켜고, <b>렌즈 닦기</b></li>
+   <li>모눈 벽지 앞 <b>스티커에 발 맞추기</b> — 기본 노란색, 발 붙일 때만 회색</li>
+   <li>슬리퍼로 갈아신기 (높이 통일), 옷 말림 없이 제대로 입었는지 확인</li>
+   <li>삼각대 없이 손으로. 폰은 <b>항상 세운 채</b>, 기울이지 말고 몸을 위아래로 움직여 높이 맞추기</li>
+   <li>‘후’ 촬영은 전 촬영본을 먼저 확인 → 같은 옷·자세(특히 팔)·각도·높이</li>
+   <li>같은 폰, 줌은 1배 고정. 한 각도에 여러 장 찍어도 됩니다</li>
+  </ul>
+ </div>
+</section>
+
+<!-- ================= 카메라 ================= -->
+<section id="cam" class="screen">
+ <div class="top">
+  <button class="ico" id="b-back" aria-label="부위 선택으로">←</button>
+  <div class="ttl"><div class="a" id="t-region"></div><div class="b" id="t-sub"></div></div>
+  <button class="ico" id="b-info" aria-label="이 부위 촬영 규칙">ⓘ</button>
+  <button class="ico" id="b-flip" aria-label="카메라 전환">⟲</button>
+ </div>
+ <div class="cuts" id="cuts"></div>
+ <div id="tip"></div>
+ <div class="stage-wrap" id="wrap">
+  <div id="stage">
+   <video id="video" playsinline muted autoplay></video>
+   <img id="ghost" alt="">
+   <svg id="grid" preserveAspectRatio="none" viewBox="0 0 300 400">
+     <line x1="100" y1="0" x2="100" y2="400"/><line x1="200" y1="0" x2="200" y2="400"/>
+     <line x1="0" y1="133.3" x2="300" y2="133.3"/><line x1="0" y1="266.6" x2="300" y2="266.6"/>
+   </svg>
+   <svg id="sil" preserveAspectRatio="none"></svg>
+   <div id="horizon-ref"></div>
+   <div id="horizon"><i></i></div>
+   <div id="pitch"><i></i></div>
+   <div id="lvl" class="off">수평계 준비 중</div>
+   <div id="flash"></div>
+   <div id="err"></div>
+  </div>
+ </div>
+ <div id="ghost-bar"><span>전 사진 농도</span><input id="ghost-op" type="range" min="10" max="80" value="40"><button id="ghost-x">지우기</button></div>
+ <div class="tools">
+  <button class="tool on" id="tg-sil">실루엣</button>
+  <button class="tool on" id="tg-grid">격자</button>
+  <button class="tool on" id="tg-lock">수평일 때만 촬영</button>
+ </div>
+ <div class="bottom">
+  <button class="side-btn" id="b-ghost"><span class="t">◐</span>전 사진 겹치기</button>
+  <button id="shutter" aria-label="촬영"></button>
+  <button class="side-btn" id="b-roll"><span class="t" id="roll-t">0</span>확인·저장</button>
+ </div>
+ <input id="ghost-file" type="file" accept="image/*" hidden>
+</section>
+
+<!-- 부위 규칙 시트 -->
+<div class="sheet" id="sh-info"><div class="sheet-in">
+ <div class="sheet-h"><h3 id="info-t"></h3><button class="ico" data-close>✕</button></div>
+ <dl class="kv" id="info-kv"></dl>
+ <ul class="checks" id="info-list"></ul>
+</div></div>
+
+<!-- 확인·저장 시트 -->
+<div class="sheet" id="sh-roll"><div class="sheet-in">
+ <div class="sheet-h"><h3>찍은 사진 <span id="roll-n"></span></h3><button class="ico" data-close>✕</button></div>
+ <div id="roll-body"></div>
+ <button class="primary" id="b-save">전체 저장</button>
+ <button class="ghostbtn" id="b-clear">모두 지우고 새 환자</button>
+ <p class="hint">사진은 이 폰에만 저장되고 어디에도 업로드되지 않습니다. 저장 전에 페이지를 닫으면 사라집니다.</p>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   1. 촬영 규정 (아크로 촬영가이드 250619 + 전후사진 촬영 체크리스트)
+   pose: f=정면 b=후면 l=좌측면 r=우측면 ql/qr=45도
+   arms: down | t90 | up(양팔 벌려 손을 어깨에) ,  feet: apart(노랑) | together(회색)
+   win: 몸 전체를 0(머리끝)~1000(발끝)으로 봤을 때 프레임에 담을 세로 범위
+   marks: 맞춰야 할 기준선 [이름, y]
+   ===================================================================== */
+const Y={top:0,cheek:78,chin:122,collar:168,shoulder:182,underbust:305,navel:432,pelvis:520,knee:742,toe:1000};
+const W_FULL=[-45,1045], W_FACE=[-30,300], W_UPPER=[-35,610], W_UPPER90=[-70,730], W_WAIST=[120,640], W_THIGH=[395,805], W_CALF=[675,1035];
+const M=(...k)=>k.map(n=>[{top:'머리끝',cheek:'광대',chin:'턱끝',collar:'쇄골',shoulder:'어깨',underbust:'가슴 밑선',navel:'배꼽',pelvis:'골반',knee:'무릎',toe:'발끝'}[n],Y[n]]);
+const SIDE_TIP='<b>귓구멍–어깨–골반</b>이 가운데 세로선에 일자';
+const REGIONS=[
+ {id:'full',name:'다이어트 전신',wear:'나시 + 반바지',range:'머리~발끝 전체',
+  rules:['노란색 스티커에 발 맞추기','팔은 자연스럽게 몸통 옆','전신은 수평이 특히 틀어지기 쉬움 — 머리~발끝이 모두 나오게','측면: 귓구멍·어깨·골반이 일자, 정중앙'],
+  cuts:[['정면','f'],['후면','b'],['측면(좌)','l'],['측면(우)','r']].map(([n,p])=>({n,pose:p,arms:'down',feet:'apart',win:W_FULL,marks:M('top','toe'),tip:p=='l'||p=='r'?SIDE_TIP:'머리끝·발끝을 위아래 선에 맞추기'}))},
+ {id:'chin',name:'이중턱',wear:'환복 X (목티·카라는 상의 환복) · 머리끈으로 머리 묶기',range:'광대~쇄골 높이',
+  rules:['머리가 앞으로 빠지지 않게 (거북목 주의)','폰은 세운 채로 렌즈 높이를 <b>턱 높이까지 낮춰서</b> 촬영 — 위에서 내려찍으면 이중턱이 안 보임','고개를 살짝 숙인 컷도 하나씩','측면: 귓구멍과 어깨가 일자, 정중앙'],
+  cuts:[['정면','f',0],['정면·고개 숙이고','f',1],['좌','l',0],['좌·고개 숙이고','l',1],['우','r',0],['우·고개 숙이고','r',1]].map(([n,p,d])=>({n,pose:p,arms:'down',feet:'apart',down:d,win:W_FACE,marks:M('cheek','collar'),tip:(d?'고개만 살짝 숙이기. ':'')+(p=='f'?'렌즈는 턱 높이. 얼굴이 좌우로 돌아가지 않게':'<b>귓구멍–어깨</b>가 가운데 세로선에 일자')}))},
+ {id:'arm',name:'팔',wear:'나시',range:'목~골반 높이, 팔꿈치까지 나와야 함',
+  rules:['팔 90도: 손바닥이 바닥을 향하게','양팔은 <b>일자</b>로 — 위로 올라가 V자가 되면 비교 불가','아래에서 위로 찍지 않기, 팔이 중앙에 오게','측면: 귓구멍–어깨–골반 일자, 힘 빼고 자연스럽게'],
+  cuts:[['정면·팔 내림','f','down'],['정면·팔 90도','f','t90'],['후면·팔 내림','b','down'],['후면·팔 90도','b','t90'],['측면(좌)','l','down'],['측면(우)','r','down']].map(([n,p,a])=>({n,pose:p,arms:a,feet:'apart',win:a=='t90'?W_UPPER90:W_UPPER,marks:a=='t90'?[['양팔 일자 · 손바닥 아래',Y.shoulder],['골반',Y.pelvis]]:M('shoulder','pelvis'),tip:a=='t90'?'양팔이 노란 선과 <b>일자</b>, 팔꿈치가 화면 안에':(p=='l'||p=='r'?SIDE_TIP:'어깨·골반을 선에 맞추기')}))},
+ {id:'axilla',name:'부유방',wear:'나시',range:'목~가슴 밑선 높이',
+  rules:['팔 90도: 손바닥이 바닥, 양팔 일자','힘 빼고 자연스럽게','팔과 같이 시술하면 팔 컷대로만 찍어도 됨'],
+  cuts:[['정면·팔 내림','f','down'],['정면·팔 90도','f','t90']].map(([n,p,a])=>({n,pose:p,arms:a,feet:'apart',win:a=='t90'?W_UPPER90:W_UPPER,marks:a=='t90'?[['양팔 일자 · 손바닥 아래',Y.shoulder],['가슴 밑선',Y.underbust]]:M('shoulder','underbust'),tip:a=='t90'?'양팔이 노란 선과 <b>일자</b>':'겨드랑이 앞 라인이 잘 보이게'}))},
+ {id:'back',name:'등 (브라라인)',wear:'브라탑',range:'어깨~골반 높이',
+  rules:['팔 90도: 손바닥이 바닥, 양팔 일자','힘 빼고 자연스럽게','팔과 같이 시술하면 팔 컷대로만 찍어도 됨'],
+  cuts:[['후면·팔 내림','b','down'],['후면·팔 90도','b','t90']].map(([n,p,a])=>({n,pose:p,arms:a,feet:'apart',win:a=='t90'?W_UPPER90:W_UPPER,marks:a=='t90'?[['양팔 일자 · 손바닥 아래',Y.shoulder],['골반',Y.pelvis]]:M('shoulder','pelvis'),tip:a=='t90'?'양팔이 노란 선과 <b>일자</b>':'어깨·골반을 선에 맞추기'}))},
+ ...[['flank','옆구리',[['정면','f'],['후면','b'],['측면(좌)','l'],['측면(우)','r']]],
+     ['lowback','뒷구리',[['후면','b'],['측면(좌)','l'],['측면(우)','r']]],
+     ['abdomen','복부',[['정면','f'],['측면(좌)','l'],['측면(우)','r']]]].map(([id,name,c])=>({id,name,wear:'브라탑 + 쫄바지',range:'어깨~골반 높이, 팔 올리고',
+  rules:['<b>바지는 배꼽 아래로</b> — 배꼽을 가리면 안 됨','양팔을 벌려 <b>손을 어깨에</b> 올리기 (팔을 앞·위로 들면 허리가 꺾임)','허리 꺾지(과신전) 말고, 숨 내쉬고 편하게','등허리가 정중앙. 노란색 스티커에 발 맞추기'],
+  cuts:c.map(([n,p])=>({n,pose:p,arms:'up',feet:'apart',win:W_WAIST,marks:M('shoulder','navel','pelvis'),tip:p=='l'||p=='r'?'허리 꺾지 않기. '+SIDE_TIP:'배꼽이 보이게, 숨 내쉬고 편하게'}))})),
+ {id:'calf',name:'종아리',wear:'반바지',range:'무릎~발끝',
+  rules:['발 붙일 땐 <b>회색</b>, 벌릴 땐 <b>노란색</b> 스티커','양팔 벌려 손을 어깨에','종아리가 정중앙 — 폰은 세운 채로 <b>앉아서</b> 렌즈를 종아리 높이로'],
+  cuts:legCuts(W_CALF,M('knee','toe'),true)},
+ {id:'thigh-out',name:'엉덩이 · 엉밑살 · 허벅지 외측',wear:'쫄바지',range:'배꼽~무릎 높이',
+  rules:['발 붙일 땐 <b>회색</b>, 벌릴 땐 <b>노란색</b> 스티커','양팔 벌려 손을 어깨에, 또는 팔짱','측면은 <b>발 붙여서</b>','머리 뒤로 묶기. 허벅지가 정중앙 — 폰은 세운 채로 렌즈를 허벅지 높이로'],
+  cuts:legCuts(W_THIGH,M('navel','knee'),true)},
+ {id:'thigh-in',name:'허벅지 내측',wear:'쫄바지',range:'배꼽~무릎 높이 (측면 없음)',
+  rules:['발 붙일 땐 <b>회색</b>, 벌릴 땐 <b>노란색</b> 스티커','양팔 벌려 손을 어깨에, 또는 팔짱','허벅지가 정중앙 — 폰은 세운 채로 렌즈를 허벅지 높이로'],
+  cuts:legCuts(W_THIGH,M('navel','knee'),false)},
+ {id:'face3d',name:'얼굴 다각도 세트',wear:'머리 묶기',range:'정면 · 45도 · 측면 5컷',
+  rules:['환자는 발 위치 그대로 <b>몸 전체를 돌려서</b> 각도를 만듭니다 (고개만 돌리지 않기)','촬영자는 자리·높이 고정'],
+  cuts:[['정면','f'],['좌 45도','ql'],['좌 측면','l'],['우 45도','qr'],['우 측면','r']].map(([n,p])=>({n,pose:p,arms:'down',feet:'apart',win:W_FACE,marks:M('cheek','collar'),tip:'촬영자는 그대로, 환자가 몸 전체를 돌리기'}))},
+ {id:'body3d',name:'몸매 다각도 세트',wear:'브라탑 + 쫄바지',range:'정면 · 45도 · 측면 · 후면 6컷',
+  rules:['환자는 스티커 위에서 <b>몸 전체를 돌려서</b> 각도를 만듭니다','촬영자는 자리·높이 고정','양팔 벌려 손을 어깨에'],
+  cuts:[['정면','f'],['좌 45도','ql'],['좌 측면','l'],['우 45도','qr'],['우 측면','r'],['후면','b']].map(([n,p])=>({n,pose:p,arms:'up',feet:'apart',win:W_WAIST,marks:M('shoulder','navel','pelvis'),tip:'촬영자는 그대로, 환자가 몸 전체를 돌리기'}))},
+];
+function legCuts(win,marks,withSide){
+  const c=[['정면·발 붙여서','f','together'],['정면·다리 벌려서','f','apart'],['후면·발 붙여서','b','together'],['후면·다리 벌려서','b','apart']];
+  if(withSide)c.push(['측면(좌)','l','together'],['측면(우)','r','together']);
+  return c.map(([n,p,f])=>({n,pose:p,arms:'up',feet:f,win,marks,tip:(f=='together'?'⚪ <b>회색</b> 스티커 · 발 붙이기':'🟡 <b>노란색</b> 스티커 · 다리 벌리기')}));
+}
+
+/* =====================================================================
+   2. 실루엣 — 하나의 인체 모델(키=1000)을 자세별로 그리고 부위별로 잘라 씀
+   ===================================================================== */
+const f1=n=>Math.round(n*10)/10;
+function limb(p){ // [[x,y,r],...] 굵기가 변하는 팔다리
+  let s='';
+  for(let i=0;i<p.length;i++){
+    const [x,y,r]=p[i]; s+=`<circle cx="${f1(x)}" cy="${f1(y)}" r="${r}"/>`;
+    if(i){const [x0,y0,r0]=p[i-1],dx=x-x0,dy=y-y0,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L;
+      s+=`<polygon points="${f1(x0+nx*r0)},${f1(y0+ny*r0)} ${f1(x+nx*r)},${f1(y+ny*r)} ${f1(x-nx*r)},${f1(y-ny*r)} ${f1(x0-nx*r0)},${f1(y0-ny*r0)}"/>`;}
+  }
+  return s;
+}
+function blob(pts){ // 부드러운 닫힌 곡선 (Catmull-Rom)
+  const n=pts.length;let d=`M${f1(pts[0][0])},${f1(pts[0][1])}`;
+  for(let i=0;i<n;i++){const p0=pts[(i-1+n)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+    d+=`C${f1(p1[0]+(p2[0]-p0[0])/6)},${f1(p1[1]+(p2[1]-p0[1])/6)} ${f1(p2[0]-(p3[0]-p1[0])/6)},${f1(p2[1]-(p3[1]-p1[1])/6)} ${f1(p2[0])},${f1(p2[1])}`;}
+  return `<path d="${d}Z"/>`;
+}
+const mir=(pts)=>pts.map(([x,y,r])=>[-x,y,r]);
+function frontBody(c){
+  const hy=c.down?12:0;
+  let s=`<ellipse cx="0" cy="${64+hy}" rx="43" ry="${57-(c.down?4:0)}"/>`;
+  s+=`<ellipse cx="-44" cy="${70+hy}" rx="7" ry="13"/><ellipse cx="44" cy="${70+hy}" rx="7" ry="13"/>`;
+  s+=limb([[0,108,19],[0,160,23]]);
+  const R=[[24,150],[68,160],[104,186],[90,250],[76,330],[69,392],[80,452],[98,512],[96,566]];
+  s+=blob([...R,[0,578],...R.slice().reverse().map(([x,y])=>[-x,y])]);
+  const arm={down:[[101,188,27],[120,362,21],[126,512,15],[128,548,19]],
+             t90:[[101,186,27],[272,184,22],[430,182,16],[470,182,19]],
+             up:[[101,188,27],[214,246,22],[132,168,16],[118,160,18]]}[c.arms];
+  s+=limb(arm)+limb(mir(arm));
+  const leg=c.feet==='together'?[[48,540,51],[38,742,31],[40,830,35],[28,952,17]]:[[54,540,51],[72,742,31],[80,830,35],[92,952,17]];
+  s+=limb(leg)+limb(mir(leg));
+  const fx=leg[3][0]+(c.feet==='together'?4:8);
+  s+=`<ellipse cx="${fx}" cy="982" rx="24" ry="20"/><ellipse cx="${-fx}" cy="982" rx="24" ry="20"/>`;
+  return s;
+}
+function sideBody(c){ // 오른쪽을 보는 모델. 귀·어깨·골반이 x=0
+  const rot=c.down?`transform="rotate(14 0 118)"`:'';
+  let s=`<g ${rot}><ellipse cx="10" cy="64" rx="47" ry="57"/><polygon points="52,58 70,84 50,92"/><polygon points="40,96 50,118 20,124"/><circle cx="-40" cy="50" r="20"/></g>`;
+  s+=limb([[2,108,20],[0,160,25]]);
+  s+=blob([[24,152],[42,196],[68,252],[54,304],[58,400],[60,462],[52,522],[56,572],[-52,572],[-78,520],[-64,458],[-40,390],[-46,300],[-58,222],[-40,162]]);
+  if(c.arms==='up')s+=`<circle cx="0" cy="186" r="36"/>`+limb([[0,186,26],[44,214,20]]);
+  else s+=limb([[-2,190,27],[-6,362,21],[10,512,15],[12,548,19]]);
+  s+=limb([[2,545,57],[6,742,32],[-8,830,38],[-2,952,18]]);
+  s+=`<ellipse cx="24" cy="984" rx="52" ry="17"/>`;
+  return s;
+}
+function bodyShapes(c){
+  if(c.pose==='f'||c.pose==='b')return frontBody(c);
+  if(c.pose==='r')return sideBody(c);
+  if(c.pose==='l')return `<g transform="scale(-1,1)">${sideBody(c)}</g>`;
+  const dir=c.pose==='qr'?1:-1; // 45도: 폭이 좁아진 정면 + 코 방향
+  return `<g transform="scale(${.84*dir},1)">${frontBody(c)}<polygon points="30,58 58,86 28,94"/></g>`;
+}
+function renderSil(c){
+  const [y0,y1]=c.win,h=y1-y0,w=h*.75,x0=-w/2,sw=h*.014,shapes=bodyShapes(c);
+  const svg=document.getElementById('sil');
+  svg.setAttribute('viewBox',`${x0} ${y0} ${w} ${h}`);
+  const fs=h*.034;
+  let marks='';
+  for(const [label,y] of c.marks){
+    marks+=`<line x1="${x0}" x2="${x0+w}" y1="${y}" y2="${y}" stroke="currentColor" stroke-width="${h*.004}" stroke-dasharray="${h*.02} ${h*.012}"/>`
+      +`<g transform="translate(${x0+w*.02},${(y-y0)<h*.1?y+fs*1.35:y-h*.012})"><rect x="0" y="${-fs*1.05}" width="${label.length*fs*.98+fs*.7}" height="${fs*1.4}" rx="${fs*.3}" fill="rgba(0,0,0,.6)"/><text x="${fs*.35}" y="0" font-size="${fs}" font-weight="700" fill="currentColor">${label}</text></g>`;
+  }
+  const mid=`<line x1="0" x2="0" y1="${y0}" y2="${y1}" stroke="currentColor" stroke-width="${h*.004}" opacity=".9"/>`;
+  svg.innerHTML=`<defs><mask id="mk" maskUnits="userSpaceOnUse" x="${x0}" y="${y0}" width="${w}" height="${h}">
+     <g fill="#fff" stroke="#fff" stroke-width="${sw}" stroke-linejoin="round">${shapes}</g><g fill="#000">${shapes}</g></mask></defs>
+   <g class="body"><g fill="currentColor" opacity=".07">${shapes}</g>
+   <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="rgba(0,0,0,.55)" mask="url(#mk)" transform="translate(${h*.003},${h*.003})"/>
+   <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="currentColor" mask="url(#mk)"/></g>${mid}${marks}`;
+  svg.querySelector('.body').style.display=S.showSil?'':'none';
+}
+
+/* =====================================================================
+   3. 상태
+   ===================================================================== */
+const $=id=>document.getElementById(id);
+const S={region:null,cut:0,phase:'전',photos:[],ghosts:{},facing:'environment',stream:null,
+         showSil:true,showGrid:true,lock:true,sensor:false,level:false,roll:0,pitch:0};
+const TOL_ROLL=1.5, TOL_PITCH=2.5;
+
+/* ---------- 홈 ---------- */
+$('regions').innerHTML=REGIONS.map((r,i)=>`<button class="region" data-i="${i}"><span class="n">${r.name}</span><span class="m">${r.cuts.length}컷 · ${r.wear.split(' · ')[0]}</span></button>`).join('');
+$('regions').addEventListener('click',e=>{const b=e.target.closest('.region');if(b)openRegion(+b.dataset.i);});
+const PH={전:'웨이브: 1회차 시술 전(오랜만의 재초진도 전 사진 필요) · 컷: 초진 시술 전 · 다이어트: 초진 내원일',
+          후:'웨이브: 매 회차 시술 후 · 컷: 3회차·5회차 시술 전(1회차에 못 찍었으면 2·4·6회차) · 다이어트: 감량 종료 내원일'};
+function setPhase(v){S.phase=v;[...$('f-phase').children].forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('phase-hint').textContent=PH[v];}
+$('f-phase').addEventListener('click',e=>{if(e.target.dataset.v)setPhase(e.target.dataset.v);});
+setPhase('전');
+
+/* ---------- 화면 전환 ---------- */
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));}
+async function openRegion(i){
+  S.region=REGIONS[i];S.cut=0;
+  show('cam');layout();buildCuts();selectCut(0);
+  askMotion();           // iOS: 사용자 탭 안에서 호출해야 함
+  await startCamera();
+  keepAwake();
+}
+$('b-back').onclick=()=>{stopCamera();show('home');};
+$('b-flip').onclick=async()=>{S.facing=S.facing==='environment'?'user':'environment';await startCamera();};
+
+function buildCuts(){
+  const r=S.region;$('t-region').textContent=r.name;
+  $('cuts').innerHTML=r.cuts.map((c,i)=>`<button class="cut" data-i="${i}">${c.n}<span class="n" hidden></span></button>`).join('');
+  refreshCounts();
+}
+$('cuts').addEventListener('click',e=>{const b=e.target.closest('.cut');if(b)selectCut(+b.dataset.i);});
+function cutKey(i=S.cut){return S.region.id+'/'+i;}
+function selectCut(i){
+  S.cut=i;const c=S.region.cuts[i];
+  [...$('cuts').children].forEach((b,k)=>{b.classList.toggle('on',k===i);if(k===i)b.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});});
+  $('t-sub').textContent=`${i+1}/${S.region.cuts.length} · 시술 ${S.phase} · ${S.region.wear}`;
+  $('tip').innerHTML=c.tip;
+  renderSil(c);applyGhost();
+}
+function refreshCounts(){
+  if(!S.region)return;
+  [...$('cuts').children].forEach((b,k)=>{const n=S.photos.filter(p=>p.key===cutKey(k)).length,el=b.querySelector('.n');el.hidden=!n;el.textContent=n;});
+  const t=$('roll-t');t.textContent=S.photos.length;
+  t.style.backgroundImage=S.photos.length?`url(${S.photos[S.photos.length-1].url})`:'';
+  t.style.color=S.photos.length?'transparent':'';
+}
+
+/* ---------- 레이아웃: 3:4 뷰파인더를 남는 공간에 최대 크기로 ---------- */
+function layout(){
+  const w=$('wrap').clientWidth,h=$('wrap').clientHeight;if(!w||!h)return;
+  const sw=Math.min(w,h*.75);$('stage').style.width=sw+'px';$('stage').style.height=sw/.75+'px';
+}
+addEventListener('resize',layout);
+
+/* ---------- 카메라 ---------- */
+async function startCamera(){
+  stopCamera();$('err').classList.remove('on');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){return camError('이 브라우저에서는 카메라를 쓸 수 없습니다. <b>https 주소</b>를 아이폰은 Safari, 안드로이드는 Chrome에서 직접 열어주세요. (카카오톡 안에서 열면 안 됩니다)');}
+  try{
+    S.stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:S.facing},width:{ideal:3840},height:{ideal:2160}}});
+  }catch(e){return camError('카메라 권한이 필요합니다. 주소창의 <b>aA → 웹사이트 설정 → 카메라 → 허용</b> 후 새로고침해 주세요.<br><br><small>'+e.name+'</small>');}
+  const v=$('video');v.srcObject=S.stream;v.classList.toggle('mirror',S.facing==='user');
+  try{await v.play();}catch(e){}
+  // 줌 1배 고정 (지원 기기만)
+  try{const t=S.stream.getVideoTracks()[0],cap=t.getCapabilities&&t.getCapabilities();
+    if(cap&&cap.zoom)await t.applyConstraints({advanced:[{zoom:Math.max(cap.zoom.min,Math.min(1,cap.zoom.max))}]});}catch(e){}
+}
+function stopCamera(){if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}}
+function camError(html){const e=$('err');e.innerHTML=html;e.classList.add('on');}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&$('cam').classList.contains('on')){startCamera();keepAwake();}});
+let wl=null;async function keepAwake(){try{if('wakeLock' in navigator)wl=await navigator.wakeLock.request('screen');}catch(e){}}
+
+/* ---------- 수평계 (중력 벡터 기반: 세워 든 상태에서도 안정적) ---------- */
+function askMotion(){
+  try{
+    if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){
+      DeviceMotionEvent.requestPermission().then(r=>{if(r==='granted')addEventListener('devicemotion',onMotion);else noSensor('동작 센서 권한 꺼짐 · 수평계 사용 불가');}).catch(()=>noSensor('수평계 권한 요청 실패'));
+    }else addEventListener('devicemotion',onMotion);
+  }catch(e){}
+  setTimeout(()=>{if(!S.sensor)noSensor('수평계 없음 · 벽 모눈에 맞추세요');},2500);
+}
+function noSensor(msg){if(S.sensor)return;const l=$('lvl');l.className='off';l.textContent=msg;$('pitch').style.display='none';$('horizon').style.display='none';updateLock();}
+let gx=0,gy=9.8,gz=0,first=true;
+function onMotion(e){
+  const a=e.accelerationIncludingGravity;if(!a||a.x==null)return;
+  let x=a.x,y=a.y,z=a.z;if(y<0){x=-x;y=-y;z=-z;}      // iOS는 부호가 반대 → 통일
+  if(first){gx=x;gy=y;gz=z;first=false;}
+  const k=.18;gx+=(x-gx)*k;gy+=(y-gy)*k;gz+=(z-gz)*k;
+  if(!S.sensor){S.sensor=true;$('pitch').style.display='';$('horizon').style.display='';$('lvl').classList.remove('off');}
+  S.roll=Math.atan2(gx,gy)*180/Math.PI;                 // + : 폰 왼쪽이 내려감
+  S.pitch=Math.atan2(gz,Math.hypot(gx,gy))*180/Math.PI; // + : 폰 윗부분이 환자 쪽으로 넘어감(렌즈가 아래를 봄)
+}
+function drawLevel(){
+  requestAnimationFrame(drawLevel);
+  if(!S.sensor||!$('cam').classList.contains('on'))return;
+  const r=S.roll,p=S.pitch,okR=Math.abs(r)<=TOL_ROLL,okP=Math.abs(p)<=TOL_PITCH;
+  $('horizon').style.transform=`rotate(${r.toFixed(2)}deg)`;
+  const pc=Math.max(-1,Math.min(1,p/15));$('pitch').firstElementChild.style.top=(50+pc*46)+'%';
+  $('pitch').classList.toggle('ok',okP);
+  const lv=okR&&okP;
+  if(lv!==S.level){S.level=lv;$('stage').classList.toggle('level',lv);updateLock();}
+  let t;
+  if(lv)t='수평 OK';
+  else if(!okP)t=p>0?`폰 윗부분을 내 쪽으로 세우세요 ${Math.abs(p).toFixed(0)}°`:`폰 윗부분을 환자 쪽으로 세우세요 ${Math.abs(p).toFixed(0)}°`;
+  else t=r>0?`왼쪽이 내려갔어요 ${Math.abs(r).toFixed(1)}°`:`오른쪽이 내려갔어요 ${Math.abs(r).toFixed(1)}°`;
+  if($('lvl').textContent!==t)$('lvl').textContent=t;
+}
+drawLevel();
+function updateLock(){$('shutter').classList.toggle('locked',S.lock&&S.sensor&&!S.level);}
+
+/* ---------- 토글 ---------- */
+$('tg-sil').onclick=e=>{S.showSil=!S.showSil;e.target.classList.toggle('on',S.showSil);renderSil(S.region.cuts[S.cut]);};
+$('tg-grid').onclick=e=>{S.showGrid=!S.showGrid;e.target.classList.toggle('on',S.showGrid);$('grid').style.display=S.showGrid?'':'none';};
+$('tg-lock').onclick=e=>{S.lock=!S.lock;e.target.classList.toggle('on',S.lock);updateLock();};
+
+/* ---------- 전 사진 겹치기 ---------- */
+$('b-ghost').onclick=()=>$('ghost-file').click();
+$('ghost-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const k=cutKey();if(S.ghosts[k])URL.revokeObjectURL(S.ghosts[k]);S.ghosts[k]=URL.createObjectURL(f);e.target.value='';applyGhost();toast('전 사진과 윤곽이 겹치도록 거리·높이를 맞추세요');};
+$('ghost-op').oninput=applyGhost;
+$('ghost-x').onclick=()=>{const k=cutKey();if(S.ghosts[k]){URL.revokeObjectURL(S.ghosts[k]);delete S.ghosts[k];}applyGhost();};
+function applyGhost(){
+  const u=S.ghosts[cutKey()],g=$('ghost');
+  g.style.display=u?'block':'none';if(u&&g.src!==u)g.src=u;g.style.opacity=$('ghost-op').value/100;
+  $('ghost-bar').classList.toggle('on',!!u);layout();
+}
+
+/* ---------- 촬영 ---------- */
+$('shutter').onclick=()=>{
+  if(S.lock&&S.sensor&&!S.level)return toast('수평을 먼저 맞춰주세요');
+  const v=$('video');if(!v.videoWidth)return toast('카메라 준비 중입니다');
+  // 화면에 보이는 3:4 영역과 똑같이 잘라서 저장
+  const vw=v.videoWidth,vh=v.videoHeight,ar=3/4;let sw=vw,sh=vw/ar;if(sh>vh){sh=vh;sw=vh*ar;}
+  const cv=document.createElement('canvas');cv.width=Math.round(sw);cv.height=Math.round(sh);
+  cv.getContext('2d').drawImage(v,(vw-sw)/2,(vh-sh)/2,sw,sh,0,0,cv.width,cv.height);
+  const r=S.region,c=r.cuts[S.cut],key=cutKey(),n=S.photos.filter(p=>p.key===key).length+1;
+  cv.toBlob(b=>{
+    if(!b)return toast('촬영 실패 — 다시 눌러주세요');
+    const clean=s=>s.replace(/[\\/:*?"<>|\s]+/g,'');
+    const d=new Date(),z=x=>String(x).padStart(2,'0');
+    const chart=clean($('f-chart').value)||'차트미입력',round=clean($('f-round').value);
+    const name=[chart,clean(r.name),clean(c.n),S.phase+(round?round+'회차':''),`${String(d.getFullYear()).slice(2)}${z(d.getMonth()+1)}${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}`].join('_')+(n>1?`_${n}`:'')+'.jpg';
+    S.photos.push({key,blob:b,url:URL.createObjectURL(b),name,label:`${r.name} · ${c.n}`});
+    refreshCounts();
+    // 첫 장을 찍었으면 다음 컷으로 자동 이동
+    if(n===1&&S.cut<r.cuts.length-1)setTimeout(()=>selectCut(S.cut+1),350);
+    else if(n===1)toast('마지막 컷까지 완료 — 확인·저장을 눌러주세요');
+  },'image/jpeg',.95);
+  const f=$('flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');
+  if(navigator.vibrate)navigator.vibrate(30);
+};
+
+/* ---------- 확인·저장 ---------- */
+$('b-roll').onclick=()=>{renderRoll();$('sh-roll').classList.add('on');};
+$('b-info').onclick=()=>{
+  const r=S.region;$('info-t').textContent=r.name;
+  $('info-kv').innerHTML=`<dt>옷</dt><dd>${r.wear}</dd><dt>필수 범위</dt><dd>${r.range}</dd><dt>컷 (${r.cuts.length})</dt><dd>${r.cuts.map(c=>c.n).join(' / ')}</dd>`;
+  $('info-list').innerHTML=r.rules.map(x=>`<li>${x}</li>`).join('');
+  $('sh-info').classList.add('on');
+};
+document.querySelectorAll('.sheet').forEach(s=>s.addEventListener('click',e=>{if(e.target===s||e.target.closest('[data-close]'))s.classList.remove('on');}));
+function renderRoll(){
+  $('roll-n').textContent=S.photos.length?`${S.photos.length}장`:'';
+  $('roll-body').innerHTML=S.photos.length?`<div class="thumbs">${S.photos.map((p,i)=>`<div class="thumb"><img src="${p.url}" alt=""><span>${p.label}</span><button data-del="${i}" aria-label="삭제">✕</button></div>`).join('')}</div>`:'<p class="empty">아직 찍은 사진이 없습니다.</p>';
+  $('b-save').disabled=!S.photos.length;
+  $('b-save').textContent=S.photos.length?`${S.photos.length}장 전체 저장`:'전체 저장';
+}
+$('roll-body').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b)return;const p=S.photos.splice(+b.dataset.del,1)[0];URL.revokeObjectURL(p.url);renderRoll();refreshCounts();});
+$('b-save').onclick=async()=>{
+  const files=S.photos.map(p=>new File([p.blob],p.name,{type:'image/jpeg'}));
+  if(navigator.canShare&&navigator.canShare({files})){
+    try{await navigator.share({files});toast('저장 완료 후 “모두 지우고 새 환자”를 눌러주세요');}
+    catch(e){if(e.name!=='AbortError')downloadAll();}
+  }else downloadAll();
+};
+function downloadAll(){S.photos.forEach((p,i)=>setTimeout(()=>{const a=document.createElement('a');a.href=p.url;a.download=p.name;document.body.appendChild(a);a.click();a.remove();},i*350));toast('다운로드 폴더에 저장합니다');}
+$('b-clear').onclick=()=>{
+  if(S.photos.length&&!confirm('찍은 사진을 모두 지웁니다. 저장은 하셨나요?'))return;
+  S.photos.forEach(p=>URL.revokeObjectURL(p.url));S.photos=[];Object.values(S.ghosts).forEach(u=>URL.revokeObjectURL(u));S.ghosts={};
+  $('f-chart').value='';$('f-round').value='';setPhase('전');
+  $('sh-roll').classList.remove('on');refreshCounts();stopCamera();show('home');
+};
+addEventListener('beforeunload',e=>{if(S.photos.length){e.preventDefault();e.returnValue='';}});
+
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2200);}
+</script>
+</body>
+</html>
