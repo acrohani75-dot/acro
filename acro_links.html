@@ -46,6 +46,38 @@
   .header-logo { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,.55); margin-bottom: 6px; }
   header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
   header p { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 4px; }
+  /* ── Acro CRM 단독 칸 (원장 260922: 맨 위에 잘 보이게) ───────────────────
+     직원이 아침에 여기부터 누르고 하루를 시작한다. 그래서 검색·칩 필터 위에,
+     다른 카드와 섞이지 않는 자리에 혼자 둔다. */
+  .crm-wrap { max-width: 680px; margin: 18px auto 4px; padding: 0 16px; }
+  @media (min-width: 900px) { .crm-wrap { max-width: 1060px; } }
+  @media (min-width: 1280px) { .crm-wrap { max-width: 1320px; } }
+  a.crm {
+    display: flex; align-items: center; gap: 16px; text-decoration: none;
+    background: linear-gradient(135deg, var(--g-dark) 0%, var(--g-mid) 100%);
+    color: var(--white); border-radius: var(--radius);
+    padding: 20px 22px; box-shadow: var(--shadow);
+    border: 1px solid rgba(255,255,255,.14);
+    transition: transform .15s, box-shadow .15s;
+  }
+  a.crm:hover { transform: translateY(-2px); box-shadow: var(--shadow-h); }
+  a.crm:focus-visible { outline: 3px solid var(--g-light); outline-offset: 3px; }
+  .crm-icon {
+    flex: none; width: 46px; height: 46px; border-radius: 12px;
+    background: rgba(255,255,255,.14); display: grid; place-items: center; font-size: 23px;
+  }
+  .crm-text { flex: 1; min-width: 0; }
+  .crm-name { font-size: 19px; font-weight: 800; letter-spacing: -.3px; line-height: 1.25; }
+  .crm-desc { font-size: 12.5px; color: rgba(255,255,255,.72); margin-top: 3px; }
+  .crm-go {
+    flex: none; font-size: 13px; font-weight: 700; padding: 8px 15px; border-radius: 999px;
+    background: var(--white); color: var(--g-dark); white-space: nowrap;
+  }
+  @media (max-width: 460px) {
+    a.crm { padding: 16px 16px; gap: 12px; }
+    .crm-name { font-size: 17px; }
+    .crm-go { display: none; }
+  }
   /* LAYOUT */
   main { max-width: 680px; margin: 0 auto; padding: 24px 16px 48px; }
   html { scroll-behavior: smooth; }
@@ -244,6 +276,16 @@
     <p>진료 · 시술 · 설문 내부 도구 모음집</p>
   </div>
 </header>
+<div class="crm-wrap">
+  <a class="crm" href="http://ACROD:8480/" target="_blank" rel="noopener">
+    <div class="crm-icon">🗂️</div>
+    <div class="crm-text">
+      <div class="crm-name">Acro CRM</div>
+      <div class="crm-desc">로그인하고 오늘 할 일 · 해피카톡 · 예약 보기 (원내에서만 열립니다)</div>
+    </div>
+    <div class="crm-go">열기 ›</div>
+  </a>
+</div>
 <div class="jump-bar">
 <nav class="jump">
   <a href="#sec-common">공통</a>
