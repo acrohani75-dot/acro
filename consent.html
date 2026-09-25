@@ -99,7 +99,7 @@ canvas.sig{width:100%;max-width:520px;height:150px;border:1.5px dashed #b8c0cc;b
 <body>
 <!-- ================= 직원 화면 ================= -->
 <div id="staffMode" class="wrap">
-  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.7</span></h1>
+  <h1>아크로한의원 동의서 스테이션 <span class="badge v" id="verBadge">v1.8</span></h1>
   <p class="lead">필요한 동의서만 체크하고 [환자 모드 시작]을 누르면, 선택한 문서만 순서대로 서명받습니다.</p>
   <div class="saveWarn" id="saveWarn">
     ⚠ 지금은 구글 드라이브에 자동 저장되지 않습니다.<br>
@@ -239,7 +239,7 @@ var FORMS = [
 본시술은 2.45GHz의 극초단파를 이용하여 피부 및 피하지방층에 작용하는 비침습적 체형 개선 시술로 시술 부위의 국소 지방, 셀룰라이트, 피부 탄력 저하를 개선하는 효과가 있습니다.</div>\
 <div class="c-block"><b class="tt">2. 시술 중·후 반응</b>\
 시술 중 피부가 붉게 변하는 홍반, 열감, 통증이 발생될 수 있으며, 의료진이 실시간으로 모니터링하며 이상 반응 발생 시 즉시 출력을 조절하거나 시술을 중단할 수 있습니다.<br><br>\
-시술 후 일시적으로 발적, 열감, 부종, 멍, 압통, 결절감 등의 반응이 나타날 수 있으며, 이는 대개 일주일 내 자연 호전됩니다.<br><br>\
+시술 후 일시적으로 발적, 열감, 부종, 멍, 압통, 결절감 등의 반응이 나타날 수 있으며, 이는 대개 일시적으로 나타나 자연 호전되지만, 개인에 따라 수 주간 지속될 수 있습니다.<br><br>\
 드물게 화상, 수포, 감각 이상, 피부염 등의 이상 반응이 발생할 수 있으며, 이 경우 냉찜질, 진정치료, 필요 시 추가 약물치료 또는 타 의료기관 연계를 통해 적절한 처치를 시행합니다.</div>\
 <div class="c-block"><b class="tt">3. 환불 규정</b>\
 이미 받은 시술은 환불이 불가하며, 패키지 결제 후 차액 환불할 경우, 패키지 변경가격 기준으로 환불합니다.<br><br>\
@@ -733,7 +733,7 @@ function refreshSaveState(){
   var on = !!CONFIG.webhookUrl;
   var b = document.getElementById("verBadge");
   if (b){
-    b.textContent = "v1.7 · 자동저장 " + (on ? "ON" : "OFF");
+    b.textContent = "v1.8 · 자동저장 " + (on ? "ON" : "OFF");
     b.className = "badge " + (on ? "v" : "d");
   }
   var w = document.getElementById("saveWarn");
