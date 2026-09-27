@@ -49,19 +49,20 @@
   /* ── Acro CRM 단독 칸 (원장 260922: 맨 위에 잘 보이게) ───────────────────
      직원이 아침에 여기부터 누르고 하루를 시작한다. 그래서 검색·칩 필터 위에,
      다른 카드와 섞이지 않는 자리에 혼자 둔다. */
-  .crm-wrap { max-width: 680px; margin: 18px auto 4px; padding: 0 16px; }
+  .crm-wrap { max-width: 680px; margin: 12px auto 6px; padding: 0 16px; }
   @media (min-width: 900px) { .crm-wrap { max-width: 1060px; } }
   @media (min-width: 1280px) { .crm-wrap { max-width: 1320px; } }
   a.crm {
     display: flex; align-items: center; gap: 16px; text-decoration: none;
-    background: linear-gradient(135deg, var(--g-dark) 0%, var(--g-mid) 100%);
+    background: linear-gradient(135deg, #E8491D 0%, #F7931E 100%);   /* [260928] 초록 페이지에서 튀도록 코랄·주황 */
     color: var(--white); border-radius: var(--radius);
     padding: 20px 22px; box-shadow: var(--shadow);
     border: 1px solid rgba(255,255,255,.14);
     transition: transform .15s, box-shadow .15s;
   }
   a.crm:hover { transform: translateY(-2px); box-shadow: var(--shadow-h); }
-  a.crm:focus-visible { outline: 3px solid var(--g-light); outline-offset: 3px; }
+  a.crm:focus-visible { outline: 3px solid #FFC08A; outline-offset: 3px; }
+  a.crm { box-shadow: 0 10px 26px -12px rgba(232,73,29,.55); }
   .crm-icon {
     flex: none; width: 46px; height: 46px; border-radius: 12px;
     background: rgba(255,255,255,.14); display: grid; place-items: center; font-size: 23px;
@@ -276,16 +277,7 @@
     <p>진료 · 시술 · 설문 내부 도구 모음집</p>
   </div>
 </header>
-<div class="crm-wrap">
-  <a class="crm" href="http://ACROD:8480/" target="_blank" rel="noopener">
-    <div class="crm-icon">🗂️</div>
-    <div class="crm-text">
-      <div class="crm-name">Acro CRM</div>
-      <div class="crm-desc">로그인하고 오늘 할 일 · 해피카톡 · 예약 보기 (원내에서만 열립니다)</div>
-    </div>
-    <div class="crm-go">열기 ›</div>
-  </a>
-</div>
+
 <div class="jump-bar">
 <nav class="jump">
   <a href="#sec-common">공통</a>
@@ -305,6 +297,16 @@
   <button type="button" class="chip" data-kw="결산">🧾 마감</button>
 </div>
 <div id="noresult" style="display:none">검색 결과가 없습니다</div>
+</div>
+<div class="crm-wrap"><!-- [260928 원장 "콘솔이 위에 메뉴처럼 있어서 — 검색창 아래로, 더 튀는 색, 초록 말고"] -->
+  <a class="crm" href="http://ACROD:8480/" target="_blank" rel="noopener">
+    <div class="crm-icon">🗂️</div>
+    <div class="crm-text">
+      <div class="crm-name">Acro CRM</div>
+      <div class="crm-desc">로그인하고 오늘 할 일 · 해피카톡 · 예약 보기 (원내에서만 열립니다)</div>
+    </div>
+    <div class="crm-go">열기 ›</div>
+  </a>
 </div>
 <main>
   <!-- ◈ 공통 ◈ -->
