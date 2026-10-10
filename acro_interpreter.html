@@ -229,8 +229,10 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
 const PROXY_URL = "https://script.google.com/macros/s/AKfycbyzJ1FiqTOYvfkdFGTLq5iHpgxiuZvzIH0qo8Q_MoCH9ZeOtKhXcuvXkp16DvWZ-JNuGQ/exec";
 /* 모델 ID는 여기 한 곳에서만 관리 — 교체 시 이 두 줄만 고치면 됨
    (2026-08-05 확인: platform.claude.com/docs/en/about-claude/models/overview) */
-const MODEL_FAST    = 'claude-haiku-4-5-20251001';   // 기본 — 빠름
-const MODEL_PRECISE = 'claude-sonnet-5';             // '정밀 번역' 체크 시. 더 정밀하게는 'claude-opus-5'
+/* [2026-10-10] 기본을 Sonnet 5 로(빠름 · 생각 끔 2~3초) — haiku 는 '허벅지 온다 40분'을 '허벅동에서 운전 40분'으로 옮겼다(실측).
+   정밀은 Sonnet 5.5 — 생각을 끄지 못해 느리다(6~8초). 예전엔 생각에 글자 수를 다 써서 답이 빈칸으로 왔다(프록시가 고침). */
+const MODEL_FAST    = 'claude-sonnet-5';             // 기본 — 빠름
+const MODEL_PRECISE = 'claude-sonnet-5-5';           // '정밀 번역' 체크 시
 /* 무전 → GAS 프록시 경유 Slack 전송 (웹훅 URL은 스크립트 속성 SLACK_WEBHOOK_URL에 보관) */
 /* 발신자 이름: 각자 폰에서 최초 1회 입력, 기기에 저장 (설정 ⚙에서 변경 가능) */
 let radioName = '';
@@ -242,7 +244,9 @@ const LANGS = {
   taiwanese: { name:'繁體中文', flag:'🇹🇼', code:'zh-TW', eng:'Traditional Chinese', idle:'按住說話' },
   thai:      { name:'ภาษาไทย', flag:'🇹🇭', code:'th-TH', eng:'Thai',                idle:'กดค้างเพื่อพูด' },
 };
+/* [2026-10-10 원장 "대만하는데 일본어 나오고"] 열 때마다 일본어로 시작했다 — 마지막에 고른 언어를 이 기기에 기억한다 */
 let curLang = 'japanese';
+try { const _l = localStorage.getItem('acro_interp_lang'); if (_l && LANGS[_l]) curLang = _l; } catch(e){}
 let history = [];           // {id, lang, ko, tgt, stage:'stt'|'tr'|'done'|'err', side}
 let autoSpeak = true, useOpus = false, slackLog = false;
 let ttsId = null;
@@ -342,9 +346,18 @@ async function processSpeech(side, blob, toastOnEmpty){
   history.push(entry); renderChat();
   try{
     const b64 = await blobToB64(blob);
-    const langHint = side === 'ko' ? 'Korean' : LANGS[entry.lang].eng;
+    /* [2026-10-10] 환자 쪽은 언어를 강제하지 않는다(auto) — 탭이 일본어인 채로 대만 환자가 말하면 중국어가 일본어로 적혔다 */
+    const langHint = side === 'ko' ? 'Korean' : 'auto';
     const data = await callProxy({ action:'stt', audio:b64, mimeType: blob.type.split(';')[0], lang: langHint });
     let text = (data.text || '').trim();
+    if (side !== 'ko' && text){
+      const det = detectLang(text);
+      if (det === 'korean'){ side = 'ko'; entry.side = 'ko'; text = fixTerms(text); }   // 환자 쪽 버튼으로 한국어를 말함 → 한국어 → 환자 언어
+      else if (det && det !== entry.lang){
+        entry.lang = det;
+        if (det !== curLang){ switchLang(det, true); toast('환자 말이 ' + LANGS[det].name + '(으)로 들려 언어를 바꿨어요'); }
+      }
+    }
     if (side === 'ko') text = fixTerms(text);
     if (!text) {
       history = history.filter(h => h.id !== entry.id); renderChat();
@@ -373,6 +386,17 @@ async function processSpeech(side, blob, toastOnEmpty){
     entry.errMsg = '인식 실패: ' + err.message;
     renderChat();
   }
+}
+/* [2026-10-10] 받아쓴 글의 글자로 언어를 가른다 — 가나 → 일본어 · 태국 글자 → 태국어 · 한글 → 한국어 · 한자만 → 중국어(지금 탭이 간체면 간체, 아니면 번체) · 로마자 → 영어 */
+function detectLang(t){
+  const s = String(t || '');
+  if (/[\u3040-\u30ff]/.test(s)) return 'japanese';
+  if (/[\u0e00-\u0e7f]/.test(s)) return 'thai';
+  const ko = (s.match(/[\uac00-\ud7a3]/g) || []).length, han = (s.match(/[\u4e00-\u9fff]/g) || []).length, lat = (s.match(/[A-Za-z]/g) || []).length;
+  if (ko && ko >= han) return 'korean';
+  if (han) return curLang === 'chinese' ? 'chinese' : 'taiwanese';
+  if (lat >= 3) return 'english';
+  return '';
 }
 /* 자주 틀리는 용어 자동 교정 (한국어 STT 결과) */
 const TERM_FIX = [
@@ -625,6 +649,8 @@ STRICT RULES:
 - Do NOT add, omit, explain, or answer anything. If the text is a question, translate the question (do not answer it).
 - Preserve numbers, units, dosage, body parts, and medical terms exactly.
 - Keep the same sentence structure and tone as closely as the target language allows.
+- Clinic terms: 온다/ONDA = "ONDA" (a lifting device brand — keep the name ONDA, never translate it as a word), 허벅지 = thigh, 지방분해주사 = fat-dissolving (lipolysis) injection, 한약 = Korean herbal medicine (Traditional Chinese: 韓藥), 추나 = Chuna therapy, 아크로컷 = Acro Cut, 인바디 = InBody, 마운자로 = Mounjaro, 위고비 = Wegovy, 초진 = first visit, 재진 = follow-up visit.
+- Traditional Chinese means Taiwan usage (Taiwan wording and characters).
 - Output ONLY the translation. No quotes, no notes, no labels.
 TEXT:
 ${text}`;
@@ -664,6 +690,7 @@ function sendFromTa(){
   if (!text) return;
   ta.value = '';
   const isKorean = /[가-힣]/.test(text);
+  if (!isKorean){ const det = detectLang(text); if (det && det !== 'korean' && det !== curLang){ switchLang(det, true); toast('환자 글이 ' + LANGS[det].name + '(으)로 보여 언어를 바꿨어요'); } }   // [2026-10-10]
   const entry = { id: Date.now(), lang: curLang, side: isKorean ? 'ko' : 'tg', stage:'tr' };
   if (isKorean) entry.ko = text; else entry.tgt = text;
   history.push(entry); renderChat();
@@ -774,9 +801,10 @@ function buildLangs(){
     box.appendChild(b);
   });
 }
-function switchLang(key){
-  contStop(false);
+function switchLang(key, keepCont){
+  if (!keepCont) contStop(false);
   curLang = key;
+  try { localStorage.setItem('acro_interp_lang', key); } catch(e){}
   buildLangs();
   document.getElementById('name-tg').textContent = LANGS[key].name;
   document.getElementById('sub-tg').textContent = LANGS[key].idle;
