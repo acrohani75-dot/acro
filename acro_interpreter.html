@@ -179,7 +179,7 @@ header{flex-shrink:0; background:var(--paper); border-bottom:1px solid var(--lin
     </div>
   </div>
   <div class="settings" id="settings">
-    <label class="opt"><input type="checkbox" id="chkSpeak" checked onchange="autoSpeak=this.checked"> 자동 음성</label>
+    <label class="opt"><input type="checkbox" id="chkSpeak" onchange="autoSpeak=this.checked"> 자동 음성</label>
     <label class="opt"><input type="checkbox" id="chkOpus" onchange="useOpus=this.checked"> 정밀 번역</label>
     <label class="opt"><input type="checkbox" id="chkSlack" onchange="slackLog=this.checked"> Slack 기록</label>
     <button class="btn-clear" onclick="openNameModal()" style="margin-left:0">발신자 변경</button>
@@ -248,7 +248,7 @@ const LANGS = {
 let curLang = 'japanese';
 try { const _l = localStorage.getItem('acro_interp_lang'); if (_l && LANGS[_l]) curLang = _l; } catch(e){}
 let history = [];           // {id, lang, ko, tgt, stage:'stt'|'tr'|'done'|'err', side}
-let autoSpeak = true, useOpus = false, slackLog = false;
+let autoSpeak = false, useOpus = false, slackLog = false;   // [2026-10-10 원장 "기본적으로 음성 나가지 않게"] 소리는 🔊 를 누를 때만
 let ttsId = null;
 /* ================= 연속 통역 설정 (필요시 여기서 조절) ================= */
 const CONT = {
