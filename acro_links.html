@@ -70,6 +70,8 @@
   .crm-text { flex: 1; min-width: 0; }
   .crm-name { font-size: 19px; font-weight: 800; letter-spacing: -.3px; line-height: 1.25; }
   .crm-desc { font-size: 12.5px; color: rgba(255,255,255,.72); margin-top: 3px; }
+  /* [261011 원장 "CRM 이라고 되어 있는 거 아크로드 입장 이런 식으로 멋지게"] */
+  .crm-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: 1.2px; vertical-align: 3px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); }
   .crm-go {
     flex: none; font-size: 13px; font-weight: 700; padding: 8px 15px; border-radius: 999px;
     background: var(--white); color: var(--g-dark); white-space: nowrap;
@@ -300,12 +302,12 @@
 </div>
 <div class="crm-wrap"><!-- [260928 원장 "콘솔이 위에 메뉴처럼 있어서 — 검색창 아래로, 더 튀는 색, 초록 말고"] -->
   <a class="crm" href="http://ACROD:8480/" target="_blank" rel="noopener">
-    <div class="crm-icon">🗂️</div>
+    <div class="crm-icon">🌿</div>
     <div class="crm-text">
-      <div class="crm-name">Acro CRM</div>
-      <div class="crm-desc">로그인하고 오늘 할 일 · 해피카톡 · 예약 보기 (원내에서만 열립니다)</div>
+      <div class="crm-name">아크로드 입장 <span class="crm-tag">ACROD</span></div>
+      <div class="crm-desc">오늘 할 일 · 예약표 · 채팅상담 · 결산 — 원내에서만 열립니다</div>
     </div>
-    <div class="crm-go">열기 ›</div>
+    <div class="crm-go">입장 ›</div>
   </a>
 </div>
 <main>
