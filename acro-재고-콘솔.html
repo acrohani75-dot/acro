@@ -544,7 +544,7 @@ function(){
     '<div class="hint">다르면 아래에 직접 붙여넣으세요 — 붙여넣은 값이 우선합니다.</div></div>' : '';
   return headerHtml()+wizProg()+
   '<div class="talk">1/5 · <b>슬랙과 대조합니다.</b>'+(auto?'':' 오늘 #결산_약재입출고의 출고 메시지를 전부 복사해 붙여넣어 주세요.')+'</div>'+auto+
-  '<div class="card"><textarea id="slackIn" placeholder="예)&#10;출-편1 디캡1(10462임진희)&#10;출-수2 (상담)&#10;출-반과6(19807천서희)"></textarea>'+
+  '<div class="card"><textarea id="slackIn" placeholder="예)&#10;출-편1 디캡1(00000홍길동)&#10;출-수2 (상담)&#10;출-반과6(00000홍길동)"></textarea>'+
   '<div class="btn-row"><button class="btn" onclick="W.step=0;drawWiz()">←</button><button class="btn" onclick="W.slack=null;W.step=2;drawWiz()">건너뛰기</button><button class="btn btn-p" onclick="parseSlackPaste()">다음 →</button></div></div>';
 },
 function(){
