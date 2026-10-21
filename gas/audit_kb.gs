@@ -25,8 +25,15 @@ function acdAudit() {
   try {
     var report = acdAuditRun_();
     if (report.lines.length) {
+      // ⚠ 260824 추가 — 어긋남 목록만 나열하니 "매일 뜨는 그거"가 되어 19일간 묻혔다.
+      //   진짜 신호(빌드 정지)는 목록이 아니라 머리글에 있어야 한다.
       var head = report.leak ? '🚨 야간 감사 — **공개 리포에 민감정보**' :
                                '🌙 야간 드리프트 감사 — 어긋남 ' + report.total + '건';
+      if (report.staleBuild) {
+        head = '🛑 *빌드가 멈춰 있다* — qa374 ' + report.staleBuild.pub + '건 ≠ 정본 확정 ' +
+          report.staleBuild.canon + '건. 정본에 등재한 내용이 시트·환자 대면 산출물에 반영되지 않는다.\n' +
+          '  → GAS에서 `acdBuildAll()` 1회 실행. 반복되면 트리거 확인(`acdBuildInstall()`).\n' + head;
+      }
       var body = report.lines.slice(0, AUD_CFG.MAX_LINES).join('\n');
       if (report.total > AUD_CFG.MAX_LINES) body += '\n… 외 ' + (report.total - AUD_CFG.MAX_LINES) + '건';
       acdSlack_(head + '\n' + body + '\n_정본 `' + report.canonName + '` · 확정 ' + report.confirmed + '건 기준_');
@@ -61,6 +68,7 @@ var acdAuditLastFailed_ = false;
 
 /** 본체 — 읽기 전용 */
 function acdAuditRun_() {
+  var staleBuild = null;      // 빌드 정지 판정용. qa374 건수가 정본과 다르면 채워진다.
   acdAuditLastFailed_ = true;
   var base = acdSelfCheck_(true);                          // quiet=true: 정본 후보 다수 경고는 빌드 때만
   var parsed = acdParseCanon_(base.text);
@@ -129,6 +137,7 @@ function acdAuditRun_() {
       (pub.items || []).forEach(function (o) { if (o.id) pubMap[o.id] = o; });
 
       if ((pub.items || []).length !== confirmed.length) {
+        staleBuild = { pub: (pub.items || []).length, canon: confirmed.length };
         lines.push('[qa374] 건수 ' + (pub.items || []).length + ' ≠ 정본 확정 ' + confirmed.length +
           ' — 빌드가 아직 안 돌았거나 손 수정이 끼었다');
       }
@@ -148,7 +157,8 @@ function acdAuditRun_() {
   acdAuditLastFailed_ = false;
   return {
     lines: lines.slice(0), total: lines.length, leak: leak,
-    canonName: base.fileName, confirmed: confirmed.length
+    canonName: base.fileName, confirmed: confirmed.length,
+    staleBuild: staleBuild            // 빌드가 멈춘 정황 (qa374 건수 ≠ 정본 확정)
   };
 }
 
